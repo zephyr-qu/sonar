@@ -80,6 +80,10 @@ pub struct RsStoredDevice {
     /// Whether the device's download API is active.
     pub download: bool,
 
+    /// Round-trip time of the register request that last confirmed the device,
+    /// in milliseconds. `None` when it was not measured.
+    pub rtt_ms: Option<u64>,
+
     /// Every address the device was confirmed on, best first (available
     /// before not-reachable, IPv6 before IPv4, most recently confirmed
     /// first). Never empty: a device only enters the store through a
@@ -266,9 +270,7 @@ impl RsDiscovery {
                     DiscoveryEvent::Discovered { device } | DiscoveryEvent::Updated { device },
                 ) => device,
                 Some(DiscoveryEvent::MulticastFailed) => {
-                    tracing::error!(
-                        "Multicast sockets failed, ending the discovery event stream"
-                    );
+                    tracing::error!("Multicast sockets failed, ending the discovery event stream");
                     break;
                 }
                 None => break,
@@ -408,6 +410,7 @@ impl RsDiscovery {
                     protocol: device.protocol,
                 }),
                 download: device.download,
+                rtt_ms: None,
             })
             .await;
     }
@@ -478,6 +481,7 @@ fn rs_stored_device(stored: StatefulDevice) -> RsStoredDevice {
         device_type: device.device_type,
         fingerprint: device.fingerprint,
         download: device.download,
+        rtt_ms: device.rtt_ms,
         channels,
     }
 }

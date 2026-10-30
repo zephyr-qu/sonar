@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:localsend_app/config/theme.dart';
 import 'package:localsend_app/gen/strings.g.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_dialog.dart';
 import 'package:nanoid2/nanoid2.dart';
 import 'package:routerino/routerino.dart';
 
@@ -33,7 +35,7 @@ class _PinDialogState extends State<PinDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return LsDialog(
       title: Text(t.dialogs.pin.title),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -55,13 +57,14 @@ class _PinDialogState extends State<PinDialog> {
         ],
       ),
       actions: [
-        TextButton(
+        LsButton(
+          label: t.general.cancel,
+          variant: LsButtonVariant.ghost,
           onPressed: () => context.pop(),
-          child: Text(t.general.cancel),
         ),
-        FilledButton(
+        LsButton(
+          label: t.general.confirm,
           onPressed: () => context.pop(_textController.text),
-          child: Text(t.general.confirm),
         ),
       ],
     );

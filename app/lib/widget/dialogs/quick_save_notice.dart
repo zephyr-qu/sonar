@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/util/native/platform_check.dart';
 import 'package:localsend_app/widget/dialogs/custom_bottom_sheet.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_dialog.dart';
 import 'package:routerino/routerino.dart';
 
 class QuickSaveNotice extends StatelessWidget {
@@ -11,13 +13,13 @@ class QuickSaveNotice extends StatelessWidget {
     if (checkPlatformIsDesktop()) {
       await showDialog(
         context: context,
-        builder: (_) => AlertDialog(
+        builder: (_) => LsDialog(
           title: Text(t.dialogs.quickSaveNotice.title),
           content: Text(t.dialogs.quickSaveNotice.content),
           actions: [
-            TextButton(
+            LsButton(
+              label: t.general.close,
               onPressed: () => context.pop(),
-              child: Text(t.general.close),
             ),
           ],
         ),
@@ -33,9 +35,9 @@ class QuickSaveNotice extends StatelessWidget {
       title: t.dialogs.quickSaveNotice.title,
       description: t.dialogs.quickSaveNotice.content,
       child: Center(
-        child: ElevatedButton(
+        child: LsButton(
+          label: t.general.close,
           onPressed: () => context.popUntilRoot(),
-          child: Text(t.general.close),
         ),
       ),
     );

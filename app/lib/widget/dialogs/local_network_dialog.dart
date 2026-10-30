@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/widget/dialogs/custom_bottom_sheet.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:routerino/routerino.dart';
 import 'package:system_settings_2/system_settings_2.dart';
 
@@ -15,14 +17,15 @@ class LocalNetworkDialog extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          TextButton(
+          LsButton(
+            label: t.general.close,
+            variant: LsButtonVariant.ghost,
             onPressed: () => context.pop(),
-            child: Text(t.general.close),
           ),
-          ElevatedButton.icon(
+          LsButton(
+            label: t.dialogs.localNetworkUnauthorized.gotoSettings,
+            icon: LucideIcons.settings,
             onPressed: () async => SystemSettings.app(),
-            icon: const Icon(Icons.settings),
-            label: Text(t.dialogs.localNetworkUnauthorized.gotoSettings),
           ),
         ],
       ),

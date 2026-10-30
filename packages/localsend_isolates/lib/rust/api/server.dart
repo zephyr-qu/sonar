@@ -210,6 +210,15 @@ sealed class RsServerEvent with _$RsServerEvent {
   const factory RsServerEvent.sessionEnd({
     required String sessionId,
     required SessionEndReasonV2 reason,
+
+    /// Files whose sender-provided SHA-256 was verified and matched.
+    required int checksumVerified,
+
+    /// Files that arrived without a usable checksum.
+    required int checksumUnchecked,
+
+    /// Files that failed (including checksum mismatches).
+    required int checksumFailed,
   }) = RsServerEvent_SessionEnd;
 
   /// A prepare-upload request was aborted before a session was created,

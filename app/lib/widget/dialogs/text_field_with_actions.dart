@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:localsend_app/config/theme.dart';
 import 'package:localsend_app/gen/strings.g.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_dialog.dart';
 import 'package:routerino/routerino.dart';
 
 /// A [AlertDialog] on all devices.
@@ -35,7 +37,7 @@ class _TextFieldWithActionsState extends State<TextFieldWithActions> {
         await showDialog(
           context: context,
           builder: (context) {
-            return AlertDialog(
+            return LsDialog(
               title: Text(widget.name),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -56,13 +58,9 @@ class _TextFieldWithActionsState extends State<TextFieldWithActions> {
                 ],
               ),
               actions: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                  ),
+                LsButton(
+                  label: t.general.confirm,
                   onPressed: () => context.pop(),
-                  child: Text(t.general.confirm),
                 ),
               ],
             );

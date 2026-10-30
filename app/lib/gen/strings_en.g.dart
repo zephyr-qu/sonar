@@ -50,6 +50,10 @@ class Translations with BaseTranslations<AppLocale, Translations> {
   late final Translations$receiveTab$en receiveTab = Translations$receiveTab$en.internal(_root);
   late final Translations$sendTab$en sendTab = Translations$sendTab$en.internal(_root);
   late final Translations$settingsTab$en settingsTab = Translations$settingsTab$en.internal(_root);
+  late final Translations$nearbyTab$en nearbyTab = Translations$nearbyTab$en.internal(_root);
+  late final Translations$transferTab$en transferTab = Translations$transferTab$en.internal(_root);
+  late final Translations$settingsPage$en settingsPage = Translations$settingsPage$en.internal(_root);
+  late final Translations$receiveRequestPage$en receiveRequestPage = Translations$receiveRequestPage$en.internal(_root);
   late final Translations$troubleshootPage$en troubleshootPage = Translations$troubleshootPage$en.internal(_root);
   late final Translations$networkInterfacesPage$en networkInterfacesPage = Translations$networkInterfacesPage$en.internal(_root);
   late final Translations$receiveHistoryPage$en receiveHistoryPage = Translations$receiveHistoryPage$en.internal(_root);
@@ -281,6 +285,431 @@ class Translations$settingsTab$en {
   String get advancedSettings => 'Advanced settings';
 }
 
+// Path: nearbyTab
+class Translations$nearbyTab$en {
+  Translations$nearbyTab$en.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Nearby'
+  String get title => 'Nearby';
+
+  /// en: 'Visible'
+  String get visible => 'Visible';
+
+  /// en: 'Hidden'
+  String get hidden => 'Hidden';
+
+  /// en: 'Hide from this network'
+  String get hide => 'Hide from this network';
+
+  /// en: 'Be visible to this network'
+  String get show => 'Be visible to this network';
+
+  /// en: '{online} online · {total} discovered'
+  String online({required Object online, required Object total}) => '${online} online · ${total} discovered';
+
+  /// en: 'online · {total} discovered'
+  String onlineSuffix({required Object total}) => 'online · ${total} discovered';
+
+  /// en: 'Scan again'
+  String get scan => 'Scan again';
+
+  /// en: 'Receive via link'
+  String get linkReceive => 'Receive via link';
+
+  /// en: 'Manual IP'
+  String get manualIp => 'Manual IP';
+
+  /// en: 'Search device name or IP'
+  String get search => 'Search device name or IP';
+
+  /// en: 'All'
+  String get filterAll => 'All';
+
+  /// en: 'Online'
+  String get filterOnline => 'Online';
+
+  /// en: 'Favorites'
+  String get filterFavorites => 'Favorites';
+
+  /// en: 'Select'
+  String get multi => 'Select';
+
+  /// en: 'Selecting'
+  String get multiActive => 'Selecting';
+
+  /// en: '{n} selected'
+  String selected({required Object n}) => '${n} selected';
+
+  /// en: 'Choose target devices'
+  String get selectTarget => 'Choose target devices';
+
+  /// en: 'Send'
+  String get send => 'Send';
+
+  /// en: 'To send · {files} · {size}'
+  String pending({required Object files, required Object size}) => 'To send · ${files} · ${size}';
+
+  /// en: 'Add file'
+  String get addFile => 'Add file';
+
+  /// en: 'Expand'
+  String get expand => 'Expand';
+
+  /// en: 'Collapse'
+  String get collapse => 'Collapse';
+
+  /// en: 'Clear'
+  String get clear => 'Clear';
+
+  /// en: 'Favorites'
+  String get favorites => 'Favorites';
+
+  /// en: 'Online'
+  String get onlineSection => 'Online';
+
+  /// en: 'Offline'
+  String get offlineSection => 'Offline';
+
+  /// en: 'Offline'
+  String get offline => 'Offline';
+
+  /// en: 'This device is offline'
+  String get offlineHint => 'This device is offline';
+
+  /// en: 'No matching online devices'
+  String get noOnlineMatch => 'No matching online devices';
+
+  /// en: 'No devices found yet. Make sure the other device is on the same network.'
+  String get noDevices => 'No devices found yet. Make sure the other device is on the same network.';
+
+  /// en: '{shown} of {total} shown'
+  String radarHidden({required Object shown, required Object total}) => '${shown} of ${total} shown';
+
+  /// en: 'Added to favorites'
+  String get favorited => 'Added to favorites';
+
+  /// en: 'Removed from favorites'
+  String get unfavorited => 'Removed from favorites';
+
+  /// en: 'Visible to this network'
+  String get visibleToast => 'Visible to this network';
+
+  /// en: 'Hidden · only link reception works'
+  String get hiddenToast => 'Hidden · only link reception works';
+
+  /// en: 'No files selected'
+  String get filesEmpty => 'No files selected';
+
+  /// en: 'Tray'
+  String get tray => 'Tray';
+
+  /// en: 'In progress'
+  String get inProgress => 'In progress';
+
+  /// en: 'Receive policy'
+  String get receivePolicy => 'Receive policy';
+
+  /// en: 'Encryption & PIN'
+  String get securitySettings => 'Encryption & PIN';
+
+  /// en: 'Drop files here'
+  String get dropHere => 'Drop files here';
+
+  /// en: 'or click to choose files / folders'
+  String get dropHint => 'or click to choose files / folders';
+
+  /// en: 'Pick a device card, then confirm in the tray'
+  String get desktopHint => 'Pick a device card, then confirm in the tray';
+
+  /// en: '{online} online'
+  String desktopLede({required Object online}) => '${online} online';
+
+  /// en: 'Drop files into the tray on the right to start'
+  String get dragHint => 'Drop files into the tray on the right to start';
+
+  /// en: 'just now'
+  String get justNow => 'just now';
+
+  /// en: '{n} min ago'
+  String minutesAgo({required Object n}) => '${n} min ago';
+
+  /// en: '{n} h ago'
+  String hoursAgo({required Object n}) => '${n} h ago';
+
+  /// en: '{n} d ago'
+  String daysAgo({required Object n}) => '${n} d ago';
+}
+
+// Path: transferTab
+class Translations$transferTab$en {
+  Translations$transferTab$en.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Transfers'
+  String get title => 'Transfers';
+
+  /// en: '{n} active'
+  String inProgress({required Object n}) => '${n} active';
+
+  /// en: '{n} in history'
+  String historyCount({required Object n}) => '${n} in history';
+
+  /// en: 'NO ACTIVE TRANSFER'
+  String get noActive => 'NO ACTIVE TRANSFER';
+
+  /// en: 'Pick a device in Nearby to start, or accept an incoming request.'
+  String get noActiveHint => 'Pick a device in Nearby to start, or accept an incoming request.';
+
+  /// en: 'Recent transfers'
+  String get recent => 'Recent transfers';
+
+  /// en: 'Sending to {device}'
+  String sending({required Object device}) => 'Sending to ${device}';
+
+  /// en: 'Receiving from {device}'
+  String receiving({required Object device}) => 'Receiving from ${device}';
+
+  /// en: 'Sent to {device}'
+  String sentTo({required Object device}) => 'Sent to ${device}';
+
+  /// en: 'Received from {device}'
+  String receivedFrom({required Object device}) => 'Received from ${device}';
+
+  /// en: 'Cancel transfer'
+  String get cancel => 'Cancel transfer';
+
+  /// en: 'Open folder'
+  String get openFolder => 'Open folder';
+
+  /// en: 'Done'
+  String get done => _root.general.done;
+
+  /// en: 'Verified'
+  String get verified => 'Verified';
+
+  /// en: 'Verified {verified}/{total}'
+  String verifiedCount({required Object verified, required Object total}) => 'Verified ${verified}/${total}';
+
+  /// en: '{time} left'
+  String remaining({required Object time}) => '${time} left';
+
+  /// en: '{speed} MB/s'
+  String speed({required Object speed}) => '${speed} MB/s';
+
+  /// en: '{n} items'
+  String items({required Object n}) => '${n} items';
+
+  /// en: 'No transfers yet'
+  String get noHistory => 'No transfers yet';
+}
+
+// Path: settingsPage
+class Translations$settingsPage$en {
+  Translations$settingsPage$en.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Search {count} settings'
+  String search({required Object count}) => 'Search ${count} settings';
+
+  /// en: 'No settings match "{query}"'
+  String noResults({required Object query}) => 'No settings match "${query}"';
+
+  /// en: '{n} items'
+  String items({required Object n}) => '${n} items';
+
+  /// en: '{n} groups'
+  String groups({required Object n}) => '${n} groups';
+
+  /// en: 'Visibility'
+  String get groupVisibility => 'Visibility';
+
+  /// en: 'Alias · device type · visibility'
+  String get groupVisibilitySummary => 'Alias · device type · visibility';
+
+  /// en: 'Receiving'
+  String get groupReceive => 'Receiving';
+
+  /// en: 'Destination · quick save · PIN'
+  String get groupReceiveSummary => 'Destination · quick save · PIN';
+
+  /// en: 'Security & transfer'
+  String get groupSecurity => 'Security & transfer';
+
+  /// en: 'Encryption · checksums'
+  String get groupSecuritySummary => 'Encryption · checksums';
+
+  /// en: 'Appearance'
+  String get groupAppearance => 'Appearance';
+
+  /// en: 'Theme · color · language · layout'
+  String get groupAppearanceSummary => 'Theme · color · language · layout';
+
+  /// en: 'Advanced'
+  String get groupAdvanced => 'Advanced';
+
+  /// en: 'Port · multicast · network · debug'
+  String get groupAdvancedSummary => 'Port · multicast · network · debug';
+
+  /// en: 'Visible to this network'
+  String get visibleToNetwork => 'Visible to this network';
+
+  /// en: 'Turn off to receive only via link'
+  String get visibleToNetworkDesc => 'Turn off to receive only via link';
+
+  /// en: 'Nearby layout'
+  String get nearbyLayout => 'Nearby layout';
+
+  /// en: 'Grid: search and a two-column device grid. Radar: devices orbit the radar, files below.'
+  String get nearbyLayoutDesc => 'Grid: search and a two-column device grid. Radar: devices orbit the radar, files below.';
+
+  /// en: 'Grid'
+  String get nearbyLayoutGrid => 'Grid';
+
+  /// en: 'Radar'
+  String get nearbyLayoutRadar => 'Radar';
+
+  /// en: 'Debug & logs'
+  String get debug => 'Debug & logs';
+
+  /// en: 'Off'
+  String get quickSaveOff => 'Off';
+
+  /// en: 'Favorites only'
+  String get quickSaveFavorites => 'Favorites only';
+
+  /// en: 'All devices'
+  String get quickSaveAll => 'All devices';
+
+  /// en: 'Requests from the selected devices are accepted without asking'
+  String get quickSaveDesc => 'Requests from the selected devices are accepted without asking';
+
+  /// en: 'Accent color'
+  String get accentColor => 'Accent color';
+
+  /// en: 'Discovery'
+  String get discoveryMode => 'Discovery';
+
+  /// en: 'Multicast finds devices instantly, a subnet scan covers networks where multicast is blocked'
+  String get discoveryModeDesc => 'Multicast finds devices instantly, a subnet scan covers networks where multicast is blocked';
+
+  /// en: 'Multicast + scan'
+  String get discoveryModeValue => 'Multicast + scan';
+
+  /// en: 'Devices & visibility'
+  String get groupDevice => 'Devices & visibility';
+
+  /// en: 'Receiving & saving'
+  String get groupReceiveSection => 'Receiving & saving';
+
+  /// en: 'Security & sharing'
+  String get groupSecuritySection => 'Security & sharing';
+
+  /// en: 'Appearance & language'
+  String get groupAppearanceSection => 'Appearance & language';
+
+  /// en: 'Network & server'
+  String get groupNetworkSection => 'Network & server';
+
+  /// en: 'Desktop & window'
+  String get groupDesktopSection => 'Desktop & window';
+
+  /// en: 'Checksums'
+  String get checksums => 'Checksums';
+
+  /// en: '{n} results'
+  String results({required Object n}) => '${n} results';
+
+  /// en: 'Search settings'
+  String get searchHint => 'Search settings';
+
+  /// en: '{n} settings'
+  String totalItems({required Object n}) => '${n} settings';
+}
+
+// Path: receiveRequestPage
+class Translations$receiveRequestPage$en {
+  Translations$receiveRequestPage$en.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Incoming request'
+  String get title => 'Incoming request';
+
+  /// en: 'Quick save · accept automatically'
+  String get policyQuickSave => 'Quick save · accept automatically';
+
+  /// en: 'Favorites are accepted automatically'
+  String get policyQuickSaveFavorites => 'Favorites are accepted automatically';
+
+  /// en: 'Ask for every request'
+  String get policyAsk => 'Ask for every request';
+
+  /// en: 'Encrypted'
+  String get secure => 'Encrypted';
+
+  /// en: 'Unencrypted'
+  String get plain => 'Unencrypted';
+
+  /// en: 'Protocol {version}'
+  String protocol({required Object version}) => 'Protocol ${version}';
+
+  /// en: '(one) {{n} file} (other) {{n} files}'
+  String filesCount({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(
+    n,
+    one: '${n} file',
+    other: '${n} files',
+  );
+
+  /// en: 'Save to'
+  String get saveTo => 'Save to';
+
+  /// en: 'Change'
+  String get change => 'Change';
+
+  /// en: 'Connection'
+  String get connection => 'Connection';
+
+  /// en: 'Device fingerprint'
+  String get fingerprint => 'Device fingerprint';
+
+  /// en: 'SHA-256 · should match the previous session'
+  String get fingerprintDesc => 'SHA-256 · should match the previous session';
+
+  /// en: 'Channel'
+  String get channel => 'Channel';
+
+  /// en: 'v2 HTTP · mutual TLS'
+  String get channelTls => 'v2 HTTP · mutual TLS';
+
+  /// en: 'v2 HTTP · no encryption'
+  String get channelPlain => 'v2 HTTP · no encryption';
+
+  /// en: 'Same local network'
+  String get sameNetwork => 'Same local network';
+
+  /// en: '(one) {Receive {n} item} (other) {Receive {n} items}'
+  String acceptFiles({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(
+    n,
+    one: 'Receive ${n} item',
+    other: 'Receive ${n} items',
+  );
+
+  /// en: 'Decline'
+  String get reject => _root.general.decline;
+}
+
 // Path: troubleshootPage
 class Translations$troubleshootPage$en {
   Translations$troubleshootPage$en.internal(this._root);
@@ -382,6 +811,9 @@ class Translations$selectedFilesPage$en {
   final Translations _root; // ignore: unused_field
 
   // Translations
+
+  /// en: 'Selected files'
+  String get title => 'Selected files';
 
   /// en: 'Delete all'
   String get deleteAll => 'Delete all';
@@ -573,6 +1005,12 @@ class Translations$webSharePage$en {
 
   /// en: 'Pending requests: {n}'
   String pendingRequests({required Object n}) => 'Pending requests: ${n}';
+
+  /// en: 'Copy link'
+  String get copyLink => 'Copy link';
+
+  /// en: 'The link stops working once every file has been downloaded'
+  String get expiresHint => 'The link stops working once every file has been downloaded';
 }
 
 // Path: webReceivePage
@@ -1064,8 +1502,8 @@ class Translations$settingsTab$general$en {
     _root,
   );
 
-  /// en: 'Color'
-  String get color => 'Color';
+  /// en: 'Palette'
+  String get color => 'Palette';
 
   late final Translations$settingsTab$general$colorOptions$en colorOptions = Translations$settingsTab$general$colorOptions$en.internal(_root);
 
@@ -1088,17 +1526,17 @@ class Translations$settingsTab$general$en {
   /// en: 'Not supported on Wayland'
   String get alwaysOnTopUnavailable => 'Not supported on Wayland';
 
-  /// en: 'Minimize to the System Tray/Menu Bar when closing'
-  String get minimizeToTray => 'Minimize to the System Tray/Menu Bar when closing';
+  /// en: 'Minimize to tray on close'
+  String get minimizeToTray => 'Minimize to tray on close';
 
-  /// en: 'Autostart after login'
-  String get launchAtStartup => 'Autostart after login';
+  /// en: 'Launch at login'
+  String get launchAtStartup => 'Launch at login';
 
   /// en: 'Autostart: Start hidden'
   String get launchMinimized => 'Autostart: Start hidden';
 
-  /// en: 'Show LocalSend in context menu'
-  String get showInContextMenu => 'Show LocalSend in context menu';
+  /// en: 'Show in “Send to” menu'
+  String get showInContextMenu => 'Show in “Send to” menu';
 
   /// en: 'Animations'
   String get animations => 'Animations';
@@ -1124,14 +1562,14 @@ class Translations$settingsTab$receive$en {
   /// en: 'Require PIN'
   String get requirePin => _root.webSharePage.requirePin;
 
-  /// en: 'Auto Finish'
-  String get autoFinish => 'Auto Finish';
+  /// en: 'Close session when finished'
+  String get autoFinish => 'Close session when finished';
 
   /// en: 'Save to folder'
   String get destination => 'Save to folder';
 
-  /// en: '(Downloads)'
-  String get downloads => '(Downloads)';
+  /// en: 'Downloads'
+  String get downloads => 'Downloads';
 
   /// en: 'Save media to gallery'
   String get saveToGallery => 'Save media to gallery';
@@ -1139,8 +1577,8 @@ class Translations$settingsTab$receive$en {
   /// en: 'Save to history'
   String get saveToHistory => 'Save to history';
 
-  /// en: 'Verify checksums when receiving files'
-  String get verifyChecksums => 'Verify checksums when receiving files';
+  /// en: 'Verify checksums on receive'
+  String get verifyChecksums => 'Verify checksums on receive';
 }
 
 // Path: settingsTab.send
@@ -1154,11 +1592,11 @@ class Translations$settingsTab$send$en {
   /// en: 'Send'
   String get title => 'Send';
 
-  /// en: 'Automatically accept requests in "Share via link" mode'
-  String get shareViaLinkAutoAccept => 'Automatically accept requests in "Share via link" mode';
+  /// en: 'Auto-accept link shares'
+  String get shareViaLinkAutoAccept => 'Auto-accept link shares';
 
-  /// en: 'Create checksums when sending files'
-  String get createChecksums => 'Create checksums when sending files';
+  /// en: 'Create checksums on send'
+  String get createChecksums => 'Create checksums on send';
 }
 
 // Path: settingsTab.network
@@ -1190,8 +1628,8 @@ class Translations$settingsTab$network$en {
   /// en: 'Port'
   String get port => 'Port';
 
-  /// en: 'Network'
-  String get network => 'Network';
+  /// en: 'Interfaces'
+  String get network => 'Interfaces';
 
   late final Translations$settingsTab$network$networkOptions$en networkOptions = Translations$settingsTab$network$networkOptions$en.internal(_root);
 
@@ -1323,6 +1761,9 @@ class Translations$deviceDetailsPage$info$en {
 
   // Translations
 
+  /// en: 'Info'
+  String get title => 'Info';
+
   /// en: 'Name'
   String get name => 'Name';
 
@@ -1334,6 +1775,9 @@ class Translations$deviceDetailsPage$info$en {
 
   /// en: 'Protocol v{version}'
   String protocol({required Object version}) => 'Protocol v${version}';
+
+  /// en: 'Latency'
+  String get latency => 'Latency';
 }
 
 // Path: deviceDetailsPage.logs

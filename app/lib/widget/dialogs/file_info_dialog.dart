@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/model/persistence/receive_history_entry.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_dialog.dart';
 import 'package:localsend_isolates/util/file_size_helper.dart';
 import 'package:routerino/routerino.dart';
 
@@ -11,7 +13,8 @@ class FileInfoDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return LsDialog(
+      maxWidth: 480,
       title: Text(t.dialogs.fileInfo.title),
       content: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -77,9 +80,9 @@ class FileInfoDialog extends StatelessWidget {
         ),
       ),
       actions: [
-        TextButton(
+        LsButton(
+          label: t.general.close,
           onPressed: () => context.pop(),
-          child: Text(t.general.close),
         ),
       ],
     );

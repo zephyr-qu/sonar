@@ -94,6 +94,12 @@ pub enum ServerEventV2 {
 
         /// Why the session ended.
         reason: SessionEndReasonV2,
+
+        /// Checksum verification summary of a finished session.
+        ///
+        /// `None` when the session did not finish (cancelled), because a
+        /// partial upload says nothing about the files that never arrived.
+        checksums: Option<ChecksumSummaryV2>,
     },
 
     /// A prepare-upload request was aborted before a session was created,
@@ -149,6 +155,24 @@ pub enum SessionEndReasonV2 {
 
     /// The sender cancelled the session via `POST /api/localsend/v2/cancel`.
     Cancelled,
+}
+
+/// How many files of a finished upload session were checksum-verified.
+///
+/// The protocol only carries a checksum when the sender computes one and the
+/// server is configured to verify it, so a session can legitimately end with
+/// `verified: 0` and everything `unchecked`.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct ChecksumSummaryV2 {
+    /// Files whose sender-provided SHA-256 matched.
+    pub verified: usize,
+
+    /// Files that arrived without a usable checksum (sender omitted it or
+    /// verification was disabled).
+    pub unchecked: usize,
+
+    /// Files that failed, including checksum mismatches.
+    pub failed: usize,
 }
 
 pub(crate) async fn register(
@@ -319,6 +343,7 @@ pub(crate) async fn prepare_upload(
                 token: Uuid::new_v4().to_string(),
                 status: FileStatusV2::Pending,
                 attempts: 0,
+                checksum_verified: false,
             };
             (id, file)
         })
@@ -398,14 +423,19 @@ pub(crate) async fn upload(
         file.dto.clone()
     };
 
-    // Marks the file as failed if this request is aborted mid-transfer.
-    let mut upload_guard = UploadGuard::new(v2.clone(), session_id.clone(), file_id.clone());
-
     let file_size = file_dto.size;
     let expected_sha256 = match v2.verify_checksums {
         true => file_dto.sha256.clone(),
         false => None,
     };
+
+    // Marks the file as failed if this request is aborted mid-transfer.
+    let mut upload_guard = UploadGuard::new(
+        v2.clone(),
+        session_id.clone(),
+        file_id.clone(),
+        expected_sha256.is_some(),
+    );
     let timestamps = match &file_dto.metadata {
         Some(metadata) => FileTimestamps {
             modified: metadata.modified_time(),
@@ -509,6 +539,7 @@ pub(crate) async fn cancel(
                 .send(ServerEventV2::SessionEnd {
                     session_id: session_id.clone(),
                     reason: SessionEndReasonV2::Cancelled,
+                    checksums: None,
                 })
                 .await;
         } else {
@@ -608,21 +639,31 @@ struct UploadGuard {
     session_id: String,
     file_id: String,
     armed: bool,
+    /// Whether this upload carried a checksum that the server verifies.
+    checksum_checked: bool,
 }
 
 impl UploadGuard {
-    fn new(v2: Arc<V2State>, session_id: String, file_id: String) -> Self {
+    fn new(v2: Arc<V2State>, session_id: String, file_id: String, checksum_checked: bool) -> Self {
         Self {
             v2,
             session_id,
             file_id,
             armed: true,
+            checksum_checked,
         }
     }
 
     async fn finish(&mut self, result: SaveResult) {
         self.armed = false;
-        finalize_file(&self.v2, &self.session_id, &self.file_id, result).await;
+        finalize_file(
+            &self.v2,
+            &self.session_id,
+            &self.file_id,
+            result,
+            self.checksum_checked,
+        )
+        .await;
     }
 }
 
@@ -635,7 +676,7 @@ impl Drop for UploadGuard {
         let session_id = std::mem::take(&mut self.session_id);
         let file_id = std::mem::take(&mut self.file_id);
         tokio::spawn(async move {
-            finalize_file(&v2, &session_id, &file_id, SaveResult::Failed).await;
+            finalize_file(&v2, &session_id, &file_id, SaveResult::Failed, false).await;
         });
     }
 }
@@ -650,8 +691,14 @@ const MAX_UPLOAD_ATTEMPTS: u8 = 3;
 /// A checksum mismatch resets the file to [FileStatusV2::Pending] (as long as
 /// [MAX_UPLOAD_ATTEMPTS] is not exhausted) so the sender can retry the upload
 /// with the same token; the session stays active in that case.
-async fn finalize_file(v2: &V2State, session_id: &str, file_id: &str, result: SaveResult) {
-    let session_ended = {
+async fn finalize_file(
+    v2: &V2State,
+    session_id: &str,
+    file_id: &str,
+    result: SaveResult,
+    checksum_checked: bool,
+) {
+    let session_summary = {
         let mut slot = v2.session.lock().await;
         let Some(SessionStateV2::Active(session)) = slot.as_mut() else {
             return;
@@ -662,7 +709,10 @@ async fn finalize_file(v2: &V2State, session_id: &str, file_id: &str, result: Sa
         if let Some(file) = session.files.get_mut(file_id) {
             if file.status == FileStatusV2::InProgress {
                 file.status = match result {
-                    SaveResult::Success => FileStatusV2::Finished,
+                    SaveResult::Success => {
+                        file.checksum_verified = checksum_checked;
+                        FileStatusV2::Finished
+                    }
                     SaveResult::HashMismatch if file.attempts < MAX_UPLOAD_ATTEMPTS => {
                         FileStatusV2::Pending
                     }
@@ -672,20 +722,40 @@ async fn finalize_file(v2: &V2State, session_id: &str, file_id: &str, result: Sa
         }
         match session.is_complete() {
             true => {
+                let summary = ChecksumSummaryV2 {
+                    verified: session
+                        .files
+                        .values()
+                        .filter(|file| file.checksum_verified)
+                        .count(),
+                    unchecked: session
+                        .files
+                        .values()
+                        .filter(|file| {
+                            file.status == FileStatusV2::Finished && !file.checksum_verified
+                        })
+                        .count(),
+                    failed: session
+                        .files
+                        .values()
+                        .filter(|file| file.status == FileStatusV2::Failed)
+                        .count(),
+                };
                 *slot = None;
-                true
+                Some(summary)
             }
-            false => false,
+            false => None,
         }
     };
 
-    if session_ended {
+    if let Some(checksums) = session_summary {
         tracing::info!("Upload session finished: {session_id}");
         let _ = v2
             .event_tx
             .send(ServerEventV2::SessionEnd {
                 session_id: session_id.to_string(),
                 reason: SessionEndReasonV2::Finished,
+                checksums: Some(checksums),
             })
             .await;
     }

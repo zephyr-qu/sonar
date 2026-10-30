@@ -41,6 +41,20 @@ class ReceiveSessionState with ReceiveSessionStateMappable implements SessionSta
   /// WARNING: This list is modified in-place!
   final Set<String> createdDirectories;
 
+  /// Files whose sender-provided SHA-256 was verified and matched.
+  ///
+  /// Filled in by the server when the session ends, so it stays 0 while the
+  /// transfer is still running.
+  final int checksumVerified;
+
+  /// Files that arrived without a usable checksum, i.e. the sender did not
+  /// compute one or checksum verification is disabled.
+  final int checksumUnchecked;
+
+  /// Whether at least one file was verified, i.e. the checksum row is worth
+  /// showing.
+  bool get hasChecksumReport => checksumVerified > 0;
+
   const ReceiveSessionState({
     required this.sessionId,
     required this.status,
@@ -53,6 +67,8 @@ class ReceiveSessionState with ReceiveSessionStateMappable implements SessionSta
     required this.cacheDirectory,
     required this.saveToGallery,
     required this.createdDirectories,
+    this.checksumVerified = 0,
+    this.checksumUnchecked = 0,
   });
 
   /// Returns the message of this request if this is a "message request".

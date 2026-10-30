@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:localsend_app/model/persistence/favorite_device.dart';
 import 'package:localsend_app/model/state/nearby_devices_state.dart';
+import 'package:localsend_app/provider/device_last_seen_provider.dart';
 import 'package:localsend_app/provider/favorites_provider.dart';
 import 'package:localsend_app/provider/logging/discovery_logs_provider.dart';
 import 'package:localsend_isolates/isolate.dart';
@@ -18,6 +19,7 @@ final nearbyDevicesProvider = ReduxProvider<NearbyDevicesService, NearbyDevicesS
   return NearbyDevicesService(
     isolateController: ref.notifier(parentIsolateProvider),
     favoriteService: ref.notifier(favoritesProvider),
+    lastSeenService: ref.notifier(deviceLastSeenProvider),
     discoveryLogs: ref.notifier(discoveryLoggerProvider),
   );
 });
@@ -25,15 +27,18 @@ final nearbyDevicesProvider = ReduxProvider<NearbyDevicesService, NearbyDevicesS
 class NearbyDevicesService extends ReduxNotifier<NearbyDevicesState> {
   final IsolateController _isolateController;
   final FavoritesService _favoriteService;
+  final DeviceLastSeenService _lastSeenService;
   final DiscoveryLogger _discoveryLogger;
 
   NearbyDevicesService({
     required IsolateController isolateController,
     required FavoritesService favoriteService,
+    required DeviceLastSeenService lastSeenService,
     required DiscoveryLogger discoveryLogs,
   }) : _discoveryLogger = discoveryLogs,
        _isolateController = isolateController,
-       _favoriteService = favoriteService;
+       _favoriteService = favoriteService,
+       _lastSeenService = lastSeenService;
 
   @override
   NearbyDevicesState init() => const NearbyDevicesState(
@@ -93,6 +98,14 @@ class RegisterDeviceAction extends AsyncReduxAction<NearbyDevicesService, Nearby
     } else {
       await Future.microtask(() {});
     }
+    // Refreshing the last-seen timestamp on every confirmation would write to
+    // disk every few seconds per device, so it is throttled to once a minute.
+    final now = DateTime.now();
+    final known = notifier._lastSeenService.state[device.fingerprint];
+    if (known == null || now.difference(known) > const Duration(minutes: 1)) {
+      await external(notifier._lastSeenService).dispatchAsync(UpdateDeviceLastSeenAction(fingerprint: device.fingerprint, time: now));
+    }
+
     return state.copyWith(
       devices: {...state.devices}..update(device.fingerprint, (_) => device, ifAbsent: () => device),
     );

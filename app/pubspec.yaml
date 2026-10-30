@@ -38,6 +38,7 @@ dependencies:
   localsend_isolates:
     path: ../packages/localsend_isolates
   logging: 1.3.0
+  lucide_icons: ^0.257.0
   meta: ^1.17.0 # allow newer versions, so it can compile with newer Flutter versions
   mime: 2.0.0
   moform: 0.2.11
@@ -111,6 +112,36 @@ flutter:
   assets:
     - assets/img/
     - assets/CHANGELOG.md
+
+  fonts:
+    # Display / body face of the "Signal" redesign (Latin). CJK glyphs fall back
+    # to the platform font, see `fontFamilyFallback` in config/theme.dart.
+    - family: Archivo
+      fonts:
+        - asset: assets/fonts/Archivo-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Archivo-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Archivo-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Archivo-Bold.ttf
+          weight: 700
+    # Simplified Chinese fallback of the redesign. Subsetted to GB2312 + every
+    # character the app ships (see `assets/fonts/OFL-NotoSansSC.txt`); only used
+    # on desktop zh-CN, mobile keeps its platform CJK font.
+    - family: Noto Sans SC
+      fonts:
+        - asset: assets/fonts/NotoSansSC-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/NotoSansSC-Bold.ttf
+          weight: 700
+    # Numerals, eyebrows and meta labels.
+    - family: JetBrains Mono
+      fonts:
+        - asset: assets/fonts/JetBrainsMono-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/JetBrainsMono-Medium.ttf
+          weight: 500
 
 flutter_gen:
   line_length: 150

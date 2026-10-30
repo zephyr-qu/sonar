@@ -138,14 +138,15 @@ class MemoryThumbnail extends StatelessWidget {
   Widget build(BuildContext context) {
     final Widget? thumbnail;
     if (bytes != null) {
-      thumbnail = Padding(
-        padding: fileType == FileType.apk ? const EdgeInsets.all(50) : EdgeInsets.zero,
-        child: Image.memory(
-          bytes!,
-          errorBuilder: (_, _, _) => Padding(
-            padding: const EdgeInsets.all(10),
-            child: Icon(fileType.icon, size: 32),
-          ),
+      // The bytes are decoded at thumbnail resolution: an APK icon is an
+      // arbitrary large PNG, and decoding it at full size for a 50px tile was
+      // the most expensive part of the app picker.
+      thumbnail = Image.memory(
+        bytes!,
+        cacheWidth: 128,
+        errorBuilder: (_, _, _) => Padding(
+          padding: const EdgeInsets.all(10),
+          child: Icon(fileType.icon, size: 32),
         ),
       );
     } else {

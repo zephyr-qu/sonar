@@ -75,6 +75,20 @@ class ReceiveSessionStateMapper extends ClassMapperBase<ReceiveSessionState> {
       v.createdDirectories;
   static const Field<ReceiveSessionState, Set<String>> _f$createdDirectories =
       Field('createdDirectories', _$createdDirectories);
+  static int _$checksumVerified(ReceiveSessionState v) => v.checksumVerified;
+  static const Field<ReceiveSessionState, int> _f$checksumVerified = Field(
+    'checksumVerified',
+    _$checksumVerified,
+    opt: true,
+    def: 0,
+  );
+  static int _$checksumUnchecked(ReceiveSessionState v) => v.checksumUnchecked;
+  static const Field<ReceiveSessionState, int> _f$checksumUnchecked = Field(
+    'checksumUnchecked',
+    _$checksumUnchecked,
+    opt: true,
+    def: 0,
+  );
 
   @override
   final MappableFields<ReceiveSessionState> fields = const {
@@ -89,6 +103,8 @@ class ReceiveSessionStateMapper extends ClassMapperBase<ReceiveSessionState> {
     #cacheDirectory: _f$cacheDirectory,
     #saveToGallery: _f$saveToGallery,
     #createdDirectories: _f$createdDirectories,
+    #checksumVerified: _f$checksumVerified,
+    #checksumUnchecked: _f$checksumUnchecked,
   };
 
   static ReceiveSessionState _instantiate(DecodingData data) {
@@ -104,6 +120,8 @@ class ReceiveSessionStateMapper extends ClassMapperBase<ReceiveSessionState> {
       cacheDirectory: data.dec(_f$cacheDirectory),
       saveToGallery: data.dec(_f$saveToGallery),
       createdDirectories: data.dec(_f$createdDirectories),
+      checksumVerified: data.dec(_f$checksumVerified),
+      checksumUnchecked: data.dec(_f$checksumUnchecked),
     );
   }
 
@@ -197,6 +215,8 @@ abstract class ReceiveSessionStateCopyWith<
     String? cacheDirectory,
     bool? saveToGallery,
     Set<String>? createdDirectories,
+    int? checksumVerified,
+    int? checksumUnchecked,
   });
   ReceiveSessionStateCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(
     Then<$Out2, $R2> t,
@@ -239,6 +259,8 @@ class _ReceiveSessionStateCopyWithImpl<$R, $Out>
     String? cacheDirectory,
     bool? saveToGallery,
     Set<String>? createdDirectories,
+    int? checksumVerified,
+    int? checksumUnchecked,
   }) => $apply(
     FieldCopyWithData({
       if (sessionId != null) #sessionId: sessionId,
@@ -253,6 +275,8 @@ class _ReceiveSessionStateCopyWithImpl<$R, $Out>
       if (cacheDirectory != null) #cacheDirectory: cacheDirectory,
       if (saveToGallery != null) #saveToGallery: saveToGallery,
       if (createdDirectories != null) #createdDirectories: createdDirectories,
+      if (checksumVerified != null) #checksumVerified: checksumVerified,
+      if (checksumUnchecked != null) #checksumUnchecked: checksumUnchecked,
     }),
   );
   @override
@@ -273,6 +297,11 @@ class _ReceiveSessionStateCopyWithImpl<$R, $Out>
     createdDirectories: data.get(
       #createdDirectories,
       or: $value.createdDirectories,
+    ),
+    checksumVerified: data.get(#checksumVerified, or: $value.checksumVerified),
+    checksumUnchecked: data.get(
+      #checksumUnchecked,
+      or: $value.checksumUnchecked,
     ),
   );
 

@@ -6,7 +6,7 @@ use localsend::crypto::hash::sha256_hex;
 use localsend::http::client::{ClientError, LsHttpClient, LsHttpClientV2};
 use localsend::http::dto_v2::{PrepareUploadRequestDtoV2, RegisterDtoV2};
 use localsend::http::server::common::save::FileUploadTarget;
-use localsend::http::server::v2::{PrepareUploadDecisionV2, ServerEventV2, SessionEndReasonV2};
+use localsend::http::server::v2::{ChecksumSummaryV2, PrepareUploadDecisionV2, ServerEventV2, SessionEndReasonV2};
 use localsend::http::server::web::WebConfig;
 use localsend::http::server::{start_with_port, ServerConfigV2};
 use localsend::http::state::ClientInfo;
@@ -27,6 +27,7 @@ struct TestServer {
     received: Arc<Mutex<HashMap<String, Vec<u8>>>>,
     /// Ended sessions with their reasons.
     session_ends: Arc<Mutex<Vec<(String, SessionEndReasonV2)>>>,
+    session_checksums: Arc<Mutex<Vec<Option<ChecksumSummaryV2>>>>,
     _stop_tx: oneshot::Sender<()>,
 }
 
@@ -51,6 +52,7 @@ async fn start_test_server_with_verification(
 ) -> TestServer {
     let _ = tracing_subscriber::fmt().with_test_writer().try_init();
     let received: Arc<Mutex<HashMap<String, Vec<u8>>>> = Arc::new(Mutex::new(HashMap::new()));
+    let session_checksums: Arc<Mutex<Vec<Option<ChecksumSummaryV2>>>> = Arc::new(Mutex::new(Vec::new()));
     let session_ends: Arc<Mutex<Vec<(String, SessionEndReasonV2)>>> =
         Arc::new(Mutex::new(Vec::new()));
 
@@ -59,6 +61,7 @@ async fn start_test_server_with_verification(
     tokio::spawn({
         let received = received.clone();
         let session_ends = session_ends.clone();
+        let session_checksums = session_checksums.clone();
         async move {
             while let Some(event) = event_rx.recv().await {
                 match event {
@@ -112,8 +115,9 @@ async fn start_test_server_with_verification(
                             }
                         }
                     }
-                    ServerEventV2::SessionEnd { session_id, reason } => {
+                    ServerEventV2::SessionEnd { session_id, reason, checksums } => {
                         session_ends.lock().await.push((session_id, reason));
+                        session_checksums.lock().await.push(checksums);
                     }
                     ServerEventV2::PrepareUploadAborted { .. } => {}
                     ServerEventV2::CancelReceived { .. } => {}
@@ -152,6 +156,7 @@ async fn start_test_server_with_verification(
         port: handle.port(),
         received,
         session_ends,
+        session_checksums,
         _stop_tx: stop_tx,
     }
 }
@@ -468,6 +473,72 @@ async fn test_upload_with_matching_sha256() {
     .unwrap();
 
     assert_eq!(server.received.lock().await["file-a"], bytes);
+    assert_eq!(
+        *server.session_checksums.lock().await,
+        vec![Some(ChecksumSummaryV2 {
+            verified: 1,
+            unchecked: 0,
+            failed: 0,
+        })],
+    );
+}
+
+#[tokio::test]
+async fn test_upload_session_summary_counts_checked_and_unchecked_files() {
+    let server = start_test_server(None, true, None).await;
+    let client = LsHttpClientV2::try_new_without_cert().unwrap();
+
+    let checked_bytes = b"checked".to_vec();
+    let plain_bytes = b"plain".to_vec();
+    let mut checked = file_dto("file-a", "a.bin", checked_bytes.len() as u64);
+    checked.sha256 = Some(sha256_hex(&checked_bytes));
+    // No checksum: the sender did not compute one.
+    let plain = file_dto("file-b", "b.bin", plain_bytes.len() as u64);
+
+    let response = client
+        .prepare_upload(
+            ProtocolType::Http,
+            "127.0.0.1",
+            server.port,
+            None,
+            prepare_upload_request(&[checked, plain]),
+            None,
+            CancellationToken::new(),
+        )
+        .await
+        .unwrap()
+        .response
+        .unwrap();
+
+    upload_bytes(
+        &client,
+        server.port,
+        &response.session_id,
+        "file-a",
+        &response.files["file-a"],
+        &checked_bytes,
+    )
+    .await
+    .unwrap();
+    upload_bytes(
+        &client,
+        server.port,
+        &response.session_id,
+        "file-b",
+        &response.files["file-b"],
+        &plain_bytes,
+    )
+    .await
+    .unwrap();
+
+    assert_eq!(
+        *server.session_checksums.lock().await,
+        vec![Some(ChecksumSummaryV2 {
+            verified: 1,
+            unchecked: 1,
+            failed: 0,
+        })],
+    );
 }
 
 #[tokio::test]
@@ -543,6 +614,15 @@ async fn test_upload_mismatched_sha256_with_verification_disabled() {
     .unwrap();
 
     assert_eq!(server.received.lock().await["file-a"], bytes);
+    // With verification disabled the file counts as unchecked, not as verified.
+    assert_eq!(
+        *server.session_checksums.lock().await,
+        vec![Some(ChecksumSummaryV2 {
+            verified: 0,
+            unchecked: 1,
+            failed: 0,
+        })],
+    );
 }
 
 #[tokio::test]

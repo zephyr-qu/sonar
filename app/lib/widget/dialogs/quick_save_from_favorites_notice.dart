@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/util/native/platform_check.dart';
 import 'package:localsend_app/widget/dialogs/custom_bottom_sheet.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_dialog.dart';
 import 'package:routerino/routerino.dart';
 
 class QuickSaveFromFavoritesNotice extends StatelessWidget {
@@ -11,13 +13,13 @@ class QuickSaveFromFavoritesNotice extends StatelessWidget {
     if (checkPlatformIsDesktop()) {
       await showDialog(
         context: context,
-        builder: (_) => AlertDialog(
+        builder: (_) => LsDialog(
           title: Text(t.dialogs.quickSaveFromFavoritesNotice.title),
           content: Text(t.dialogs.quickSaveFromFavoritesNotice.content.join('\n')),
           actions: [
-            TextButton(
+            LsButton(
+              label: t.general.close,
               onPressed: () => context.pop(),
-              child: Text(t.general.close),
             ),
           ],
         ),
@@ -33,9 +35,9 @@ class QuickSaveFromFavoritesNotice extends StatelessWidget {
       title: t.dialogs.quickSaveFromFavoritesNotice.title,
       description: t.dialogs.quickSaveFromFavoritesNotice.content.join('\n'),
       child: Center(
-        child: ElevatedButton(
+        child: LsButton(
+          label: t.general.close,
           onPressed: () => context.popUntilRoot(),
-          child: Text(t.general.close),
         ),
       ),
     );

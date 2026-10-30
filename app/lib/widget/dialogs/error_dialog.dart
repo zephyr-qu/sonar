@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_dialog.dart';
 import 'package:routerino/routerino.dart';
 
 class ErrorDialog extends StatelessWidget {
@@ -9,13 +11,13 @@ class ErrorDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return LsDialog(
       title: Text(t.dialogs.errorDialog.title),
       content: SelectableText(error),
       actions: [
-        TextButton(
+        LsButton(
+          label: t.general.close,
           onPressed: () => context.pop(),
-          child: Text(t.general.close),
         ),
       ],
     );

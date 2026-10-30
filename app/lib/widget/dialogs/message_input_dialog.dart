@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_dialog.dart';
 import 'package:routerino/routerino.dart';
 
 class MessageInputDialog extends StatefulWidget {
@@ -28,7 +30,7 @@ class _MessageInputDialogState extends State<MessageInputDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return LsDialog(
       title: Text(t.dialogs.messageInput.title),
       content: TextFormField(
         controller: _textController,
@@ -37,17 +39,14 @@ class _MessageInputDialogState extends State<MessageInputDialog> {
         autofocus: true,
       ),
       actions: [
-        TextButton(
+        LsButton(
+          label: t.general.cancel,
+          variant: LsButtonVariant.ghost,
           onPressed: () => context.pop(),
-          child: Text(t.general.cancel),
         ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Theme.of(context).colorScheme.onPrimary,
-          ),
+        LsButton(
+          label: t.general.confirm,
           onPressed: () => context.pop(_textController.text),
-          child: Text(t.general.confirm),
         ),
       ],
     );

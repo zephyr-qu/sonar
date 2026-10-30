@@ -112,11 +112,6 @@ class SettingsStateMapper extends ClassMapperBase<SettingsState> {
   );
   static bool _$https(SettingsState v) => v.https;
   static const Field<SettingsState, bool> _f$https = Field('https', _$https);
-  static SendMode _$sendMode(SettingsState v) => v.sendMode;
-  static const Field<SettingsState, SendMode> _f$sendMode = Field(
-    'sendMode',
-    _$sendMode,
-  );
   static bool _$saveWindowPlacement(SettingsState v) => v.saveWindowPlacement;
   static const Field<SettingsState, bool> _f$saveWindowPlacement = Field(
     'saveWindowPlacement',
@@ -169,10 +164,10 @@ class SettingsStateMapper extends ClassMapperBase<SettingsState> {
     'discoveryTimeout',
     _$discoveryTimeout,
   );
-  static bool _$advancedSettings(SettingsState v) => v.advancedSettings;
-  static const Field<SettingsState, bool> _f$advancedSettings = Field(
-    'advancedSettings',
-    _$advancedSettings,
+  static NearbyLayout _$nearbyLayout(SettingsState v) => v.nearbyLayout;
+  static const Field<SettingsState, NearbyLayout> _f$nearbyLayout = Field(
+    'nearbyLayout',
+    _$nearbyLayout,
   );
 
   @override
@@ -196,7 +191,6 @@ class SettingsStateMapper extends ClassMapperBase<SettingsState> {
     #autoFinish: _f$autoFinish,
     #minimizeToTray: _f$minimizeToTray,
     #https: _f$https,
-    #sendMode: _f$sendMode,
     #saveWindowPlacement: _f$saveWindowPlacement,
     #alwaysOnTop: _f$alwaysOnTop,
     #enableAnimations: _f$enableAnimations,
@@ -207,7 +201,7 @@ class SettingsStateMapper extends ClassMapperBase<SettingsState> {
     #createChecksums: _f$createChecksums,
     #verifyChecksums: _f$verifyChecksums,
     #discoveryTimeout: _f$discoveryTimeout,
-    #advancedSettings: _f$advancedSettings,
+    #nearbyLayout: _f$nearbyLayout,
   };
 
   static SettingsState _instantiate(DecodingData data) {
@@ -231,7 +225,6 @@ class SettingsStateMapper extends ClassMapperBase<SettingsState> {
       autoFinish: data.dec(_f$autoFinish),
       minimizeToTray: data.dec(_f$minimizeToTray),
       https: data.dec(_f$https),
-      sendMode: data.dec(_f$sendMode),
       saveWindowPlacement: data.dec(_f$saveWindowPlacement),
       alwaysOnTop: data.dec(_f$alwaysOnTop),
       enableAnimations: data.dec(_f$enableAnimations),
@@ -242,7 +235,7 @@ class SettingsStateMapper extends ClassMapperBase<SettingsState> {
       createChecksums: data.dec(_f$createChecksums),
       verifyChecksums: data.dec(_f$verifyChecksums),
       discoveryTimeout: data.dec(_f$discoveryTimeout),
-      advancedSettings: data.dec(_f$advancedSettings),
+      nearbyLayout: data.dec(_f$nearbyLayout),
     );
   }
 
@@ -332,7 +325,6 @@ abstract class SettingsStateCopyWith<$R, $In extends SettingsState, $Out>
     bool? autoFinish,
     bool? minimizeToTray,
     bool? https,
-    SendMode? sendMode,
     bool? saveWindowPlacement,
     bool? alwaysOnTop,
     bool? enableAnimations,
@@ -343,7 +335,7 @@ abstract class SettingsStateCopyWith<$R, $In extends SettingsState, $Out>
     bool? createChecksums,
     bool? verifyChecksums,
     int? discoveryTimeout,
-    bool? advancedSettings,
+    NearbyLayout? nearbyLayout,
   });
   SettingsStateCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t);
 }
@@ -395,7 +387,6 @@ class _SettingsStateCopyWithImpl<$R, $Out>
     bool? autoFinish,
     bool? minimizeToTray,
     bool? https,
-    SendMode? sendMode,
     bool? saveWindowPlacement,
     bool? alwaysOnTop,
     bool? enableAnimations,
@@ -406,7 +397,7 @@ class _SettingsStateCopyWithImpl<$R, $Out>
     bool? createChecksums,
     bool? verifyChecksums,
     int? discoveryTimeout,
-    bool? advancedSettings,
+    NearbyLayout? nearbyLayout,
   }) => $apply(
     FieldCopyWithData({
       if (showToken != null) #showToken: showToken,
@@ -429,7 +420,6 @@ class _SettingsStateCopyWithImpl<$R, $Out>
       if (autoFinish != null) #autoFinish: autoFinish,
       if (minimizeToTray != null) #minimizeToTray: minimizeToTray,
       if (https != null) #https: https,
-      if (sendMode != null) #sendMode: sendMode,
       if (saveWindowPlacement != null)
         #saveWindowPlacement: saveWindowPlacement,
       if (alwaysOnTop != null) #alwaysOnTop: alwaysOnTop,
@@ -443,7 +433,7 @@ class _SettingsStateCopyWithImpl<$R, $Out>
       if (createChecksums != null) #createChecksums: createChecksums,
       if (verifyChecksums != null) #verifyChecksums: verifyChecksums,
       if (discoveryTimeout != null) #discoveryTimeout: discoveryTimeout,
-      if (advancedSettings != null) #advancedSettings: advancedSettings,
+      if (nearbyLayout != null) #nearbyLayout: nearbyLayout,
     }),
   );
   @override
@@ -470,7 +460,6 @@ class _SettingsStateCopyWithImpl<$R, $Out>
     autoFinish: data.get(#autoFinish, or: $value.autoFinish),
     minimizeToTray: data.get(#minimizeToTray, or: $value.minimizeToTray),
     https: data.get(#https, or: $value.https),
-    sendMode: data.get(#sendMode, or: $value.sendMode),
     saveWindowPlacement: data.get(
       #saveWindowPlacement,
       or: $value.saveWindowPlacement,
@@ -490,7 +479,7 @@ class _SettingsStateCopyWithImpl<$R, $Out>
     createChecksums: data.get(#createChecksums, or: $value.createChecksums),
     verifyChecksums: data.get(#verifyChecksums, or: $value.verifyChecksums),
     discoveryTimeout: data.get(#discoveryTimeout, or: $value.discoveryTimeout),
-    advancedSettings: data.get(#advancedSettings, or: $value.advancedSettings),
+    nearbyLayout: data.get(#nearbyLayout, or: $value.nearbyLayout),
   );
 
   @override

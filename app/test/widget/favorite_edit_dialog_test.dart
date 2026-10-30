@@ -4,6 +4,7 @@ import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/model/persistence/favorite_device.dart';
 import 'package:localsend_app/provider/persistence_provider.dart';
 import 'package:localsend_app/widget/dialogs/favorite_edit_dialog.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
 import 'package:mockito/mockito.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
@@ -29,7 +30,7 @@ void main() {
     );
 
     final portField = find.byType(TextFormField).at(2);
-    final confirm = find.byType(FilledButton);
+    final confirm = find.widgetWithText(LsButton, t.general.confirm);
     final error = find.text(t.dialogs.favoriteEditDialog.invalidPort);
     for (final port in ['abc', '0', '65536', '']) {
       await tester.enterText(portField, port);

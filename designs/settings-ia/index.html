@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>设置页信息架构 — LocalSend</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+  /* ==========================================================================
+     LocalSend 设置页 · 信息架构对比画廊
+     设计语言取自 designs/localsend-reimagined（方向 A「Signal」）
+     A 现状手风琴 / B 移动端二级页面（首页·详情·搜索）/ C 桌面双栏
+     ========================================================================== */
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html, body { margin: 0; background: #07080a; }
+
+  body {
+    font-family: "Archivo", "Noto Sans SC", -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    color: #edeff2;
+  }
+
+  button, input, select { font: inherit; color: inherit; }
+  button { background: none; border: 0; padding: 0; cursor: pointer; }
+  a { color: inherit; }
+  svg { display: block; }
+
+  /* ---------- studio / tokens ---------- */
+  .studio {
+    --bg: #0a0b0d;
+    --bg2: #101216;
+    --bg3: #171a20;
+    --fg: #edeff2;
+    --muted: #8b929c;
+    --faint: #5c636d;
+    --line: rgba(255, 255, 255, 0.08);
+    --line-strong: rgba(255, 255, 255, 0.16);
+    --accent: #c6f24e;
+    --accent-fg: #0a0b0d;
+    --accent-soft: rgba(198, 242, 78, 0.14);
+    --danger: #ff6b57;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --radius-pill: 999px;
+    --pad: 16px;
+    --font-display: "Archivo", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    --font-body: "Archivo", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    --font-mono: "JetBrains Mono", "Noto Sans SC", "SF Mono", ui-monospace, monospace;
+    --display-weight: 700;
+    --display-tracking: -0.02em;
+    --shell: #07080a;
+
+    min-height: 100vh;
+    max-width: 1560px;
+    margin: 0 auto;
+    padding: 46px 24px 96px;
+    background: var(--shell);
+    color: var(--fg);
+    font-family: var(--font-body);
+  }
+
+  .i {
+    display: block;
+    flex: 0 0 auto;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* ---------- gallery header ---------- */
+  .studio-hd { border-bottom: 1px solid var(--line); padding-bottom: 26px; }
+
+  .studio-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 34px;
+    line-height: 1.1;
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
+  }
+
+  .studio-sub {
+    margin-top: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .legend {
+    margin: 22px 0 0;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  /* ---------- board layout ---------- */
+  .boards { display: grid; justify-content: center; gap: 52px 40px; margin-top: 40px; }
+  .boards-phones { grid-template-columns: repeat(2, 390px); }
+  .boards-desk { grid-template-columns: minmax(0, 1fr); margin-top: 62px; }
+
+  .board { display: flex; flex-direction: column; gap: 10px; min-width: 0; margin: 0; }
+
+  .board-label {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  .board-caption {
+    max-width: 390px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    line-height: 1.75;
+    letter-spacing: 0.01em;
+    color: var(--muted);
+    text-wrap: pretty;
+  }
+
+  .board-wide { width: 1280px; max-width: 100%; justify-self: center; }
+  .board-wide .board-caption { max-width: 840px; }
+
+  .desk-fit {
+    position: relative;
+    width: 1280px;
+    max-width: 100%;
+    height: 800px;
+    overflow: hidden;
+  }
+
+  @media (max-width: 900px) {
+    .studio { padding: 32px 16px 64px; }
+    .studio-title { font-size: 26px; }
+    .boards { gap: 40px 24px; margin-top: 30px; }
+    .boards-phones { grid-template-columns: minmax(0, 390px); }
+  }
+
+  /* ==========================================================================
+     手机画板 —— 复用原型 .phone / .app 结构（无状态栏）
+     ========================================================================== */
+  .phone {
+    width: 390px;
+    height: 844px;
+    flex: 0 0 auto;
+    border-radius: 42px;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--fg);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.07);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    isolation: isolate;
+  }
+
+  /* ---------- app shell ---------- */
+  .app {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .hdr {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px var(--pad) 10px;
+    flex: 0 0 auto;
+  }
+
+  .hdr-mark {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+
+  .hdr-id { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+  .hdr-alias {
+    font-family: var(--font-display);
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
+    font-size: 15px;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .hdr-sub {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .icon-btn {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-sm);
+    color: var(--muted);
+    transition: background 160ms ease, color 160ms ease;
+  }
+  .icon-btn:hover { background: var(--bg3); color: var(--fg); }
+
+  .main {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 2px var(--pad) 18px;
+    scrollbar-width: none;
+  }
+  .main::-webkit-scrollbar { width: 0; }
+  .main.is-flex { display: flex; flex-direction: column; }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  .grow { flex: 1; min-width: 0; }
+  .chev { color: var(--faint); }
+  .num { font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
+  .row { display: flex; align-items: center; gap: 10px; }
+
+  /* ---------- search / input ---------- */
+  .search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 10px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    color: var(--muted);
+  }
+  .search input {
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: 0;
+    outline: none;
+    font-size: 12.5px;
+    color: var(--fg);
+  }
+  .search input::placeholder { color: var(--faint); }
+
+  .search-x {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: var(--faint);
+    transition: background 140ms ease, color 140ms ease;
+  }
+  .search-x:hover { background: var(--bg3); color: var(--fg); }
+
+  .input {
+    width: 100%;
+    height: 34px;
+    padding: 0 10px;
+    border-radius: var(--radius-sm);
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--fg);
+    outline: none;
+    transition: border-color 140ms ease;
+  }
+  .input:focus { border-color: var(--accent); }
+
+  /* ---------- switches / segmented / chips ---------- */
+  .sw {
+    width: 40px;
+    height: 24px;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: var(--line-strong);
+    position: relative;
+    transition: background 160ms ease;
+    display: inline-block;
+  }
+  .sw::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--fg);
+    transition: transform 180ms cubic-bezier(0.3, 0.8, 0.3, 1), background 160ms ease;
+  }
+  .sw.is-on { background: var(--accent); }
+  .sw.is-on::after { transform: translateX(16px); background: var(--accent-fg); }
+
+  .seg {
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+  }
+  .seg button {
+    flex: 1;
+    height: 30px;
+    border-radius: calc(var(--radius-sm) - 2px);
+    font-size: 11.5px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.02em;
+    color: var(--muted);
+    transition: background 140ms ease, color 140ms ease;
+  }
+  .seg button:hover { color: var(--fg); }
+  .seg button.is-on { background: var(--fg); color: var(--bg); }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 24px;
+    padding: 0 9px;
+    border-radius: var(--radius-pill);
+    background: var(--bg3);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.03em;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .chip.is-accent { background: var(--accent-soft); color: var(--accent); }
+  .chip-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+  .swatches { display: flex; gap: 6px; }
+  .swatch {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 auto;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    transition: transform 140ms ease;
+  }
+  .swatch:hover { transform: scale(1.12); }
+  .swatch.is-on { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--fg); }
+
+  /* ---------- A · 手风琴分组（原型 settings） ---------- */
+  .group { border-bottom: 1px solid var(--line); }
+
+  .groups { margin-top: 8px; }
+
+  .group-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 14px 0;
+    text-align: left;
+  }
+
+  .group-title {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
+    color: var(--fg);
+  }
+
+  .group-sub {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--faint);
+    margin-top: 3px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .group-body { padding: 0 0 12px; display: flex; flex-direction: column; gap: 2px; }
+
+  .setrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 0;
+    font-size: 12.5px;
+  }
+  .setrow .grow { flex: 1; min-width: 0; }
+  .setrow-label { line-height: 1.3; color: var(--fg); }
+  .setrow-desc { font-size: 10.5px; color: var(--muted); margin-top: 2px; line-height: 1.45; }
+  .setrow-value {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .setrow.is-block { display: block; }
+  .seg.is-block { margin-top: 9px; }
+
+  .shell-hint {
+    margin-top: 18px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--faint);
+    line-height: 1.8;
+  }
+  .main.is-flex .shell-hint.is-bottom { margin-top: auto; }
+
+  /* ==========================================================================
+     B · 分类首页
+     ========================================================================== */
+  .cat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: calc(100% + 32px);
+    margin: 0 -16px;
+    padding: 13px 16px;
+    min-height: 64px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    transition: background 140ms ease;
+  }
+  .cat:hover { background: var(--bg3); }
+  .cat:active { background: var(--bg2); }
+  .cat.is-sel {
+    background: rgba(198, 242, 78, 0.06);
+    box-shadow: inset 2px 0 0 var(--accent);
+  }
+  .cat.is-sel:hover { background: rgba(198, 242, 78, 0.1); }
+
+  .cat-glyph {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    background: var(--bg3);
+    color: var(--fg);
+  }
+
+  .cat-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .cat-title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
+    line-height: 1.15;
+    color: var(--fg);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cat-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cat-meta.cat-tags { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .cat-meta-text { font-family: var(--font-mono); font-size: 10px; color: var(--muted); white-space: nowrap; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 8px 4px 7px; border-radius: 999px;
+    border: 1px solid var(--line-strong); color: var(--muted);
+    font-family: var(--font-mono); font-size: 9.5px; line-height: 1.1; white-space: nowrap;
+  }
+  .pill .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--faint); }
+  .pill.is-on { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+  .pill.is-on .dot { background: var(--accent); }
+  .capsule {
+    position: relative; width: 40px; height: 24px; border-radius: 999px;
+    background: var(--line-strong); flex: 0 0 auto;
+  }
+  .capsule::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--fg); }
+  .capsule.is-on { background: var(--accent); }
+  .capsule.is-on::after { left: auto; right: 3px; background: var(--accent-fg); }
+
+  .cat-count {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--faint);
+    white-space: nowrap;
+  }
+  .cat .chev { color: var(--faint); }
+
+  .b-foot { margin-top: auto; padding-top: 16px; }
+  .b-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+  }
+  .b-link { font-size: 12px; color: var(--muted); transition: color 140ms ease; }
+  .b-link:hover { color: var(--fg); }
+  .b-version {
+    margin-top: 12px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    color: var(--faint);
+  }
+
+  /* ==========================================================================
+     C · 详情页
+     ========================================================================== */
+  .c-body { display: flex; flex-direction: column; }
+  .c-body .setrow { padding: 10px 0; border-top: 1px solid var(--line); }
+  .c-body .setrow:first-child { border-top: 0; }
+
+  .input-inline {
+    width: auto;
+    height: 30px;
+    padding: 0 9px;
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+  }
+  .inl { display: flex; align-items: center; gap: 6px; }
+
+  .seg-sm { width: 132px; flex: 0 0 auto; }
+  .seg-sm button { height: 26px; font-size: 10.5px; }
+
+  .mini-btn {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    color: var(--muted);
+    transition: background 140ms ease, color 140ms ease;
+  }
+  .mini-btn:hover { background: var(--bg3); color: var(--fg); }
+
+  /* ==========================================================================
+     B2 · 搜索结果
+     ========================================================================== */
+  .result {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: calc(100% + 32px);
+    margin: 0 -16px;
+    padding: 9px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    transition: background 140ms ease;
+  }
+  .result:hover { background: var(--bg3); }
+  .result-main { flex: 1; min-width: 0; }
+  .result-crumb {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.05em;
+    color: var(--faint);
+    margin-bottom: 3px;
+  }
+  .result-label { display: block; font-size: 12.5px; line-height: 1.3; color: var(--fg); }
+  .result-value {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* ==========================================================================
+     C · 桌面双栏
+     ========================================================================== */
+  #frame-e {
+    width: 1280px;
+    height: 800px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 14px;
+    background: var(--bg);
+    color: var(--fg);
+    transform-origin: top left;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.07);
+  }
+
+  .win-chrome {
+    position: relative;
+    height: 34px;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 14px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg2);
+  }
+  .tl-dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(255, 255, 255, 0.14); }
+  .win-chrome-title {
+    position: absolute;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    color: var(--faint);
+    pointer-events: none;
+  }
+
+  .win-body { flex: 1; min-height: 0; display: flex; overflow: hidden; }
+
+  .rail {
+    width: 64px;
+    flex: 0 0 auto;
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 0 16px;
+    background: var(--bg);
+  }
+  .rail-mark { margin-bottom: 8px; }
+  .rail-btn {
+    width: 48px;
+    height: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border-radius: var(--radius-sm);
+    color: var(--faint);
+    font-family: var(--font-mono);
+    font-size: 8.5px;
+    line-height: 1.1;
+    letter-spacing: 0.04em;
+    transition: background 140ms ease, color 140ms ease;
+  }
+  .rail-btn:hover { background: var(--bg3); color: var(--fg); }
+  .rail-btn.is-on { color: var(--fg); }
+  .rail-btn.is-on svg { color: var(--accent); }
+  .rail-spacer { flex: 1; }
+
+  /* --- 左栏：分类 --- */
+  .set-pane {
+    width: 280px;
+    flex: 0 0 auto;
+    border-right: 1px solid var(--line);
+    padding: 18px 12px 16px;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+  }
+  .pane-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 0 10px;
+    margin-bottom: 12px;
+  }
+  .pane-count { font-family: var(--font-mono); font-size: 10px; color: var(--faint); }
+  .pane-list { margin-top: 14px; display: flex; flex-direction: column; gap: 1px; }
+
+  .pcat {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 10px 10px 12px;
+    border-radius: 8px;
+    text-align: left;
+    color: var(--muted);
+    transition: background 140ms ease, color 140ms ease;
+  }
+  .pcat:hover { background: var(--bg3); color: var(--fg); }
+  .pcat:hover svg { color: var(--fg); }
+  .pcat svg { color: var(--faint); transition: color 140ms ease; }
+  .pcat-name {
+    flex: 1;
+    min-width: 0;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .pcat-count { font-family: var(--font-mono); font-size: 10px; color: var(--faint); }
+  .pcat.is-on {
+    background: rgba(198, 242, 78, 0.06);
+    color: var(--fg);
+  }
+  .pcat.is-on svg { color: var(--accent); }
+  .pcat.is-on::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 9px;
+    bottom: 9px;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+
+  /* --- 右栏：内容 --- */
+  .set-detail {
+    flex: 1;
+    min-width: 0;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .win-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
+    line-height: 1.15;
+  }
+
+  .detail-sub {
+    margin-top: 7px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+  }
+
+  .drows { margin-top: 20px; }
+
+  .drow {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 17px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .dlabel { font-size: 13px; line-height: 1.3; color: var(--fg); }
+  .ddesc { margin-top: 4px; font-size: 11px; line-height: 1.45; color: var(--muted); }
+  .dctl { display: flex; align-items: center; gap: 6px; }
+  .dinput { width: 250px; height: 32px; font-family: var(--font-mono); font-size: 11.5px; }
+  .dselect {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 32px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg2);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.02em;
+    color: var(--fg);
+    transition: border-color 140ms ease;
+  }
+  .dselect:hover { border-color: var(--line-strong); }
+  .dselect svg { color: var(--faint); }
+
+  .d-adv { margin: 26px 0 0; }
+
+  .set-foot {
+    margin-top: auto;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    color: var(--faint);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: 0.001ms !important; animation-duration: 0.001ms !important; }
+  }
+</style>
+</head>
+<body>
+<div class="studio">
+
+  <!-- 图标精灵：单色线条，stroke 1.7，全部 currentColor -->
+  <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+    <symbol id="ic-chev-r" viewBox="0 0 24 24"><path d="m9 5.5 6.5 6.5L9 18.5"/></symbol>
+    <symbol id="ic-chev-d" viewBox="0 0 24 24"><path d="m5.5 9 6.5 6.5L18.5 9"/></symbol>
+    <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.6"/><path d="m16 16 4.2 4.2"/></symbol>
+    <symbol id="ic-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="ic-signal" viewBox="0 0 24 24"><path d="M12 12v.01"/><path d="M8.6 8.6a4.8 4.8 0 0 0 0 6.8"/><path d="M15.4 15.4a4.8 4.8 0 0 0 0-6.8"/><path d="M5.6 5.6a9 9 0 0 0 0 12.8"/><path d="M18.4 18.4a9 9 0 0 0 0-12.8"/></symbol>
+    <symbol id="ic-download" viewBox="0 0 24 24"><path d="M12 3.6v11"/><path d="m7.3 10 4.7 4.6L16.7 10"/><path d="M4.6 19.4h14.8"/></symbol>
+    <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 2.8 5 5.6v5.6c0 4.4 2.9 7.6 7 9.9 4.1-2.3 7-5.5 7-9.9V5.6L12 2.8Z"/><path d="m8.8 11.8 2.4 2.4 4-4.4"/></symbol>
+    <symbol id="ic-palette" viewBox="0 0 24 24"><path d="M12 3.4c-4.8 0-8.6 3.7-8.6 8.4 0 4.7 3.6 8.4 8.2 8.4 1.5 0 2.3-.9 2.3-2 0-1.4-1.2-1.7-1.2-2.9 0-1 .8-1.7 1.9-1.7h2.2c2.3 0 4.1-1.8 4.1-4.1 0-3.4-3.8-6.1-8.9-6.1Z"/><circle cx="8.2" cy="11.2" r="1.05"/><circle cx="10.8" cy="7.9" r="1.05"/><circle cx="15.2" cy="8.5" r="1.05"/></symbol>
+    <symbol id="ic-server" viewBox="0 0 24 24"><rect x="3.4" y="4" width="17.2" height="6" rx="1.2"/><rect x="3.4" y="14" width="17.2" height="6" rx="1.2"/><path d="M7 7h.01M7 17h.01"/></symbol>
+    <symbol id="ic-laptop" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="10.5" rx="1.4"/><path d="M2.4 19h19.2"/></symbol>
+    <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.6V12l3.1 1.9"/></symbol>
+    <symbol id="ic-sliders" viewBox="0 0 24 24"><path d="M4 8h9M17 8h3M4 16h3M11 16h9"/><circle cx="15" cy="8" r="2"/><circle cx="9" cy="16" r="2"/></symbol>
+    <symbol id="ic-dice" viewBox="0 0 24 24"><rect x="4.4" y="4.4" width="15.2" height="15.2" rx="3.2"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="15" r="1"/><circle cx="15" cy="9" r="1"/><circle cx="9" cy="15" r="1"/></symbol>
+    <symbol id="ic-monitor" viewBox="0 0 24 24"><rect x="3.2" y="4.4" width="17.6" height="11.2" rx="1.6"/><path d="M9 20h6M12 15.6V20"/></symbol>
+    <symbol id="ic-restart" viewBox="0 0 24 24"><path d="M19.6 12a7.6 7.6 0 1 1-2.2-5.4"/><path d="M19.9 4.2v4.2h-4.2"/></symbol>
+    <symbol id="ic-stop" viewBox="0 0 24 24"><rect x="7.2" y="7.2" width="9.6" height="9.6" rx="1.4"/></symbol>
+  </svg>
+
+  <header class="studio-hd">
+    <h1 class="studio-title">设置页信息架构</h1>
+    <div class="studio-sub">LocalSend Signal 重设计</div>
+    <p class="legend">移动端：分类首页 / 分类页 / 搜索　　桌面：双栏</p>
+  </header>
+
+  <section class="boards boards-phones">
+
+    <!-- ================= B · 方案首页 ================= -->
+    <figure class="board">
+      <figcaption class="board-label">移动端：分类首页</figcaption>
+      <div class="phone" id="frame-b" data-caption="一级：分类 + 状态胶囊，一眼看出哪些开关是开的。点进去只看到这一类的 4–6 项。">
+        <div class="app">
+          <div class="hdr">
+            <button type="button" class="icon-btn" aria-label="返回">
+              <svg class="i" width="18" height="18" style="transform:rotate(180deg)"><use href="#ic-chev-r"></use></svg>
+            </button>
+            <div class="hdr-id">
+              <div class="hdr-alias">设置</div>
+              <div class="hdr-sub">对网络可见</div>
+            </div>
+          </div>
+          <div class="main is-flex">
+            <div class="search">
+              <svg class="i" width="14" height="14"><use href="#ic-search"></use></svg>
+              <input type="text" placeholder="搜索设置项" aria-label="搜索设置项">
+            </div>
+
+            <div class="eyebrow" style="margin:16px 0 2px">共 25 项</div>
+
+            <div class="b-list">
+              <button type="button" class="cat" data-cat="device">
+                <span class="cat-glyph"><svg class="i" width="16" height="16"><use href="#ic-signal"></use></svg></span>
+                <span class="cat-main">
+                  <span class="cat-title">设备与可见性</span>
+                  <span class="cat-meta cat-tags"><span class="pill is-on"><span class="dot"></span>可见</span></span>
+                </span>
+                <span class="cat-count">4 项</span>
+                <svg class="i chev" width="15" height="15"><use href="#ic-chev-r"></use></svg>
+              </button>
+
+              <button type="button" class="cat is-sel" data-cat="receive">
+                <span class="cat-glyph"><svg class="i" width="16" height="16"><use href="#ic-download"></use></svg></span>
+                <span class="cat-main">
+                  <span class="cat-title">接收与保存</span>
+                  <span class="cat-meta cat-tags"><span class="pill is-on"><span class="dot"></span>自动保存</span></span>
+                </span>
+                <span class="cat-count">6 项</span>
+                <svg class="i chev" width="15" height="15"><use href="#ic-chev-r"></use></svg>
+              </button>
+
+              <button type="button" class="cat" data-cat="security">
+                <span class="cat-glyph"><svg class="i" width="16" height="16"><use href="#ic-shield"></use></svg></span>
+                <span class="cat-main">
+                  <span class="cat-title">安全与分享</span>
+                  <span class="cat-meta cat-tags"><span class="pill is-on"><span class="dot"></span>加密</span><span class="pill is-on"><span class="dot"></span>校验和</span></span>
+                </span>
+                <span class="cat-count">3 项</span>
+                <svg class="i chev" width="15" height="15"><use href="#ic-chev-r"></use></svg>
+              </button>
+
+              <button type="button" class="cat" data-cat="appearance">
+                <span class="cat-glyph"><svg class="i" width="16" height="16"><use href="#ic-palette"></use></svg></span>
+                <span class="cat-main">
+                  <span class="cat-title">外观与语言</span>
+                </span>
+                <span class="cat-count">6 项</span>
+                <svg class="i chev" width="15" height="15"><use href="#ic-chev-r"></use></svg>
+              </button>
+
+              <button type="button" class="cat" data-cat="network">
+                <span class="cat-glyph"><svg class="i" width="16" height="16"><use href="#ic-server"></use></svg></span>
+                <span class="cat-main">
+                  <span class="cat-title">网络与服务器</span>
+                  <span class="cat-meta cat-tags"><span class="pill is-on"><span class="dot"></span>在线</span></span>
+                </span>
+                <span class="cat-count">6 项</span>
+                <svg class="i chev" width="15" height="15"><use href="#ic-chev-r"></use></svg>
+              </button>
+            </div>
+
+            <div class="b-foot">
+              <div class="b-links">
+                <button type="button" class="b-link">关于</button>
+                <button type="button" class="b-link">支持 LocalSend</button>
+                <button type="button" class="b-link">隐私政策</button>
+                <button type="button" class="b-link">更新日志</button>
+              </div>
+              <div class="b-version">LocalSend 1.18.2 (64)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <figcaption class="board-caption">一级：分类 + 状态胶囊，一眼看出哪些开关是开的。点进去只看到这一类的 4–6 项。</figcaption>
+    </figure>
+
+    <!-- ================= C · 方案详情页（接收与保存） ================= -->
+    <figure class="board">
+      <figcaption class="board-label">移动端：分类页</figcaption>
+      <div class="phone" id="frame-c" data-caption="二级：一屏 4–7 项，只放一类；返回即回索引，没有展开收起带来的位置跳动。">
+        <div class="app">
+          <div class="hdr">
+            <button type="button" class="icon-btn" aria-label="返回">
+              <svg class="i" width="18" height="18" style="transform:rotate(180deg)"><use href="#ic-chev-r"></use></svg>
+            </button>
+            <div class="hdr-id">
+              <div class="hdr-alias" id="c-title">接收与保存</div>
+              <div class="hdr-sub" id="c-sub">6 项</div>
+            </div>
+          </div>
+          <div class="main is-flex">
+            <div class="c-body" id="c-body">
+              <div class="setrow is-block">
+                <div class="setrow-label">自动保存</div>
+                <div class="seg is-block">
+                  <button type="button">关闭</button>
+                  <button type="button" class="is-on">仅收藏</button>
+                  <button type="button">全部</button>
+                </div>
+              </div>
+              <div class="setrow">
+                <div class="grow"><div class="setrow-label">需要 PIN</div></div>
+                <span class="sw" role="switch" aria-checked="false" aria-label="需要 PIN"></span>
+              </div>
+              <div class="setrow">
+                <div class="grow"><div class="setrow-label">保存到相册</div></div>
+                <span class="sw is-on" role="switch" aria-checked="true" aria-label="保存到相册"></span>
+              </div>
+              <div class="setrow">
+                <div class="grow"><div class="setrow-label">自动完成传输任务</div></div>
+                <span class="sw is-on" role="switch" aria-checked="true" aria-label="自动完成传输任务"></span>
+              </div>
+              <div class="setrow">
+                <div class="grow"><div class="setrow-label">保存到历史记录</div></div>
+                <span class="sw is-on" role="switch" aria-checked="true" aria-label="保存到历史记录"></span>
+              </div>
+              <div class="setrow">
+                <div class="grow"><div class="setrow-label">接收时验证校验和</div></div>
+                <span class="sw is-on" role="switch" aria-checked="true" aria-label="接收时验证校验和"></span>
+              </div>
+            </div>
+            <div class="shell-hint is-bottom" id="c-hint" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+      <figcaption class="board-caption">二级：一屏 4–7 项，只放一类；返回即回索引，没有展开收起带来的位置跳动。</figcaption>
+    </figure>
+
+    <!-- ================= D · 搜索态 ================= -->
+    <figure class="board">
+      <figcaption class="board-label">移动端：搜索</figcaption>
+      <div class="phone" id="frame-d" data-caption="搜索不再是“过滤折叠组”：结果带分类面包屑，点一下直接进详情页并高亮该行。">
+        <div class="app">
+          <div class="hdr">
+            <button type="button" class="icon-btn" aria-label="返回">
+              <svg class="i" width="18" height="18" style="transform:rotate(180deg)"><use href="#ic-chev-r"></use></svg>
+            </button>
+            <div class="hdr-id">
+              <div class="hdr-alias">设置</div>
+              <div class="hdr-sub">对网络可见</div>
+            </div>
+          </div>
+          <div class="main">
+            <div class="search">
+              <svg class="i" width="14" height="14"><use href="#ic-search"></use></svg>
+              <input type="text" value="保存" aria-label="搜索设置项">
+              <button type="button" class="search-x" aria-label="清除搜索">
+                <svg class="i" width="13" height="13"><use href="#ic-x"></use></svg>
+              </button>
+            </div>
+
+            <div class="eyebrow" style="margin:16px 0 4px">3 个结果</div>
+
+            <div class="results">
+              <button type="button" class="result">
+                <span class="result-main">
+                  <span class="result-crumb">接收与保存</span>
+                  <span class="result-label">自动保存</span>
+                </span>
+                <span class="result-value">仅收藏</span>
+              </button>
+              <button type="button" class="result">
+                <span class="result-main">
+                  <span class="result-crumb">接收与保存</span>
+                  <span class="result-label">保存到相册</span>
+                </span>
+                <span class="capsule is-on"></span>
+              </button>
+              <button type="button" class="result">
+                <span class="result-main">
+                  <span class="result-crumb">接收与保存</span>
+                  <span class="result-label">保存到历史记录</span>
+                </span>
+                <span class="capsule is-on"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <figcaption class="board-caption">搜索不再是“过滤折叠组”：结果带分类面包屑，点一下直接进详情页并高亮该行。</figcaption>
+    </figure>
+
+  </section>
+
+  <section class="boards boards-desk">
+
+    <!-- ================= E · 桌面双栏 ================= -->
+    <figure class="board board-wide">
+      <figcaption class="board-label">桌面：双栏</figcaption>
+      <div class="desk-fit" id="desk-fit">
+        <div id="frame-e" class="win">
+          <div class="win-chrome">
+            <span class="tl-dot"></span><span class="tl-dot"></span><span class="tl-dot"></span>
+            <span class="win-chrome-title">LocalSend — 设置</span>
+          </div>
+          <div class="win-body">
+            <div class="rail">
+              <div class="hdr-mark rail-mark"><svg class="i" width="16" height="16"><use href="#ic-signal"></use></svg></div>
+              <button type="button" class="rail-btn">
+                <svg class="i" width="17" height="17"><use href="#ic-signal"></use></svg>
+                附近
+              </button>
+              <button type="button" class="rail-btn">
+                <svg class="i" width="17" height="17"><use href="#ic-clock"></use></svg>
+                传输
+              </button>
+              <div class="rail-spacer"></div>
+              <button type="button" class="rail-btn is-on">
+                <svg class="i" width="17" height="17"><use href="#ic-sliders"></use></svg>
+                设置
+              </button>
+            </div>
+
+            <div class="set-pane">
+              <div class="pane-head">
+                <span class="eyebrow">设置</span>
+                <span class="pane-count">共 30 项</span>
+              </div>
+              <div class="search">
+                <svg class="i" width="14" height="14"><use href="#ic-search"></use></svg>
+                <input type="text" placeholder="搜索设置项" aria-label="搜索设置项">
+              </div>
+              <div class="pane-list">
+                <button type="button" class="pcat is-on">
+                  <svg class="i" width="15" height="15"><use href="#ic-signal"></use></svg>
+                  <span class="pcat-name">设备与可见性</span>
+                  <span class="pcat-count">4</span>
+                </button>
+                <button type="button" class="pcat">
+                  <svg class="i" width="15" height="15"><use href="#ic-download"></use></svg>
+                  <span class="pcat-name">接收与保存</span>
+                  <span class="pcat-count">6</span>
+                </button>
+                <button type="button" class="pcat">
+                  <svg class="i" width="15" height="15"><use href="#ic-shield"></use></svg>
+                  <span class="pcat-name">安全与分享</span>
+                  <span class="pcat-count">3</span>
+                </button>
+                <button type="button" class="pcat">
+                  <svg class="i" width="15" height="15"><use href="#ic-palette"></use></svg>
+                  <span class="pcat-name">外观与语言</span>
+                  <span class="pcat-count">6</span>
+                </button>
+                <button type="button" class="pcat">
+                  <svg class="i" width="15" height="15"><use href="#ic-server"></use></svg>
+                  <span class="pcat-name">网络与服务器</span>
+                  <span class="pcat-count">6</span>
+                </button>
+                <button type="button" class="pcat">
+                  <svg class="i" width="15" height="15"><use href="#ic-laptop"></use></svg>
+                  <span class="pcat-name">桌面与窗口</span>
+                  <span class="pcat-count">6</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="set-detail">
+              <h2 class="win-title">设备与可见性</h2>
+              <div class="detail-sub" style="display:none"></div>
+
+              <div class="drows">
+                <div class="drow">
+                  <div class="grow"><div class="dlabel">设备名称</div></div>
+                  <div class="dctl">
+                    <input class="input dinput" type="text" value="MacBook Pro" aria-label="设备名称">
+                    <button type="button" class="mini-btn" title="生成随机名称" aria-label="生成随机名称">
+                      <svg class="i" width="15" height="15"><use href="#ic-dice"></use></svg>
+                    </button>
+                    <button type="button" class="mini-btn" title="使用系统名称" aria-label="使用系统名称">
+                      <svg class="i" width="15" height="15"><use href="#ic-monitor"></use></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="drow">
+                  <div class="grow">
+                    <div class="dlabel">对本网络可见</div>
+                  </div>
+                  <span class="sw is-on" role="switch" aria-checked="true" aria-label="对本网络可见"></span>
+                </div>
+
+              </div>
+
+              <div class="eyebrow d-adv">高级</div>
+
+              <div class="drow">
+                <div class="grow"><div class="dlabel">设备类型</div></div>
+                <button type="button" class="dselect">
+                  笔记本
+                  <svg class="i" width="14" height="14"><use href="#ic-chev-d"></use></svg>
+                </button>
+              </div>
+
+              <div class="drow">
+                <div class="grow"><div class="dlabel">设备型号</div></div>
+                <input class="input dinput" type="text" value="MacBook Pro" aria-label="设备型号">
+              </div>
+
+              <div class="set-foot">LocalSend 1.18.2 (64)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <figcaption class="board-caption">桌面：左分类右内容，零层级切换；搜索固定在分类栏上方。</figcaption>
+    </figure>
+
+  </section>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ------------------------------------------------------------------------
+     详情页（Frame C）内容：5 个分类，点击 Frame B 的分类行切换
+     ------------------------------------------------------------------------ */
+  var COLORS = ['#c6f24e', '#ffb020', '#7aa2ff', '#f2695e', '#8a8f98'];
+  var CHEV_R = '<svg class="i chev" width="14" height="14" aria-hidden="true"><use href="#ic-chev-r"></use></svg>';
+  var CHEV_D = '<svg class="i chev" width="14" height="14" aria-hidden="true"><use href="#ic-chev-d"></use></svg>';
+
+  function rowSwitch(r) {
+    return '<div class="setrow"><div class="grow"><div class="setrow-label">' + r.label + '</div>' +
+      (r.desc ? '<div class="setrow-desc">' + r.desc + '</div>' : '') + '</div>' +
+      '<span class="sw' + (r.on ? ' is-on' : '') + '" role="switch" aria-checked="' + (r.on ? 'true' : 'false') +
+      '" aria-label="' + r.label + '"></span></div>';
+  }
+
+  function rowLink(r, chev) {
+    return '<div class="setrow"><div class="grow"><div class="setrow-label">' + r.label + '</div>' +
+      (r.desc ? '<div class="setrow-desc">' + r.desc + '</div>' : '') + '</div>' +
+      (r.value ? '<span class="setrow-value">' + r.value + '</span>' : '') + chev + '</div>';
+  }
+
+  function rowSegment(r, inline) {
+    var seg = '<div class="seg' + (inline ? ' seg-sm' : ' is-block') + '">' + r.options.map(function (o, i) {
+      return '<button type="button"' + (i === r.index ? ' class="is-on"' : '') + '>' + o + '</button>';
+    }).join('') + '</div>';
+
+    if (inline) {
+      return '<div class="setrow"><div class="grow"><div class="setrow-label">' + r.label + '</div></div>' + seg + '</div>';
+    }
+    return '<div class="setrow is-block"><div class="setrow-label">' + r.label + '</div>' +
+      (r.desc ? '<div class="setrow-desc">' + r.desc + '</div>' : '') + seg + '</div>';
+  }
+
+  function renderRow(r) {
+    switch (r.t) {
+      case 'switch':
+        return rowSwitch(r);
+      case 'link':
+        return rowLink(r, CHEV_R);
+      case 'select':
+        return rowLink(r, CHEV_D);
+      case 'chip':
+        return '<div class="setrow"><div class="grow"><div class="setrow-label">' + r.label + '</div></div>' +
+          '<span class="chip">' + r.value + '</span></div>';
+      case 'segBlock':
+        return rowSegment(r, false);
+      case 'segInline':
+        return rowSegment(r, true);
+      case 'input':
+        return '<div class="setrow"><div class="grow"><div class="setrow-label">' + r.label + '</div></div>' +
+          '<div class="inl"><input class="input input-inline" type="text" value="' + r.value + '" aria-label="' + r.label + '"' +
+          (r.w ? ' style="width:' + r.w + 'px"' : '') + '>' +
+          (r.suffix ? '<span class="setrow-value">' + r.suffix + '</span>' : '') + '</div></div>';
+      case 'swatch':
+        return '<div class="setrow"><div class="grow"><div class="setrow-label">' + r.label + '</div></div>' +
+          '<div class="swatches">' + COLORS.map(function (c, i) {
+            return '<button type="button" class="swatch' + (i === r.index ? ' is-on' : '') +
+              '" style="background:' + c + '" aria-label="强调色 ' + (i + 1) + '"></button>';
+          }).join('') + '</div></div>';
+      case 'server':
+        return '<div class="setrow"><div class="grow"><div class="setrow-label">服务器</div></div>' +
+          '<span class="chip is-accent"><i class="chip-dot"></i>在线</span>' +
+          '<button type="button" class="mini-btn" title="重启服务器" aria-label="重启服务器">' +
+          '<svg class="i" width="14" height="14"><use href="#ic-restart"></use></svg></button>' +
+          '<button type="button" class="mini-btn" title="停止服务器" aria-label="停止服务器">' +
+          '<svg class="i" width="14" height="14"><use href="#ic-stop"></use></svg></button></div>';
+      default:
+        return '';
+    }
+  }
+
+  var CATS = {
+    device: {
+      title: '设备与可见性',
+      count: 4,
+      hint: '',
+      rows: [
+        { t: 'input', label: '设备名称', value: 'MacBook Pro', w: 170 },
+        { t: 'switch', label: '对本网络可见', on: true },
+        { t: 'select', label: '设备类型', value: '笔记本' },
+        { t: 'input', label: '设备型号', value: 'MacBook Pro', w: 170 }
+      ]
+    },
+    receive: {
+      title: '接收与保存',
+      count: 6,
+      hint: '这一页只有接收相关设置',
+      rows: [
+        { t: 'segBlock', label: '自动保存', options: ['关闭', '仅收藏', '全部'], index: 1 },
+        { t: 'switch', label: '启用 PIN', on: false },
+        { t: 'switch', label: '保存到相册', on: true },
+        { t: 'switch', label: '完成后自动关闭会话', on: true },
+        { t: 'switch', label: '保存到历史记录', on: true },
+        { t: 'switch', label: '接收时验证校验和', on: true }
+      ]
+    },
+    security: {
+      title: '安全与分享',
+      count: 3,
+      hint: '',
+      rows: [
+        { t: 'switch', label: '加密', on: true },
+        { t: 'switch', label: '自动接收链接分享', on: false },
+        { t: 'switch', label: '发送时创建校验和', on: true }
+      ]
+    },
+    appearance: {
+      title: '外观与语言',
+      count: 6,
+      hint: '',
+      rows: [
+        { t: 'segBlock', label: '主题', options: ['跟随系统', '深色', '浅色'], index: 1 },
+        { t: 'select', label: '配色', value: 'OLED' },
+        { t: 'swatch', label: '强调色', index: 0 },
+        { t: 'segInline', label: '附近页布局', options: ['网格', '雷达'], index: 0 },
+        { t: 'link', label: '语言', value: '简体中文' },
+        { t: 'switch', label: '动画效果', on: true }
+      ]
+    },
+    network: {
+      title: '网络与服务器',
+      count: 6,
+      hint: '',
+      rows: [
+        { t: 'server' },
+        { t: 'input', label: '端口', value: '53317', w: 110 },
+        { t: 'input', label: '多播地址', value: '224.0.0.167', w: 140 },
+        { t: 'input', label: '搜索设备超时', value: '500', suffix: 'ms', w: 76 },
+        { t: 'link', label: '网络接口', value: '所有' },
+        { t: 'link', label: '调试与日志' }
+      ]
+    }
+  };
+
+  var titleEl = document.getElementById('c-title');
+  var subEl = document.getElementById('c-sub');
+  var bodyEl = document.getElementById('c-body');
+  var hintEl = document.getElementById('c-hint');
+  var catBtns = document.querySelectorAll('#frame-b .cat');
+
+  function render(key) {
+    var c = CATS[key];
+    if (!c) return;
+
+    titleEl.textContent = c.title;
+    subEl.textContent = c.count + ' 项';
+    bodyEl.innerHTML = c.rows.map(renderRow).join('');
+    hintEl.textContent = c.hint;
+
+    for (var i = 0; i < catBtns.length; i++) {
+      var on = catBtns[i].getAttribute('data-cat') === key;
+      catBtns[i].classList.toggle('is-sel', on);
+      catBtns[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+  }
+
+  for (var i = 0; i < catBtns.length; i++) {
+    catBtns[i].addEventListener('click', function () {
+      render(this.getAttribute('data-cat'));
+    });
+  }
+
+  /* ------------------------------------------------------------------------
+     桌面画板：窄屏时整体等比缩放，页面永不横向溢出
+     ------------------------------------------------------------------------ */
+  var deskFit = document.getElementById('desk-fit');
+  var deskWin = document.getElementById('frame-e');
+
+  function fitDesk() {
+    if (!deskFit || !deskWin || !deskFit.parentElement) return;
+    var avail = deskFit.parentElement.clientWidth;
+    var scale = Math.min(1, avail / 1280);
+
+    deskWin.style.transformOrigin = 'top left';
+    deskWin.style.transform = scale < 1 ? 'scale(' + scale + ')' : 'none';
+    deskFit.style.height = Math.round(800 * scale) + 'px';
+  }
+
+  window.addEventListener('resize', fitDesk);
+  fitDesk();
+})();
+</script>
+</body>
+</html>

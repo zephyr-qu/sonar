@@ -58,6 +58,11 @@ pub(crate) struct SessionFileV2 {
     /// Limits how often a checksum mismatch resets the file to
     /// [FileStatusV2::Pending] for a retry.
     pub(crate) attempts: u8,
+
+    /// Whether the sender-provided SHA-256 was verified and matched.
+    /// `false` also for files without a checksum, so the caller can report
+    /// "verified N of M" instead of a blanket "verified".
+    pub(crate) checksum_verified: bool,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

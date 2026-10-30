@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:localsend_app/config/design_tokens.dart';
 import 'package:localsend_app/util/device_type_ext.dart';
 import 'package:localsend_app/widget/custom_progress_bar.dart';
 import 'package:localsend_app/widget/device_bage.dart';
 import 'package:localsend_app/widget/list_tile/custom_list_tile.dart';
 import 'package:localsend_isolates/model/device.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class DeviceListTile extends StatelessWidget {
   final Device device;
@@ -36,16 +38,16 @@ class DeviceListTile extends StatelessWidget {
       title: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(nameOverride ?? device.alias, style: const TextStyle(fontSize: 20)),
+          Text(nameOverride ?? device.alias, style: context.ls.title),
           if (isFavorite) ...[
             const SizedBox(width: 5),
-            Icon(Icons.check_circle, size: 16),
+            Icon(LucideIcons.checkCircle, size: 16),
           ],
         ],
       ),
       trailing: onDetailsTap != null
           ? IconButton(
-              icon: const Icon(Icons.info_outline),
+              icon: const Icon(LucideIcons.info),
               onPressed: onDetailsTap,
             )
           : null,

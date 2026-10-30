@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:localsend_app/config/design_tokens.dart';
 import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/widget/responsive_list_view.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_card.dart';
+import 'package:localsend_app/widget/ls/ls_header.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/addons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:routerino/routerino.dart';
 
 class WhatsNewPage extends StatelessWidget {
   final String version;
@@ -23,28 +28,58 @@ class WhatsNewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = context.ls;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(t.whatsNewPage.title(version: version)),
-      ),
-      body: ResponsiveListView(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        children: [
-          for (final change in strings.changes)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Text('- $change'),
-            ),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerRight,
-            child: FilledButton.icon(
-              onPressed: () => context.global.dispatch(NavigateAction.pop()),
-              icon: Icon(Icons.done),
-              label: Text(t.general.done),
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                LsSubHeader(
+                  title: t.whatsNewPage.title(version: version),
+                  onBack: () => context.pop(),
+                ),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                    children: [
+                      LsCard(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            for (final change in strings.changes)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('·', style: tokens.bodySm.copyWith(color: tokens.colors.accent)),
+                                    const SizedBox(width: 8),
+                                    Expanded(child: Text(change, style: tokens.body)),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      LsButton(
+                        label: t.general.done,
+                        icon: LucideIcons.check,
+                        expand: true,
+                        onPressed: () => context.global.dispatch(NavigateAction.pop()),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }

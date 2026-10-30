@@ -94,7 +94,7 @@
         "dark": "Dark",
         "light": "Light"
       },
-      "color": "Color",
+      "color": "Palette",
       "colorOptions": {
         "system": "System",
         "oled": "OLED",
@@ -108,10 +108,10 @@
       "saveWindowPlacementWindows": "Save window position after exit",
       "alwaysOnTop": "Always on top",
       "alwaysOnTopUnavailable": "Not supported on Wayland",
-      "minimizeToTray": "Minimize to the System Tray/Menu Bar when closing",
-      "launchAtStartup": "Autostart after login",
+      "minimizeToTray": "Minimize to tray on close",
+      "launchAtStartup": "Launch at login",
       "launchMinimized": "Autostart: Start hidden",
-      "showInContextMenu": "Show LocalSend in context menu",
+      "showInContextMenu": "Show in “Send to” menu",
       "animations": "Animations"
     },
     "receive": {
@@ -119,17 +119,17 @@
       "quickSave": "@:general.quickSave",
       "quickSaveFromFavorites": "@:general.quickSaveFromFavorites",
       "requirePin": "@:webSharePage.requirePin",
-      "autoFinish": "Auto Finish",
+      "autoFinish": "Close session when finished",
       "destination": "Save to folder",
-      "downloads": "(Downloads)",
+      "downloads": "Downloads",
       "saveToGallery": "Save media to gallery",
       "saveToHistory": "Save to history",
-      "verifyChecksums": "Verify checksums when receiving files"
+      "verifyChecksums": "Verify checksums on receive"
     },
     "send": {
       "title": "Send",
-      "shareViaLinkAutoAccept": "Automatically accept requests in \"Share via link\" mode",
-      "createChecksums": "Create checksums when sending files"
+      "shareViaLinkAutoAccept": "Auto-accept link shares",
+      "createChecksums": "Create checksums on send"
     },
     "network": {
       "title": "Network",
@@ -139,7 +139,7 @@
       "deviceType": "Device type",
       "deviceModel": "Device model",
       "port": "Port",
-      "network": "Network",
+      "network": "Interfaces",
       "networkOptions": {
         "all": "All",
         "filtered": "Filtered"
@@ -160,6 +160,147 @@
       "termsOfUse": "Terms of Use"
     },
     "advancedSettings": "Advanced settings"
+  },
+  "nearbyTab": {
+    "title": "Nearby",
+    "visible": "Visible",
+    "hidden": "Hidden",
+    "hide": "Hide from this network",
+    "show": "Be visible to this network",
+    "online": "{online} online · {total} discovered",
+    "onlineSuffix": "online · {total} discovered",
+    "scan": "Scan again",
+    "linkReceive": "Receive via link",
+    "manualIp": "Manual IP",
+    "search": "Search device name or IP",
+    "filterAll": "All",
+    "filterOnline": "Online",
+    "filterFavorites": "Favorites",
+    "multi": "Select",
+    "multiActive": "Selecting",
+    "selected": "{n} selected",
+    "selectTarget": "Choose target devices",
+    "send": "Send",
+    "pending": "To send · {files} · {size}",
+    "addFile": "Add file",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "clear": "Clear",
+    "favorites": "Favorites",
+    "onlineSection": "Online",
+    "offlineSection": "Offline",
+    "offline": "Offline",
+    "offlineHint": "This device is offline",
+    "noOnlineMatch": "No matching online devices",
+    "noDevices": "No devices found yet. Make sure the other device is on the same network.",
+    "radarHidden": "{shown} of {total} shown",
+    "favorited": "Added to favorites",
+    "unfavorited": "Removed from favorites",
+    "visibleToast": "Visible to this network",
+    "hiddenToast": "Hidden · only link reception works",
+    "filesEmpty": "No files selected",
+    "tray": "Tray",
+    "inProgress": "In progress",
+    "receivePolicy": "Receive policy",
+    "securitySettings": "Encryption & PIN",
+    "dropHere": "Drop files here",
+    "dropHint": "or click to choose files / folders",
+    "desktopHint": "Pick a device card, then confirm in the tray",
+    "desktopLede": "{online} online",
+    "dragHint": "Drop files into the tray on the right to start",
+    "justNow": "just now",
+    "minutesAgo": "{n} min ago",
+    "hoursAgo": "{n} h ago",
+    "daysAgo": "{n} d ago"
+  },
+  "transferTab": {
+    "title": "Transfers",
+    "inProgress": "{n} active",
+    "historyCount": "{n} in history",
+    "noActive": "NO ACTIVE TRANSFER",
+    "noActiveHint": "Pick a device in Nearby to start, or accept an incoming request.",
+    "recent": "Recent transfers",
+    "sending": "Sending to {device}",
+    "receiving": "Receiving from {device}",
+    "sentTo": "Sent to {device}",
+    "receivedFrom": "Received from {device}",
+    "cancel": "Cancel transfer",
+    "openFolder": "Open folder",
+    "done": "@:general.done",
+    "verified": "Verified",
+    "verifiedCount": "Verified {verified}/{total}",
+    "remaining": "{time} left",
+    "speed": "{speed} MB/s",
+    "items": "{n} items",
+    "noHistory": "No transfers yet"
+  },
+  "settingsPage": {
+    "search": "Search {count} settings",
+    "noResults": "No settings match \"{query}\"",
+    "items": "{n} items",
+    "groups": "{n} groups",
+    "groupVisibility": "Visibility",
+    "groupVisibilitySummary": "Alias · device type · visibility",
+    "groupReceive": "Receiving",
+    "groupReceiveSummary": "Destination · quick save · PIN",
+    "groupSecurity": "Security & transfer",
+    "groupSecuritySummary": "Encryption · checksums",
+    "groupAppearance": "Appearance",
+    "groupAppearanceSummary": "Theme · color · language · layout",
+    "groupAdvanced": "Advanced",
+    "groupAdvancedSummary": "Port · multicast · network · debug",
+    "visibleToNetwork": "Visible to this network",
+    "visibleToNetworkDesc": "Turn off to receive only via link",
+    "nearbyLayout": "Nearby layout",
+    "nearbyLayoutDesc": "Grid: search and a two-column device grid. Radar: devices orbit the radar, files below.",
+    "nearbyLayoutGrid": "Grid",
+    "nearbyLayoutRadar": "Radar",
+    "debug": "Debug & logs",
+    "quickSaveOff": "Off",
+    "quickSaveFavorites": "Favorites only",
+    "quickSaveAll": "All devices",
+    "quickSaveDesc": "Requests from the selected devices are accepted without asking",
+    "accentColor": "Accent color",
+    "discoveryMode": "Discovery",
+    "discoveryModeDesc": "Multicast finds devices instantly, a subnet scan covers networks where multicast is blocked",
+    "discoveryModeValue": "Multicast + scan",
+    "groupDevice": "Devices & visibility",
+    "groupReceiveSection": "Receiving & saving",
+    "groupSecuritySection": "Security & sharing",
+    "groupAppearanceSection": "Appearance & language",
+    "groupNetworkSection": "Network & server",
+    "groupDesktopSection": "Desktop & window",
+    "checksums": "Checksums",
+    "results": "{n} results",
+    "searchHint": "Search settings",
+    "totalItems": "{n} settings"
+  },
+  "receiveRequestPage": {
+    "title": "Incoming request",
+    "policyQuickSave": "Quick save · accept automatically",
+    "policyQuickSaveFavorites": "Favorites are accepted automatically",
+    "policyAsk": "Ask for every request",
+    "secure": "Encrypted",
+    "plain": "Unencrypted",
+    "protocol": "Protocol {version}",
+    "filesCount": {
+      "one": "{n} file",
+      "other": "{n} files"
+    },
+    "saveTo": "Save to",
+    "change": "Change",
+    "connection": "Connection",
+    "fingerprint": "Device fingerprint",
+    "fingerprintDesc": "SHA-256 · should match the previous session",
+    "channel": "Channel",
+    "channelTls": "v2 HTTP · mutual TLS",
+    "channelPlain": "v2 HTTP · no encryption",
+    "sameNetwork": "Same local network",
+    "acceptFiles": {
+      "one": "Receive {n} item",
+      "other": "Receive {n} items"
+    },
+    "reject": "@:general.decline"
   },
   "troubleshootPage": {
     "title": "Troubleshoot",
@@ -206,6 +347,7 @@
     "apps": "{n} Apps"
   },
   "selectedFilesPage": {
+    "title": "Selected files",
     "deleteAll": "Delete all"
   },
   "deviceDetailsPage": {
@@ -213,10 +355,12 @@
     "favorite": "Favorite",
     "verify": "Verify",
     "info": {
+      "title": "Info",
       "name": "Name",
       "address": "Address",
       "version": "Version",
-      "protocol": "Protocol v{version}"
+      "protocol": "Protocol v{version}",
+      "latency": "Latency"
     },
     "logs": {
       "title": "Logs",
@@ -296,7 +440,9 @@
     "requirePin": "Require PIN",
     "pinHint": "The PIN is \"{pin}\"",
     "encryptionHint": "LocalSend uses a self-signed certificate. You need to accept it in your browser.",
-    "pendingRequests": "Pending requests: {n}"
+    "pendingRequests": "Pending requests: {n}",
+    "copyLink": "Copy link",
+    "expiresHint": "The link stops working once every file has been downloaded"
   },
   "webReceivePage": {
     "title": "Receive via link"

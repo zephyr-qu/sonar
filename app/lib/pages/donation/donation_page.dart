@@ -5,7 +5,9 @@ import 'package:localsend_app/pages/donation/donation_page_vm.dart';
 // [FOSS_REMOVE_START]
 import 'package:localsend_app/provider/purchase_provider.dart';
 // [FOSS_REMOVE_END]
+import 'package:localsend_app/widget/ls/ls_scaffold.dart';
 import 'package:localsend_app/widget/responsive_list_view.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -20,10 +22,8 @@ class DonationPage extends StatelessWidget {
       init: (context) => context.redux(purchaseProvider).dispatchAsync(FetchPricesAndPurchasesAction()), // ignore: discarded_futures
       // [FOSS_REMOVE_END]
       builder: (context, vm) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(t.donationPage.title),
-          ),
+        return LsPageScaffold(
+          title: t.donationPage.title,
           body: Stack(
             children: [
               ResponsiveListView(
@@ -80,7 +80,7 @@ class _StoreDonation extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 10),
             child: FilledButton.icon(
               onPressed: vm.purchased.contains(item) ? null : () => vm.purchase(item),
-              icon: const Icon(Icons.favorite),
+              icon: const Icon(LucideIcons.heart),
               label: Text(t.donationPage.donate(amount: vm.prices[item] ?? '...')),
             ),
           );
@@ -88,7 +88,7 @@ class _StoreDonation extends StatelessWidget {
         const SizedBox(height: 20),
         TextButton.icon(
           onPressed: vm.restore,
-          icon: const Icon(Icons.restore),
+          icon: const Icon(LucideIcons.rotateCcw),
           label: Text(t.donationPage.restore),
         ),
       ],
@@ -108,14 +108,14 @@ class _LinkDonation extends StatelessWidget {
           onPressed: () async {
             await launchUrl(Uri.parse('https://github.com/sponsors/Tienisto'), mode: LaunchMode.externalApplication);
           },
-          icon: const Icon(Icons.open_in_new),
+          icon: const Icon(LucideIcons.externalLink),
           label: const Text('Github'),
         ),
         TextButton.icon(
           onPressed: () async {
             await launchUrl(Uri.parse('https://ko-fi.com/tienisto'), mode: LaunchMode.externalApplication);
           },
-          icon: const Icon(Icons.open_in_new),
+          icon: const Icon(LucideIcons.externalLink),
           label: const Text('Ko-fi'),
         ),
       ],

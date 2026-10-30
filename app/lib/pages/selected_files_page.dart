@@ -1,15 +1,19 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:localsend_app/config/design_tokens.dart';
 import 'package:localsend_app/gen/strings.g.dart';
+import 'package:localsend_app/model/cross_file.dart';
 import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
 import 'package:localsend_app/util/native/open_file.dart';
 import 'package:localsend_app/util/ui/nav_bar_padding.dart';
 import 'package:localsend_app/widget/dialogs/message_input_dialog.dart';
-import 'package:localsend_app/widget/file_thumbnail.dart';
-import 'package:localsend_app/widget/responsive_list_view.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_card.dart';
+import 'package:localsend_app/widget/ls/ls_header.dart';
+import 'package:localsend_app/widget/ls/ls_section_label.dart';
+import 'package:localsend_app/widget/ls/ls_tile.dart';
 import 'package:localsend_isolates/model/file_type.dart';
 import 'package:localsend_isolates/util/file_size_helper.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
 
@@ -20,133 +24,130 @@ class SelectedFilesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final ref = context.ref;
     final selectedFiles = ref.watch(selectedSendingFilesProvider);
+    final totalSize = selectedFiles.fold<int>(0, (prev, curr) => prev + curr.size);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(t.sendTab.selection.title),
-      ),
-      body: ResponsiveListView.single(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        tabletPadding: const EdgeInsets.symmetric(horizontal: 15),
-        child: CustomScrollView(
-          slivers: [
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 15),
-            ),
-            SliverToBoxAdapter(
-              child: Row(
-                children: [
-                  const SizedBox(width: 5),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(t.sendTab.selection.files(files: selectedFiles.length)),
-                        Text(t.sendTab.selection.size(size: selectedFiles.fold(0, (prev, curr) => prev + curr.size).asReadableFileSize)),
-                      ],
-                    ),
-                  ),
-                  FilledButton(
+      body: SafeArea(
+        child: Column(
+          children: [
+            LsSubHeader(
+              title: t.selectedFilesPage.title,
+              subtitle: Text(
+                '${t.sendTab.selection.files(files: selectedFiles.length)} · ${totalSize.asReadableFileSize}',
+                style: context.ls.monoSm,
+              ),
+              onBack: () => Navigator.of(context).maybePop(),
+              actions: [
+                if (selectedFiles.isNotEmpty)
+                  LsButton(
+                    label: t.selectedFilesPage.deleteAll,
+                    variant: LsButtonVariant.ghost,
                     onPressed: () {
                       ref.redux(selectedSendingFilesProvider).dispatch(ClearSelectionAction());
                       context.popUntilRoot();
                     },
-                    child: Text(t.selectedFilesPage.deleteAll),
                   ),
-                ],
-              ),
+              ],
             ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 10),
-            ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                childCount: selectedFiles.length,
-                (context, index) {
-                  final file = selectedFiles[index];
-
-                  final String? message;
-                  if (file.fileType == FileType.text && file.bytes != null) {
-                    message = utf8.decode(file.bytes!);
-                  } else {
-                    message = null;
-                  }
-
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: InkWell(
-                      splashColor: Colors.transparent,
-                      splashFactory: NoSplash.splashFactory,
-                      highlightColor: Colors.transparent,
-                      hoverColor: Colors.transparent,
-                      onTap: file.path != null ? () async => openFile(context, file.fileType, file.path!) : null,
-                      child: Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: Row(
-                            children: [
-                              SmartFileThumbnail.fromCrossFile(file),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      message != null ? '"${message.replaceAll('\n', ' ')}"' : file.name,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.fade,
-                                      softWrap: false,
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 720),
+                  child: selectedFiles.isEmpty
+                      ? Center(child: Text(t.nearbyTab.filesEmpty, style: context.ls.bodySm))
+                      : ListView(
+                          padding: EdgeInsets.fromLTRB(context.ls.pad, 4, context.ls.pad, 16 + getNavBarPadding(context)),
+                          children: [
+                            LsSectionLabel(label: t.general.files, count: totalSize.asReadableFileSize),
+                            LsCard(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+                              child: Column(
+                                children: [
+                                  for (var index = 0; index < selectedFiles.length; index++)
+                                    _FileRow(
+                                      file: selectedFiles[index],
+                                      index: index,
+                                      showDivider: index > 0,
                                     ),
-                                    Text(file.size.asReadableFileSize, style: Theme.of(context).textTheme.bodySmall),
-                                  ],
-                                ),
+                                ],
                               ),
-                              if (file.fileType == FileType.text && file.bytes != null)
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Theme.of(context).colorScheme.onSurface,
-                                    iconSize: 24,
-                                  ),
-                                  onPressed: () async {
-                                    final result = await showDialog<String>(
-                                      context: context,
-                                      builder: (_) => MessageInputDialog(initialText: message),
-                                    );
-                                    if (result != null) {
-                                      ref.redux(selectedSendingFilesProvider).dispatch(UpdateMessageAction(message: result, index: index));
-                                    }
-                                  },
-                                  child: const Icon(Icons.edit),
-                                ),
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  foregroundColor: Theme.of(context).colorScheme.onSurface,
-                                  iconSize: 24,
-                                ),
-                                onPressed: () {
-                                  final currCount = ref.read(selectedSendingFilesProvider).length;
-                                  ref.redux(selectedSendingFilesProvider).dispatch(RemoveSelectedFileAction(index));
-                                  if (currCount == 1) {
-                                    context.popUntilRoot();
-                                  }
-                                },
-                                child: const Icon(Icons.delete),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ),
-                  );
-                },
+                ),
               ),
-            ),
-            SliverToBoxAdapter(
-              child: SizedBox(height: 15 + getNavBarPadding(context)),
             ),
           ],
         ),
       ),
     );
+  }
+}
+
+class _FileRow extends StatelessWidget {
+  final CrossFile file;
+  final int index;
+  final bool showDivider;
+
+  const _FileRow({required this.file, required this.index, required this.showDivider});
+
+  @override
+  Widget build(BuildContext context) {
+    final ref = context.ref;
+    final isText = file.fileType == FileType.text && file.bytes != null;
+    final name = isText ? '"${file.displayName.replaceAll('\n', ' ')}"' : file.name;
+
+    return InkWell(
+      onTap: file.path != null
+          ? () async {
+              await openFile(context, file.fileType, file.path!);
+            }
+          : null,
+      child: LsFileRow(
+        kind: _kindOf(file.name),
+        name: name,
+        meta: file.size.asReadableFileSize,
+        showDivider: showDivider,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isText)
+              LsIconButton(
+                icon: LucideIcons.pencil,
+                tooltip: t.general.edit,
+                onPressed: () async {
+                  final result = await showDialog<String>(
+                    context: context,
+                    builder: (_) => MessageInputDialog(initialText: file.displayName),
+                  );
+                  if (result != null) {
+                    ref.redux(selectedSendingFilesProvider).dispatch(UpdateMessageAction(message: result, index: index));
+                  }
+                },
+              ),
+            LsIconButton(
+              icon: LucideIcons.x,
+              tooltip: t.general.delete,
+              onPressed: () {
+                final currCount = ref.read(selectedSendingFilesProvider).length;
+                ref.redux(selectedSendingFilesProvider).dispatch(RemoveSelectedFileAction(index));
+                if (currCount == 1) {
+                  context.popUntilRoot();
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _kindOf(String name) {
+    final dot = name.lastIndexOf('.');
+    if (dot == -1 || dot == name.length - 1) {
+      return 'FILE';
+    }
+    final kind = name.substring(dot + 1).toUpperCase();
+    return kind.length > 4 ? kind.substring(0, 4) : kind;
   }
 }

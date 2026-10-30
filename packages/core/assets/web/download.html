@@ -5,82 +5,318 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LocalSend</title>
     <style>
-        body {
-            font-family: sans-serif, system-ui;
+        /* ============================================================
+           LocalSend web download page — "Signal" redesign match
+           Colors/fonts mirror designs/localsend-reimagined (Archivo,
+           JetBrains Mono, accent #C6F24E on #0A0B0D).
+           The <script> block below is unchanged; only the look was
+           reskinned. DOM ids and i18n keys stay the same.
+           ============================================================ */
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        :root {
+            --bg: #0A0B0D;
+            --bg2: #101216;
+            --bg3: #171A20;
+            --fg: #EDEFF2;
+            --muted: #9AA1AC;
+            --faint: #7E8590;
+            --line: rgba(255, 255, 255, 0.08);
+            --line-strong: rgba(255, 255, 255, 0.16);
+            --accent: #C6F24E;
+            --accent-fg: #0A0B0D;
+            --accent-soft: rgba(198, 242, 78, 0.14);
+            --danger: #FF6B57;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --pad: 16px;
+            --font-body: "Archivo", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+            --font-mono: "JetBrains Mono", "Noto Sans SC", "SF Mono", ui-monospace, monospace;
+        }
+
+        html, body {
             margin: 0;
-            line-height: 1.5;
-            text-align: center;
+            min-height: 100%;
+            background: var(--bg);
+            color: var(--fg);
+            font-family: var(--font-body);
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
         }
 
-        a {
-            text-decoration: none;
-            color: #FFFFFF;
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background:
+                radial-gradient(900px 600px at 50% -10%, rgba(198, 242, 78, 0.06), transparent 60%),
+                var(--bg);
         }
 
-        #file-list {
-            box-sizing: border-box;
+        a { color: inherit; text-decoration: none; }
+
+        .screen {
             width: 100%;
             max-width: 1000px;
-            padding: 0 1em;
-            margin: 0 auto;
+            padding: 28px var(--pad) 40px;
+            flex: 1;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+
+        .brand-mark {
+            width: 32px;
+            height: 32px;
+            flex: 0 0 auto;
+            display: grid;
+            place-items: center;
+            border-radius: var(--radius-sm);
+            background: var(--accent);
+            color: var(--accent-fg);
+        }
+
+        .brand-name {
+            font-family: var(--font-body);
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: -0.02em;
+        }
+
+        .eyebrow {
+            font-family: var(--font-mono);
+            font-size: 9.5px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--faint);
+            margin: 0 0 6px;
+        }
+
+        h1 {
+            font-family: var(--font-body);
+            font-size: 30px;
+            line-height: 1.08;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin: 0 0 6px;
+        }
+
+        .lede {
+            font-size: 12.5px;
+            line-height: 1.6;
+            color: var(--muted);
+            margin: 0 0 18px;
+        }
+
+        #status-text {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: 0.02em;
+            color: var(--muted);
+            margin: 0 0 18px;
+            padding: 0;
+        }
+
+        /* Prototype-style inline alert instead of plain red text */
+        #status-text.error {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 14px;
+            border: 1px solid var(--danger);
+            background: rgba(255, 107, 87, 0.10);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 13px;
+            letter-spacing: normal;
+            line-height: 1.4;
+            color: var(--danger);
+        }
+
+        /* PIN entry overlay — replaces the native window.prompt */
+        .pin-overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(5, 6, 8, 0.72);
+            backdrop-filter: blur(6px);
+            z-index: 50;
+        }
+
+        .pin-overlay.show { display: flex; }
+
+        .pin-card {
+            width: 100%;
+            max-width: 360px;
+            padding: 24px;
+            background: var(--bg2);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .pin-card h2 {
+            margin: 0 0 18px;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--fg);
+        }
+
+        .pin-input {
+            width: 100%;
+            margin: 0 0 14px;
+            padding: 12px 14px;
+            background: var(--bg3);
+            border: 1px solid var(--line-strong);
+            border-radius: var(--radius-sm);
+            color: var(--fg);
+            font-family: var(--font-mono);
+            font-size: 16px;
+            letter-spacing: 0.18em;
+            outline: none;
+        }
+
+        .pin-input:focus { border-color: var(--accent); }
+
+        .pin-error {
+            min-height: 18px;
+            margin: 0 0 14px;
+            font-size: 12px;
+            color: var(--danger);
+        }
+
+        .pin-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .pin-actions button {
+            flex: 1;
+            padding: 11px 14px;
+            border: 1px solid transparent;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .pin-btn-cancel {
+            background: transparent;
+            border-color: var(--line-strong);
+            color: var(--muted);
+        }
+
+        .pin-btn-confirm {
+            background: var(--accent);
+            color: var(--accent-fg);
+        }
+
+        .pin-btn-confirm:active { transform: translateY(1px); }
+
+        #file-list, #single-file {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 10px;
+            margin-top: 14px;
             text-align: left;
         }
 
+        /* Single file mode reuses the same card look, full width */
+        #single-file {
+            grid-template-columns: 1fr;
+        }
+
         .file-item {
-            display: table;
-            width: 100%;
-            padding: 0.5em 1em;
-            background-color: #00796B;
-            border-radius: 0.5em;
-            margin-bottom: 1em;
-            float: left;
-            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: var(--bg2);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            transition: border-color 150ms ease, transform 150ms ease, background 150ms ease;
         }
 
         .file-item:hover {
-            background-color: #009688;
+            border-color: var(--accent);
+            background: var(--accent-soft);
+            transform: translateY(-1px);
         }
 
-        .file-name-cell, .file-size-cell, .file-index-cell {
-            display: table-cell;
-            vertical-align: middle;
+        .file-glyph {
+            width: 34px;
+            height: 34px;
+            flex: 0 0 auto;
+            display: grid;
+            place-items: center;
+            border-radius: var(--radius-sm);
+            background: var(--bg3);
+            color: var(--muted);
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
         }
 
         .file-name-cell {
-            width: 100%;
-            padding: 0 0.5em;
-        }
-
-        .file-size-cell, .file-index-cell {
-            font-size: 0.8em;
+            flex: 1;
+            min-width: 0;
+            font-size: 13px;
+            line-height: 1.3;
             white-space: nowrap;
-            color: #E0E0E0;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        /* Two columns layout */
-        .file-item {
-            width: 100%;
+        .file-size-cell {
+            flex: 0 0 auto;
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+            color: var(--muted);
+            white-space: nowrap;
         }
 
-        @media screen and (min-width: 768px) {
-            #file-list.file-item {
-                width: 48%;
-                margin-right: 2%;
-            }
-            #file-list.file-item:nth-child(2n) {
-                margin-right: 0;
-            }
+        .file-index-cell {
+            flex: 0 0 auto;
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+            color: var(--faint);
+            width: 18px;
+            text-align: right;
         }
 
-        /* Single file mode */
+        .file-item .chev {
+            flex: 0 0 auto;
+            color: var(--faint);
+        }
 
-        #single-file {
-            box-sizing: border-box;
-            width: 100%;
-            text-align: left;
-            max-width: 400px;
-            padding: 0 1em;
-            margin: 0 auto;
+        .file-item:hover .chev {
+            color: var(--accent);
+        }
+
+        .footer {
+            margin-top: 28px;
+            padding-top: 14px;
+            border-top: 1px solid var(--line);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.02em;
+            color: var(--faint);
+            text-align: center;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; }
         }
     </style>
 </head>
@@ -89,10 +325,39 @@
     LocalSend requires JavaScript, which is currently disabled. Please enable it and try again.
 </noscript>
 
-<h1 style="padding: 0.5em">LocalSend</h1>
-<p id="status-text"></p>
-<div id="file-list"></div>
-<div id="single-file"></div>
+<div class="screen">
+    <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M12 3 4 11h4v7h8v-7h4L12 3Z" fill="currentColor"/>
+            </svg>
+        </div>
+        <div class="brand-name">LocalSend</div>
+    </div>
+
+    <p class="eyebrow">Download</p>
+    <h1 id="title">Shared files</h1>
+    <p class="lede" id="lede">Download the files shared with you over the local network.</p>
+    <p id="status-text"></p>
+
+    <div id="file-list"></div>
+    <div id="single-file"></div>
+
+    <div class="footer">LocalSend · secure local-network transfer</div>
+
+    <div class="pin-overlay" id="pin-overlay">
+        <div class="pin-card" role="dialog" aria-modal="true" aria-labelledby="pin-title">
+            <h2 id="pin-title">Enter PIN</h2>
+            <input class="pin-input" id="pin-input" type="text" inputmode="numeric"
+                   autocomplete="off" maxlength="64" aria-label="PIN">
+            <p class="pin-error" id="pin-error"></p>
+            <div class="pin-actions">
+                <button class="pin-btn-cancel" id="pin-cancel" type="button">Cancel</button>
+                <button class="pin-btn-confirm" id="pin-confirm" type="button">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     // IMPORTANT: This script works in Internet Explorer 8!
@@ -152,34 +417,36 @@
     }
 
     function pinRequestFiles(firstAttempt) {
-      var pin = prompt(i18n.enterPin + (firstAttempt ? '' : '\n' + i18n.invalidPin));
-      if (!pin) {
-        document.getElementById('status-text').innerText = i18n.invalidPin;
-        return;
-      }
-
-      makeRequest(BASE_URL + '/prepare-download?pin=' + encodeURIComponent(pin), 'POST', function (response) {
-        if (response.status === 401) {
-          pinRequestFiles(false);
+      showPinOverlay(firstAttempt ? i18n.enterPin : i18n.invalidPin, function (pin) {
+        if (pin === null) {
+          document.getElementById('status-text').className = 'error';
+          document.getElementById('status-text').innerText = i18n.invalidPin;
           return;
         }
 
-        if (response.status === 403) {
-          document.getElementById('status-text').innerText = i18n.rejected;
-          return;
-        }
+        makeRequest(BASE_URL + '/prepare-download?pin=' + encodeURIComponent(pin), 'POST', function (response) {
+          if (response.status === 401) {
+            pinRequestFiles(false);
+            return;
+          }
 
-        if (response.status === 429) {
-          document.getElementById('status-text').innerText = i18n.tooManyAttempts;
-          return;
-        }
+          if (response.status === 403) {
+            document.getElementById('status-text').innerText = i18n.rejected;
+            return;
+          }
 
-        if (response.status !== 200) {
-          document.getElementById('status-text').innerText = 'Error: ' + response.status;
-          return;
-        }
+          if (response.status === 429) {
+            document.getElementById('status-text').innerText = i18n.tooManyAttempts;
+            return;
+          }
 
-        handleSuccess(response);
+          if (response.status !== 200) {
+            document.getElementById('status-text').innerText = 'Error: ' + response.status;
+            return;
+          }
+
+          handleSuccess(response);
+        });
       });
     }
 
@@ -192,6 +459,53 @@
         }
       };
       xhr.send();
+    }
+
+    // Custom PIN entry modal — replaces the native window.prompt so the
+    // browser experience matches the prototype. callback(pin) on confirm,
+    // callback(null) on cancel.
+    function showPinOverlay(message, callback) {
+      var overlay = document.getElementById('pin-overlay');
+      var title = document.getElementById('pin-title');
+      var input = document.getElementById('pin-input');
+      var error = document.getElementById('pin-error');
+      var confirmBtn = document.getElementById('pin-confirm');
+      var cancelBtn = document.getElementById('pin-cancel');
+
+      title.innerText = 'Enter PIN';
+      error.innerText = message || '';
+      input.value = '';
+      overlay.className = 'pin-overlay show';
+
+      function close(result) {
+        overlay.className = 'pin-overlay';
+        confirmBtn.onclick = null;
+        cancelBtn.onclick = null;
+        input.onkeydown = null;
+        overlay.onclick = null;
+        callback(result);
+      }
+
+      function submit() {
+        var value = input.value;
+        if (!value) {
+          error.innerText = i18n.invalidPin;
+          return;
+        }
+        close(value);
+      }
+
+      confirmBtn.onclick = submit;
+      cancelBtn.onclick = function () { close(null); };
+      input.onkeydown = function (e) {
+        if (e.keyCode === 27) { close(null); }
+        else if (e.keyCode === 13) { submit(); }
+      };
+      overlay.onclick = function (e) {
+        if (e.target === overlay) { close(null); }
+      };
+
+      input.focus();
     }
 
     function fetchI18n(then) {
@@ -226,6 +540,13 @@
       handleFilesDisplay(files, sessionId);
     }
 
+    function fileGlyph(name) {
+      var dot = name.lastIndexOf('.');
+      if (dot < 0 || dot === name.length - 1) return 'FILE';
+      var ext = name.slice(dot + 1).toUpperCase();
+      return ext.length > 4 ? ext.slice(0, 4) : ext;
+    }
+
     function handleFilesDisplay(files, sessionId) {
       var html = '';
       var fileKeys = getKeys(files);
@@ -233,8 +554,12 @@
         var file = files[fileKeys[i]];
         html += '<a class="file-item" href="' + BASE_URL + '/download?sessionId=' + encodeURIComponent(sessionId) + '&fileId=' + encodeURIComponent(fileKeys[i]) + '">' +
             '<div class="file-index-cell">' + (i + 1) + '</div>' +
+            '<div class="file-glyph">' + escapeHtml(fileGlyph(file.fileName)) + '</div>' +
             '<div class="file-name-cell">' + escapeHtml(file.fileName) + '</div>' +
             '<div class="file-size-cell">' + formatBytes(file.size) + '</div>' +
+            '<div class="chev" aria-hidden="true">' +
+            '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 4v10m0 0 4-4m-4 4-4-4M5 20h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+            '</div>' +
             '</a>';
       }
 

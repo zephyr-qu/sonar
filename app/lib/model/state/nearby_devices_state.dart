@@ -21,7 +21,15 @@ class NearbyDevicesState with NearbyDevicesStateMappable {
     required this.signalingDevices,
   });
 
-  Map<String, Device> get allDevices {
+  Map<String, Device> get allDevices => mergeDevices(devices, signalingDevices);
+
+  /// Merged view of [devices] and [signalingDevices].
+  ///
+  /// Exposed as a static method because this getter builds a new map on every
+  /// call, so it can never compare equal inside a Refena `select`: callers that
+  /// need the merged devices should select the source fields instead and merge
+  /// them here.
+  static Map<String, Device> mergeDevices(Map<String, Device> devices, Map<String, Set<Device>> signalingDevices) {
     final Map<String, Device> allDevices = {};
     allDevices.addAll(devices);
     for (final devices in signalingDevices.values) {

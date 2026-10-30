@@ -7,9 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/model/persistence/color_mode.dart';
 import 'package:localsend_app/model/persistence/favorite_device.dart';
+import 'package:localsend_app/model/persistence/nearby_layout.dart';
 import 'package:localsend_app/model/persistence/quick_save_mode.dart';
 import 'package:localsend_app/model/persistence/receive_history_entry.dart';
-import 'package:localsend_app/model/send_mode.dart';
+import 'package:localsend_app/model/persistence/send_history_entry.dart';
 import 'package:localsend_app/provider/window_dimensions_provider.dart';
 import 'package:localsend_app/util/alias_generator.dart';
 import 'package:localsend_app/util/native/autostart_helper.dart';
@@ -55,8 +56,14 @@ const _stunServers = 'ls_stun_servers';
 // Received file history
 const _receiveHistory = 'ls_receive_history';
 
+// Sent file history
+const _sendHistory = 'ls_send_history';
+
 // Favorites
 const _favorites = 'ls_favorites';
+
+// Last time each device fingerprint was confirmed on the network
+const _deviceLastSeen = 'ls_device_last_seen';
 
 // App Window Offset and Size info
 const _windowOffsetX = 'ls_window_offset_x';
@@ -86,7 +93,10 @@ const _receivePin = 'ls_receive_pin';
 const _autoFinish = 'ls_auto_finish';
 const _minimizeToTray = 'ls_minimize_to_tray';
 const _https = 'ls_https';
-const _sendMode = 'ls_send_mode';
+// Versioned on purpose: the redesign makes the radar the default, so bumping the key drops a
+// stale grid choice once (the old `ls_nearby_layout` value is simply ignored). After that the
+// user's own choice persists under this key.
+const _nearbyLayout = 'ls_nearby_layout_v2';
 const _enableAnimations = 'ls_enable_animations';
 const _deviceType = 'ls_device_type';
 const _deviceModel = 'ls_device_model';
@@ -94,7 +104,6 @@ const _shareViaLinkAutoAccept = 'ls_share_via_link_auto_accept';
 const _receiveViaLinkAutoAccept = 'ls_receive_via_link_auto_accept';
 const _createChecksums = 'ls_create_checksums';
 const _verifyChecksums = 'ls_verify_checksums';
-const _advancedSettingsKey = 'ls_advanced_settings';
 const _whatsNewKey = 'ls_whats_new';
 
 final persistenceProvider = Provider<PersistenceService>((ref) {
@@ -102,6 +111,14 @@ final persistenceProvider = Provider<PersistenceService>((ref) {
 });
 
 /// This service abstracts the persistence layer.
+/// Parses the persisted `NearbyLayout` name.
+///
+/// Unknown or missing values (older installations) fall back to the radar: it is the layout the
+/// "signal" redesign is built around. An explicit choice is always respected.
+NearbyLayout parseNearbyLayout(String? name) {
+  return NearbyLayout.values.firstWhereOrNull((layout) => layout.name == name) ?? NearbyLayout.radar;
+}
+
 class PersistenceService {
   final SharedPreferences _prefs;
   final bool isFirstAppStart;
@@ -265,6 +282,29 @@ class PersistenceService {
     await _prefs.setStringList(_receiveHistory, historyRaw);
   }
 
+  List<SendHistoryEntry> getSendHistory() {
+    final historyRaw = _prefs.getStringList(_sendHistory) ?? [];
+    return historyRaw.map((entry) => SendHistoryEntry.fromJson(jsonDecode(entry))).toList();
+  }
+
+  Future<void> setSendHistory(List<SendHistoryEntry> entries) async {
+    final historyRaw = entries.map((entry) => jsonEncode(entry.toJson())).toList();
+    await _prefs.setStringList(_sendHistory, historyRaw);
+  }
+
+  Map<String, DateTime> getDeviceLastSeen() {
+    final raw = _prefs.getString(_deviceLastSeen);
+    if (raw == null) {
+      return {};
+    }
+    final decoded = jsonDecode(raw) as Map<String, dynamic>;
+    return decoded.map((fingerprint, value) => MapEntry(fingerprint, DateTime.parse(value as String)));
+  }
+
+  Future<void> setDeviceLastSeen(Map<String, DateTime> entries) async {
+    await _prefs.setString(_deviceLastSeen, jsonEncode(entries.map((fingerprint, time) => MapEntry(fingerprint, time.toIso8601String()))));
+  }
+
   List<FavoriteDevice> getFavorites() {
     final favoritesRaw = _prefs.getStringList(_favorites) ?? [];
     return favoritesRaw.map((entry) => FavoriteDevice.fromJson(jsonDecode(entry))).toList();
@@ -290,9 +330,11 @@ class PersistenceService {
   ThemeMode getTheme() {
     final value = _prefs.getString(_themeKey);
     if (value == null) {
-      return ThemeMode.system;
+      // The redesign is dark-first: a fresh install opens in the dark palette
+      // even when the OS is in light mode. Users can still pick light/system.
+      return ThemeMode.dark;
     }
-    return ThemeMode.values.firstWhereOrNull((theme) => theme.name == value) ?? ThemeMode.system;
+    return ThemeMode.values.firstWhereOrNull((theme) => theme.name == value) ?? ThemeMode.dark;
   }
 
   Future<void> setTheme(ThemeMode theme) async {
@@ -448,14 +490,6 @@ class PersistenceService {
     await _prefs.setBool(_saveToHistory, saveToHistory);
   }
 
-  bool getAdvancedSettingsEnabled() {
-    return _prefs.getBool(_advancedSettingsKey) ?? false;
-  }
-
-  Future<void> setAdvancedSettingsEnabled(bool isEnabled) async {
-    await _prefs.setBool(_advancedSettingsKey, isEnabled);
-  }
-
   QuickSaveMode getQuickSave() {
     final value = _prefs.getString(_quickSave);
     return QuickSaveMode.values.firstWhereOrNull((mode) => mode.name == value) ?? QuickSaveMode.paired;
@@ -501,12 +535,12 @@ class PersistenceService {
     await _prefs.setBool(_https, https);
   }
 
-  SendMode getSendMode() {
-    return SendMode.values.firstWhereOrNull((m) => m.name == _prefs.getString(_sendMode)) ?? SendMode.single;
+  NearbyLayout getNearbyLayout() {
+    return parseNearbyLayout(_prefs.getString(_nearbyLayout));
   }
 
-  Future<void> setSendMode(SendMode mode) async {
-    await _prefs.setString(_sendMode, mode.name);
+  Future<void> setNearbyLayout(NearbyLayout layout) async {
+    await _prefs.setString(_nearbyLayout, layout.name);
   }
 
   Future<void> setWindowOffsetX(double x) async {

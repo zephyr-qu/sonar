@@ -8,9 +8,12 @@ import 'package:localsend_app/provider/http_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
 import 'package:localsend_app/widget/dialogs/error_dialog.dart';
 import 'package:localsend_app/widget/dialogs/favorite_delete_dialog.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_dialog.dart';
 import 'package:localsend_isolates/model/device.dart';
 import 'package:localsend_isolates/rust/api/model.dart';
 import 'package:localsend_isolates/util/rust.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
 
@@ -59,96 +62,96 @@ class _FavoriteEditDialogState extends State<FavoriteEditDialog> with Refena {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return LsDialog(
+      maxWidth: 460,
       title: Text(widget.favorite != null ? t.dialogs.favoriteEditDialog.titleEdit : t.dialogs.favoriteEditDialog.titleAdd),
-      content: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(t.dialogs.favoriteEditDialog.name),
-            const SizedBox(height: 5),
-            TextFormField(
-              controller: _aliasController,
-              decoration: InputDecoration(
-                hintText: t.dialogs.favoriteEditDialog.auto,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(t.dialogs.favoriteEditDialog.name),
+          const SizedBox(height: 5),
+          TextFormField(
+            controller: _aliasController,
+            decoration: InputDecoration(
+              hintText: t.dialogs.favoriteEditDialog.auto,
+            ),
+            enabled: !_fetching,
+          ),
+          const SizedBox(height: 16),
+          Text(t.dialogs.favoriteEditDialog.ip),
+          const SizedBox(height: 5),
+          TextFormField(
+            controller: _ipController,
+            autofocus: widget.favorite == null && widget.prefilledDevice == null,
+            enabled: !_fetching,
+          ),
+          const SizedBox(height: 16),
+          Text(t.dialogs.favoriteEditDialog.port),
+          const SizedBox(height: 5),
+          TextFormField(
+            controller: _portController,
+            decoration: InputDecoration(errorText: _portError),
+            enabled: !_fetching,
+            keyboardType: TextInputType.number,
+          ),
+          if (widget.favorite != null) ...[
+            const SizedBox(height: 16),
+            TextButton.icon(
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.warning,
               ),
-              enabled: !_fetching,
-            ),
-            const SizedBox(height: 16),
-            Text(t.dialogs.favoriteEditDialog.ip),
-            const SizedBox(height: 5),
-            TextFormField(
-              controller: _ipController,
-              autofocus: widget.favorite == null && widget.prefilledDevice == null,
-              enabled: !_fetching,
-            ),
-            const SizedBox(height: 16),
-            Text(t.dialogs.favoriteEditDialog.port),
-            const SizedBox(height: 5),
-            TextFormField(
-              controller: _portController,
-              decoration: InputDecoration(errorText: _portError),
-              enabled: !_fetching,
-              keyboardType: TextInputType.number,
-            ),
-            if (widget.favorite != null) ...[
-              const SizedBox(height: 16),
-              TextButton.icon(
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.warning,
-                ),
-                onPressed: () async {
-                  final result = await showDialog<bool>(
-                    context: context,
-                    builder: (_) => FavoriteDeleteDialog(widget.favorite!),
-                  );
+              onPressed: () async {
+                final result = await showDialog<bool>(
+                  context: context,
+                  builder: (_) => FavoriteDeleteDialog(widget.favorite!),
+                );
 
-                  if (context.mounted && result == true) {
-                    await context.ref.redux(favoritesProvider).dispatchAsync(RemoveFavoriteAction(deviceFingerprint: widget.favorite!.fingerprint));
-                    if (context.mounted) {
-                      context.pop();
-                    }
+                if (context.mounted && result == true) {
+                  await context.ref.redux(favoritesProvider).dispatchAsync(RemoveFavoriteAction(deviceFingerprint: widget.favorite!.fingerprint));
+                  if (context.mounted) {
+                    context.pop();
                   }
-                },
-                icon: const Icon(Icons.delete),
-                label: Text(t.general.delete),
-              ),
-            ],
-            if (_error != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: Row(
-                  children: [
-                    Text(t.general.error, style: TextStyle(color: Theme.of(context).colorScheme.warning)),
-                    if (_error != null) ...[
-                      const SizedBox(width: 5),
-                      InkWell(
-                        onTap: () async {
-                          await showDialog(
-                            context: context,
-                            builder: (_) => ErrorDialog(error: _error!),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 5),
-                          child: Icon(Icons.info, color: Theme.of(context).colorScheme.warning, size: 20),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
+                }
+              },
+              icon: const Icon(LucideIcons.trash2),
+              label: Text(t.general.delete),
+            ),
           ],
-        ),
+          if (_error != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Row(
+                children: [
+                  Text(t.general.error, style: TextStyle(color: Theme.of(context).colorScheme.warning)),
+                  if (_error != null) ...[
+                    const SizedBox(width: 5),
+                    InkWell(
+                      onTap: () async {
+                        await showDialog(
+                          context: context,
+                          builder: (_) => ErrorDialog(error: _error!),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: Icon(LucideIcons.info, color: Theme.of(context).colorScheme.warning, size: 20),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+        ],
       ),
       actions: [
-        TextButton(
+        LsButton(
+          label: t.general.cancel,
+          variant: LsButtonVariant.ghost,
           onPressed: () => context.pop(),
-          child: Text(t.general.cancel),
         ),
-        FilledButton(
+        LsButton(
+          label: t.general.confirm,
           onPressed: _fetching
               ? null
               : () async {
@@ -229,7 +232,6 @@ class _FavoriteEditDialogState extends State<FavoriteEditDialog> with Refena {
                     }
                   }
                 },
-          child: Text(t.general.confirm),
         ),
       ],
     );

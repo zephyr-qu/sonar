@@ -267,9 +267,22 @@ class HttpServerSessionEndEvent extends HttpServerEvent {
   final String sessionId;
   final SessionEndReasonV2 reason;
 
+  /// Files whose sender-provided SHA-256 was verified and matched.
+  final int checksumVerified;
+
+  /// Files that arrived without a usable checksum, e.g. because the sender did
+  /// not compute one or checksum verification is disabled.
+  final int checksumUnchecked;
+
+  /// Files that failed, including checksum mismatches.
+  final int checksumFailed;
+
   HttpServerSessionEndEvent({
     required this.sessionId,
     required this.reason,
+    this.checksumVerified = 0,
+    this.checksumUnchecked = 0,
+    this.checksumFailed = 0,
   });
 }
 
@@ -501,7 +514,13 @@ Future<void> setupHttpServerIsolate(
                       emit: emit,
                     );
                   });
-                case RsServerEvent_SessionEnd(:final sessionId, :final reason):
+                case RsServerEvent_SessionEnd(
+                  :final sessionId,
+                  :final reason,
+                  :final checksumVerified,
+                  :final checksumUnchecked,
+                  :final checksumFailed,
+                ):
                   if (holder.session?.config.sessionId == sessionId) {
                     holder.session = null;
                   }
@@ -509,6 +528,9 @@ Future<void> setupHttpServerIsolate(
                     HttpServerSessionEndEvent(
                       sessionId: sessionId,
                       reason: reason,
+                      checksumVerified: checksumVerified,
+                      checksumUnchecked: checksumUnchecked,
+                      checksumFailed: checksumFailed,
                     ),
                   );
                 case RsServerEvent_PrepareUploadAborted(:final sessionId):

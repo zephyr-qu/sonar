@@ -15,7 +15,9 @@ class ResponsiveBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    // `MediaQuery.sizeOf` only rebuilds on a size change; `MediaQuery.of` also
+    // rebuilds for every other media query change (keyboard insets, view insets).
+    final width = MediaQuery.sizeOf(context).width;
     return builder(SizingInformation(width));
   }
 }

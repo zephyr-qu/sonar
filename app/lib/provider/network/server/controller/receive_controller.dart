@@ -428,7 +428,7 @@ class ReceiveController {
           _logger.info('Closing session');
 
           // ignore: use_build_context_synchronously, discarded_futures
-          Routerino.context.pushRootImmediately(() => const HomePage(initialTab: HomeTab.receive, appStart: false));
+          Routerino.context.pushRootImmediately(() => const HomePage(initialTab: HomeTab.nearby, appStart: false));
 
           // open the dialog to open file instantly
           if (filePath != null && filePath.isNotEmpty) {
@@ -455,7 +455,19 @@ class ReceiveController {
 
     switch (event.reason) {
       case SessionEndReasonV2.finished:
-        // Already handled when the last file finished.
+        // The transfer itself was already finalized when the last file
+        // finished; the checksum summary is only known now, so attach it to
+        // the still displayed session.
+        if (event.checksumVerified > 0) {
+          server.setState(
+            (oldState) => oldState?.copyWith(
+              session: oldState.session?.copyWith(
+                checksumVerified: event.checksumVerified,
+                checksumUnchecked: event.checksumUnchecked,
+              ),
+            ),
+          );
+        }
         break;
       case SessionEndReasonV2.cancelled:
         _cancelBySender(server);
@@ -517,7 +529,7 @@ class ReceiveController {
     // ignore: unawaited_futures, discarded_futures
     server.ref.redux(selectedSendingFilesProvider).dispatchAsyncTakeResult(LoadSelectionFromArgsAction(args)).then((filesAdded) {
       if (filesAdded) {
-        server.ref.redux(homePageControllerProvider).dispatch(ChangeTabAction(HomeTab.send));
+        server.ref.redux(homePageControllerProvider).dispatch(ChangeTabAction(HomeTab.nearby));
       }
     });
   }

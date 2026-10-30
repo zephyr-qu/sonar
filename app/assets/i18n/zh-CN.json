@@ -94,7 +94,7 @@
         "dark": "深色",
         "light": "浅色"
       },
-      "color": "颜色",
+      "color": "配色",
       "colorOptions": {
         "system": "跟随系统",
         "oled": "OLED",
@@ -105,11 +105,13 @@
         "system": "跟随系统"
       },
       "saveWindowPlacement": "退出时保存窗口位置",
+      "alwaysOnTop": "总在最前",
+      "alwaysOnTopUnavailable": "Wayland 不支持此功能",
       "saveWindowPlacementWindows": "退出时保存窗口位置",
-      "minimizeToTray": "关闭时最小化到系统托盘",
-      "launchAtStartup": "登录系统后自动启动程序",
+      "minimizeToTray": "关闭时最小化到托盘",
+      "launchAtStartup": "登录时自动启动",
       "launchMinimized": "自动启动时隐藏窗口",
-      "showInContextMenu": "在“发送到...”文件菜单中显示 LocalSend",
+      "showInContextMenu": "显示在“发送到”菜单中",
       "animations": "动画效果"
     },
     "receive": {
@@ -117,17 +119,17 @@
       "quickSave": "@:general.quickSave",
       "quickSaveFromFavorites": "@:general.quickSaveFromFavorites",
       "requirePin": "@:webSharePage.requirePin",
-      "autoFinish": "自动完成传输任务",
+      "autoFinish": "完成后自动关闭会话",
       "destination": "保存目录",
-      "downloads": "(下载)",
+      "downloads": "下载",
       "saveToGallery": "保存到相册",
       "saveToHistory": "保存到历史记录",
-      "verifyChecksums": "接收文件时验证校验和"
+      "verifyChecksums": "接收时验证校验和"
     },
     "send": {
       "title": "发送",
-      "shareViaLinkAutoAccept": "通过链接分享：自动同意接收请求",
-      "createChecksums": "发送文件时创建校验和"
+      "shareViaLinkAutoAccept": "自动接收链接分享",
+      "createChecksums": "发送时创建校验和"
     },
     "network": {
       "title": "网络",
@@ -137,7 +139,7 @@
       "deviceType": "设备类型",
       "deviceModel": "设备型号",
       "port": "端口",
-      "network": "网络",
+      "network": "网络接口",
       "networkOptions": {
         "all": "所有",
         "filtered": "已过滤"
@@ -147,7 +149,7 @@
       "generateRandomAlias": "生成随机昵称",
       "portWarning": "由于正在使用自定义端口，你可能不会被其他设备检测到。（默认端口：{defaultPort}）",
       "encryption": "加密",
-      "multicastGroup": "多播",
+      "multicastGroup": "多播地址",
       "multicastGroupWarning": "由于正在使用自定义多播地址，你可能不会被其他设备检测到。（默认地址：{defaultMulticast}）"
     },
     "other": {
@@ -204,6 +206,7 @@
     "apps": "{n} 个应用"
   },
   "selectedFilesPage": {
+    "title": "已选文件",
     "deleteAll": "全部删除"
   },
   "deviceDetailsPage": {
@@ -211,10 +214,12 @@
     "favorite": "收藏",
     "verify": "验证",
     "info": {
+      "title": "信息",
       "name": "名称",
       "address": "地址",
       "version": "版本",
-      "protocol": "协议 v{version}"
+      "protocol": "协议 v{version}",
+      "latency": "往返时延"
     },
     "logs": {
       "title": "日志",
@@ -291,10 +296,12 @@
     "noRequests": "尚无请求。",
     "encryption": "@:settingsTab.network.encryption",
     "autoAccept": "自动接受请求",
-    "requirePin": "启用 PIN 密码",
+    "requirePin": "启用 PIN",
     "pinHint": "PIN 为 “{pin}”",
     "encryptionHint": "LocalSend 使用自签名证书。您需要在浏览器中允许它。",
-    "pendingRequests": "待处理请求：{n}"
+    "pendingRequests": "待处理请求：{n}",
+    "copyLink": "复制链接",
+    "expiresHint": "所有文件下载完成后链接自动失效"
   },
   "webReceivePage": {
     "title": "通过链接接收"
@@ -449,7 +456,8 @@
       "name": "名称",
       "auto": "(自动)",
       "ip": "IP 地址",
-      "port": "端口"
+      "port": "端口",
+      "invalidPort": "端口无效"
     },
     "fileInfo": {
       "title": "文件信息",
@@ -572,5 +580,146 @@
     "sActionUseCameraHint": "使用摄像头",
     "sNameDurationLabel": "时长",
     "sUnitAssetCountLabel": "计数"
+  },
+  "nearbyTab": {
+    "title": "附近",
+    "visible": "可见",
+    "hidden": "隐藏",
+    "hide": "对本网络隐藏",
+    "show": "对本网络可见",
+    "online": "{online} 台在线 · 共 {total} 台",
+    "onlineSuffix": "台在线 · 共 {total} 台",
+    "scan": "重新扫描",
+    "linkReceive": "通过链接接收",
+    "manualIp": "手动 IP",
+    "search": "搜索设备名称或 IP",
+    "filterAll": "全部",
+    "filterOnline": "在线",
+    "filterFavorites": "收藏",
+    "multi": "多选",
+    "multiActive": "选择中",
+    "selected": "已选 {n} 台",
+    "selectTarget": "选择目标设备",
+    "send": "发送",
+    "pending": "待发送 · {files} · {size}",
+    "addFile": "添加文件",
+    "expand": "展开",
+    "collapse": "收起",
+    "clear": "清除",
+    "favorites": "收藏",
+    "onlineSection": "在线",
+    "offlineSection": "离线",
+    "offline": "离线",
+    "offlineHint": "此设备当前离线",
+    "noOnlineMatch": "没有匹配的在线设备",
+    "noDevices": "还没有发现设备。请确认另一台设备在同一网络中。",
+    "radarHidden": "显示 {shown}/{total}",
+    "favorited": "已加入收藏",
+    "unfavorited": "已取消收藏",
+    "visibleToast": "已对本网络可见",
+    "hiddenToast": "已隐藏 · 仅可通过链接接收",
+    "filesEmpty": "未选择文件",
+    "tray": "托盘",
+    "inProgress": "进行中",
+    "receivePolicy": "接收策略",
+    "securitySettings": "加密与 PIN 设置",
+    "dropHere": "拖放文件到这里",
+    "dropHint": "或点击选择文件 / 文件夹",
+    "desktopHint": "点卡片选择目标，右侧托盘确认后发送",
+    "desktopLede": "{online} 台在线",
+    "dragHint": "拖放文件到右侧托盘即可开始",
+    "justNow": "刚刚",
+    "minutesAgo": "{n} 分钟前",
+    "hoursAgo": "{n} 小时前",
+    "daysAgo": "{n} 天前"
+  },
+  "transferTab": {
+    "title": "传输",
+    "inProgress": "{n} 个进行中",
+    "historyCount": "历史 {n} 条",
+    "noActive": "没有进行中的传输",
+    "noActiveHint": "在附近页选择设备开始，或接受传入的请求。",
+    "recent": "最近的传输",
+    "sending": "正在发送到 {device}",
+    "receiving": "正在接收自 {device}",
+    "sentTo": "已发送到 {device}",
+    "receivedFrom": "已接收自 {device}",
+    "cancel": "取消传输",
+    "openFolder": "打开文件夹",
+    "done": "@:general.done",
+    "verified": "校验通过",
+    "verifiedCount": "已校验 {verified}/{total}",
+    "remaining": "剩余 {time}",
+    "speed": "{speed} MB/s",
+    "items": "{n} 项",
+    "noHistory": "还没有传输记录"
+  },
+  "settingsPage": {
+    "search": "搜索设置项（共 {count} 项）",
+    "noResults": "没有匹配“{query}”的设置",
+    "items": "{n} 项",
+    "groups": "{n} 组",
+    "groupVisibility": "可见性",
+    "groupVisibilitySummary": "别名 · 设备类型 · 可见性",
+    "groupReceive": "接收",
+    "groupReceiveSummary": "保存位置 · 快速保存 · PIN",
+    "groupSecurity": "安全与传输",
+    "groupSecuritySummary": "加密 · 校验和",
+    "groupAppearance": "外观",
+    "groupAppearanceSummary": "主题 · 强调色 · 语言 · 布局",
+    "groupAdvanced": "高级",
+    "groupAdvancedSummary": "端口 · 多播 · 网络 · 调试",
+    "visibleToNetwork": "对本网络可见",
+    "visibleToNetworkDesc": "关闭后仅可通过链接接收",
+    "nearbyLayout": "附近页布局",
+    "nearbyLayoutDesc": "网格：搜索 + 双列设备卡片。雷达：设备环绕在雷达中心，文件在下方。",
+    "nearbyLayoutGrid": "网格",
+    "nearbyLayoutRadar": "雷达",
+    "debug": "调试与日志",
+    "quickSaveOff": "关闭",
+    "quickSaveFavorites": "仅收藏",
+    "quickSaveAll": "全部设备",
+    "quickSaveDesc": "来自所选设备的请求将自动接收，不再询问",
+    "accentColor": "强调色",
+    "discoveryMode": "发现方式",
+    "discoveryModeDesc": "多播即时发现，多播被拦截时自动回退到子网扫描",
+    "discoveryModeValue": "多播 + 扫描",
+    "groupDevice": "设备与可见性",
+    "groupReceiveSection": "接收与保存",
+    "groupSecuritySection": "安全与分享",
+    "groupAppearanceSection": "外观与语言",
+    "groupNetworkSection": "网络与服务器",
+    "groupDesktopSection": "桌面与窗口",
+    "checksums": "校验和",
+    "results": "{n} 个结果",
+    "searchHint": "搜索设置项",
+    "totalItems": "共 {n} 项"
+  },
+  "receiveRequestPage": {
+    "title": "传入请求",
+    "policyQuickSave": "快速保存 · 自动接受",
+    "policyQuickSaveFavorites": "收藏设备自动接受",
+    "policyAsk": "每个请求都询问",
+    "secure": "已加密",
+    "plain": "未加密",
+    "protocol": "协议 {version}",
+    "filesCount": {
+      "one": "{n} 个文件",
+      "other": "{n} 个文件"
+    },
+    "saveTo": "保存到",
+    "change": "更改",
+    "connection": "连接",
+    "fingerprint": "设备指纹",
+    "fingerprintDesc": "SHA-256 · 应与上次会话一致",
+    "channel": "通道",
+    "channelTls": "v2 HTTP · 双向 TLS",
+    "channelPlain": "v2 HTTP · 未加密",
+    "sameNetwork": "同一本地网络",
+    "acceptFiles": {
+      "one": "接收 {n} 项",
+      "other": "接收 {n} 项"
+    },
+    "reject": "@:general.decline"
   }
 }

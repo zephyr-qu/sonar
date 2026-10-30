@@ -94,6 +94,10 @@ class Device with DeviceMappable {
   final DeviceType deviceType;
   final bool download;
 
+  /// Round-trip time of the register request that last confirmed the device,
+  /// in milliseconds. Null when the confirmation was not measured.
+  final int? rttMs;
+
   /// Every channel the device was confirmed on, best first.
   final List<DeviceChannel> channels;
 
@@ -118,6 +122,7 @@ class Device with DeviceMappable {
     required this.deviceModel,
     required this.deviceType,
     required this.download,
+    this.rttMs,
     required this.channels,
   });
 

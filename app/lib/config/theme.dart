@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:localsend_app/config/design_tokens.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/model/persistence/color_mode.dart';
 import 'package:localsend_app/provider/device_info_provider.dart';
@@ -8,77 +9,313 @@ import 'package:localsend_app/util/ui/dynamic_colors.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:yaru/yaru.dart' as yaru;
 
-final _borderRadius = BorderRadius.circular(5);
+/// Display / body face of the redesign (Latin). CJK glyphs use [_fontFamilyFallback].
+const _fontFamily = 'Archivo';
 
+/// Monospace face used for numerals, eyebrows and meta labels.
+const _monoFontFamily = 'JetBrains Mono';
+
+final _borderRadius = BorderRadius.circular(10);
+final _cardRadius = BorderRadius.circular(16);
+
+/// Builds the theme of the "Signal" redesign.
+///
+/// The [ColorMode] variants are preserved: `system` (dynamic colors), `custom`
+/// (user seed color), `oled` (pure black) and `yaru` (untouched).
 ThemeData getTheme(ColorMode colorMode, Color customColor, Brightness brightness, DynamicColors? dynamicColors) {
   if (colorMode == ColorMode.yaru) {
     return _getYaruTheme(brightness);
   }
 
   final colorScheme = _determineColorScheme(colorMode, customColor, brightness, dynamicColors);
+  final tokens = _tokensFor(colorScheme, brightness);
+  final palette = tokens.colors;
 
-  final lightInputBorder = OutlineInputBorder(
-    borderSide: BorderSide(color: colorScheme.secondaryContainer),
+  final inputBorder = OutlineInputBorder(
+    borderSide: BorderSide(color: palette.line),
+    borderRadius: _borderRadius,
+  );
+  final inputFocusedBorder = OutlineInputBorder(
+    borderSide: BorderSide(color: palette.accent),
     borderRadius: _borderRadius,
   );
 
-  final darkInputBorder = OutlineInputBorder(
-    borderSide: BorderSide(color: colorScheme.secondaryContainer),
-    borderRadius: _borderRadius,
+  return ThemeData(
+    colorScheme: colorScheme,
+    useMaterial3: true,
+    brightness: brightness,
+    // same density on all platforms so desktop matches mobile (defaults to compact on desktop)
+    visualDensity: VisualDensity.standard,
+    fontFamily: _fontFamily,
+    fontFamilyFallback: _fontFamilyFallback(),
+    scaffoldBackgroundColor: palette.bg,
+    canvasColor: palette.bg,
+    cardColor: palette.bg2,
+    dividerColor: palette.line,
+    extensions: [tokens],
+    textTheme: _lsTextTheme(tokens),
+    cardTheme: CardThemeData(
+      color: palette.bg2,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: _cardRadius,
+        side: BorderSide(color: palette.line),
+      ),
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: palette.bg,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      centerTitle: false,
+      titleTextStyle: tokens.title,
+      iconTheme: IconThemeData(color: palette.fg),
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      height: 58,
+      backgroundColor: palette.bg,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      indicatorColor: Colors.transparent,
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        final selected = states.contains(WidgetState.selected);
+        return tokens.tabLabel.copyWith(color: selected ? palette.fg : palette.faint);
+      }),
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        final selected = states.contains(WidgetState.selected);
+        return IconThemeData(size: 18, color: selected ? palette.accent : palette.faint);
+      }),
+    ),
+    navigationRailTheme: NavigationRailThemeData(
+      backgroundColor: palette.bg,
+      indicatorColor: Colors.transparent,
+      selectedIconTheme: IconThemeData(color: palette.accent, size: 18),
+      unselectedIconTheme: IconThemeData(color: palette.faint, size: 18),
+      selectedLabelTextStyle: tokens.tabLabel.copyWith(color: palette.fg),
+      unselectedLabelTextStyle: tokens.tabLabel,
+    ),
+    dividerTheme: DividerThemeData(color: palette.line, thickness: 1, space: 1),
+    progressIndicatorTheme: ProgressIndicatorThemeData(
+      color: palette.accent,
+      linearTrackColor: palette.line,
+      linearMinHeight: 4,
+      circularTrackColor: palette.line,
+    ),
+    inputDecorationTheme: InputDecorationThemeData(
+      filled: true,
+      fillColor: palette.bg2,
+      isDense: true,
+      contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      border: inputBorder,
+      focusedBorder: inputFocusedBorder,
+      enabledBorder: inputBorder,
+      errorBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: palette.danger),
+        borderRadius: _borderRadius,
+      ),
+      hintStyle: TextStyle(color: palette.faint),
+      prefixIconColor: palette.muted,
+      suffixIconColor: palette.muted,
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: palette.accent,
+        foregroundColor: palette.accentFg,
+        disabledBackgroundColor: palette.bg3,
+        disabledForegroundColor: palette.faint,
+        minimumSize: const Size(0, 44),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        textStyle: tokens.buttonLabel,
+        shape: RoundedRectangleBorder(borderRadius: _borderRadius),
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: palette.accent,
+        foregroundColor: palette.accentFg,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        minimumSize: const Size(0, 44),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        textStyle: tokens.buttonLabel,
+        shape: RoundedRectangleBorder(borderRadius: _borderRadius),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: palette.fg,
+        minimumSize: const Size(0, 44),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        side: BorderSide(color: palette.lineStrong),
+        textStyle: tokens.buttonLabel,
+        shape: RoundedRectangleBorder(borderRadius: _borderRadius),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: palette.fg,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        textStyle: tokens.buttonLabel,
+        shape: RoundedRectangleBorder(borderRadius: _borderRadius),
+      ),
+    ),
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith((states) {
+        return states.contains(WidgetState.selected) ? palette.accentFg : palette.fg;
+      }),
+      trackColor: WidgetStateProperty.resolveWith((states) {
+        return states.contains(WidgetState.selected) ? palette.accent : palette.lineStrong;
+      }),
+      trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    ),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.resolveWith((states) {
+          // The selected segment uses the theme accent (brand / dynamic / custom
+          // color) so every bar-shaped selector follows the theme color.
+          return states.contains(WidgetState.selected) ? palette.accent : palette.bg2;
+        }),
+        foregroundColor: WidgetStateProperty.resolveWith((states) {
+          return states.contains(WidgetState.selected) ? palette.accentFg : palette.muted;
+        }),
+        side: WidgetStatePropertyAll(BorderSide(color: palette.line)),
+        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+        textStyle: WidgetStatePropertyAll(tokens.label.copyWith(color: palette.muted)),
+        minimumSize: const WidgetStatePropertyAll(Size(0, 30)),
+        padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 10)),
+        visualDensity: VisualDensity.compact,
+      ),
+    ),
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: palette.bg,
+      modalBackgroundColor: palette.bg,
+      surfaceTintColor: Colors.transparent,
+      modalBarrierColor: Colors.black.withValues(alpha: 0.42),
+      showDragHandle: true,
+      dragHandleColor: palette.lineStrong,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+      ),
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: palette.bg2,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: _cardRadius,
+        side: BorderSide(color: palette.line),
+      ),
+      titleTextStyle: tokens.title,
+      contentTextStyle: tokens.body,
+    ),
+    popupMenuTheme: PopupMenuThemeData(
+      color: palette.bg2,
+      surfaceTintColor: Colors.transparent,
+      textStyle: tokens.body,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: palette.line),
+      ),
+    ),
+    snackBarTheme: SnackBarThemeData(
+      backgroundColor: palette.fg,
+      contentTextStyle: tokens.bodySm.copyWith(color: palette.bg),
+      behavior: SnackBarBehavior.floating,
+      shape: const StadiumBorder(),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+    ),
+    tooltipTheme: TooltipThemeData(
+      textStyle: tokens.bodySm.copyWith(color: palette.fg),
+      decoration: BoxDecoration(
+        color: palette.bg3,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: palette.lineStrong),
+      ),
+      waitDuration: const Duration(milliseconds: 400),
+    ),
+    splashFactory: InkRipple.splashFactory,
   );
+}
 
+/// Bundled family for simplified Chinese text (`assets/fonts/NotoSansSC-*.ttf`).
+const _bundledCjkFamily = 'Noto Sans SC';
+
+/// CJK families, in priority order, for glyphs Archivo does not cover.
+List<String> _fontFamilyFallback() {
+  final platformFamily = _platformFontFamily();
+  return [
+    ?platformFamily,
+    'PingFang SC',
+    'Microsoft YaHei UI',
+    'Noto Sans CJK SC',
+    'Noto Sans SC',
+  ];
+}
+
+/// The locale specific system font that provides CJK glyphs on this platform.
+String? _platformFontFamily() {
+  // Simplified Chinese on desktop uses the bundled Noto Sans SC so that the
+  // type matches the prototype instead of the heavier Microsoft YaHei.
+  if (checkPlatform([TargetPlatform.windows, TargetPlatform.linux]) && LocaleSettings.currentLocale == AppLocale.zhCn) {
+    return _bundledCjkFamily;
+  }
   // https://github.com/localsend/localsend/issues/52
-  final String? fontFamily;
   if (checkPlatform([TargetPlatform.windows])) {
-    fontFamily = switch (LocaleSettings.currentLocale) {
+    return switch (LocaleSettings.currentLocale) {
       AppLocale.ja => 'Yu Gothic UI',
       AppLocale.ko => 'Malgun Gothic',
       AppLocale.zhCn => 'Microsoft YaHei UI',
       AppLocale.zhHk || AppLocale.zhTw => 'Microsoft JhengHei UI',
       _ => 'Segoe UI Variable Display',
     };
-  } else if (checkPlatform([TargetPlatform.linux])) {
-    fontFamily = switch (LocaleSettings.currentLocale) {
+  }
+  if (checkPlatform([TargetPlatform.linux])) {
+    return switch (LocaleSettings.currentLocale) {
       AppLocale.ja => 'Noto Sans CJK JP',
       AppLocale.ko => 'Noto Sans CJK KR',
       AppLocale.zhCn => 'Noto Sans CJK SC',
       AppLocale.zhHk || AppLocale.zhTw => 'Noto Sans CJK TC',
       _ => 'Noto Sans',
     };
-  } else {
-    fontFamily = null;
   }
+  return null;
+}
 
-  return ThemeData(
-    colorScheme: colorScheme,
-    useMaterial3: true,
-    // same density on all platforms so desktop matches mobile (defaults to compact on desktop)
-    visualDensity: VisualDensity.standard,
-    navigationBarTheme: colorScheme.brightness == Brightness.dark
-        ? NavigationBarThemeData(
-            iconTheme: WidgetStateProperty.all(const IconThemeData(color: Colors.white)),
-          )
-        : null,
-    inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: colorScheme.secondaryContainer,
-      border: colorScheme.brightness == Brightness.light ? lightInputBorder : darkInputBorder,
-      focusedBorder: colorScheme.brightness == Brightness.light ? lightInputBorder : darkInputBorder,
-      enabledBorder: colorScheme.brightness == Brightness.light ? lightInputBorder : darkInputBorder,
-      contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+LsTokens _tokensFor(ColorScheme scheme, Brightness brightness) {
+  final base = LsColors.forBrightness(brightness);
+  final palette = base.withAccent(scheme.primary, scheme.onPrimary);
+  // Follow the resolved scheme surfaces so OLED stays pure black instead of
+  // falling back to the brand background, and custom/dynamic schemes keep
+  // their own container tints.
+  return LsTokens(
+    colors: palette.copyWith(
+      bg: scheme.surface,
+      bg2: scheme.surfaceContainer,
+      bg3: scheme.surfaceContainerHigh,
     ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        foregroundColor: colorScheme.brightness == Brightness.dark ? Colors.white : null,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      ),
-    ),
-    textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      ),
-    ),
-    fontFamily: fontFamily,
+    monoFamily: _monoFontFamily,
+  );
+}
+
+TextTheme _lsTextTheme(LsTokens tokens) {
+  return TextTheme(
+    displayLarge: tokens.display.copyWith(fontSize: 52, letterSpacing: -1.04),
+    displayMedium: tokens.display.copyWith(fontSize: 42, letterSpacing: -0.84),
+    displaySmall: tokens.display.copyWith(fontSize: 34, letterSpacing: -0.68),
+    headlineMedium: tokens.display,
+    headlineSmall: tokens.pageTitle,
+    titleLarge: tokens.title,
+    titleMedium: tokens.subtitle,
+    titleSmall: tokens.bodyStrong,
+    bodyLarge: tokens.body,
+    bodyMedium: tokens.body,
+    bodySmall: tokens.bodySm,
+    labelLarge: tokens.buttonLabel,
+    labelMedium: tokens.label,
+    labelSmall: tokens.eyebrow,
   );
 }
 
@@ -141,25 +378,88 @@ extension InputDecorationThemeExt on InputDecorationThemeData {
 }
 
 ColorScheme _determineColorScheme(ColorMode mode, Color customColor, Brightness brightness, DynamicColors? dynamicColors) {
-  final defaultColorScheme = ColorScheme.fromSeed(
-    seedColor: Colors.teal,
+  final palette = LsColors.forBrightness(brightness);
+
+  Color primary;
+  Color onPrimary;
+  Color primaryContainer;
+  Color onPrimaryContainer;
+  Color tertiary;
+  Color onTertiary;
+
+  switch (mode) {
+    case ColorMode.system:
+      final dynamicScheme = brightness == Brightness.light ? dynamicColors?.light : dynamicColors?.dark;
+      primary = dynamicScheme?.primary ?? palette.accent;
+      onPrimary = dynamicScheme?.onPrimary ?? palette.accentFg;
+      primaryContainer = dynamicScheme?.primaryContainer ?? palette.accentSoft;
+      onPrimaryContainer = dynamicScheme?.onPrimaryContainer ?? palette.fg;
+      tertiary = dynamicScheme?.tertiary ?? primary;
+      onTertiary = dynamicScheme?.onTertiary ?? onPrimary;
+      break;
+    case ColorMode.custom:
+      final seeded = ColorScheme.fromSeed(seedColor: customColor, brightness: brightness);
+      primary = seeded.primary;
+      onPrimary = seeded.onPrimary;
+      primaryContainer = seeded.primaryContainer;
+      onPrimaryContainer = seeded.onPrimaryContainer;
+      tertiary = seeded.tertiary;
+      onTertiary = seeded.onTertiary;
+      break;
+    case ColorMode.localsend:
+    case ColorMode.oled:
+    case ColorMode.yaru:
+      primary = palette.accent;
+      onPrimary = palette.accentFg;
+      primaryContainer = palette.accentSoft;
+      onPrimaryContainer = palette.fg;
+      tertiary = palette.fg;
+      onTertiary = palette.bg;
+      break;
+  }
+
+  final surface = mode == ColorMode.oled ? Colors.black : palette.bg;
+  final surfaceContainer = mode == ColorMode.oled ? const Color(0xFF0A0A0A) : palette.bg2;
+  final surfaceContainerHigh = mode == ColorMode.oled ? const Color(0xFF141414) : palette.bg3;
+
+  return ColorScheme(
     brightness: brightness,
+    primary: primary,
+    onPrimary: onPrimary,
+    primaryContainer: primaryContainer,
+    onPrimaryContainer: onPrimaryContainer,
+    secondary: palette.fg,
+    onSecondary: palette.bg,
+    secondaryContainer: surfaceContainerHigh,
+    onSecondaryContainer: palette.fg,
+    tertiary: tertiary,
+    onTertiary: onTertiary,
+    tertiaryContainer: surfaceContainerHigh,
+    onTertiaryContainer: palette.fg,
+    error: palette.danger,
+    onError: palette.bg,
+    errorContainer: palette.danger.withValues(alpha: 0.16),
+    onErrorContainer: palette.danger,
+    surface: surface,
+    onSurface: palette.fg,
+    onSurfaceVariant: palette.muted,
+    surfaceDim: surface,
+    surfaceBright: surfaceContainerHigh,
+    surfaceContainerLowest: surface,
+    surfaceContainerLow: surfaceContainer,
+    surfaceContainer: surfaceContainer,
+    surfaceContainerHigh: surfaceContainerHigh,
+    surfaceContainerHighest: surfaceContainerHigh,
+    outline: palette.lineStrong,
+    outlineVariant: palette.line,
+    shadow: Colors.black,
+    scrim: Colors.black,
+    inverseSurface: palette.fg,
+    onInverseSurface: palette.bg,
+    inversePrimary: surfaceContainerHigh,
+    // the redesign does not use the M3 elevation tint
+    surfaceTint: Colors.transparent,
   );
-
-  final colorScheme = switch (mode) {
-    ColorMode.system => brightness == Brightness.light ? dynamicColors?.light : dynamicColors?.dark,
-    ColorMode.localsend => null,
-    ColorMode.oled => (dynamicColors?.dark ?? defaultColorScheme).copyWith(
-      surface: Colors.black,
-    ),
-    ColorMode.yaru => throw 'Should reach here',
-    ColorMode.custom => ColorScheme.fromSeed(
-      seedColor: customColor,
-      brightness: brightness,
-    ),
-  };
-
-  return colorScheme ?? defaultColorScheme;
 }
 
 ThemeData _getYaruTheme(Brightness brightness) {
@@ -175,8 +475,6 @@ ThemeData _getYaruTheme(Brightness brightness) {
     borderSide: BorderSide(color: colorScheme.secondaryContainer),
     borderRadius: _borderRadius,
   );
-
-  InputDecorationThemeData;
 
   return baseTheme.copyWith(
     // same density on all platforms so desktop matches mobile (defaults to compact on desktop)

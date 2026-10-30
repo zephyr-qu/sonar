@@ -22,3 +22,17 @@
 
 # Generated at build time by makepri (see support/scripts/compile_windows_msix_helper.ps1)
 /support/build/msix/content/resources.pri
+/.local/
+
+# Android Gradle build output (`app/build/` is covered by app/.gitignore)
+/app/android/build/
+
+# Local agent tooling, skills and scratch artifacts
+/.agents/
+/.pi/
+/.rpi/
+/.perf-audit/
+
+# Stray shell redirect artifacts (e.g. `cmd > C` / `> nul` on Windows)
+/nul
+/C

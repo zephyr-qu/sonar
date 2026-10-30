@@ -2,7 +2,7 @@ import 'package:dart_mappable/dart_mappable.dart';
 import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/model/persistence/color_mode.dart';
-import 'package:localsend_app/model/send_mode.dart';
+import 'package:localsend_app/model/persistence/nearby_layout.dart';
 import 'package:localsend_isolates/model/device.dart';
 
 part 'settings_state.mapper.dart';
@@ -28,7 +28,6 @@ class SettingsState with SettingsStateMappable {
   final bool autoFinish; // automatically finish sessions
   final bool minimizeToTray; // minimize to tray instead of exiting the app
   final bool https;
-  final SendMode sendMode;
   final bool saveWindowPlacement;
   final bool alwaysOnTop;
   final bool enableAnimations;
@@ -39,7 +38,7 @@ class SettingsState with SettingsStateMappable {
   final bool createChecksums; // create checksums when sending files
   final bool verifyChecksums; // verify checksums when receiving files
   final int discoveryTimeout;
-  final bool advancedSettings;
+  final NearbyLayout nearbyLayout;
 
   const SettingsState({
     required this.showToken,
@@ -61,7 +60,6 @@ class SettingsState with SettingsStateMappable {
     required this.autoFinish,
     required this.minimizeToTray,
     required this.https,
-    required this.sendMode,
     required this.saveWindowPlacement,
     required this.alwaysOnTop,
     required this.enableAnimations,
@@ -72,6 +70,6 @@ class SettingsState with SettingsStateMappable {
     required this.createChecksums,
     required this.verifyChecksums,
     required this.discoveryTimeout,
-    required this.advancedSettings,
+    required this.nearbyLayout,
   });
 }

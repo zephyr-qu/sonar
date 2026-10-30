@@ -36,6 +36,10 @@ pub struct DiscoveredDevice {
 
     /// Whether the device's download API is active.
     pub download: bool,
+
+    /// Round-trip time of the register request that confirmed the device, when
+    /// it was measured (not for confirmations fed in by the application).
+    pub rtt_ms: Option<u64>,
 }
 
 /// A [`DiscoveredDevice`] as kept in the store.
@@ -224,7 +228,11 @@ impl DeviceStore {
                 let event = DiscoveryEvent::Updated {
                     device: device.clone(),
                 };
+                // A confirmation fed in by the application carries no timing;
+                // keep the last measured round-trip time in that case.
+                let rtt_ms = device.rtt_ms.or(known.device.rtt_ms);
                 known.device = device;
+                known.device.rtt_ms = rtt_ms;
                 (event, known.clone())
             }
             None => {
@@ -275,7 +283,21 @@ mod tests {
                 protocol: ProtocolType::Https,
             }),
             download: false,
+            rtt_ms: None,
         }
+    }
+
+    #[test]
+    fn keeps_the_measured_rtt_when_a_later_confirmation_has_none() {
+        let store = DeviceStore::new();
+        let mut measured = device("fp", "10.0.0.2");
+        measured.rtt_ms = Some(12);
+        store.upsert(measured, SystemTime::now());
+
+        // Confirmations fed in by the application carry no timing.
+        let (_, merged) = store.upsert(device("fp", "10.0.0.2"), SystemTime::now());
+
+        assert_eq!(merged.device.rtt_ms, Some(12));
     }
 
     fn channel_host(channel: &DeviceChannel) -> &str {

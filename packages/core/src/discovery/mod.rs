@@ -161,9 +161,11 @@ impl DiscoveryState {
         port: u16,
         protocol: ProtocolType,
     ) -> Result<Option<StatefulDevice>, ClientError> {
+        let started = std::time::Instant::now();
         let response = client
             .register(protocol, host, port, self.register_dto())
             .await?;
+        let rtt_ms = Some(started.elapsed().as_millis() as u64);
 
         // In HTTPS mode the certificate is the peer's identity; the
         // fingerprint claimed in the body only counts without encryption.
@@ -178,7 +180,7 @@ impl DiscoveryState {
             return Ok(None);
         }
 
-        let device = confirmed_device(response.body, host.to_string(), port, protocol, fingerprint);
+        let device = confirmed_device(response.body, host.to_string(), port, protocol, fingerprint, rtt_ms);
         let (_, merged) = self.found(device).await;
         Ok(Some(merged))
     }
@@ -536,9 +538,11 @@ async fn answer_announcement(
         }
     };
 
+    let started = std::time::Instant::now();
     let result = client
         .register(message.protocol, &host, message.port, state.register_dto())
         .await;
+    let rtt_ms = Some(started.elapsed().as_millis() as u64);
 
     match result {
         Ok(response) => {
@@ -550,6 +554,7 @@ async fn answer_announcement(
                 message.port,
                 message.protocol,
                 message.fingerprint,
+                rtt_ms,
             );
             state.found(device).await;
         }
@@ -572,6 +577,7 @@ fn confirmed_device(
     port: u16,
     protocol: ProtocolType,
     fingerprint: String,
+    rtt_ms: Option<u64>,
 ) -> DiscoveredDevice {
     DiscoveredDevice {
         alias: response.alias,
@@ -585,5 +591,6 @@ fn confirmed_device(
             protocol,
         }),
         download: response.download,
+        rtt_ms,
     }
 }

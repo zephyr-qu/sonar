@@ -2,15 +2,19 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:localsend_app/config/design_tokens.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
 import 'package:localsend_app/util/native/cmd_helper.dart';
 import 'package:localsend_app/util/native/macos_channel.dart' as macos_channel;
 import 'package:localsend_app/util/native/platform_check.dart';
-import 'package:localsend_app/widget/custom_icon_button.dart';
 import 'package:localsend_app/widget/dialogs/not_available_on_platform_dialog.dart';
-import 'package:localsend_app/widget/responsive_list_view.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_card.dart';
+import 'package:localsend_app/widget/ls/ls_header.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:routerino/routerino.dart';
 
 class TroubleshootPage extends StatelessWidget {
   const TroubleshootPage();
@@ -18,51 +22,68 @@ class TroubleshootPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = context.ref.watch(settingsProvider);
+    final tokens = context.ls;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(t.troubleshootPage.title),
-      ),
-      body: ResponsiveListView(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
-        children: [
-          Text(t.troubleshootPage.subTitle, textAlign: TextAlign.center),
-          const SizedBox(height: 5),
-          if (checkPlatformIsDesktop())
-            _TroubleshootItem(
-              symptomText: t.troubleshootPage.firewall.symptom,
-              solutionText: t.troubleshootPage.firewall.solution(port: settings.port),
-              primaryButton: _FixButton(
-                label: t.troubleshootPage.fixButton,
-                onTapMap: {
-                  TargetPlatform.windows: _CommandFixAction(
-                    adminPrivileges: true,
-                    commands: [
-                      'netsh advfirewall firewall add rule name="LocalSend" dir=in action=allow protocol=TCP localport=${settings.port}',
-                      'netsh advfirewall firewall add rule name="LocalSend" dir=in action=allow protocol=UDP localport=${settings.port}',
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 640),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                LsSubHeader(
+                  title: t.troubleshootPage.title,
+                  onBack: () => context.pop(),
+                ),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                    children: [
+                      Text(t.troubleshootPage.subTitle, style: tokens.bodySm),
+                      const SizedBox(height: 4),
+                      if (checkPlatformIsDesktop())
+                        _TroubleshootItem(
+                          symptomText: t.troubleshootPage.firewall.symptom,
+                          solutionText: t.troubleshootPage.firewall.solution(port: settings.port),
+                          primaryButton: _FixButton(
+                            label: t.troubleshootPage.fixButton,
+                            onTapMap: {
+                              TargetPlatform.windows: _CommandFixAction(
+                                adminPrivileges: true,
+                                commands: [
+                                  'netsh advfirewall firewall add rule name="LocalSend" dir=in action=allow protocol=TCP localport=${settings.port}',
+                                  'netsh advfirewall firewall add rule name="LocalSend" dir=in action=allow protocol=UDP localport=${settings.port}',
+                                ],
+                              ),
+                            },
+                          ),
+                          secondaryButton: _FixButton(
+                            label: t.troubleshootPage.firewall.openFirewall,
+                            onTapMap: {
+                              TargetPlatform.windows: _CommandFixAction(
+                                adminPrivileges: false,
+                                commands: ['wf'],
+                              ),
+                              TargetPlatform.macOS: _NativeFixAction(() => macos_channel.openFirewallSettings()),
+                            },
+                          ),
+                        ),
+                      _TroubleshootItem(
+                        symptomText: t.troubleshootPage.noDiscovery.symptom,
+                        solutionText: t.troubleshootPage.noDiscovery.solution,
+                      ),
+                      _TroubleshootItem(
+                        symptomText: t.troubleshootPage.noConnection.symptom,
+                        solutionText: t.troubleshootPage.noConnection.solution,
+                      ),
                     ],
                   ),
-                },
-              ),
-              secondaryButton: _FixButton(
-                label: t.troubleshootPage.firewall.openFirewall,
-                onTapMap: {
-                  TargetPlatform.windows: _CommandFixAction(
-                    adminPrivileges: false,
-                    commands: ['wf'],
-                  ),
-                  TargetPlatform.macOS: _NativeFixAction(() => macos_channel.openFirewallSettings()),
-                },
-              ),
+                ),
+              ],
             ),
-          _TroubleshootItem(
-            symptomText: t.troubleshootPage.noDiscovery.symptom,
-            solutionText: t.troubleshootPage.noDiscovery.solution,
           ),
-          _TroubleshootItem(
-            symptomText: t.troubleshootPage.noConnection.symptom,
-            solutionText: t.troubleshootPage.noConnection.solution,
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -90,59 +111,57 @@ class _TroubleshootItemState extends State<_TroubleshootItem> {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = context.ls;
+    final colors = tokens.colors;
+    final hasButtons = widget.primaryButton?.onTap != null || widget.secondaryButton?.onTap != null;
+
     return Padding(
-      padding: const EdgeInsets.only(top: 15),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(15),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(widget.symptomText, style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 10),
-              Text(t.troubleshootPage.solution),
-              Text(widget.solutionText),
-              if (widget.primaryButton?.onTap != null || widget.secondaryButton?.onTap != null) ...[
-                const SizedBox(height: 10),
-                Wrap(
-                  runSpacing: 10,
-                  children: [
-                    if (widget.primaryButton?.onTap != null) widget.primaryButton!,
-                    if (widget.secondaryButton?.onTap != null) ...[
-                      if (widget.primaryButton?.onTap != null) const SizedBox(width: 10),
-                      widget.secondaryButton!,
-                    ],
-                    if (widget.primaryButton?.onTap?.commands != null) ...[
-                      const SizedBox(width: 10),
-                      CustomIconButton(
-                        onPressed: () {
-                          setState(() => _showCommands = !_showCommands);
-                        },
-                        child: const Icon(Icons.info),
-                      ),
-                    ],
-                  ],
-                ),
-                AnimatedCrossFade(
-                  crossFadeState: _showCommands ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-                  duration: const Duration(milliseconds: 200),
-                  firstChild: Container(),
-                  secondChild: SelectionArea(
-                    child: Column(
-                      children: [
-                        ...?widget.primaryButton?.onTap?.commands?.map((cmd) {
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: Text(cmd, style: const TextStyle(fontFamily: 'RobotoMono')),
-                          );
-                        }),
-                      ],
+      padding: const EdgeInsets.only(top: 12),
+      child: LsCard(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(widget.symptomText, style: tokens.subtitle),
+            const SizedBox(height: 10),
+            Text(t.troubleshootPage.solution.toUpperCase(), style: tokens.eyebrow),
+            const SizedBox(height: 4),
+            Text(widget.solutionText, style: tokens.bodySm.copyWith(color: colors.muted)),
+            if (hasButtons) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (widget.primaryButton?.onTap != null) widget.primaryButton!,
+                  if (widget.secondaryButton?.onTap != null) widget.secondaryButton!,
+                  if (widget.primaryButton?.onTap?.commands != null)
+                    LsIconButton(
+                      icon: _showCommands ? LucideIcons.chevronUp : LucideIcons.chevronDown,
+                      tooltip: t.troubleshootPage.solution,
+                      onPressed: () => setState(() => _showCommands = !_showCommands),
                     ),
+                ],
+              ),
+              AnimatedCrossFade(
+                crossFadeState: _showCommands ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                duration: const Duration(milliseconds: 200),
+                firstChild: const SizedBox(width: double.infinity),
+                secondChild: SelectionArea(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final cmd in widget.primaryButton?.onTap?.commands ?? const <String>[])
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: Text(cmd, style: tokens.mono.copyWith(height: 1.6)),
+                        ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ],
-          ),
+          ],
         ),
       ),
     );
@@ -161,11 +180,9 @@ class _FixButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-      ),
+    return LsButton(
+      label: label,
+      variant: LsButtonVariant.ghost,
       onPressed: () async {
         if (onTap != null) {
           onTap!.runFix();
@@ -176,7 +193,6 @@ class _FixButton extends StatelessWidget {
           );
         }
       },
-      child: Text(label),
     );
   }
 }

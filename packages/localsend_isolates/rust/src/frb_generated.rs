@@ -4368,6 +4368,17 @@ impl SseDecode for Option<u32> {
     }
 }
 
+impl SseDecode for Option<u64> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<u64>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
 impl SseDecode for Option<Vec<String>> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -4731,9 +4742,15 @@ impl SseDecode for crate::api::server::RsServerEvent {
                 let mut var_sessionId = <String>::sse_decode(deserializer);
                 let mut var_reason =
                     <crate::api::server::SessionEndReasonV2>::sse_decode(deserializer);
+                let mut var_checksumVerified = <u32>::sse_decode(deserializer);
+                let mut var_checksumUnchecked = <u32>::sse_decode(deserializer);
+                let mut var_checksumFailed = <u32>::sse_decode(deserializer);
                 return crate::api::server::RsServerEvent::SessionEnd {
                     session_id: var_sessionId,
                     reason: var_reason,
+                    checksum_verified: var_checksumVerified,
+                    checksum_unchecked: var_checksumUnchecked,
+                    checksum_failed: var_checksumFailed,
                 };
             }
             4 => {
@@ -4794,6 +4811,7 @@ impl SseDecode for crate::api::discovery::RsStoredDevice {
         let mut var_deviceType = <Option<crate::api::model::DeviceType>>::sse_decode(deserializer);
         let mut var_fingerprint = <String>::sse_decode(deserializer);
         let mut var_download = <bool>::sse_decode(deserializer);
+        let mut var_rttMs = <Option<u64>>::sse_decode(deserializer);
         let mut var_channels =
             <Vec<crate::api::discovery::RsDeviceChannel>>::sse_decode(deserializer);
         return crate::api::discovery::RsStoredDevice {
@@ -4803,6 +4821,7 @@ impl SseDecode for crate::api::discovery::RsStoredDevice {
             device_type: var_deviceType,
             fingerprint: var_fingerprint,
             download: var_download,
+            rtt_ms: var_rttMs,
             channels: var_channels,
         };
     }
@@ -6175,10 +6194,19 @@ impl flutter_rust_bridge::IntoDart for crate::api::server::RsServerEvent {
                 file.into_into_dart().into_dart(),
             ]
             .into_dart(),
-            crate::api::server::RsServerEvent::SessionEnd { session_id, reason } => [
+            crate::api::server::RsServerEvent::SessionEnd {
+                session_id,
+                reason,
+                checksum_verified,
+                checksum_unchecked,
+                checksum_failed,
+            } => [
                 3.into_dart(),
                 session_id.into_into_dart().into_dart(),
                 reason.into_into_dart().into_dart(),
+                checksum_verified.into_into_dart().into_dart(),
+                checksum_unchecked.into_into_dart().into_dart(),
+                checksum_failed.into_into_dart().into_dart(),
             ]
             .into_dart(),
             crate::api::server::RsServerEvent::PrepareUploadAborted { session_id } => {
@@ -6245,6 +6273,7 @@ impl flutter_rust_bridge::IntoDart for crate::api::discovery::RsStoredDevice {
             self.device_type.into_into_dart().into_dart(),
             self.fingerprint.into_into_dart().into_dart(),
             self.download.into_into_dart().into_dart(),
+            self.rtt_ms.into_into_dart().into_dart(),
             self.channels.into_into_dart().into_dart(),
         ]
         .into_dart()
@@ -7276,6 +7305,16 @@ impl SseEncode for Option<u32> {
     }
 }
 
+impl SseEncode for Option<u64> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <u64>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<Vec<String>> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -7550,10 +7589,19 @@ impl SseEncode for crate::api::server::RsServerEvent {
                 <String>::sse_encode(file_id, serializer);
                 <crate::api::model::FileDto>::sse_encode(file, serializer);
             }
-            crate::api::server::RsServerEvent::SessionEnd { session_id, reason } => {
+            crate::api::server::RsServerEvent::SessionEnd {
+                session_id,
+                reason,
+                checksum_verified,
+                checksum_unchecked,
+                checksum_failed,
+            } => {
                 <i32>::sse_encode(3, serializer);
                 <String>::sse_encode(session_id, serializer);
                 <crate::api::server::SessionEndReasonV2>::sse_encode(reason, serializer);
+                <u32>::sse_encode(checksum_verified, serializer);
+                <u32>::sse_encode(checksum_unchecked, serializer);
+                <u32>::sse_encode(checksum_failed, serializer);
             }
             crate::api::server::RsServerEvent::PrepareUploadAborted { session_id } => {
                 <i32>::sse_encode(4, serializer);
@@ -7608,6 +7656,7 @@ impl SseEncode for crate::api::discovery::RsStoredDevice {
         <Option<crate::api::model::DeviceType>>::sse_encode(self.device_type, serializer);
         <String>::sse_encode(self.fingerprint, serializer);
         <bool>::sse_encode(self.download, serializer);
+        <Option<u64>>::sse_encode(self.rtt_ms, serializer);
         <Vec<crate::api::discovery::RsDeviceChannel>>::sse_encode(self.channels, serializer);
     }
 }

@@ -24,11 +24,6 @@ class SettingsTabVmMapper extends ClassMapperBase<SettingsTabVm> {
   @override
   final String id = 'SettingsTabVm';
 
-  static bool _$advanced(SettingsTabVm v) => v.advanced;
-  static const Field<SettingsTabVm, bool> _f$advanced = Field(
-    'advanced',
-    _$advanced,
-  );
   static TextEditingController _$aliasController(SettingsTabVm v) =>
       v.aliasController;
   static const Field<SettingsTabVm, TextEditingController> _f$aliasController =
@@ -166,14 +161,10 @@ class SettingsTabVmMapper extends ClassMapperBase<SettingsTabVm> {
     _$onTapStopServer,
     arg: _arg$onTapStopServer,
   );
-  static Function _$onTapAdvanced(SettingsTabVm v) =>
-      (v as dynamic).onTapAdvanced as Function;
-  static dynamic _arg$onTapAdvanced(f) => f<void Function(bool)>();
-  static const Field<SettingsTabVm, Function> _f$onTapAdvanced = Field(
-    'onTapAdvanced',
-    _$onTapAdvanced,
-    arg: _arg$onTapAdvanced,
-  );
+  static Set<ServerSetting> _$pendingRestart(SettingsTabVm v) =>
+      v.pendingRestart;
+  static const Field<SettingsTabVm, Set<ServerSetting>> _f$pendingRestart =
+      Field('pendingRestart', _$pendingRestart);
   static List<ThemeMode> _$themeModes(SettingsTabVm v) => v.themeModes;
   static const Field<SettingsTabVm, List<ThemeMode>> _f$themeModes = Field(
     'themeModes',
@@ -183,7 +174,6 @@ class SettingsTabVmMapper extends ClassMapperBase<SettingsTabVm> {
 
   @override
   final MappableFields<SettingsTabVm> fields = const {
-    #advanced: _f$advanced,
     #aliasController: _f$aliasController,
     #deviceModelController: _f$deviceModelController,
     #portController: _f$portController,
@@ -205,13 +195,12 @@ class SettingsTabVmMapper extends ClassMapperBase<SettingsTabVm> {
     #onTapRestartServer: _f$onTapRestartServer,
     #onTapStartServer: _f$onTapStartServer,
     #onTapStopServer: _f$onTapStopServer,
-    #onTapAdvanced: _f$onTapAdvanced,
+    #pendingRestart: _f$pendingRestart,
     #themeModes: _f$themeModes,
   };
 
   static SettingsTabVm _instantiate(DecodingData data) {
     return SettingsTabVm(
-      advanced: data.dec(_f$advanced),
       aliasController: data.dec(_f$aliasController),
       deviceModelController: data.dec(_f$deviceModelController),
       portController: data.dec(_f$portController),
@@ -233,7 +222,7 @@ class SettingsTabVmMapper extends ClassMapperBase<SettingsTabVm> {
       onTapRestartServer: data.dec(_f$onTapRestartServer),
       onTapStartServer: data.dec(_f$onTapStartServer),
       onTapStopServer: data.dec(_f$onTapStopServer),
-      onTapAdvanced: data.dec(_f$onTapAdvanced),
+      pendingRestart: data.dec(_f$pendingRestart),
     );
   }
 
@@ -304,7 +293,6 @@ abstract class SettingsTabVmCopyWith<$R, $In extends SettingsTabVm, $Out>
   ListCopyWith<$R, ColorMode, ObjectCopyWith<$R, ColorMode, ColorMode>>
   get colorModes;
   $R call({
-    bool? advanced,
     TextEditingController? aliasController,
     TextEditingController? deviceModelController,
     TextEditingController? portController,
@@ -326,7 +314,7 @@ abstract class SettingsTabVmCopyWith<$R, $In extends SettingsTabVm, $Out>
     void Function(BuildContext)? onTapRestartServer,
     void Function(BuildContext)? onTapStartServer,
     void Function()? onTapStopServer,
-    void Function(bool)? onTapAdvanced,
+    Set<ServerSetting>? pendingRestart,
   });
   SettingsTabVmCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t);
 }
@@ -354,7 +342,6 @@ class _SettingsTabVmCopyWithImpl<$R, $Out>
   );
   @override
   $R call({
-    bool? advanced,
     TextEditingController? aliasController,
     TextEditingController? deviceModelController,
     TextEditingController? portController,
@@ -376,10 +363,9 @@ class _SettingsTabVmCopyWithImpl<$R, $Out>
     void Function(BuildContext)? onTapRestartServer,
     void Function(BuildContext)? onTapStartServer,
     void Function()? onTapStopServer,
-    void Function(bool)? onTapAdvanced,
+    Set<ServerSetting>? pendingRestart,
   }) => $apply(
     FieldCopyWithData({
-      if (advanced != null) #advanced: advanced,
       if (aliasController != null) #aliasController: aliasController,
       if (deviceModelController != null)
         #deviceModelController: deviceModelController,
@@ -406,12 +392,11 @@ class _SettingsTabVmCopyWithImpl<$R, $Out>
       if (onTapRestartServer != null) #onTapRestartServer: onTapRestartServer,
       if (onTapStartServer != null) #onTapStartServer: onTapStartServer,
       if (onTapStopServer != null) #onTapStopServer: onTapStopServer,
-      if (onTapAdvanced != null) #onTapAdvanced: onTapAdvanced,
+      if (pendingRestart != null) #pendingRestart: pendingRestart,
     }),
   );
   @override
   SettingsTabVm $make(CopyWithData data) => SettingsTabVm(
-    advanced: data.get(#advanced, or: $value.advanced),
     aliasController: data.get(#aliasController, or: $value.aliasController),
     deviceModelController: data.get(
       #deviceModelController,
@@ -463,7 +448,7 @@ class _SettingsTabVmCopyWithImpl<$R, $Out>
     ),
     onTapStartServer: data.get(#onTapStartServer, or: $value.onTapStartServer),
     onTapStopServer: data.get(#onTapStopServer, or: $value.onTapStopServer),
-    onTapAdvanced: data.get(#onTapAdvanced, or: $value.onTapAdvanced),
+    pendingRestart: data.get(#pendingRestart, or: $value.pendingRestart),
   );
 
   @override

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:localsend_app/model/cross_file.dart';
-import 'package:localsend_app/model/send_mode.dart';
+import 'package:localsend_app/model/persistence/send_history_entry.dart';
 import 'package:localsend_app/model/state/send/send_session_state.dart';
 import 'package:localsend_app/model/state/send/sending_file.dart';
 import 'package:localsend_app/pages/home_page.dart';
@@ -13,6 +13,7 @@ import 'package:localsend_app/provider/device_info_provider.dart';
 import 'package:localsend_app/provider/file_transfer_provider.dart';
 import 'package:localsend_app/provider/http_provider.dart';
 import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
+import 'package:localsend_app/provider/send_history_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
 import 'package:localsend_app/widget/dialogs/pin_dialog.dart';
 import 'package:localsend_isolates/isolate.dart';
@@ -156,7 +157,7 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
     if (!background) {
       // ignore: use_build_context_synchronously, unawaited_futures
       Routerino.context.push(
-        () => SendPage(showAppBar: false, closeSessionOnClose: true, sessionId: sessionId),
+        () => SendPage(closeSessionOnClose: true, sessionId: sessionId),
         transition: RouterinoTransition.fade(),
       );
     }
@@ -390,7 +391,7 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
         // Pop back to the existing HomePage instead of pushing a new one:
         // a second HomePage attaches a second PageView to the shared PageController,
         // and removing routes without animation orphans a hero in flight.
-        ref.redux(homePageControllerProvider).dispatch(ChangeTabAction(HomeTab.send));
+        ref.redux(homePageControllerProvider).dispatch(ChangeTabAction(HomeTab.nearby));
         ref.global.dispatch(NavigateAction.popUntilRoot());
       }
 
@@ -413,7 +414,9 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
     );
 
     if (state[sessionId]?.background == false) {
-      final background = ref.read(settingsProvider).sendMode == SendMode.multiple;
+      // A single-target send opens the progress page directly (no app bar) and
+      // closes the session when it is dismissed.
+      const background = false;
 
       unawaited(
         // ignore: use_build_context_synchronously
@@ -515,6 +518,9 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
       _logger.info('Transfer was canceled.');
     } else {
       final hasError = ref.read(fileTransferProvider).getStatuses(sessionId).any((status) => status == FileStatus.failed);
+      if (!hasError) {
+        unawaited(_recordHistory(sessionState));
+      }
       if (!hasError && sessionState.background == true) {
         // close session because everything is fine and it is in background
         closeSession(sessionId);
@@ -536,6 +542,28 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
         }
       }
     }
+  }
+
+  /// Records the delivered files of a successfully finished session, so the
+  /// "Transfers" history can show sent and received transfers side by side.
+  Future<void> _recordHistory(SendSessionState sessionState) async {
+    final now = DateTime.now().toUtc();
+    final entries = [
+      for (final file in sessionState.files.values)
+        if (file.token != null)
+          SendHistoryEntry(
+            id: '${sessionState.sessionId}-${file.file.id}',
+            fileName: file.file.fileName,
+            fileType: file.file.fileType,
+            fileSize: file.file.size,
+            receiverAlias: sessionState.target.alias,
+            timestamp: now,
+          ),
+    ];
+    if (entries.isEmpty) {
+      return;
+    }
+    await ref.redux(sendHistoryProvider).dispatchAsync(AddSendHistoryEntriesAction(entries));
   }
 
   final uriContent = UriContent();
@@ -784,7 +812,7 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
     _hashCancelTokens.remove(sessionId)?.cancel();
     _prepareUploadCancelTokens.remove(sessionId)?.cancel();
     state = state.removeSession(ref, sessionId);
-    if (sessionState.status == SessionStatus.finished && ref.read(settingsProvider).sendMode == SendMode.single) {
+    if (sessionState.status == SessionStatus.finished) {
       // clear selected files
       ref.redux(selectedSendingFilesProvider).dispatch(ClearSelectionAction());
     }

@@ -86,7 +86,10 @@ Future<List<String>> _getIp({
   final info = plugin.NetworkInfo();
   String? ip;
   try {
-    ip = await info.getWifiIP();
+    // NetworkManager (used by the plugin) may be unavailable, e.g. on minimal
+    // Linux setups or when only a session bus is running. Do not let that
+    // block the native interface lookup below.
+    ip = await info.getWifiIP().timeout(const Duration(seconds: 2));
   } catch (e) {
     _logger.warning('Failed to get wifi IP', e);
   }

@@ -289,6 +289,10 @@ class RsStoredDevice {
   /// Whether the device's download API is active.
   final bool download;
 
+  /// Round-trip time of the register request that last confirmed the device,
+  /// in milliseconds. `None` when it was not measured.
+  final BigInt? rttMs;
+
   /// Every address the device was confirmed on, best first (available
   /// before not-reachable, IPv6 before IPv4, most recently confirmed
   /// first). Never empty: a device only enters the store through a
@@ -302,12 +306,20 @@ class RsStoredDevice {
     this.deviceType,
     required this.fingerprint,
     required this.download,
+    this.rttMs,
     required this.channels,
   });
 
   @override
   int get hashCode =>
-      alias.hashCode ^ version.hashCode ^ deviceModel.hashCode ^ deviceType.hashCode ^ fingerprint.hashCode ^ download.hashCode ^ channels.hashCode;
+      alias.hashCode ^
+      version.hashCode ^
+      deviceModel.hashCode ^
+      deviceType.hashCode ^
+      fingerprint.hashCode ^
+      download.hashCode ^
+      rttMs.hashCode ^
+      channels.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -320,5 +332,6 @@ class RsStoredDevice {
           deviceType == other.deviceType &&
           fingerprint == other.fingerprint &&
           download == other.download &&
+          rttMs == other.rttMs &&
           channels == other.channels;
 }

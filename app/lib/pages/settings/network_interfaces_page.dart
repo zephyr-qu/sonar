@@ -6,8 +6,10 @@ import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
 import 'package:localsend_app/widget/dialogs/text_field_tv.dart';
 import 'package:localsend_app/widget/labeled_checkbox.dart';
+import 'package:localsend_app/widget/ls/ls_scaffold.dart';
 import 'package:localsend_app/widget/responsive_list_view.dart';
 import 'package:localsend_isolates/util/network_interfaces.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:moform/moform.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
@@ -42,10 +44,8 @@ class _NetworkInterfacesPageState extends State<NetworkInterfacesPage> {
     final Future<void> Function(List<String>?) updateFunction = settings.networkWhitelist != null
         ? context.notifier(settingsProvider).setNetworkWhitelist
         : context.notifier(settingsProvider).setNetworkBlacklist;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(t.networkInterfacesPage.title),
-      ),
+    return LsPageScaffold(
+      title: t.networkInterfacesPage.title,
       body: LocalHeroScope(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
@@ -210,7 +210,7 @@ class _NetworkInterfacesPageState extends State<NetworkInterfacesPage> {
                           '',
                         ]);
                       },
-                      icon: const Icon(Icons.add),
+                      icon: const Icon(LucideIcons.plus),
                       label: Text(t.general.add),
                     ),
                   ],

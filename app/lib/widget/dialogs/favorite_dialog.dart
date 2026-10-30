@@ -8,8 +8,11 @@ import 'package:localsend_app/provider/http_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
 import 'package:localsend_app/widget/dialogs/error_dialog.dart';
 import 'package:localsend_app/widget/dialogs/favorite_edit_dialog.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_dialog.dart';
 import 'package:localsend_isolates/rust/api/model.dart';
 import 'package:localsend_isolates/util/rust.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
 
@@ -69,7 +72,8 @@ class _FavoritesDialogState extends State<FavoritesDialog> with Refena {
   Widget build(BuildContext context) {
     final favorites = ref.watch(favoritesProvider);
 
-    return AlertDialog(
+    return LsDialog(
+      maxWidth: 460,
       title: Text(t.dialogs.favoriteDialog.title),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -96,7 +100,7 @@ class _FavoritesDialogState extends State<FavoritesDialog> with Refena {
                 TextButton(
                   style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface, iconSize: 24),
                   onPressed: _fetching ? null : () async => await _showDeviceDialog(favorite),
-                  child: const Icon(Icons.edit),
+                  child: const Icon(LucideIcons.pencil),
                 ),
               ],
             ),
@@ -117,7 +121,7 @@ class _FavoritesDialogState extends State<FavoritesDialog> with Refena {
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 5),
-                        child: Icon(Icons.info, color: Theme.of(context).colorScheme.warning, size: 20),
+                        child: Icon(LucideIcons.info, color: Theme.of(context).colorScheme.warning, size: 20),
                       ),
                     ),
                   ],
@@ -127,13 +131,14 @@ class _FavoritesDialogState extends State<FavoritesDialog> with Refena {
         ],
       ),
       actions: [
-        TextButton(
+        LsButton(
+          label: t.general.cancel,
+          variant: LsButtonVariant.ghost,
           onPressed: () => context.pop(),
-          child: Text(t.general.cancel),
         ),
-        FilledButton(
+        LsButton(
+          label: t.dialogs.favoriteDialog.addFavorite,
           onPressed: _showDeviceDialog,
-          child: Text(t.dialogs.favoriteDialog.addFavorite),
         ),
       ],
     );

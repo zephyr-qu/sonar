@@ -4,6 +4,8 @@ import 'package:localsend_app/util/native/file_picker.dart';
 import 'package:localsend_app/util/native/platform_check.dart';
 import 'package:localsend_app/widget/big_button.dart';
 import 'package:localsend_app/widget/dialogs/custom_bottom_sheet.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_dialog.dart';
 import 'package:refena_flutter/addons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
@@ -17,7 +19,7 @@ class AddFileDialog extends StatelessWidget {
     if (checkPlatformIsDesktop()) {
       await showDialog(
         context: context,
-        builder: (_) => AlertDialog(
+        builder: (_) => LsDialog(
           title: Text(t.dialogs.addFile.title),
           content: ConstrainedBox(
             constraints: const BoxConstraints(minWidth: 300),
@@ -32,11 +34,11 @@ class AddFileDialog extends StatelessWidget {
             ),
           ),
           actions: [
-            TextButton(
+            LsButton(
+              label: t.general.close,
               onPressed: () {
                 context.pop();
               },
-              child: Text(t.general.close),
             ),
           ],
         ),

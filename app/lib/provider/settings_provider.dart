@@ -2,8 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/model/persistence/color_mode.dart';
+import 'package:localsend_app/model/persistence/nearby_layout.dart';
 import 'package:localsend_app/model/persistence/quick_save_mode.dart';
-import 'package:localsend_app/model/send_mode.dart';
 import 'package:localsend_app/model/state/settings_state.dart';
 import 'package:localsend_app/provider/persistence_provider.dart';
 import 'package:localsend_app/provider/window_dimensions_provider.dart';
@@ -67,7 +67,6 @@ class SettingsService extends PureNotifier<SettingsState> {
     autoFinish: _persistence.isAutoFinish(),
     minimizeToTray: _persistence.isMinimizeToTray(),
     https: _persistence.isHttps(),
-    sendMode: _persistence.getSendMode(),
     saveWindowPlacement: _persistence.getSaveWindowPlacement(),
     alwaysOnTop: _persistence.getAlwaysOnTop(),
     enableAnimations: _persistence.getEnableAnimations(),
@@ -78,7 +77,7 @@ class SettingsService extends PureNotifier<SettingsState> {
     createChecksums: _persistence.getCreateChecksums(),
     verifyChecksums: _persistence.getVerifyChecksums(),
     discoveryTimeout: _persistence.getDiscoveryTimeout(),
-    advancedSettings: _persistence.getAdvancedSettingsEnabled(),
+    nearbyLayout: _persistence.getNearbyLayout(),
   );
 
   Future<void> setAlias(String alias) async {
@@ -109,10 +108,10 @@ class SettingsService extends PureNotifier<SettingsState> {
     );
   }
 
-  Future<void> setAdvancedSettingsEnabled(bool isEnabled) async {
-    await _persistence.setAdvancedSettingsEnabled(isEnabled);
+  Future<void> setNearbyLayout(NearbyLayout layout) async {
+    await _persistence.setNearbyLayout(layout);
     state = state.copyWith(
-      advancedSettings: isEnabled,
+      nearbyLayout: layout,
     );
   }
 
@@ -234,13 +233,6 @@ class SettingsService extends PureNotifier<SettingsState> {
     await _persistence.setHttps(https);
     state = state.copyWith(
       https: https,
-    );
-  }
-
-  Future<void> setSendMode(SendMode mode) async {
-    await _persistence.setSendMode(mode);
-    state = state.copyWith(
-      sendMode: mode,
     );
   }
 

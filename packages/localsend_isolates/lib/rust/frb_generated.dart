@@ -2699,6 +2699,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  BigInt dco_decode_box_autoadd_u_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_u_64(raw);
+  }
+
+  @protected
   WebParams dco_decode_box_autoadd_web_params(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_web_params(raw);
@@ -2939,6 +2945,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   int? dco_decode_opt_box_autoadd_u_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_u_32(raw);
+  }
+
+  @protected
+  BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_u_64(raw);
   }
 
   @protected
@@ -3234,6 +3246,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         return RsServerEvent_SessionEnd(
           sessionId: dco_decode_String(raw[1]),
           reason: dco_decode_session_end_reason_v_2(raw[2]),
+          checksumVerified: dco_decode_u_32(raw[3]),
+          checksumUnchecked: dco_decode_u_32(raw[4]),
+          checksumFailed: dco_decode_u_32(raw[5]),
         );
       case 4:
         return RsServerEvent_PrepareUploadAborted(
@@ -3273,7 +3288,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   RsStoredDevice dco_decode_rs_stored_device(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 7) throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
+    if (arr.length != 8) throw Exception('unexpected arr length: expect 8 but see ${arr.length}');
     return RsStoredDevice(
       alias: dco_decode_String(arr[0]),
       version: dco_decode_String(arr[1]),
@@ -3281,7 +3296,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       deviceType: dco_decode_opt_box_autoadd_device_type(arr[3]),
       fingerprint: dco_decode_String(arr[4]),
       download: dco_decode_bool(arr[5]),
-      channels: dco_decode_list_rs_device_channel(arr[6]),
+      rttMs: dco_decode_opt_box_autoadd_u_64(arr[6]),
+      channels: dco_decode_list_rs_device_channel(arr[7]),
     );
   }
 
@@ -3988,6 +4004,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_u_64(deserializer));
+  }
+
+  @protected
   WebParams sse_decode_box_autoadd_web_params(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_web_params(deserializer));
@@ -4318,6 +4340,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_u_64(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
   List<String>? sse_decode_opt_list_String(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -4606,7 +4639,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       case 3:
         var var_sessionId = sse_decode_String(deserializer);
         var var_reason = sse_decode_session_end_reason_v_2(deserializer);
-        return RsServerEvent_SessionEnd(sessionId: var_sessionId, reason: var_reason);
+        var var_checksumVerified = sse_decode_u_32(deserializer);
+        var var_checksumUnchecked = sse_decode_u_32(deserializer);
+        var var_checksumFailed = sse_decode_u_32(deserializer);
+        return RsServerEvent_SessionEnd(
+          sessionId: var_sessionId,
+          reason: var_reason,
+          checksumVerified: var_checksumVerified,
+          checksumUnchecked: var_checksumUnchecked,
+          checksumFailed: var_checksumFailed,
+        );
       case 4:
         var var_sessionId = sse_decode_String(deserializer);
         return RsServerEvent_PrepareUploadAborted(sessionId: var_sessionId);
@@ -4644,6 +4686,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_deviceType = sse_decode_opt_box_autoadd_device_type(deserializer);
     var var_fingerprint = sse_decode_String(deserializer);
     var var_download = sse_decode_bool(deserializer);
+    var var_rttMs = sse_decode_opt_box_autoadd_u_64(deserializer);
     var var_channels = sse_decode_list_rs_device_channel(deserializer);
     return RsStoredDevice(
       alias: var_alias,
@@ -4652,6 +4695,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       deviceType: var_deviceType,
       fingerprint: var_fingerprint,
       download: var_download,
+      rttMs: var_rttMs,
       channels: var_channels,
     );
   }
@@ -5471,6 +5515,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self, serializer);
+  }
+
+  @protected
   void sse_encode_box_autoadd_web_params(WebParams self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_web_params(self, serializer);
@@ -5753,6 +5803,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_u_64(self, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_opt_list_String(List<String>? self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -5976,10 +6036,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_String(sessionId, serializer);
         sse_encode_String(fileId, serializer);
         sse_encode_box_autoadd_file_dto(file, serializer);
-      case RsServerEvent_SessionEnd(sessionId: final sessionId, reason: final reason):
+      case RsServerEvent_SessionEnd(
+        sessionId: final sessionId,
+        reason: final reason,
+        checksumVerified: final checksumVerified,
+        checksumUnchecked: final checksumUnchecked,
+        checksumFailed: final checksumFailed,
+      ):
         sse_encode_i_32(3, serializer);
         sse_encode_String(sessionId, serializer);
         sse_encode_session_end_reason_v_2(reason, serializer);
+        sse_encode_u_32(checksumVerified, serializer);
+        sse_encode_u_32(checksumUnchecked, serializer);
+        sse_encode_u_32(checksumFailed, serializer);
       case RsServerEvent_PrepareUploadAborted(sessionId: final sessionId):
         sse_encode_i_32(4, serializer);
         sse_encode_String(sessionId, serializer);
@@ -6015,6 +6084,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_box_autoadd_device_type(self.deviceType, serializer);
     sse_encode_String(self.fingerprint, serializer);
     sse_encode_bool(self.download, serializer);
+    sse_encode_opt_box_autoadd_u_64(self.rttMs, serializer);
     sse_encode_list_rs_device_channel(self.channels, serializer);
   }
 

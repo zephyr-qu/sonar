@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:localsend_app/config/theme.dart';
 import 'package:localsend_app/gen/strings.g.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_dialog.dart';
 import 'package:localsend_isolates/rust/api/filename.dart';
 import 'package:localsend_isolates/util/file_path_helper.dart';
 import 'package:routerino/routerino.dart';
@@ -70,7 +72,7 @@ class _FileNameInputDialogState extends State<FileNameInputDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return LsDialog(
       title: Text(t.dialogs.fileNameInput.title),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -97,17 +99,14 @@ class _FileNameInputDialogState extends State<FileNameInputDialog> {
         ],
       ),
       actions: [
-        TextButton(
+        LsButton(
+          label: t.general.cancel,
+          variant: LsButtonVariant.ghost,
           onPressed: () => context.pop(),
-          child: Text(t.general.cancel),
         ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Theme.of(context).colorScheme.onPrimary,
-          ),
+        LsButton(
+          label: t.general.confirm,
           onPressed: _submit,
-          child: Text(t.general.confirm),
         ),
       ],
     );

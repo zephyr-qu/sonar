@@ -1,5 +1,9 @@
 allprojects {
     repositories {
+        // 本地镜像：中国大陆网络下 google()/mavenCentral() 常超时
+        maven { url "https://maven.aliyun.com/repository/central" }
+        maven { url "https://maven.aliyun.com/repository/google" }
+        maven { url "https://maven.aliyun.com/repository/public" }
         google()
         mavenCentral()
     }

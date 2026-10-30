@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/widget/dialogs/custom_bottom_sheet.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:routerino/routerino.dart';
 
 class CancelSessionDialog extends StatelessWidget {
@@ -14,14 +16,15 @@ class CancelSessionDialog extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          TextButton(
+          LsButton(
+            label: t.general.continueStr,
+            variant: LsButtonVariant.ghost,
             onPressed: () => context.pop(false),
-            child: Text(t.general.continueStr),
           ),
-          ElevatedButton.icon(
+          LsButton(
+            label: t.general.cancel,
+            icon: LucideIcons.x,
             onPressed: () => context.pop(true),
-            icon: const Icon(Icons.close),
-            label: Text(t.general.cancel),
           ),
         ],
       ),

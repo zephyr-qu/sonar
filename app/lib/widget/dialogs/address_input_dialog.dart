@@ -11,9 +11,12 @@ import 'package:localsend_app/provider/last_devices.provider.dart';
 import 'package:localsend_app/provider/local_ip_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
 import 'package:localsend_app/widget/dialogs/error_dialog.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_dialog.dart';
 import 'package:localsend_isolates/model/device.dart';
 import 'package:localsend_isolates/rust/api/model.dart';
 import 'package:localsend_isolates/util/rust.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
 
@@ -123,7 +126,7 @@ class _AddressInputDialogState extends State<AddressInputDialog> with Refena {
     final settings = ref.watch(settingsProvider);
     final lastDevices = ref.watch(lastDevicesProvider);
 
-    return AlertDialog(
+    return LsDialog(
       title: Text(t.dialogs.addressInput.title),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -229,7 +232,7 @@ class _AddressInputDialogState extends State<AddressInputDialog> with Refena {
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 5),
-                        child: Icon(Icons.info, color: Theme.of(context).colorScheme.warning, size: 20),
+                        child: Icon(LucideIcons.info, color: Theme.of(context).colorScheme.warning, size: 20),
                       ),
                     ),
                   ],
@@ -239,13 +242,14 @@ class _AddressInputDialogState extends State<AddressInputDialog> with Refena {
         ],
       ),
       actions: [
-        TextButton(
+        LsButton(
+          label: t.general.cancel,
+          variant: LsButtonVariant.ghost,
           onPressed: () => context.pop(),
-          child: Text(t.general.cancel),
         ),
-        FilledButton(
+        LsButton(
+          label: t.general.confirm,
           onPressed: _fetching ? null : () async => _submit(localIps, settings.port),
-          child: Text(t.general.confirm),
         ),
       ],
     );

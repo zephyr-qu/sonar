@@ -24,6 +24,7 @@ import 'package:localsend_isolates/model/file_type.dart';
 import 'package:localsend_isolates/util/file_path_helper.dart';
 import 'package:localsend_isolates/util/sleep.dart';
 import 'package:logging/logging.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:pasteboard/pasteboard.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:refena_flutter/refena_flutter.dart';
@@ -35,12 +36,12 @@ final _logger = Logger('FilePickerHelper');
 final _uriContent = UriContent();
 
 enum FilePickerOption {
-  file(Icons.description),
-  folder(Icons.folder),
-  media(Icons.image),
-  text(Icons.subject),
-  app(Icons.apps),
-  clipboard(Icons.paste)
+  file(LucideIcons.fileText),
+  folder(LucideIcons.folder),
+  media(LucideIcons.image),
+  text(LucideIcons.alignLeft),
+  app(LucideIcons.layoutGrid),
+  clipboard(LucideIcons.clipboard)
   ;
 
   const FilePickerOption(this.icon);
@@ -376,3 +377,6 @@ Future<void> _pickApp(BuildContext context) async {
 extension on int {
   String get twoDigitString => toString().padLeft(2, '0');
 }
+
+/// The file pickers available on this platform, in display order.
+final pickerOptions = FilePickerOption.getOptionsForPlatform();

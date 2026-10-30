@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:localsend_app/pages/home_page.dart';
 import 'package:localsend_app/pages/home_page_controller.dart';
+import 'package:localsend_app/pages/settings_page.dart';
 import 'package:localsend_app/util/native/file_picker.dart';
 import 'package:localsend_app/util/native/platform_check.dart';
 import 'package:refena_flutter/refena_flutter.dart';
@@ -43,14 +44,14 @@ class ShortcutWatcher extends StatelessWidget {
             onInvoke: (_) async {
               await context.global.dispatchAsync(PickFileAction(option: FilePickerOption.clipboard, context: context));
               if (context.mounted) {
-                context.redux(homePageControllerProvider).dispatch(ChangeTabAction(HomeTab.send));
+                context.redux(homePageControllerProvider).dispatch(ChangeTabAction(HomeTab.nearby));
               }
               return null;
             },
           ),
           _OpenSettingsIntent: CallbackAction(
             onInvoke: (_) async {
-              context.redux(homePageControllerProvider).dispatch(ChangeTabAction(HomeTab.settings));
+              await context.push(() => const SettingsPage());
               return null;
             },
           ),

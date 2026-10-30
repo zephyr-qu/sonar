@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:localsend_app/config/font_licenses.dart';
 import 'package:localsend_app/config/init.dart';
 import 'package:localsend_app/config/init_error.dart';
 import 'package:localsend_app/config/theme.dart';
@@ -23,6 +24,8 @@ import 'package:routerino/routerino.dart';
 import 'package:system_date_time_format/system_date_time_format.dart';
 
 Future<void> main(List<String> args) async {
+  registerFontLicenses();
+
   final RefenaContainer container;
   try {
     container = await preInit(args);
@@ -96,7 +99,7 @@ class LocalSendApp extends StatelessWidget {
               navigatorKey: context.read(navigationProvider).key,
               home: RouterinoHome(
                 builder: () => const HomePage(
-                  initialTab: HomeTab.receive,
+                  initialTab: HomeTab.nearby,
                   appStart: true,
                 ),
               ),

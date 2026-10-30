@@ -95,6 +95,14 @@ class TranslationsZhCn extends Translations with BaseTranslations<AppLocale, Tra
   late final Translations$web$zh_CN web = Translations$web$zh_CN.internal(_root);
   @override
   late final Translations$assetPicker$zh_CN assetPicker = Translations$assetPicker$zh_CN.internal(_root);
+  @override
+  late final Translations$nearbyTab$zh_CN nearbyTab = Translations$nearbyTab$zh_CN.internal(_root);
+  @override
+  late final Translations$transferTab$zh_CN transferTab = Translations$transferTab$zh_CN.internal(_root);
+  @override
+  late final Translations$settingsPage$zh_CN settingsPage = Translations$settingsPage$zh_CN.internal(_root);
+  @override
+  late final Translations$receiveRequestPage$zh_CN receiveRequestPage = Translations$receiveRequestPage$zh_CN.internal(_root);
 }
 
 // Path: general
@@ -343,6 +351,8 @@ class Translations$selectedFilesPage$zh_CN extends Translations$selectedFilesPag
 
   // Translations
   @override
+  String get title => '已选文件';
+  @override
   String get deleteAll => '全部删除';
 }
 
@@ -490,13 +500,17 @@ class Translations$webSharePage$zh_CN extends Translations$webSharePage$en {
   @override
   String get autoAccept => '自动接受请求';
   @override
-  String get requirePin => '启用 PIN 密码';
+  String get requirePin => '启用 PIN';
   @override
   String pinHint({required Object pin}) => 'PIN 为 “${pin}”';
   @override
   String get encryptionHint => 'LocalSend 使用自签名证书。您需要在浏览器中允许它。';
   @override
   String pendingRequests({required Object n}) => '待处理请求：${n}';
+  @override
+  String get copyLink => '复制链接';
+  @override
+  String get expiresHint => '所有文件下载完成后链接自动失效';
 }
 
 // Path: webReceivePage
@@ -840,6 +854,304 @@ class Translations$assetPicker$zh_CN extends Translations$assetPicker$en {
   String get sUnitAssetCountLabel => '计数';
 }
 
+// Path: nearbyTab
+class Translations$nearbyTab$zh_CN extends Translations$nearbyTab$en {
+  Translations$nearbyTab$zh_CN.internal(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+  final TranslationsZhCn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => '附近';
+  @override
+  String get visible => '可见';
+  @override
+  String get hidden => '隐藏';
+  @override
+  String get hide => '对本网络隐藏';
+  @override
+  String get show => '对本网络可见';
+  @override
+  String online({required Object online, required Object total}) => '${online} 台在线 · 共 ${total} 台';
+  @override
+  String onlineSuffix({required Object total}) => '台在线 · 共 ${total} 台';
+  @override
+  String get scan => '重新扫描';
+  @override
+  String get linkReceive => '通过链接接收';
+  @override
+  String get manualIp => '手动 IP';
+  @override
+  String get search => '搜索设备名称或 IP';
+  @override
+  String get filterAll => '全部';
+  @override
+  String get filterOnline => '在线';
+  @override
+  String get filterFavorites => '收藏';
+  @override
+  String get multi => '多选';
+  @override
+  String get multiActive => '选择中';
+  @override
+  String selected({required Object n}) => '已选 ${n} 台';
+  @override
+  String get selectTarget => '选择目标设备';
+  @override
+  String get send => '发送';
+  @override
+  String pending({required Object files, required Object size}) => '待发送 · ${files} · ${size}';
+  @override
+  String get addFile => '添加文件';
+  @override
+  String get expand => '展开';
+  @override
+  String get collapse => '收起';
+  @override
+  String get clear => '清除';
+  @override
+  String get favorites => '收藏';
+  @override
+  String get onlineSection => '在线';
+  @override
+  String get offlineSection => '离线';
+  @override
+  String get offline => '离线';
+  @override
+  String get offlineHint => '此设备当前离线';
+  @override
+  String get noOnlineMatch => '没有匹配的在线设备';
+  @override
+  String get noDevices => '还没有发现设备。请确认另一台设备在同一网络中。';
+  @override
+  String radarHidden({required Object shown, required Object total}) => '显示 ${shown}/${total}';
+  @override
+  String get favorited => '已加入收藏';
+  @override
+  String get unfavorited => '已取消收藏';
+  @override
+  String get visibleToast => '已对本网络可见';
+  @override
+  String get hiddenToast => '已隐藏 · 仅可通过链接接收';
+  @override
+  String get filesEmpty => '未选择文件';
+  @override
+  String get tray => '托盘';
+  @override
+  String get inProgress => '进行中';
+  @override
+  String get receivePolicy => '接收策略';
+  @override
+  String get securitySettings => '加密与 PIN 设置';
+  @override
+  String get dropHere => '拖放文件到这里';
+  @override
+  String get dropHint => '或点击选择文件 / 文件夹';
+  @override
+  String get desktopHint => '点卡片选择目标，右侧托盘确认后发送';
+  @override
+  String desktopLede({required Object online}) => '${online} 台在线';
+  @override
+  String get dragHint => '拖放文件到右侧托盘即可开始';
+  @override
+  String get justNow => '刚刚';
+  @override
+  String minutesAgo({required Object n}) => '${n} 分钟前';
+  @override
+  String hoursAgo({required Object n}) => '${n} 小时前';
+  @override
+  String daysAgo({required Object n}) => '${n} 天前';
+}
+
+// Path: transferTab
+class Translations$transferTab$zh_CN extends Translations$transferTab$en {
+  Translations$transferTab$zh_CN.internal(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+  final TranslationsZhCn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => '传输';
+  @override
+  String inProgress({required Object n}) => '${n} 个进行中';
+  @override
+  String historyCount({required Object n}) => '历史 ${n} 条';
+  @override
+  String get noActive => '没有进行中的传输';
+  @override
+  String get noActiveHint => '在附近页选择设备开始，或接受传入的请求。';
+  @override
+  String get recent => '最近的传输';
+  @override
+  String sending({required Object device}) => '正在发送到 ${device}';
+  @override
+  String receiving({required Object device}) => '正在接收自 ${device}';
+  @override
+  String sentTo({required Object device}) => '已发送到 ${device}';
+  @override
+  String receivedFrom({required Object device}) => '已接收自 ${device}';
+  @override
+  String get cancel => '取消传输';
+  @override
+  String get openFolder => '打开文件夹';
+  @override
+  String get done => _root.general.done;
+  @override
+  String get verified => '校验通过';
+  @override
+  String verifiedCount({required Object verified, required Object total}) => '已校验 ${verified}/${total}';
+  @override
+  String remaining({required Object time}) => '剩余 ${time}';
+  @override
+  String speed({required Object speed}) => '${speed} MB/s';
+  @override
+  String items({required Object n}) => '${n} 项';
+  @override
+  String get noHistory => '还没有传输记录';
+}
+
+// Path: settingsPage
+class Translations$settingsPage$zh_CN extends Translations$settingsPage$en {
+  Translations$settingsPage$zh_CN.internal(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+  final TranslationsZhCn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String search({required Object count}) => '搜索设置项（共 ${count} 项）';
+  @override
+  String noResults({required Object query}) => '没有匹配“${query}”的设置';
+  @override
+  String items({required Object n}) => '${n} 项';
+  @override
+  String groups({required Object n}) => '${n} 组';
+  @override
+  String get groupVisibility => '可见性';
+  @override
+  String get groupVisibilitySummary => '别名 · 设备类型 · 可见性';
+  @override
+  String get groupReceive => '接收';
+  @override
+  String get groupReceiveSummary => '保存位置 · 快速保存 · PIN';
+  @override
+  String get groupSecurity => '安全与传输';
+  @override
+  String get groupSecuritySummary => '加密 · 校验和';
+  @override
+  String get groupAppearance => '外观';
+  @override
+  String get groupAppearanceSummary => '主题 · 强调色 · 语言 · 布局';
+  @override
+  String get groupAdvanced => '高级';
+  @override
+  String get groupAdvancedSummary => '端口 · 多播 · 网络 · 调试';
+  @override
+  String get visibleToNetwork => '对本网络可见';
+  @override
+  String get visibleToNetworkDesc => '关闭后仅可通过链接接收';
+  @override
+  String get nearbyLayout => '附近页布局';
+  @override
+  String get nearbyLayoutDesc => '网格：搜索 + 双列设备卡片。雷达：设备环绕在雷达中心，文件在下方。';
+  @override
+  String get nearbyLayoutGrid => '网格';
+  @override
+  String get nearbyLayoutRadar => '雷达';
+  @override
+  String get debug => '调试与日志';
+  @override
+  String get quickSaveOff => '关闭';
+  @override
+  String get quickSaveFavorites => '仅收藏';
+  @override
+  String get quickSaveAll => '全部设备';
+  @override
+  String get quickSaveDesc => '来自所选设备的请求将自动接收，不再询问';
+  @override
+  String get accentColor => '强调色';
+  @override
+  String get discoveryMode => '发现方式';
+  @override
+  String get discoveryModeDesc => '多播即时发现，多播被拦截时自动回退到子网扫描';
+  @override
+  String get discoveryModeValue => '多播 + 扫描';
+  @override
+  String get groupDevice => '设备与可见性';
+  @override
+  String get groupReceiveSection => '接收与保存';
+  @override
+  String get groupSecuritySection => '安全与分享';
+  @override
+  String get groupAppearanceSection => '外观与语言';
+  @override
+  String get groupNetworkSection => '网络与服务器';
+  @override
+  String get groupDesktopSection => '桌面与窗口';
+  @override
+  String get checksums => '校验和';
+  @override
+  String results({required Object n}) => '${n} 个结果';
+  @override
+  String get searchHint => '搜索设置项';
+  @override
+  String totalItems({required Object n}) => '共 ${n} 项';
+}
+
+// Path: receiveRequestPage
+class Translations$receiveRequestPage$zh_CN extends Translations$receiveRequestPage$en {
+  Translations$receiveRequestPage$zh_CN.internal(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+  final TranslationsZhCn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => '传入请求';
+  @override
+  String get policyQuickSave => '快速保存 · 自动接受';
+  @override
+  String get policyQuickSaveFavorites => '收藏设备自动接受';
+  @override
+  String get policyAsk => '每个请求都询问';
+  @override
+  String get secure => '已加密';
+  @override
+  String get plain => '未加密';
+  @override
+  String protocol({required Object version}) => '协议 ${version}';
+  @override
+  String filesCount({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(
+    n,
+    one: '${n} 个文件',
+    other: '${n} 个文件',
+  );
+  @override
+  String get saveTo => '保存到';
+  @override
+  String get change => '更改';
+  @override
+  String get connection => '连接';
+  @override
+  String get fingerprint => '设备指纹';
+  @override
+  String get fingerprintDesc => 'SHA-256 · 应与上次会话一致';
+  @override
+  String get channel => '通道';
+  @override
+  String get channelTls => 'v2 HTTP · 双向 TLS';
+  @override
+  String get channelPlain => 'v2 HTTP · 未加密';
+  @override
+  String get sameNetwork => '同一本地网络';
+  @override
+  String acceptFiles({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(
+    n,
+    one: '接收 ${n} 项',
+    other: '接收 ${n} 项',
+  );
+  @override
+  String get reject => _root.general.decline;
+}
+
 // Path: receiveTab.infoBox
 class Translations$receiveTab$infoBox$zh_CN extends Translations$receiveTab$infoBox$en {
   Translations$receiveTab$infoBox$zh_CN.internal(TranslationsZhCn root) : this._root = root, super.internal(root);
@@ -936,7 +1248,7 @@ class Translations$settingsTab$general$zh_CN extends Translations$settingsTab$ge
   late final Translations$settingsTab$general$brightnessOptions$zh_CN brightnessOptions =
       Translations$settingsTab$general$brightnessOptions$zh_CN.internal(_root);
   @override
-  String get color => '颜色';
+  String get color => '配色';
   @override
   late final Translations$settingsTab$general$colorOptions$zh_CN colorOptions = Translations$settingsTab$general$colorOptions$zh_CN.internal(_root);
   @override
@@ -948,15 +1260,19 @@ class Translations$settingsTab$general$zh_CN extends Translations$settingsTab$ge
   @override
   String get saveWindowPlacement => '退出时保存窗口位置';
   @override
+  String get alwaysOnTop => '总在最前';
+  @override
+  String get alwaysOnTopUnavailable => 'Wayland 不支持此功能';
+  @override
   String get saveWindowPlacementWindows => '退出时保存窗口位置';
   @override
-  String get minimizeToTray => '关闭时最小化到系统托盘';
+  String get minimizeToTray => '关闭时最小化到托盘';
   @override
-  String get launchAtStartup => '登录系统后自动启动程序';
+  String get launchAtStartup => '登录时自动启动';
   @override
   String get launchMinimized => '自动启动时隐藏窗口';
   @override
-  String get showInContextMenu => '在“发送到...”文件菜单中显示 LocalSend';
+  String get showInContextMenu => '显示在“发送到”菜单中';
   @override
   String get animations => '动画效果';
 }
@@ -977,17 +1293,17 @@ class Translations$settingsTab$receive$zh_CN extends Translations$settingsTab$re
   @override
   String get requirePin => _root.webSharePage.requirePin;
   @override
-  String get autoFinish => '自动完成传输任务';
+  String get autoFinish => '完成后自动关闭会话';
   @override
   String get destination => '保存目录';
   @override
-  String get downloads => '(下载)';
+  String get downloads => '下载';
   @override
   String get saveToGallery => '保存到相册';
   @override
   String get saveToHistory => '保存到历史记录';
   @override
-  String get verifyChecksums => '接收文件时验证校验和';
+  String get verifyChecksums => '接收时验证校验和';
 }
 
 // Path: settingsTab.send
@@ -1000,9 +1316,9 @@ class Translations$settingsTab$send$zh_CN extends Translations$settingsTab$send$
   @override
   String get title => '发送';
   @override
-  String get shareViaLinkAutoAccept => '通过链接分享：自动同意接收请求';
+  String get shareViaLinkAutoAccept => '自动接收链接分享';
   @override
-  String get createChecksums => '发送文件时创建校验和';
+  String get createChecksums => '发送时创建校验和';
 }
 
 // Path: settingsTab.network
@@ -1027,7 +1343,7 @@ class Translations$settingsTab$network$zh_CN extends Translations$settingsTab$ne
   @override
   String get port => '端口';
   @override
-  String get network => '网络';
+  String get network => '网络接口';
   @override
   late final Translations$settingsTab$network$networkOptions$zh_CN networkOptions = Translations$settingsTab$network$networkOptions$zh_CN.internal(
     _root,
@@ -1043,7 +1359,7 @@ class Translations$settingsTab$network$zh_CN extends Translations$settingsTab$ne
   @override
   String get encryption => '加密';
   @override
-  String get multicastGroup => '多播';
+  String get multicastGroup => '多播地址';
   @override
   String multicastGroupWarning({required Object defaultMulticast}) => '由于正在使用自定义多播地址，你可能不会被其他设备检测到。（默认地址：${defaultMulticast}）';
 }
@@ -1133,6 +1449,8 @@ class Translations$deviceDetailsPage$info$zh_CN extends Translations$deviceDetai
 
   // Translations
   @override
+  String get title => '信息';
+  @override
   String get name => '名称';
   @override
   String get address => '地址';
@@ -1140,6 +1458,8 @@ class Translations$deviceDetailsPage$info$zh_CN extends Translations$deviceDetai
   String get version => '版本';
   @override
   String protocol({required Object version}) => '协议 v${version}';
+  @override
+  String get latency => '往返时延';
 }
 
 // Path: deviceDetailsPage.logs
@@ -1351,6 +1671,8 @@ class Translations$dialogs$favoriteEditDialog$zh_CN extends Translations$dialogs
   String get ip => 'IP 地址';
   @override
   String get port => '端口';
+  @override
+  String get invalidPort => '端口无效';
 }
 
 // Path: dialogs.fileInfo

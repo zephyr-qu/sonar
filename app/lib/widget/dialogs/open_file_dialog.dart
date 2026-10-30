@@ -7,6 +7,8 @@ import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/util/native/channel/android_channel.dart' as android_channel;
 import 'package:localsend_app/util/native/open_file.dart';
 import 'package:localsend_app/util/native/open_folder.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_dialog.dart';
 import 'package:localsend_isolates/model/file_type.dart';
 import 'package:path/path.dart' as path;
 import 'package:routerino/routerino.dart';
@@ -73,11 +75,29 @@ class _OpenFileDialogState extends State<OpenFileDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return LsDialog(
       title: Text(t.dialogs.openFile.title),
       content: Text(t.dialogs.openFile.content),
       actions: [
-        TextButton(
+        if (!widget.openGallery)
+          LsButton(
+            label: t.receiveHistoryPage.entryActions.showInFolder,
+            variant: LsButtonVariant.ghost,
+            onPressed: () async => await openFolder(
+              folderPath: File(widget.filePath).parent.path,
+              fileName: path.basename(widget.filePath),
+            ),
+          ),
+        LsButton(
+          label: '${t.general.close} ($_countdown)',
+          variant: LsButtonVariant.ghost,
+          onPressed: () {
+            _timer.cancel();
+            context.pop();
+          },
+        ),
+        LsButton(
+          label: t.general.open,
           onPressed: () async {
             if (widget.openGallery && defaultTargetPlatform == TargetPlatform.android) {
               await android_channel.openGallery();
@@ -85,22 +105,6 @@ class _OpenFileDialogState extends State<OpenFileDialog> {
               await openFile(context, widget.fileType, widget.filePath);
             }
           },
-          child: Text(t.general.open),
-        ),
-        if (!widget.openGallery)
-          TextButton(
-            onPressed: () async => await openFolder(
-              folderPath: File(widget.filePath).parent.path,
-              fileName: path.basename(widget.filePath),
-            ),
-            child: Text(t.receiveHistoryPage.entryActions.showInFolder),
-          ),
-        TextButton(
-          onPressed: () {
-            _timer.cancel();
-            context.pop();
-          },
-          child: Text('${t.general.close} ($_countdown)'),
         ),
       ],
     );

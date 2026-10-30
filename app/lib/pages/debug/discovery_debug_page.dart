@@ -5,7 +5,9 @@ import 'package:localsend_app/provider/logging/discovery_logs_provider.dart';
 import 'package:localsend_app/provider/network/nearby_devices_provider.dart';
 import 'package:localsend_app/util/ui/snackbar.dart';
 import 'package:localsend_app/widget/copyable_text.dart';
+import 'package:localsend_app/widget/ls/ls_scaffold.dart';
 import 'package:localsend_app/widget/responsive_list_view.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
 final _dateFormat = DateFormat.Hms();
@@ -17,34 +19,32 @@ class DiscoveryDebugPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final ref = context.ref;
     final logs = ref.watch(discoveryLoggerProvider);
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Discovery Debugging'),
-        actions: [
-          IconButton(
-            tooltip: 'Copy all logs',
-            icon: const Icon(Icons.copy),
-            onPressed: logs.isEmpty
-                ? null
-                : () async {
-                    try {
-                      await Clipboard.setData(
-                        ClipboardData(
-                          text: logs.map((log) => '[${_dateFormat.format(log.timestamp)}] ${log.log}').join('\n'),
-                        ),
-                      );
-                      if (context.mounted) {
-                        context.showSnackBar('Copied discovery logs to clipboard');
-                      }
-                    } catch (e) {
-                      if (context.mounted) {
-                        context.showSnackBar('Failed to copy logs: $e');
-                      }
+    return LsPageScaffold(
+      title: 'Discovery Debugging',
+      actions: [
+        IconButton(
+          tooltip: 'Copy all logs',
+          icon: const Icon(LucideIcons.copy),
+          onPressed: logs.isEmpty
+              ? null
+              : () async {
+                  try {
+                    await Clipboard.setData(
+                      ClipboardData(
+                        text: logs.map((log) => '[${_dateFormat.format(log.timestamp)}] ${log.log}').join('\n'),
+                      ),
+                    );
+                    if (context.mounted) {
+                      context.showSnackBar('Copied discovery logs to clipboard');
                     }
-                  },
-          ),
-        ],
-      ),
+                  } catch (e) {
+                    if (context.mounted) {
+                      context.showSnackBar('Failed to copy logs: $e');
+                    }
+                  }
+                },
+        ),
+      ],
       body: ResponsiveListView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
         children: [

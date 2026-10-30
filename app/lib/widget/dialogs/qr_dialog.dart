@@ -3,6 +3,9 @@ import 'package:localsend_app/config/theme.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/model/state/send/web/web_download_state.dart';
 import 'package:localsend_app/provider/network/server/server_provider.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_dialog.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
@@ -29,7 +32,7 @@ class QrDialog extends StatelessWidget {
       webDownloadState = null;
     }
 
-    return AlertDialog(
+    return LsDialog(
       title: Text(t.dialogs.qr.title),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -77,7 +80,7 @@ class QrDialog extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.vpn_key),
+                  const Icon(LucideIcons.key),
                   const SizedBox(width: 5),
                   Text(pin!),
                 ],
@@ -86,9 +89,9 @@ class QrDialog extends StatelessWidget {
         ],
       ),
       actions: [
-        TextButton(
+        LsButton(
+          label: t.general.close,
           onPressed: () => context.pop(),
-          child: Text(t.general.close),
         ),
       ],
     );

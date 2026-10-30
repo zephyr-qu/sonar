@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:localsend_app/config/theme.dart';
 import 'package:localsend_app/model/persistence/color_mode.dart';
+import 'package:localsend_app/model/state/server/server_state.dart';
+import 'package:localsend_app/model/state/settings_state.dart';
 import 'package:localsend_app/pages/language_page.dart';
 import 'package:localsend_app/pages/tabs/settings_tab_vm.dart';
 import 'package:localsend_app/provider/device_info_provider.dart';
@@ -11,7 +13,6 @@ import 'package:localsend_app/util/native/autostart_helper.dart';
 import 'package:localsend_app/util/native/context_menu_helper.dart';
 import 'package:localsend_app/util/ui/dynamic_colors.dart';
 import 'package:localsend_app/util/ui/snackbar.dart';
-import 'package:localsend_app/widget/dialogs/custom_color_dialog.dart';
 import 'package:localsend_isolates/isolate.dart';
 import 'package:localsend_isolates/model/device_info_result.dart';
 import 'package:localsend_isolates/util/sleep.dart';
@@ -44,6 +45,11 @@ class SettingsTabController extends ReduxNotifier<SettingsTabVm> {
   final DeviceInfoResult _initialDeviceInfo;
   final bool _supportsDynamicColors;
 
+  /// The settings the running server was started with. The server only reads
+  /// them once, so a difference to the current settings shows what still needs
+  /// a restart.
+  SettingsState _appliedSettings;
+
   SettingsTabController({
     required SettingsService settingsService,
     required ServerService serverNotifier,
@@ -56,12 +62,12 @@ class SettingsTabController extends ReduxNotifier<SettingsTabVm> {
        _isolateController = isolateController,
        _localIpService = localIpService,
        _initialDeviceInfo = initialDeviceInfo,
-       _supportsDynamicColors = supportsDynamicColors;
+       _supportsDynamicColors = supportsDynamicColors,
+       _appliedSettings = settingsService.state;
 
   @override
   SettingsTabVm init() {
     return SettingsTabVm(
-      advanced: _settingsService.state.advancedSettings,
       aliasController: TextEditingController(text: _settingsService.state.alias),
       deviceModelController: TextEditingController(text: _initialDeviceInfo.deviceModel),
       portController: TextEditingController(text: _settingsService.state.port.toString()),
@@ -70,6 +76,7 @@ class SettingsTabController extends ReduxNotifier<SettingsTabVm> {
       settings: _settingsService.state,
       serverState: _serverService.state,
       deviceInfo: _initialDeviceInfo,
+      pendingRestart: _pendingRestart(server: _serverService.state, settings: _settingsService.state),
       colorModes: _supportsDynamicColors ? ColorMode.values : ColorMode.values.where((e) => e != ColorMode.system).toList(),
       autoStart: false,
       autoStartLaunchHidden: false,
@@ -82,16 +89,6 @@ class SettingsTabController extends ReduxNotifier<SettingsTabVm> {
         }
       },
       onChangeColorMode: (context, colorMode) async {
-        if (colorMode == ColorMode.custom) {
-          final color = await showDialog<Color>(
-            context: context,
-            builder: (_) => CustomColorDialog(initialColor: _settingsService.state.customColor),
-          );
-          if (color == null) {
-            return;
-          }
-          await _settingsService.setCustomColor(color);
-        }
         await _settingsService.setColorMode(colorMode);
         if (colorMode == ColorMode.oled) {
           await _settingsService.setTheme(ThemeMode.dark);
@@ -148,6 +145,7 @@ class SettingsTabController extends ReduxNotifier<SettingsTabVm> {
             await _settingsService.setPort(newServerState.port);
             external(_isolateController).dispatch(IsolateDiscoveryRestartAction());
             external(_localIpService).dispatchAsync(FetchLocalIpAction()); // ignore: unawaited_futures
+            redux.dispatch(_ApplyServerSettingsAction());
           }
         } catch (e) {
           // ignore: use_build_context_synchronously
@@ -163,8 +161,27 @@ class SettingsTabController extends ReduxNotifier<SettingsTabVm> {
         }
       },
       onTapStopServer: () async => await _serverService.stopServer(),
-      onTapAdvanced: (advanced) => redux.dispatch(SetAdvancedAction(advanced)),
     );
+  }
+
+  /// The settings the running server has not picked up yet: it reads them once
+  /// when it starts, and so does the multicast discovery it binds.
+  Set<ServerSetting> _pendingRestart({required ServerState? server, required SettingsState settings}) {
+    if (server == null) {
+      // Stopped: the next start reads the current settings anyway.
+      return const {};
+    }
+
+    final applied = _appliedSettings;
+    return {
+      if (applied.alias != settings.alias) ServerSetting.alias,
+      if (applied.port != settings.port) ServerSetting.port,
+      if (applied.https != settings.https) ServerSetting.https,
+      if (applied.multicastGroup != settings.multicastGroup) ServerSetting.multicastGroup,
+      if (applied.discoveryTimeout != settings.discoveryTimeout) ServerSetting.discoveryTimeout,
+      if (!_listEq(applied.networkWhitelist, settings.networkWhitelist) || !_listEq(applied.networkBlacklist, settings.networkBlacklist))
+        ServerSetting.networkInterfaces,
+    };
   }
 
   @override
@@ -199,22 +216,25 @@ class _SettingsTabInitAction extends AsyncReduxAction<SettingsTabController, Set
 class _SettingsTabWatchAction extends WatchAction<SettingsTabController, SettingsTabVm> {
   @override
   SettingsTabVm reduce() {
+    final settings = ref.watch(settingsProvider);
+    final serverState = ref.watch(serverProvider);
+
+    final prevServer = state.serverState;
+    if (serverState != null &&
+        (prevServer == null ||
+            prevServer.alias != serverState.alias ||
+            prevServer.port != serverState.port ||
+            prevServer.https != serverState.https)) {
+      // A new server started from the current settings.
+      notifier._appliedSettings = settings;
+    }
+
     return state.copyWith(
-      settings: ref.watch(settingsProvider),
-      serverState: ref.watch(serverProvider),
+      settings: settings,
+      serverState: serverState,
       deviceInfo: ref.watch(deviceInfoProvider),
+      pendingRestart: notifier._pendingRestart(server: serverState, settings: settings),
     );
-  }
-}
-
-class SetAdvancedAction extends ReduxAction<SettingsTabController, SettingsTabVm> {
-  final bool advanced;
-
-  SetAdvancedAction(this.advanced);
-
-  @override
-  SettingsTabVm reduce() {
-    return state.copyWith(advanced: advanced);
   }
 }
 
@@ -249,4 +269,30 @@ class _SetShowInContextMenuAction extends ReduxAction<SettingsTabController, Set
   SettingsTabVm reduce() {
     return state.copyWith(showInContextMenu: enabled);
   }
+}
+
+class _ApplyServerSettingsAction extends ReduxAction<SettingsTabController, SettingsTabVm> {
+  @override
+  SettingsTabVm reduce() {
+    // The server (re)started with the settings it was given, so everything is
+    // applied now, including the discovery configuration nobody reports back.
+    notifier._appliedSettings = notifier._settingsService.state;
+    return state.copyWith(pendingRestart: const {});
+  }
+}
+
+/// Compares two optional lists element by element, which [List] does not.
+bool _listEq(List<String>? a, List<String>? b) {
+  if (a == null || b == null) {
+    return a == b;
+  }
+  if (a.length != b.length) {
+    return false;
+  }
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) {
+      return false;
+    }
+  }
+  return true;
 }

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:localsend_app/config/theme.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/provider/tv_provider.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_dialog.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
 
@@ -40,7 +43,7 @@ class _TextFieldTvState extends State<TextFieldTv> with Refena {
           await showDialog(
             context: context,
             builder: (context) {
-              return AlertDialog(
+              return LsDialog(
                 title: Text(widget.name),
                 content: TextFormField(
                   controller: widget.controller,
@@ -50,13 +53,9 @@ class _TextFieldTvState extends State<TextFieldTv> with Refena {
                   onFieldSubmitted: (_) => context.pop(),
                 ),
                 actions: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    ),
+                  LsButton(
+                    label: t.general.confirm,
                     onPressed: () => context.pop(),
-                    child: Text(t.general.confirm),
                   ),
                 ],
               );
@@ -76,7 +75,7 @@ class _TextFieldTvState extends State<TextFieldTv> with Refena {
         decoration: InputDecoration(
           suffixIcon: widget.onDelete != null
               ? IconButton(
-                  icon: Icon(Icons.clear),
+                  icon: Icon(LucideIcons.x),
                   onPressed: () {
                     widget.onDelete?.call();
                   },

@@ -8,7 +8,7 @@ use localsend::http::server::internal::{InternalConfig, InternalEvent};
 pub use localsend::http::server::v2::SessionEndReasonV2;
 use localsend::http::server::v2::{PrepareUploadDecisionV2, ServerEventV2};
 use localsend::http::server::web::{
-    WebConfig, WebMode as CoreWebMode, WebDownloadConfig, WebDownloadEvent,
+    WebConfig, WebDownloadConfig, WebDownloadEvent, WebMode as CoreWebMode,
 };
 pub use localsend::http::server::web::{WebI18n, WebPages};
 use localsend::http::state::ClientInfo;
@@ -60,6 +60,15 @@ pub enum RsServerEvent {
     SessionEnd {
         session_id: String,
         reason: SessionEndReasonV2,
+
+        /// Files whose sender-provided SHA-256 was verified and matched.
+        checksum_verified: u32,
+
+        /// Files that arrived without a usable checksum.
+        checksum_unchecked: u32,
+
+        /// Files that failed (including checksum mismatches).
+        checksum_failed: u32,
     },
 
     /// A prepare-upload request was aborted before a session was created,
@@ -402,14 +411,31 @@ impl RsHttpServer {
                 })
                 .is_ok()
             }
-            ServerEventV2::SessionEnd { session_id, reason } => {
+            ServerEventV2::SessionEnd {
+                session_id,
+                reason,
+                checksums,
+            } => {
                 // Drop stale upload responders of this session (their requests already ended).
                 self.pending_uploads
                     .lock()
                     .await
                     .retain(|(sid, _), _| sid != &session_id);
-                sink.add(RsServerEvent::SessionEnd { session_id, reason })
-                    .is_ok()
+                let (verified, unchecked, failed) = checksums.map_or((0, 0, 0), |summary| {
+                    (
+                        summary.verified as u32,
+                        summary.unchecked as u32,
+                        summary.failed as u32,
+                    )
+                });
+                sink.add(RsServerEvent::SessionEnd {
+                    session_id,
+                    reason,
+                    checksum_verified: verified,
+                    checksum_unchecked: unchecked,
+                    checksum_failed: failed,
+                })
+                .is_ok()
             }
             ServerEventV2::PrepareUploadAborted { session_id } => {
                 // Drop the stale decision responder (the request already ended).

@@ -147,6 +147,7 @@ extension RsStoredDeviceExt on rust_discovery.RsStoredDevice {
       deviceModel: deviceModel,
       deviceType: deviceType?.toDart() ?? DeviceType.desktop,
       download: download,
+      rttMs: rttMs?.toInt(),
       channels: [
         for (final channel in channels)
           HttpChannel(

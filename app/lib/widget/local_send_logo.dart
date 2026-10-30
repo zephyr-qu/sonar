@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:localsend_app/config/design_tokens.dart';
 import 'package:localsend_app/gen/assets.gen.dart';
 
 class LocalSendLogo extends StatelessWidget {
@@ -23,9 +24,9 @@ class LocalSendLogo extends StatelessWidget {
       return Column(
         children: [
           logo,
-          const Text(
+          Text(
             'LocalSend',
-            style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+            style: context.ls.display,
             textAlign: TextAlign.center,
           ),
         ],

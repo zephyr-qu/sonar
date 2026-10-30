@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:localsend_app/config/design_tokens.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/pages/receive_page.dart';
 import 'package:localsend_app/provider/network/server/server_provider.dart';
@@ -6,12 +7,18 @@ import 'package:localsend_app/provider/selection/selected_receiving_files_provid
 import 'package:localsend_app/util/file_type_ext.dart';
 import 'package:localsend_app/util/native/pick_directory_path.dart';
 import 'package:localsend_app/util/native/platform_check.dart';
-import 'package:localsend_app/widget/custom_dropdown_button.dart';
-import 'package:localsend_app/widget/custom_icon_button.dart';
 import 'package:localsend_app/widget/dialogs/file_name_input_dialog.dart';
 import 'package:localsend_app/widget/dialogs/quick_actions_dialog.dart';
-import 'package:localsend_app/widget/responsive_list_view.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_card.dart';
+import 'package:localsend_app/widget/ls/ls_chip.dart';
+import 'package:localsend_app/widget/ls/ls_header.dart';
+import 'package:localsend_app/widget/ls/ls_section_label.dart';
+import 'package:localsend_app/widget/ls/ls_switch.dart';
+import 'package:localsend_app/widget/ls/ls_tile.dart';
+import 'package:localsend_isolates/model/dto/file_dto.dart';
 import 'package:localsend_isolates/util/file_size_helper.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
 class ReceiveOptionsPage extends StatelessWidget {
@@ -22,182 +29,200 @@ class ReceiveOptionsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ref = context.ref;
+    final tokens = context.ls;
     final receiveSession = ref.watch(serverProvider.select((s) => s?.session));
     if (receiveSession == null) {
-      return Scaffold(
-        body: Container(),
-      );
+      return const Scaffold(body: SizedBox());
     }
     final selectState = ref.watch(selectedReceivingFilesProvider);
+    final destination = checkPlatformWithFileSystem() ? receiveSession.destinationDirectory : t.receiveOptionsPage.appDirectory;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(t.receiveOptionsPage.title),
-      ),
-      body: ResponsiveListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-        itemCount: vm.files.length + 1,
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            // header
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    Text(t.receiveOptionsPage.destination, style: Theme.of(context).textTheme.titleLarge),
-                    if (checkPlatformWithFileSystem())
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: CustomIconButton(
-                          onPressed: () async {
-                            final directory = await pickDirectoryPath();
-                            if (directory != null) {
-                              ref.notifier(serverProvider).setSessionDestinationDir(directory);
-                            }
-                          },
-                          child: const Icon(Icons.edit),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 5),
-                Text(checkPlatformWithFileSystem() ? receiveSession.destinationDirectory : t.receiveOptionsPage.appDirectory),
-                if (checkPlatformWithGallery())
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 20),
-                      Text(t.receiveOptionsPage.saveToGallery, style: Theme.of(context).textTheme.titleLarge),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          CustomDropdownButton<bool>(
-                            value: receiveSession.saveToGallery,
-                            expanded: false,
-                            items: [false, true].map((b) {
-                              return DropdownMenuItem(
-                                value: b,
-                                alignment: Alignment.center,
-                                child: ConstrainedBox(
-                                  constraints: const BoxConstraints(minWidth: 80),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                                    child: Text(b ? t.general.on : t.general.off),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (b) => ref.notifier(serverProvider).setSessionSaveToGallery(b),
-                          ),
-                          if (receiveSession.containsDirectories && !receiveSession.saveToGallery) ...[
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(t.receiveOptionsPage.saveToGalleryOff, style: const TextStyle(color: Colors.grey)),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ],
-                  ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Text(t.general.files, style: Theme.of(context).textTheme.titleLarge),
-                    const SizedBox(width: 10),
-                    Tooltip(
-                      message: t.dialogs.quickActions.title,
-                      child: CustomIconButton(
-                        onPressed: () async {
-                          await showDialog(context: context, builder: (_) => const QuickActionsDialog());
-                        },
-                        child: const Icon(Icons.tips_and_updates),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Tooltip(
-                      message: t.general.reset,
-                      child: CustomIconButton(
-                        onPressed: () => ref.notifier(selectedReceivingFilesProvider).setFiles(vm.files),
-                        child: const Icon(Icons.undo),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 5),
-              ],
-            );
-          }
-
-          final file = vm.files[index - 1];
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(file.fileType.icon, size: 46),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        selectState[file.id] ?? file.fileName,
-                        style: const TextStyle(fontSize: 16),
-                        maxLines: 1,
-                        overflow: TextOverflow.fade,
-                        softWrap: false,
-                      ),
-                      Text(
-                        '${!selectState.containsKey(file.id) ? t.general.skipped : (selectState[file.id] == file.fileName ? t.general.unchanged : t.general.renamed)} - ${file.size.asReadableFileSize}',
-                        style: TextStyle(
-                          color: !selectState.containsKey(file.id)
-                              ? Colors.grey
-                              : (selectState[file.id] == file.fileName ? Theme.of(context).colorScheme.onSecondaryContainer : Colors.orange),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CustomIconButton(
-                      onPressed: selectState[file.id] == null
-                          ? null
-                          : () async {
-                              final result = await showDialog<String>(
-                                context: context,
-                                builder: (_) => FileNameInputDialog(
-                                  originalName: file.fileName,
-                                  initialName: selectState[file.id]!,
-                                ),
-                              );
-                              if (result != null) {
-                                ref.notifier(selectedReceivingFilesProvider).rename(file.id, result);
-                              }
-                            },
-                      child: const Icon(Icons.edit),
-                    ),
-                    Checkbox(
-                      value: selectState.containsKey(file.id),
-                      activeColor: Theme.of(context).colorScheme.onSurface,
-                      checkColor: Theme.of(context).colorScheme.surface,
-                      onChanged: (selected) {
-                        if (selected == true) {
-                          ref.notifier(selectedReceivingFilesProvider).select(file);
-                        } else {
-                          ref.notifier(selectedReceivingFilesProvider).unselect(file.id);
-                        }
-                      },
-                    ),
-                  ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            LsSubHeader(
+              title: t.receiveOptionsPage.title,
+              subtitle: Text(destination, maxLines: 1, overflow: TextOverflow.ellipsis, style: tokens.monoSm),
+              onBack: () => Navigator.of(context).maybePop(),
+              actions: [
+                LsChip.text(
+                  vm.sender.https ? t.receiveRequestPage.secure : t.receiveRequestPage.plain,
+                  accent: vm.sender.https,
                 ),
               ],
             ),
-          );
-        },
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 720),
+                  child: ListView(
+                    padding: EdgeInsets.fromLTRB(tokens.pad, 2, tokens.pad, 20),
+                    children: [
+                      LsSectionLabel(label: t.receiveOptionsPage.destination),
+                      LsCard(
+                        padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    destination,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: tokens.bodySm.copyWith(color: tokens.colors.fg),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    checkPlatformWithFileSystem() ? t.receiveOptionsPage.destination : t.receiveOptionsPage.appDirectory,
+                                    style: tokens.monoSm,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (checkPlatformWithFileSystem())
+                              LsIconButton(
+                                icon: LucideIcons.pencil,
+                                tooltip: t.receiveRequestPage.change,
+                                onPressed: () async {
+                                  final directory = await pickDirectoryPath();
+                                  if (directory != null) {
+                                    ref.notifier(serverProvider).setSessionDestinationDir(directory);
+                                  }
+                                },
+                              ),
+                          ],
+                        ),
+                      ),
+                      if (checkPlatformWithGallery()) ...[
+                        const SizedBox(height: 6),
+                        LsCard(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(t.receiveOptionsPage.saveToGallery, style: tokens.bodySm.copyWith(color: tokens.colors.fg)),
+                              ),
+                              LsSwitch(
+                                value: receiveSession.saveToGallery,
+                                label: t.receiveOptionsPage.saveToGallery,
+                                onChanged: (value) => ref.notifier(serverProvider).setSessionSaveToGallery(value),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (receiveSession.containsDirectories && !receiveSession.saveToGallery)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 6),
+                            child: Text(t.receiveOptionsPage.saveToGalleryOff, style: tokens.bodySm.copyWith(color: tokens.colors.danger)),
+                          ),
+                      ],
+                      LsSectionLabel(
+                        label: t.general.files,
+                        count: '${selectState.length}/${vm.files.length}',
+                      ),
+                      Row(
+                        children: [
+                          LsChip.text(
+                            t.dialogs.quickActions.title,
+                            onTap: () async => showDialog(context: context, builder: (_) => const QuickActionsDialog()),
+                          ),
+                          const SizedBox(width: 8),
+                          LsChip.text(
+                            t.general.reset,
+                            onTap: () => ref.notifier(selectedReceivingFilesProvider).setFiles(vm.files),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      LsCard(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+                        child: Column(
+                          children: [
+                            for (var index = 0; index < vm.files.length; index++)
+                              _ReceiveFileRow(
+                                file: vm.files[index],
+                                desiredName: selectState[vm.files[index].id],
+                                showDivider: index > 0,
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+}
+
+class _ReceiveFileRow extends StatelessWidget {
+  final FileDto file;
+  final String? desiredName;
+  final bool showDivider;
+
+  const _ReceiveFileRow({required this.file, required this.desiredName, required this.showDivider});
+
+  @override
+  Widget build(BuildContext context) {
+    final ref = context.ref;
+    final selected = desiredName != null;
+    final status = !selected ? t.general.skipped : (desiredName == file.fileName ? t.general.unchanged : t.general.renamed);
+
+    return LsFileRow(
+      kind: _kindOf(file.fileName),
+      leadingIcon: file.fileType.icon,
+      name: desiredName ?? file.fileName,
+      meta: '$status · ${file.size.asReadableFileSize}',
+      showDivider: showDivider,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LsIconButton(
+            icon: LucideIcons.pencil,
+            tooltip: t.general.edit,
+            onPressed: !selected
+                ? null
+                : () async {
+                    final result = await showDialog<String>(
+                      context: context,
+                      builder: (_) => FileNameInputDialog(originalName: file.fileName, initialName: desiredName!),
+                    );
+                    if (result != null) {
+                      ref.notifier(selectedReceivingFilesProvider).rename(file.id, result);
+                    }
+                  },
+          ),
+          const SizedBox(width: 4),
+          LsSwitch(
+            value: selected,
+            label: file.fileName,
+            onChanged: (value) {
+              if (value) {
+                ref.notifier(selectedReceivingFilesProvider).select(file);
+              } else {
+                ref.notifier(selectedReceivingFilesProvider).unselect(file.id);
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _kindOf(String name) {
+    final dot = name.lastIndexOf('.');
+    if (dot == -1 || dot == name.length - 1) {
+      return 'FILE';
+    }
+    final kind = name.substring(dot + 1).toUpperCase();
+    return kind.length > 4 ? kind.substring(0, 4) : kind;
   }
 }

@@ -9,6 +9,7 @@ import 'package:localsend_app/provider/app_arguments_provider.dart';
 import 'package:localsend_app/provider/persistence_provider.dart';
 import 'package:localsend_app/util/shared_preferences/shared_preferences_file.dart';
 import 'package:localsend_app/widget/debug_entry.dart';
+import 'package:localsend_app/widget/ls/ls_scaffold.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
@@ -22,10 +23,8 @@ class DebugPage extends StatelessWidget {
     final portableMode = context.watch(persistenceProvider.select((state) => state.isPortableMode()));
     final store = SharedPreferencesStorePlatform.instance;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Debugging'),
-      ),
+    return LsPageScaffold(
+      title: 'Debugging',
       body: ListView(
         padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 30),
         children: [

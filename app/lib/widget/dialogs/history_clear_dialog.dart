@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
+import 'package:localsend_app/widget/ls/ls_buttons.dart';
+import 'package:localsend_app/widget/ls/ls_dialog.dart';
 import 'package:routerino/routerino.dart';
 
 class HistoryClearDialog extends StatelessWidget {
@@ -7,17 +9,18 @@ class HistoryClearDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return LsDialog(
       title: Text(t.dialogs.historyClearDialog.title),
       content: Text(t.dialogs.historyClearDialog.content),
       actions: [
-        TextButton(
+        LsButton(
+          label: t.general.cancel,
+          variant: LsButtonVariant.ghost,
           onPressed: () => context.pop(),
-          child: Text(t.general.cancel),
         ),
-        FilledButton(
+        LsButton(
+          label: t.general.delete,
           onPressed: () => context.pop(true),
-          child: Text(t.general.delete),
         ),
       ],
     );

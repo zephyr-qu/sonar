@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dart_mappable/dart_mappable.dart';
@@ -36,5 +37,16 @@ class CrossFile with CrossFileMappable {
   @override
   String toString() {
     return 'CrossFile(name: $name, fileType: $fileType, size: $size, thumbnail: ${thumbnail != null ? thumbnail!.length : 'null'}, asset: $asset, path: $path, bytes: ${bytes != null ? bytes!.length : 'null'})';
+  }
+}
+
+extension CrossFileDisplayName on CrossFile {
+  /// The name to show in the UI. Text messages are encoded as a UUID file
+  /// name, so show the message itself instead.
+  String get displayName {
+    if (fileType == FileType.text && bytes != null) {
+      return utf8.decode(bytes!, allowMalformed: true);
+    }
+    return name;
   }
 }

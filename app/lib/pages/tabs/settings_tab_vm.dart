@@ -7,9 +7,13 @@ import 'package:localsend_isolates/model/device_info_result.dart';
 
 part 'settings_tab_vm.mapper.dart';
 
+/// The settings a running server only picks up on its next start: the alias,
+/// port and protocol it was started with, and the multicast group, bind
+/// interfaces and discovery timeout its sockets were bound with.
+enum ServerSetting { alias, port, https, multicastGroup, discoveryTimeout, networkInterfaces }
+
 @MappableClass()
 class SettingsTabVm with SettingsTabVmMappable {
-  final bool advanced;
   final TextEditingController aliasController;
   final TextEditingController deviceModelController;
   final TextEditingController portController;
@@ -33,10 +37,11 @@ class SettingsTabVm with SettingsTabVmMappable {
   final void Function(BuildContext context) onTapRestartServer;
   final void Function(BuildContext context) onTapStartServer;
   final void Function() onTapStopServer;
-  final void Function(bool advanced) onTapAdvanced;
 
+  /// Settings the running server has not picked up yet (empty while it is
+  /// stopped, as the next start reads them anyway).
+  final Set<ServerSetting> pendingRestart;
   SettingsTabVm({
-    required this.advanced,
     required this.aliasController,
     required this.deviceModelController,
     required this.portController,
@@ -58,6 +63,6 @@ class SettingsTabVm with SettingsTabVmMappable {
     required this.onTapRestartServer,
     required this.onTapStartServer,
     required this.onTapStopServer,
-    required this.onTapAdvanced,
+    required this.pendingRestart,
   });
 }

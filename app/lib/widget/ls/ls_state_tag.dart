@@ -71,7 +71,7 @@ class LsSwitchIndicator extends StatelessWidget {
       height: 24,
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: on ? colors.accent : colors.lineStrong,
+        color: on ? colors.accent : colors.muted.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Align(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:localsend_app/config/design_tokens.dart';
+import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/widget/ls/ls_dashed.dart';
 import 'package:localsend_app/widget/ls/ls_progress_bar.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -66,11 +67,12 @@ class LsFileTile extends StatelessWidget {
                     child: _KindBadge(kind: kind),
                   ),
                 if (onRemove != null)
-                  Positioned(
-                    top: 3,
-                    right: 3,
-                    child: _RemoveButton(onTap: onRemove!, label: name),
-                  ),
+                  if (onRemove != null)
+                    Positioned(
+                      top: 2,
+                      right: 2,
+                      child: _RemoveButton(onTap: onRemove!, label: name),
+                    ),
               ],
             ),
           ),
@@ -133,9 +135,9 @@ class _RemoveButton extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: SizedBox(
-            width: 20,
-            height: 20,
-            child: Icon(LucideIcons.x, size: 11, color: colors.fg),
+            width: 24,
+            height: 24,
+            child: Icon(LucideIcons.x, size: 12, color: colors.fg),
           ),
         ),
       ),
@@ -368,46 +370,15 @@ class LsDeviceTile extends StatelessWidget {
                 )
               else if (showFavoriteButton && onFavorite != null)
                 Positioned(
-                  top: 2,
-                  right: 2,
-                  child: Tooltip(
-                    message: favorite ? '★' : '☆',
-                    child: Material(
-                      color: Colors.transparent,
-                      shape: const CircleBorder(),
-                      child: InkWell(
-                        onTap: onFavorite,
-                        customBorder: const CircleBorder(),
-                        child: SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: Icon(
-                            favorite ? LucideIcons.star : LucideIcons.star,
-                            size: 13,
-                            color: favorite ? colors.accent : colors.faint,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  top: 0,
+                  right: 0,
+                  child: _FavoriteStar(favorite: favorite, onTap: onFavorite!, size: 22, iconSize: 13, hitSize: 28),
                 ),
               if (!multi && onDetails != null)
                 Positioned(
-                  bottom: 2,
-                  right: 2,
-                  child: Material(
-                    color: Colors.transparent,
-                    shape: const CircleBorder(),
-                    child: InkWell(
-                      onTap: onDetails,
-                      customBorder: const CircleBorder(),
-                      child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: Icon(LucideIcons.info, size: 12, color: colors.faint),
-                      ),
-                    ),
-                  ),
+                  bottom: 0,
+                  right: 0,
+                  child: _DetailsButton(onTap: onDetails!),
                 ),
             ],
           ),
@@ -529,22 +500,7 @@ class _LsDeviceCardState extends State<LsDeviceCard> {
                         ),
                         const Spacer(),
                         if (widget.onFavorite != null)
-                          Tooltip(
-                            message: widget.favorite ? '★' : '☆',
-                            child: InkWell(
-                              onTap: widget.onFavorite,
-                              customBorder: const CircleBorder(),
-                              child: SizedBox(
-                                width: 30,
-                                height: 30,
-                                child: Icon(
-                                  widget.favorite ? LucideIcons.star : LucideIcons.star,
-                                  size: 16,
-                                  color: widget.favorite ? colors.accent : colors.faint,
-                                ),
-                              ),
-                            ),
-                          ),
+                          _FavoriteStar(favorite: widget.favorite, onTap: widget.onFavorite!, size: 30, iconSize: 16, hitSize: 34),
                       ],
                     ),
                     const SizedBox(height: 10),
@@ -561,6 +517,83 @@ class _LsDeviceCardState extends State<LsDeviceCard> {
                 ),
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The favorite toggle of a device tile / card.
+///
+/// Lucide has no filled star, so the state is carried by the glyph plate: a
+/// favorite sits on an [`LsColors.accentSoft`] disc with the accent star, a
+/// non-favorite is a bare faint star. Both branches used to draw the identical
+/// glyph, which left the color as the only difference.
+class _FavoriteStar extends StatelessWidget {
+  final bool favorite;
+  final VoidCallback onTap;
+  final double size;
+  final double iconSize;
+
+  /// Tap target around the [size] disc; larger than the disc so the star is not a
+  /// 22px hit area on a touch screen.
+  final double hitSize;
+
+  const _FavoriteStar({required this.favorite, required this.onTap, required this.size, required this.iconSize, required this.hitSize});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.ls.colors;
+    return Tooltip(
+      message: favorite ? t.dialogs.favoriteDeleteDialog.title : t.dialogs.favoriteEditDialog.titleAdd,
+      child: Material(
+        color: Colors.transparent,
+        shape: const CircleBorder(),
+        child: InkWell(
+          onTap: onTap,
+          customBorder: const CircleBorder(),
+          child: SizedBox(
+            width: hitSize,
+            height: hitSize,
+            child: Center(
+              child: Container(
+                width: size,
+                height: size,
+                alignment: Alignment.center,
+                decoration: favorite ? BoxDecoration(color: colors.accentSoft, shape: BoxShape.circle) : null,
+                child: Icon(LucideIcons.star, size: iconSize, color: favorite ? colors.accent : colors.faint),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The "device details" button of a tile. The glyph stays 13px; the 28px box is
+/// the tap target, because a 20px corner button is not reachable with a finger.
+class _DetailsButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _DetailsButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.ls.colors;
+    return Tooltip(
+      message: t.deviceDetailsPage.title,
+      child: Material(
+        color: Colors.transparent,
+        shape: const CircleBorder(),
+        child: InkWell(
+          onTap: onTap,
+          customBorder: const CircleBorder(),
+          child: SizedBox(
+            width: 28,
+            height: 28,
+            child: Icon(LucideIcons.info, size: 13, color: colors.faint),
           ),
         ),
       ),

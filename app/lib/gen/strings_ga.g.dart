@@ -103,8 +103,6 @@ class _Translations$general$ga extends Translations$general$en {
   @override
   String get add => 'Cuir';
   @override
-  String get advanced => 'Casta';
-  @override
   String get cancel => 'Cealaigh';
   @override
   String get close => 'Dún';
@@ -203,22 +201,11 @@ class _Translations$sendTab$ga extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$ga picker = _Translations$sendTab$picker$ga._(_root);
   @override
-  String get shareIntentInfo =>
-      'Is féidir leat an ghné "Comhroinn" de do ghléas soghluaiste a úsáid freisin chun comhaid a roghnú ar bhealach níos éasca.';
-  @override
   String get nearbyDevices => 'Gléasanna in aice láimhe';
-  @override
-  String get thisDevice => 'An Gléas seo';
   @override
   String get scan => 'Cuardaigh gléasanna';
   @override
-  String get manualSending => 'Seoladh de láimh';
-  @override
-  String get sendMode => 'Mód seolta';
-  @override
   late final _Translations$sendTab$sendModes$ga sendModes = _Translations$sendTab$sendModes$ga._(_root);
-  @override
-  String get sendModeHelp => 'Míniú';
   @override
   String get help => 'Cinntigh le do thoil go bhfuil an sprioc atá uait ar an líonra Wi-Fi céanna freisin.';
   @override
@@ -244,8 +231,6 @@ class _Translations$settingsTab$ga extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$ga network = _Translations$settingsTab$network$ga._(_root);
   @override
   late final _Translations$settingsTab$other$ga other = _Translations$settingsTab$other$ga._(_root);
-  @override
-  String get advancedSettings => 'Socruithe ardleibhéil';
 }
 
 // Path: troubleshootPage
@@ -645,8 +630,6 @@ class _Translations$dialogs$ga extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$ga pin = _Translations$dialogs$pin$ga._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$ga sendModeHelp = _Translations$dialogs$sendModeHelp$ga._(_root);
-  @override
   late final _Translations$dialogs$zoom$ga zoom = _Translations$dialogs$zoom$ga._(_root);
 }
 
@@ -842,10 +825,6 @@ class _Translations$sendTab$sendModes$ga extends Translations$sendTab$sendModes$
   final TranslationsGa _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Faighteoir aonair';
-  @override
-  String get multiple => 'Faighteoirí iolracha';
   @override
   String get link => 'Comhroinn trí nasc';
 }
@@ -1395,24 +1374,6 @@ class _Translations$dialogs$pin$ga extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'Iontráil UAP';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$ga extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$ga._(TranslationsGa root) : this._root = root, super.internal(root);
-
-  final TranslationsGa _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Modhanna seolta';
-  @override
-  String get single => 'Seolann sé comhaid chuig faighteoir amháin. Glanfar an rogha tar éis aistriú comhad a bheith críochnaithe.';
-  @override
-  String get multiple => 'Seolann sé comhaid chuig ilfhaighteoirí. Ní ghlanfar an rogha tar éis aistriú comhad a bheith críochnaithe.';
-  @override
-  String get link =>
-      'Is féidir le faighteoirí nach bhfuil LocalSend suiteáilte acu na comhaid roghnaithe a íoslódáil tríd an nasc a oscailt ina mbrabhsálaí.';
 }
 
 // Path: dialogs.zoom

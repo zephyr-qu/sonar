@@ -4,7 +4,6 @@
     "accept": "Đồng ý",
     "accepted": "Đã đồng ý",
     "add": "Thêm",
-    "advanced": "Nâng cao",
     "cancel": "Thoát",
     "close": "Đóng",
     "confirm": "Xác nhận",
@@ -69,18 +68,11 @@
       "app": "Ứng dụng",
       "clipboard": "Dán"
     },
-    "shareIntentInfo": "Bạn có thể dùng tính năng \"Chia sẻ\" trong điện thoại của bạn để lựa chọn các tập tin dễ dàng hơn.",
     "nearbyDevices": "Thiết bị lân cận",
-    "thisDevice": "Thiết bị hiện tại",
     "scan": "Tìm kiếm thiết bị",
-    "manualSending": "Gửi thủ công",
-    "sendMode": "Chế độ gửi",
     "sendModes": {
-      "single": "Một người nhận",
-      "multiple": "Nhiều người nhận",
       "link": "Chia sẻ liên kết"
     },
-    "sendModeHelp": "Giải thích",
     "help": "Vui lòng đảm bảo thiết bị gửi và nhận dùng chung mạng wifi.",
     "placeItems": "Đặt các mục để chia sẻ."
   },
@@ -156,8 +148,7 @@
       "donate": "Ủng hộ",
       "privacyPolicy": "Chính sách bảo mật",
       "termsOfUse": "Điều khoản sử dụng"
-    },
-    "advancedSettings": "Cài đặt nâng cao"
+    }
   },
   "troubleshootPage": {
     "title": "Gỡ lỗi",
@@ -442,12 +433,6 @@
     },
     "pin": {
       "title": "Nhập mã PIN"
-    },
-    "sendModeHelp": {
-      "title": "Chế độ gửi",
-      "single": "Gửi tập tin tới một người nhận. Lựa chọn sẽ được xoá sau khi quá trình gửi hoàn thành.",
-      "multiple": "Gửi tập tin tới nhiều người nhận. Lựa chọn sẽ không bị xoá.",
-      "link": "Người nhận chưa cài đặt LocalSend có thể nhận tập tin bằng cách mở liên kết trong trình duyệt."
     },
     "zoom": {
       "title": "Đường dẫn"

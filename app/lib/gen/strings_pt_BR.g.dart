@@ -111,8 +111,6 @@ class Translations$general$pt_BR extends Translations$general$en {
   @override
   String get add => 'Adicionar';
   @override
-  String get advanced => 'Avançado';
-  @override
   String get cancel => 'Cancelar';
   @override
   String get close => 'Fechar';
@@ -213,22 +211,11 @@ class Translations$sendTab$pt_BR extends Translations$sendTab$en {
   @override
   late final Translations$sendTab$picker$pt_BR picker = Translations$sendTab$picker$pt_BR.internal(_root);
   @override
-  String get shareIntentInfo =>
-      'Você também pode usar o recurso "Compartilhar" do seu dispositivo móvel para selecionar arquivos com mais facilidade.';
-  @override
   String get nearbyDevices => 'Dispositivos por perto';
-  @override
-  String get thisDevice => 'Este dispositivo';
   @override
   String get scan => 'Procurar dispositivos';
   @override
-  String get manualSending => 'Envio manual';
-  @override
-  String get sendMode => 'Modo de envio';
-  @override
   late final Translations$sendTab$sendModes$pt_BR sendModes = Translations$sendTab$sendModes$pt_BR.internal(_root);
-  @override
-  String get sendModeHelp => 'Explicação';
   @override
   String get help => 'Certifique-se de que ambos os dispositivos estão na mesma rede Wi-Fi.';
   @override
@@ -254,8 +241,6 @@ class Translations$settingsTab$pt_BR extends Translations$settingsTab$en {
   late final Translations$settingsTab$network$pt_BR network = Translations$settingsTab$network$pt_BR.internal(_root);
   @override
   late final Translations$settingsTab$other$pt_BR other = Translations$settingsTab$other$pt_BR.internal(_root);
-  @override
-  String get advancedSettings => 'Configurações avançadas';
 }
 
 // Path: troubleshootPage
@@ -712,8 +697,6 @@ class Translations$dialogs$pt_BR extends Translations$dialogs$en {
   @override
   late final Translations$dialogs$pin$pt_BR pin = Translations$dialogs$pin$pt_BR.internal(_root);
   @override
-  late final Translations$dialogs$sendModeHelp$pt_BR sendModeHelp = Translations$dialogs$sendModeHelp$pt_BR.internal(_root);
-  @override
   late final Translations$dialogs$zoom$pt_BR zoom = Translations$dialogs$zoom$pt_BR.internal(_root);
 }
 
@@ -909,10 +892,6 @@ class Translations$sendTab$sendModes$pt_BR extends Translations$sendTab$sendMode
   final TranslationsPtBr _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Único destinatário';
-  @override
-  String get multiple => 'Vários destinatários';
   @override
   String get link => 'Compartilhar via link';
 }
@@ -1540,24 +1519,6 @@ class Translations$dialogs$pin$pt_BR extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'Digite o PIN';
-}
-
-// Path: dialogs.sendModeHelp
-class Translations$dialogs$sendModeHelp$pt_BR extends Translations$dialogs$sendModeHelp$en {
-  Translations$dialogs$sendModeHelp$pt_BR.internal(TranslationsPtBr root) : this._root = root, super.internal(root);
-
-  final TranslationsPtBr _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Modos de envio';
-  @override
-  String get single => 'Envia arquivos para um destinatário. A seleção será apagada após a conclusão da transferência dos arquivos.';
-  @override
-  String get multiple => 'Envia arquivos para vários destinatários. A seleção não será apagada.';
-  @override
-  String get link =>
-      'Os destinatários que não têm o LocalSend instalado podem baixar os arquivos selecionados abrindo o link fornecido no navegador.';
 }
 
 // Path: dialogs.zoom

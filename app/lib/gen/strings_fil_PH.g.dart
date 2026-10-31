@@ -111,8 +111,6 @@ class _Translations$general$fil_PH extends Translations$general$en {
   @override
   String get add => 'Magdagdag';
   @override
-  String get advanced => 'Advanced';
-  @override
   String get cancel => 'Kanselahin';
   @override
   String get close => 'Isara';
@@ -213,21 +211,11 @@ class _Translations$sendTab$fil_PH extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$fil_PH picker = _Translations$sendTab$picker$fil_PH._(_root);
   @override
-  String get shareIntentInfo => 'Maaaring gamitin ang "Share" feature sa iyong mobile device para sa mas madaling pagpili ng mga file.';
-  @override
   String get nearbyDevices => 'Malalapit na mga device';
-  @override
-  String get thisDevice => 'Ang Device na Ito';
   @override
   String get scan => 'Maghanap ng mga device';
   @override
-  String get manualSending => 'Mano-manong pagpapadala';
-  @override
-  String get sendMode => 'Send mode';
-  @override
   late final _Translations$sendTab$sendModes$fil_PH sendModes = _Translations$sendTab$sendModes$fil_PH._(_root);
-  @override
-  String get sendModeHelp => 'Paliwanag';
   @override
   String get help => 'Mangyaring siguraduhin na ang target ay nasa parehas na wifi network.';
   @override
@@ -253,8 +241,6 @@ class _Translations$settingsTab$fil_PH extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$fil_PH network = _Translations$settingsTab$network$fil_PH._(_root);
   @override
   late final _Translations$settingsTab$other$fil_PH other = _Translations$settingsTab$other$fil_PH._(_root);
-  @override
-  String get advancedSettings => 'Advanced settings';
 }
 
 // Path: troubleshootPage
@@ -723,8 +709,6 @@ class _Translations$dialogs$fil_PH extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$fil_PH pin = _Translations$dialogs$pin$fil_PH._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$fil_PH sendModeHelp = _Translations$dialogs$sendModeHelp$fil_PH._(_root);
-  @override
   late final _Translations$dialogs$zoom$fil_PH zoom = _Translations$dialogs$zoom$fil_PH._(_root);
 }
 
@@ -920,10 +904,6 @@ class _Translations$sendTab$sendModes$fil_PH extends Translations$sendTab$sendMo
   final TranslationsFilPh _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Isang tatanggap';
-  @override
-  String get multiple => 'Maramihang tatanggap';
   @override
   String get link => 'I-share gamit ang link';
 }
@@ -1552,24 +1532,6 @@ class _Translations$dialogs$pin$fil_PH extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'Ilagay ang PIN';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$fil_PH extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$fil_PH._(TranslationsFilPh root) : this._root = root, super.internal(root);
-
-  final TranslationsFilPh _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Send modes';
-  @override
-  String get single => 'Magpadala ng mga file sa iisang recipient o tatanggap. Ang mga pagpipilian ay maaalis pagkatapos ipadala ang file.';
-  @override
-  String get multiple => 'Magpadala ng mga file sa maraming recipient o tatanggap. Ang mga pagpipilian ay hindi maaalis.';
-  @override
-  String get link =>
-      'Ang mga recipient o tatanggap na walang nakainstall na LocalSend ay maaaring mag download nang mga napiling file sa pamamagitan ng pagbukas ng link sa kanilang browser.';
 }
 
 // Path: dialogs.zoom

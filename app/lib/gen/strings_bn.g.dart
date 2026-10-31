@@ -111,8 +111,6 @@ class _Translations$general$bn extends Translations$general$en {
   @override
   String get add => 'অ্যাড করুন';
   @override
-  String get advanced => 'আডভান্স';
-  @override
   String get cancel => 'ক্যানসেল করুন';
   @override
   String get close => 'বন্ধ করুন';
@@ -213,21 +211,11 @@ class _Translations$sendTab$bn extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$bn picker = _Translations$sendTab$picker$bn._(_root);
   @override
-  String get shareIntentInfo => 'আরো সহজে ফাইল সিলেক্ট করার জন্য আপনার মোবাইলের "Share" ফিচারটি ব্যবহার করতে পারেন।';
-  @override
   String get nearbyDevices => 'কাছাকাছি থাকা ডিভাইস';
-  @override
-  String get thisDevice => 'এই ডিভাইস';
   @override
   String get scan => 'ডিভাইস স্ক্যান করুন';
   @override
-  String get manualSending => 'ম্যানুয়াল সেন্ডিং';
-  @override
-  String get sendMode => 'সেন্ড মোড';
-  @override
   late final _Translations$sendTab$sendModes$bn sendModes = _Translations$sendTab$sendModes$bn._(_root);
-  @override
-  String get sendModeHelp => 'ব্যাখ্যা';
   @override
   String get help => 'অনুগ্রহ করে নিশ্চিত করুন যে পছন্দসই লক্ষ্যটিও একই ওয়াইফাই নেটওয়ার্কে রয়েছে।';
   @override
@@ -253,8 +241,6 @@ class _Translations$settingsTab$bn extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$bn network = _Translations$settingsTab$network$bn._(_root);
   @override
   late final _Translations$settingsTab$other$bn other = _Translations$settingsTab$other$bn._(_root);
-  @override
-  String get advancedSettings => 'আডভান্স সেটিংস';
 }
 
 // Path: troubleshootPage
@@ -717,8 +703,6 @@ class _Translations$dialogs$bn extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$bn pin = _Translations$dialogs$pin$bn._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$bn sendModeHelp = _Translations$dialogs$sendModeHelp$bn._(_root);
-  @override
   late final _Translations$dialogs$zoom$bn zoom = _Translations$dialogs$zoom$bn._(_root);
 }
 
@@ -914,10 +898,6 @@ class _Translations$sendTab$sendModes$bn extends Translations$sendTab$sendModes$
   final TranslationsBn _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'একজন রিসিভার';
-  @override
-  String get multiple => 'একাধিক রিসিভার';
   @override
   String get link => 'লিঙ্কের মাধ্যমে শেয়ার করুন';
 }
@@ -1539,23 +1519,6 @@ class _Translations$dialogs$pin$bn extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'পিন দিন';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$bn extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$bn._(TranslationsBn root) : this._root = root, super.internal(root);
-
-  final TranslationsBn _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'সেন্ড মোড';
-  @override
-  String get single => 'একজন প্রাপকের কাছে ফাইল পাঠায়। ফাইল স্থানান্তর সমাপ্ত হওয়ার পরে নির্বাচন পরিষ্কার করা হবে.';
-  @override
-  String get multiple => 'একাধিক প্রাপককে ফাইল পাঠায়। নির্বাচন সাফ করা হবে না।';
-  @override
-  String get link => 'যাদের LocalSend ইনস্টল করা নেই তারা ব্রাউজারে লিঙ্কটি খুলে ফাইলগুলি ডাউনলোড করতে পারবেন।';
 }
 
 // Path: dialogs.zoom

@@ -4,7 +4,6 @@
     "accept": "Sprejmi",
     "accepted": "Sprejeto",
     "add": "Dodaj",
-    "advanced": "Napredno",
     "cancel": "Prekliči",
     "close": "Zapri",
     "confirm": "Potrdi",
@@ -69,18 +68,11 @@
       "app": "Aplikacija",
       "clipboard": "Prilepi"
     },
-    "shareIntentInfo": "Lahko uporabite funkcijo »Deli« na vaši mobilni napravi za lažjo izbiro datotek.",
     "nearbyDevices": "Naprave v bližini",
-    "thisDevice": "Ta naprava",
     "scan": "Išči naprave",
-    "manualSending": "Ročno pošiljanje",
-    "sendMode": "Način pošiljanja",
     "sendModes": {
-      "single": "En prejemnik",
-      "multiple": "Več prejemnikov",
       "link": "Deli prek povezave"
     },
-    "sendModeHelp": "Pojasnilo",
     "help": "Preverite, da je ciljna naprava povezana v isto Wi-Fi omrežje.",
     "placeItems": "Postavite elemente za deljenje."
   },
@@ -156,8 +148,7 @@
       "donate": "Donirajte",
       "privacyPolicy": "Politika zasebnosti",
       "termsOfUse": "Pogoji uporabe"
-    },
-    "advancedSettings": "Napredne nastavitve"
+    }
   },
   "troubleshootPage": {
     "title": "Odpravljanje težav",
@@ -512,12 +503,6 @@
     },
     "pin": {
       "title": "Vnesite PIN"
-    },
-    "sendModeHelp": {
-      "title": "Načini pošiljanja",
-      "single": "Pošlje datoteke enemu prejemniku. Izbira bo po končanem prenosu izbrisana.",
-      "multiple": "Pošlje datoteke več prejemnikom. Izbira po končanem prenosu ne bo izbrisana.",
-      "link": "Prejemniki, ki nimajo nameščenega LocalSend, lahko prenesejo izbrane datoteke z odpiranjem povezave v brskalniku."
     },
     "zoom": {
       "title": "URL"

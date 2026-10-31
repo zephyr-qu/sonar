@@ -111,8 +111,6 @@ class _Translations$general$fa extends Translations$general$en {
   @override
   String get add => 'افزودن';
   @override
-  String get advanced => 'پیشرفته';
-  @override
   String get cancel => 'لغو';
   @override
   String get close => 'بستن';
@@ -213,21 +211,11 @@ class _Translations$sendTab$fa extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$fa picker = _Translations$sendTab$picker$fa._(_root);
   @override
-  String get shareIntentInfo => 'همچنین می‌توانید از قابلیت «اشتراک‌گذاری» دستگاه خود برای انتخاب آسان‌تر فایل‌ها استفاده کنید.';
-  @override
   String get nearbyDevices => 'دستگاه‌های اطراف';
-  @override
-  String get thisDevice => 'این دستگاه';
   @override
   String get scan => 'جستجوی دستگاه‌ها';
   @override
-  String get manualSending => 'ارسال دستی';
-  @override
-  String get sendMode => 'حالت ارسال';
-  @override
   late final _Translations$sendTab$sendModes$fa sendModes = _Translations$sendTab$sendModes$fa._(_root);
-  @override
-  String get sendModeHelp => 'توضیحات';
   @override
   String get help => 'لطفاً مطمئن شوید که دستگاه مورد نظر به شبکه وای‌فای یکسانی متصل باشد.';
   @override
@@ -253,8 +241,6 @@ class _Translations$settingsTab$fa extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$fa network = _Translations$settingsTab$network$fa._(_root);
   @override
   late final _Translations$settingsTab$other$fa other = _Translations$settingsTab$other$fa._(_root);
-  @override
-  String get advancedSettings => 'تنظیمات پیشرفته';
 }
 
 // Path: troubleshootPage
@@ -717,8 +703,6 @@ class _Translations$dialogs$fa extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$fa pin = _Translations$dialogs$pin$fa._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$fa sendModeHelp = _Translations$dialogs$sendModeHelp$fa._(_root);
-  @override
   late final _Translations$dialogs$zoom$fa zoom = _Translations$dialogs$zoom$fa._(_root);
 }
 
@@ -914,10 +898,6 @@ class _Translations$sendTab$sendModes$fa extends Translations$sendTab$sendModes$
   final TranslationsFa _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'یک دریافت‌کننده';
-  @override
-  String get multiple => 'چندین دریافت‌کننده';
   @override
   String get link => 'اشتراک‌گذاری از طریق لینک';
 }
@@ -1541,23 +1521,6 @@ class _Translations$dialogs$pin$fa extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'رمز (PIN) را وارد کنید';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$fa extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$fa._(TranslationsFa root) : this._root = root, super.internal(root);
-
-  final TranslationsFa _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'حالت‌های ارسال';
-  @override
-  String get single => 'فایل‌ها را به یک گیرنده ارسال می‌کند. لیست فایل‌های انتخاب‌شده پس از اتمام انتقال پاک می‌شود.';
-  @override
-  String get multiple => 'فایل‌ها را برای چندین گیرنده ارسال می‌کند. لیست فایل‌های انتخاب‌شده پس از اتمام انتقال پاک نخواهد شد.';
-  @override
-  String get link => 'گیرندگانی که لوکال‌سند را نصب نکرده‌اند، می‌توانند فایل‌ها را با باز کردن لینک در مرورگر خود دانلود کنند.';
 }
 
 // Path: dialogs.zoom

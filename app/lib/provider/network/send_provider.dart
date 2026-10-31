@@ -416,28 +416,18 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
     if (state[sessionId]?.background == false) {
       // A single-target send opens the progress page directly (no app bar) and
       // closes the session when it is dismissed.
-      const background = false;
-
       unawaited(
         // ignore: use_build_context_synchronously
-        Routerino.context
-            .pushAndRemoveUntil(
-              removeUntil: HomePage,
-              transition: RouterinoTransition.fade(),
-              // immediately is not possible: https://github.com/flutter/flutter/issues/121910
-              builder: () => ProgressPage(
-                showAppBar: background,
-                closeSessionOnClose: !background,
-                sessionId: sessionId,
-              ),
-            )
-            .then((_) {
-              if (background) {
-                // The page was popped (e.g. backing out mid-transfer), so the session
-                // runs in background again and is removed silently on success.
-                setBackground(sessionId, true);
-              }
-            }),
+        Routerino.context.pushAndRemoveUntil(
+          removeUntil: HomePage,
+          transition: RouterinoTransition.fade(),
+          // immediately is not possible: https://github.com/flutter/flutter/issues/121910
+          builder: () => ProgressPage(
+            showAppBar: false,
+            closeSessionOnClose: true,
+            sessionId: sessionId,
+          ),
+        ),
       );
     }
 

@@ -4,7 +4,6 @@
     "accept": "Accept",
     "accepted": "Accepted",
     "add": "Add",
-    "advanced": "Advanced",
     "cancel": "Cancel",
     "close": "Close",
     "confirm": "Confirm",
@@ -69,18 +68,11 @@
       "app": "App",
       "clipboard": "Paste"
     },
-    "shareIntentInfo": "You can also use the \"Share\" feature of your mobile device to select files more easily.",
     "nearbyDevices": "Nearby devices",
-    "thisDevice": "This Device",
     "scan": "Search devices",
-    "manualSending": "Manual sending",
-    "sendMode": "Send mode",
     "sendModes": {
-      "single": "Single recipient",
-      "multiple": "Multiple recipients",
       "link": "Share via link"
     },
-    "sendModeHelp": "Explanation",
     "help": "Please ensure that the desired target is also on the same Wi-Fi network.",
     "placeItems": "Place items to share."
   },
@@ -158,8 +150,7 @@
       "donate": "Donate",
       "privacyPolicy": "Privacy Policy",
       "termsOfUse": "Terms of Use"
-    },
-    "advancedSettings": "Advanced settings"
+    }
   },
   "nearbyTab": {
     "title": "Nearby",
@@ -205,9 +196,7 @@
     "securitySettings": "Encryption & PIN",
     "dropHere": "Drop files here",
     "dropHint": "or click to choose files / folders",
-    "desktopHint": "Pick a device card, then confirm in the tray",
     "desktopLede": "{online} online",
-    "dragHint": "Drop files into the tray on the right to start",
     "justNow": "just now",
     "minutesAgo": "{n} min ago",
     "hoursAgo": "{n} h ago",
@@ -239,31 +228,15 @@
     "noResults": "No settings match \"{query}\"",
     "items": "{n} items",
     "groups": "{n} groups",
-    "groupVisibility": "Visibility",
-    "groupVisibilitySummary": "Alias · device type · visibility",
-    "groupReceive": "Receiving",
-    "groupReceiveSummary": "Destination · quick save · PIN",
-    "groupSecurity": "Security & transfer",
-    "groupSecuritySummary": "Encryption · checksums",
-    "groupAppearance": "Appearance",
-    "groupAppearanceSummary": "Theme · color · language · layout",
-    "groupAdvanced": "Advanced",
-    "groupAdvancedSummary": "Port · multicast · network · debug",
     "visibleToNetwork": "Visible to this network",
-    "visibleToNetworkDesc": "Turn off to receive only via link",
     "nearbyLayout": "Nearby layout",
-    "nearbyLayoutDesc": "Grid: search and a two-column device grid. Radar: devices orbit the radar, files below.",
     "nearbyLayoutGrid": "Grid",
     "nearbyLayoutRadar": "Radar",
     "debug": "Debug & logs",
     "quickSaveOff": "Off",
     "quickSaveFavorites": "Favorites only",
     "quickSaveAll": "All devices",
-    "quickSaveDesc": "Requests from the selected devices are accepted without asking",
     "accentColor": "Accent color",
-    "discoveryMode": "Discovery",
-    "discoveryModeDesc": "Multicast finds devices instantly, a subnet scan covers networks where multicast is blocked",
-    "discoveryModeValue": "Multicast + scan",
     "groupDevice": "Devices & visibility",
     "groupReceiveSection": "Receiving & saving",
     "groupSecuritySection": "Security & sharing",
@@ -661,12 +634,6 @@
     },
     "pin": {
       "title": "Enter PIN"
-    },
-    "sendModeHelp": {
-      "title": "Send modes",
-      "single": "Sends files to one recipient. Selection will be cleared after finished files transfer.",
-      "multiple": "Sends files to multiple recipients. Selection will not be cleared after finished files transfer.",
-      "link": "Recipients who do not have LocalSend installed can download the selected files by opening the link in their browser."
     },
     "zoom": {
       "title": "URL"

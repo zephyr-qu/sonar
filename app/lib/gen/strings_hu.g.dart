@@ -109,8 +109,6 @@ class _Translations$general$hu extends Translations$general$en {
   @override
   String get add => 'Hozzáad';
   @override
-  String get advanced => 'Haladó';
-  @override
   String get cancel => 'Mégse';
   @override
   String get close => 'Bezár';
@@ -211,21 +209,11 @@ class _Translations$sendTab$hu extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$hu picker = _Translations$sendTab$picker$hu._(_root);
   @override
-  String get shareIntentInfo => 'A fájlok könnyebb kiválasztásához használhatja mobileszköze "Megosztás" funkcióját is.';
-  @override
   String get nearbyDevices => 'Közeli eszközök';
-  @override
-  String get thisDevice => 'Ez az eszköz';
   @override
   String get scan => 'Keressen eszközöket';
   @override
-  String get manualSending => 'Manuális küldés';
-  @override
-  String get sendMode => 'Küldési mód';
-  @override
   late final _Translations$sendTab$sendModes$hu sendModes = _Translations$sendTab$sendModes$hu._(_root);
-  @override
-  String get sendModeHelp => 'Magyarázat';
   @override
   String get help => 'Győződjön meg arról, hogy a kívánt eszköz is ugyanazon a wifi hálózaton van.';
   @override
@@ -251,8 +239,6 @@ class _Translations$settingsTab$hu extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$hu network = _Translations$settingsTab$network$hu._(_root);
   @override
   late final _Translations$settingsTab$other$hu other = _Translations$settingsTab$other$hu._(_root);
-  @override
-  String get advancedSettings => 'Haladó beállítások';
 }
 
 // Path: troubleshootPage
@@ -632,8 +618,6 @@ class _Translations$dialogs$hu extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$hu pin = _Translations$dialogs$pin$hu._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$hu sendModeHelp = _Translations$dialogs$sendModeHelp$hu._(_root);
-  @override
   late final _Translations$dialogs$zoom$hu zoom = _Translations$dialogs$zoom$hu._(_root);
 }
 
@@ -829,10 +813,6 @@ class _Translations$sendTab$sendModes$hu extends Translations$sendTab$sendModes$
   final TranslationsHu _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Egyetlen címzett';
-  @override
-  String get multiple => 'Több címzett';
   @override
   String get link => 'Megosztás linkben';
 }
@@ -1456,24 +1436,6 @@ class _Translations$dialogs$pin$hu extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'PIN kód megadása';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$hu extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$hu._(TranslationsHu root) : this._root = root, super.internal(root);
-
-  final TranslationsHu _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Küldési módok';
-  @override
-  String get single => 'Fájlokat küld egy címzettnek. Az átvitel befejezése után a kijelölés törlődik.';
-  @override
-  String get multiple => 'Fájlokat küld több címzettnek. A kijelölés nem törlődik.';
-  @override
-  String get link =>
-      'Azok a címzettek, akiknél nincs telepítve a LocalSend, letölthetik a kiválasztott fájlokat a hivatkozás megnyitásával a böngészőjükben.';
 }
 
 // Path: dialogs.zoom

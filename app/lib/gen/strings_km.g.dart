@@ -111,8 +111,6 @@ class _Translations$general$km extends Translations$general$en {
   @override
   String get add => 'បន្ថែម';
   @override
-  String get advanced => 'កម្រិតខ្ពស់';
-  @override
   String get cancel => 'បោះបង់';
   @override
   String get close => 'បិទ';
@@ -213,21 +211,11 @@ class _Translations$sendTab$km extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$km picker = _Translations$sendTab$picker$km._(_root);
   @override
-  String get shareIntentInfo => 'អ្នកក៏អាចប្រើប្រាស់មុខងារ "ចែករំលេក" ក្នុងទូរសព្ទចល័តរបស់អ្នក ដើម្បីរើសឯកសារឱ្យកាន់តែងាយស្រួល។';
-  @override
   String get nearbyDevices => 'ឧបករណ៍ដែលនៅជិតនេះ';
-  @override
-  String get thisDevice => 'ឧបករណ៍នេះ';
   @override
   String get scan => 'កំពុងរកមើលឧបករណ៍';
   @override
-  String get manualSending => 'ផ្ញើដោយខ្លួនឯង';
-  @override
-  String get sendMode => 'ប្រភេទនៃការផ្ញើ';
-  @override
   late final _Translations$sendTab$sendModes$km sendModes = _Translations$sendTab$sendModes$km._(_root);
-  @override
-  String get sendModeHelp => 'ការពន្យល់';
   @override
   String get help => 'សូមប្រាកដថាទីតាំងដែលអ្នកចង់ផ្ញើគឺត្រូវតែភ្ជាប់បណ្តាញ Wi-Fi តែមួយដូចគ្នា។';
   @override
@@ -253,8 +241,6 @@ class _Translations$settingsTab$km extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$km network = _Translations$settingsTab$network$km._(_root);
   @override
   late final _Translations$settingsTab$other$km other = _Translations$settingsTab$other$km._(_root);
-  @override
-  String get advancedSettings => 'ការកំណត់កម្រិតខ្ពស់';
 }
 
 // Path: troubleshootPage
@@ -717,8 +703,6 @@ class _Translations$dialogs$km extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$km pin = _Translations$dialogs$pin$km._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$km sendModeHelp = _Translations$dialogs$sendModeHelp$km._(_root);
-  @override
   late final _Translations$dialogs$zoom$km zoom = _Translations$dialogs$zoom$km._(_root);
 }
 
@@ -914,10 +898,6 @@ class _Translations$sendTab$sendModes$km extends Translations$sendTab$sendModes$
   final TranslationsKm _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'អ្នកទទួលតែម្នាក់';
-  @override
-  String get multiple => 'អ្នកទទួលច្រើននាក់';
   @override
   String get link => 'ចែករំលែកតាមតំណភ្ជាប់';
 }
@@ -1542,23 +1522,6 @@ class _Translations$dialogs$pin$km extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'វាយបញ្ចូលលេខកូដ';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$km extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$km._(TranslationsKm root) : this._root = root, super.internal(root);
-
-  final TranslationsKm _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'របៀបនៃការផ្ញើ';
-  @override
-  String get single => 'ផ្ញើឯកសារទៅអ្នកទទួលម្នាក់។ ការជ្រើសរើសនឹងត្រូវបានសម្អាតបន្ទាប់ពីការផ្ទេរឯកសារបានបញ្ចប់។';
-  @override
-  String get multiple => 'ផ្ញើឯកសារទៅអ្នកទទួលច្រើននាក់។ ការជ្រើសរើសនឹងមិនត្រូវបានសម្អាតទេ។';
-  @override
-  String get link => 'អ្នកទទួលដែលមិនបានដំឡើង LocalSend អាចទាញយកឯកសារដែលបានជ្រើសរើសដោយបើកតំណនៅក្នុងកម្មវិធី browser របស់ពួកគេ។';
 }
 
 // Path: dialogs.zoom

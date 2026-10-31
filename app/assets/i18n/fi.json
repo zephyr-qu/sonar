@@ -4,7 +4,6 @@
     "accept": "Hyväksy",
     "accepted": "Hyväksytty",
     "add": "Lisää",
-    "advanced": "Edistynyt",
     "cancel": "Peruuta",
     "close": "Sulje",
     "confirm": "Vahvista",
@@ -69,18 +68,11 @@
       "app": "Sovellus",
       "clipboard": "Liitä"
     },
-    "shareIntentInfo": "Sinä voit myös käyttää laitteesi \"Jaa\"-toimintoa valitaksesi tiedostoja helpommin.",
     "nearbyDevices": "Lähellä olevat laitteet",
-    "thisDevice": "Tämä laite",
     "scan": "Etsi laitteita",
-    "manualSending": "Manuaalinen lähetys",
-    "sendMode": "Lähetystapa",
     "sendModes": {
-      "single": "Yksi vastaanottaja",
-      "multiple": "Monta vastaanottajaa",
       "link": "Jaa linkillä"
     },
-    "sendModeHelp": "Selitys",
     "help": "Varmista, että haluttu kohde on myös samassa Wi-Fi-verkossa.",
     "placeItems": "Lisää tiedostot tähän, jotta voit lähettää ne."
   },
@@ -156,8 +148,7 @@
       "donate": "Lahjoita",
       "privacyPolicy": "Tietosuojakäytäntö",
       "termsOfUse": "Käyttöehdot"
-    },
-    "advancedSettings": "Edistyneet asetukset"
+    }
   },
   "troubleshootPage": {
     "title": "Ongelmanratkaisu",
@@ -519,12 +510,6 @@
     },
     "pin": {
       "title": "Syötä PIN-koodi"
-    },
-    "sendModeHelp": {
-      "title": "Lähetystilat",
-      "single": "Lähettää tiedostoja yhdelle vastaanottajalle. Valinta tyhjennetään tiedostonsiirron päätyttyä.",
-      "multiple": "Lähettää tiedostoja useille vastaanottajille. Valinta ei tyhjene.",
-      "link": "Vastaanottajat, joilla ei ole LocalSendia asennettuna, voivat ladata valitut tiedostot avaamalla linkin selaimessaan."
     },
     "zoom": {
       "title": "URL"

@@ -109,8 +109,6 @@ class _Translations$general$et extends Translations$general$en {
   @override
   String get add => 'Lisa';
   @override
-  String get advanced => 'Lisavalikud';
-  @override
   String get cancel => 'Katkesta';
   @override
   String get close => 'Sulge';
@@ -211,21 +209,11 @@ class _Translations$sendTab$et extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$et picker = _Translations$sendTab$picker$et._(_root);
   @override
-  String get shareIntentInfo => 'Klikates nutiseadmes olevates rakendustes nuppu „Jaga“ võid kasutada ka mugavat jagamise võimalust.';
-  @override
   String get nearbyDevices => 'Läheduses asuvad seadmed';
-  @override
-  String get thisDevice => 'See seade';
   @override
   String get scan => 'Otsi seadmeid';
   @override
-  String get manualSending => 'Saada käsitsi';
-  @override
-  String get sendMode => 'Saatmisviis';
-  @override
   late final _Translations$sendTab$sendModes$et sendModes = _Translations$sendTab$sendModes$et._(_root);
-  @override
-  String get sendModeHelp => 'Selgitus';
   @override
   String get help => 'Palun kontrolli, et sihtseade asub sama WiFi ühenduse piires.';
   @override
@@ -251,8 +239,6 @@ class _Translations$settingsTab$et extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$et network = _Translations$settingsTab$network$et._(_root);
   @override
   late final _Translations$settingsTab$other$et other = _Translations$settingsTab$other$et._(_root);
-  @override
-  String get advancedSettings => 'Täiendavad seadistused';
 }
 
 // Path: troubleshootPage
@@ -632,8 +618,6 @@ class _Translations$dialogs$et extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$et pin = _Translations$dialogs$pin$et._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$et sendModeHelp = _Translations$dialogs$sendModeHelp$et._(_root);
-  @override
   late final _Translations$dialogs$zoom$et zoom = _Translations$dialogs$zoom$et._(_root);
 }
 
@@ -829,10 +813,6 @@ class _Translations$sendTab$sendModes$et extends Translations$sendTab$sendModes$
   final TranslationsEt _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Üks vastuvõtja';
-  @override
-  String get multiple => 'Mitu vastuvõtjat';
   @override
   String get link => 'Jagamine lingi vahendusel';
 }
@@ -1456,24 +1436,6 @@ class _Translations$dialogs$pin$et extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'Sisesta PIN-kood';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$et extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$et._(TranslationsEt root) : this._root = root, super.internal(root);
-
-  final TranslationsEt _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Saatmisviisid';
-  @override
-  String get single => 'Sellega saadame faile ühele vastuvõtjale. Peale failide saatmise lõppu eemaldame failid saatmisloendist.';
-  @override
-  String get multiple => 'Sellega saadame faile mitmele vastuvõtjale. Peale failide saatmise lõppu failid jäävad saatmisloendisse alles.';
-  @override
-  String get link =>
-      'Kui failide vastuvõtjatel pole arvutis või nutiseadmes rakendust LocalSend, siis avades etteantud lingi oma veebibrauseris, saavad nad failid alla laadida.';
 }
 
 // Path: dialogs.zoom

@@ -111,8 +111,6 @@ class _Translations$general$ca extends Translations$general$en {
   @override
   String get add => 'Afegeix';
   @override
-  String get advanced => 'Avançades';
-  @override
   String get cancel => 'Cancel·la';
   @override
   String get close => 'Tanca';
@@ -213,22 +211,11 @@ class _Translations$sendTab$ca extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$ca picker = _Translations$sendTab$picker$ca._(_root);
   @override
-  String get shareIntentInfo =>
-      'També podeu utilitzar l\'opció «Comparteix» del vostre dispositiu mòbil per a seleccionar fitxers d\'una manera més fàcil.';
-  @override
   String get nearbyDevices => 'Dispositius propers';
-  @override
-  String get thisDevice => 'Aquest dispositiu';
   @override
   String get scan => 'Cerca dispositius';
   @override
-  String get manualSending => 'Enviament manual';
-  @override
-  String get sendMode => 'Mode d\'enviament';
-  @override
   late final _Translations$sendTab$sendModes$ca sendModes = _Translations$sendTab$sendModes$ca._(_root);
-  @override
-  String get sendModeHelp => 'Explicació';
   @override
   String get help => 'Comproveu que el destinatari està en la mateixa xarxa Wi-Fi.';
   @override
@@ -254,8 +241,6 @@ class _Translations$settingsTab$ca extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$ca network = _Translations$settingsTab$network$ca._(_root);
   @override
   late final _Translations$settingsTab$other$ca other = _Translations$settingsTab$other$ca._(_root);
-  @override
-  String get advancedSettings => 'Configuració avançada';
 }
 
 // Path: troubleshootPage
@@ -718,8 +703,6 @@ class _Translations$dialogs$ca extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$ca pin = _Translations$dialogs$pin$ca._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$ca sendModeHelp = _Translations$dialogs$sendModeHelp$ca._(_root);
-  @override
   late final _Translations$dialogs$zoom$ca zoom = _Translations$dialogs$zoom$ca._(_root);
 }
 
@@ -915,10 +898,6 @@ class _Translations$sendTab$sendModes$ca extends Translations$sendTab$sendModes$
   final TranslationsCa _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Destinatari únic';
-  @override
-  String get multiple => 'Múltiples destinataris';
   @override
   String get link => 'Comparteix via enllaç';
 }
@@ -1542,24 +1521,6 @@ class _Translations$dialogs$pin$ca extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'Introduïu el PIN';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$ca extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$ca._(TranslationsCa root) : this._root = root, super.internal(root);
-
-  final TranslationsCa _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Modes d\'enviament';
-  @override
-  String get single => 'Envia fitxers a un destinatari. La selecció s\'esborrarà un cop finalitzada la transferència de fitxers.';
-  @override
-  String get multiple => 'Envia fitxers a diversos destinataris. La selecció no s\'esborrarà en finalitzar la trasferència.';
-  @override
-  String get link =>
-      'Els destinataris que no tinguin el LocalSend instal·lat poden baixar els fitxers seleccionats obrint l\'enllaç al seu navegador.';
 }
 
 // Path: dialogs.zoom

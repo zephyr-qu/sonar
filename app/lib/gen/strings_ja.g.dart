@@ -109,8 +109,6 @@ class _Translations$general$ja extends Translations$general$en {
   @override
   String get add => '追加';
   @override
-  String get advanced => '詳細';
-  @override
   String get cancel => 'キャンセル';
   @override
   String get close => '閉じる';
@@ -211,21 +209,11 @@ class _Translations$sendTab$ja extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$ja picker = _Translations$sendTab$picker$ja._(_root);
   @override
-  String get shareIntentInfo => 'モバイルデバイスの「共有」機能を使うと、より簡単にファイルを選択できます。';
-  @override
   String get nearbyDevices => '近くのデバイス';
-  @override
-  String get thisDevice => 'このデバイス';
   @override
   String get scan => 'デバイスを検索';
   @override
-  String get manualSending => '手動送信';
-  @override
-  String get sendMode => '送信モード';
-  @override
   late final _Translations$sendTab$sendModes$ja sendModes = _Translations$sendTab$sendModes$ja._(_root);
-  @override
-  String get sendModeHelp => '説明';
   @override
   String get help => '目標のデバイスが同じWi-Fiネットワーク内にあることを確認してください。';
   @override
@@ -251,8 +239,6 @@ class _Translations$settingsTab$ja extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$ja network = _Translations$settingsTab$network$ja._(_root);
   @override
   late final _Translations$settingsTab$other$ja other = _Translations$settingsTab$other$ja._(_root);
-  @override
-  String get advancedSettings => '詳細設定';
 }
 
 // Path: troubleshootPage
@@ -630,8 +616,6 @@ class _Translations$dialogs$ja extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$ja pin = _Translations$dialogs$pin$ja._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$ja sendModeHelp = _Translations$dialogs$sendModeHelp$ja._(_root);
-  @override
   late final _Translations$dialogs$zoom$ja zoom = _Translations$dialogs$zoom$ja._(_root);
 }
 
@@ -826,10 +810,6 @@ class _Translations$sendTab$sendModes$ja extends Translations$sendTab$sendModes$
   final TranslationsJa _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => '一対一送信';
-  @override
-  String get multiple => '一対多送信';
   @override
   String get link => 'リンク経由で共有';
 }
@@ -1448,23 +1428,6 @@ class _Translations$dialogs$pin$ja extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'PINコードを入力';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$ja extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$ja._(TranslationsJa root) : this._root = root, super.internal(root);
-
-  final TranslationsJa _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => '送信モード';
-  @override
-  String get single => '単一の受信者にファイルを送信します。ファイルの転送完了後、選択は解除されます。';
-  @override
-  String get multiple => '複数の受信者にファイルを送信します。ファイルの選択は解除されません。';
-  @override
-  String get link => 'LocalSendをインストールしていない受信者でも、ブラウザでリンクを開くことで選択したファイルをダウンロードできます。';
 }
 
 // Path: dialogs.zoom

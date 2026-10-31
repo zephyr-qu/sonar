@@ -111,8 +111,6 @@ class _Translations$general$el extends Translations$general$en {
   @override
   String get add => 'Προσθήκη';
   @override
-  String get advanced => 'Προχωρημένες';
-  @override
   String get cancel => 'Άκυρο';
   @override
   String get close => 'Κλείσιμο';
@@ -213,22 +211,11 @@ class _Translations$sendTab$el extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$el picker = _Translations$sendTab$picker$el._(_root);
   @override
-  String get shareIntentInfo =>
-      'Μπορείτε επίσης να χρησιμοποιήσετε τη δυνατότητα "Κοινή χρήση" της κινητής συσκευής σας για να επιλέξετε αρχεία πιο εύκολα.';
-  @override
   String get nearbyDevices => 'Κοντινές συσκευές';
-  @override
-  String get thisDevice => 'Αυτή η συσκευή';
   @override
   String get scan => 'Αναζήτηση για συσκευές';
   @override
-  String get manualSending => 'Χειροκίνητη αποστολή';
-  @override
-  String get sendMode => 'Λειτουργία αποστολής';
-  @override
   late final _Translations$sendTab$sendModes$el sendModes = _Translations$sendTab$sendModes$el._(_root);
-  @override
-  String get sendModeHelp => 'Επεξήγηση';
   @override
   String get help => 'Βεβαιωθείτε ότι ο επιθυμητός παραλήπτης βρίσκεται επίσης στο ίδιο δίκτυο Wi-Fi.';
   @override
@@ -254,8 +241,6 @@ class _Translations$settingsTab$el extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$el network = _Translations$settingsTab$network$el._(_root);
   @override
   late final _Translations$settingsTab$other$el other = _Translations$settingsTab$other$el._(_root);
-  @override
-  String get advancedSettings => 'Προχωρημένες ρυθμίσεις';
 }
 
 // Path: troubleshootPage
@@ -718,8 +703,6 @@ class _Translations$dialogs$el extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$el pin = _Translations$dialogs$pin$el._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$el sendModeHelp = _Translations$dialogs$sendModeHelp$el._(_root);
-  @override
   late final _Translations$dialogs$zoom$el zoom = _Translations$dialogs$zoom$el._(_root);
 }
 
@@ -915,10 +898,6 @@ class _Translations$sendTab$sendModes$el extends Translations$sendTab$sendModes$
   final TranslationsEl _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Ένας παραλήπτης';
-  @override
-  String get multiple => 'Πολλαπλοί παραλήπτες';
   @override
   String get link => 'Διαμοιρασμός μέσω συνδέσμου';
 }
@@ -1543,24 +1522,6 @@ class _Translations$dialogs$pin$el extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'Εισαγωγή PIN';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$el extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$el._(TranslationsEl root) : this._root = root, super.internal(root);
-
-  final TranslationsEl _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Λειτουργίες αποστολής';
-  @override
-  String get single => 'Στέλνει αρχεία σε έναν παραλήπτη. Η επιλογή θα διαγραφεί μετά την ολοκλήρωση της μεταφοράς του αρχείου.';
-  @override
-  String get multiple => 'Στέλνει αρχεία σε πολλούς παραλήπτες. Η επιλογή δεν θα διαγραφεί.';
-  @override
-  String get link =>
-      'Οι παραλήπτες που δεν έχουν εγκαταστήσει το LocalSend μπορούν να πραγματοποιήσουν λήψη των επιλεγμένων αρχείων ανοίγοντας τον σύνδεσμο στον φυλλομετρητή τους.';
 }
 
 // Path: dialogs.zoom

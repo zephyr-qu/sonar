@@ -111,8 +111,6 @@ class Translations$general$sr extends Translations$general$en {
   @override
   String get add => 'Dodaj';
   @override
-  String get advanced => 'Napredno';
-  @override
   String get cancel => 'Otkaži';
   @override
   String get close => 'Zatvori';
@@ -213,21 +211,11 @@ class Translations$sendTab$sr extends Translations$sendTab$en {
   @override
   late final Translations$sendTab$picker$sr picker = Translations$sendTab$picker$sr.internal(_root);
   @override
-  String get shareIntentInfo => 'Takođe, možete da koristite funkciju „Deli“ na svom mobilnom uređaju da biste lakše birali fajlove.';
-  @override
   String get nearbyDevices => 'Uređaji u blizini';
-  @override
-  String get thisDevice => 'Ovaj uređaj';
   @override
   String get scan => 'Pretraga uređaja';
   @override
-  String get manualSending => 'Ručno slanje';
-  @override
-  String get sendMode => 'Režim slanja';
-  @override
   late final Translations$sendTab$sendModes$sr sendModes = Translations$sendTab$sendModes$sr.internal(_root);
-  @override
-  String get sendModeHelp => 'Objašnjenje';
   @override
   String get help => 'Uverite se da je primalac takođe na istoj Wi-Fi mreži.';
   @override
@@ -253,8 +241,6 @@ class Translations$settingsTab$sr extends Translations$settingsTab$en {
   late final Translations$settingsTab$network$sr network = Translations$settingsTab$network$sr.internal(_root);
   @override
   late final Translations$settingsTab$other$sr other = Translations$settingsTab$other$sr.internal(_root);
-  @override
-  String get advancedSettings => 'Napredna podešavanja';
 }
 
 // Path: troubleshootPage
@@ -720,8 +706,6 @@ class Translations$dialogs$sr extends Translations$dialogs$en {
   @override
   late final Translations$dialogs$pin$sr pin = Translations$dialogs$pin$sr.internal(_root);
   @override
-  late final Translations$dialogs$sendModeHelp$sr sendModeHelp = Translations$dialogs$sendModeHelp$sr.internal(_root);
-  @override
   late final Translations$dialogs$zoom$sr zoom = Translations$dialogs$zoom$sr.internal(_root);
 }
 
@@ -917,10 +901,6 @@ class Translations$sendTab$sendModes$sr extends Translations$sendTab$sendModes$e
   final TranslationsSr _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Jedan primalac';
-  @override
-  String get multiple => 'Više primalaca';
   @override
   String get link => 'Deljenje putem linka';
 }
@@ -1545,23 +1525,6 @@ class Translations$dialogs$pin$sr extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'Unesite PIN';
-}
-
-// Path: dialogs.sendModeHelp
-class Translations$dialogs$sendModeHelp$sr extends Translations$dialogs$sendModeHelp$en {
-  Translations$dialogs$sendModeHelp$sr.internal(TranslationsSr root) : this._root = root, super.internal(root);
-
-  final TranslationsSr _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Režimi slanja';
-  @override
-  String get single => 'Slanje fajlova jednom primaocu. Izbor će biti očišćen nakon završenog prenosa fajlova.';
-  @override
-  String get multiple => 'Slanje fajlova više primalaca. Izbor neće biti očišćen nakon završenog prenosa fajlova.';
-  @override
-  String get link => 'Primaoci koji nemaju instaliran LocalSend mogu preuzeti izabrane fajlove otvaranjem linka u svom pregledaču.';
 }
 
 // Path: dialogs.zoom

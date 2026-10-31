@@ -4,7 +4,6 @@
     "accept": "Terima",
     "accepted": "Diterima",
     "add": "Tambah",
-    "advanced": "Lanjutan",
     "cancel": "Batal",
     "close": "Tutup",
     "confirm": "Konfirmasi",
@@ -69,18 +68,11 @@
       "app": "Aplikasi",
       "clipboard": "Tempel"
     },
-    "shareIntentInfo": "Anda juga dapat menggunakan fitur \"Berbagi\" agar dapat memilih berkas dengan lebih mudah.",
     "nearbyDevices": "Perangkat Terdekat",
-    "thisDevice": "Perangkat Ini",
     "scan": "Cari perangkat",
-    "manualSending": "Kirim secara manual",
-    "sendMode": "Mode Pengiriman",
     "sendModes": {
-      "single": "Penerima tunggal",
-      "multiple": "Banyak penerima",
       "link": "Bagikan melalui tautan"
     },
-    "sendModeHelp": "Penjelasan",
     "help": "Pastikan perangkat tujuan juga terkoneksi pada jaringan Wi-Fi yang sama.",
     "placeItems": "Letakkan item untuk dibagikan."
   },
@@ -156,8 +148,7 @@
       "donate": "Donasi",
       "privacyPolicy": "Kebijakan Privasi",
       "termsOfUse": "Syarat dan Ketentuan Penggunaan"
-    },
-    "advancedSettings": "Pengaturan Lanjutan"
+    }
   },
   "troubleshootPage": {
     "title": "Perbaikan Masalah",
@@ -442,12 +433,6 @@
     },
     "pin": {
       "title": "Masukkan PIN"
-    },
-    "sendModeHelp": {
-      "title": "Mode Pengiriman",
-      "single": "Mengirim berkas ke satu penerima. Pilihan penerima akan dihapus setelah selesai membagikan berkas.",
-      "multiple": "Mengirim berkas ke beberapa penerima. Pilihan penerima tidak akan dihapus.",
-      "link": "Penerima yang tidak memiliki LocalSend dapat mengunduh berkas yang dipilih dengan membuka tautan di peramban."
     },
     "zoom": {
       "title": "URL"

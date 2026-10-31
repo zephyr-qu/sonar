@@ -109,8 +109,6 @@ class _Translations$general$ml extends Translations$general$en {
   @override
   String get add => 'ചേർക്കുക';
   @override
-  String get advanced => 'അഡ്വാൻസ്ഡ്';
-  @override
   String get cancel => 'വേണ്ടെന്നു വയ്ക്കുക';
   @override
   String get close => 'അവസാനിപ്പിക്കുക';
@@ -211,21 +209,11 @@ class _Translations$sendTab$ml extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$ml picker = _Translations$sendTab$picker$ml._(_root);
   @override
-  String get shareIntentInfo => 'താങ്കൾക്ക് മൊബൈലിലെ ഷെയർ ഫീച്ചർ ഉപയോഗിച്ചു എളുപ്പത്തിൽ ഫയൽസ് സെലക്ട് ചെയ്യാം.';
-  @override
   String get nearbyDevices => 'അടുത്തുള്ള ഉപകരണങ്ങൾ';
-  @override
-  String get thisDevice => 'ഈ ഉപകരണം';
   @override
   String get scan => 'സെർച്ച് ഡിവൈസസ്';
   @override
-  String get manualSending => 'മാന്വലായി അയക്കുക';
-  @override
-  String get sendMode => 'അയക്കുന്ന രീതി';
-  @override
   late final _Translations$sendTab$sendModes$ml sendModes = _Translations$sendTab$sendModes$ml._(_root);
-  @override
-  String get sendModeHelp => 'വിശദീകരണം';
   @override
   String get help => 'ലഭിക്കേണ്ടയാളും ഒരേ WIFI യിൽ കണക്റ്റഡ് ആണെന്ന് ഉറപ്പു വരുത്തുക.';
   @override
@@ -251,8 +239,6 @@ class _Translations$settingsTab$ml extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$ml network = _Translations$settingsTab$network$ml._(_root);
   @override
   late final _Translations$settingsTab$other$ml other = _Translations$settingsTab$other$ml._(_root);
-  @override
-  String get advancedSettings => 'അഡ്വാൻസ്‌ഡ് ക്രമീകരണങ്ങൾ';
 }
 
 // Path: troubleshootPage
@@ -632,8 +618,6 @@ class _Translations$dialogs$ml extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$ml pin = _Translations$dialogs$pin$ml._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$ml sendModeHelp = _Translations$dialogs$sendModeHelp$ml._(_root);
-  @override
   late final _Translations$dialogs$zoom$ml zoom = _Translations$dialogs$zoom$ml._(_root);
 }
 
@@ -828,10 +812,6 @@ class _Translations$sendTab$sendModes$ml extends Translations$sendTab$sendModes$
   final TranslationsMl _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'സ്വീകരിക്കുന്നയാൾ';
-  @override
-  String get multiple => 'സ്വീകരിക്കുന്നവർ';
   @override
   String get link => 'ലിങ്ക് ഉപയോഗിച് ഷെയർ ചെയ്യുക';
 }
@@ -1457,23 +1437,6 @@ class _Translations$dialogs$pin$ml extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'PIN എന്റർ ചെയ്യുക';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$ml extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$ml._(TranslationsMl root) : this._root = root, super.internal(root);
-
-  final TranslationsMl _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'അയക്കാൻ പറ്റുന്ന രീതികൾ';
-  @override
-  String get single => 'ഫയൽസ് എല്ലാം ഒരാൾക്ക് അയക്കുക, അയച്ചു കഴിഞ്ഞ ശേഷം സെക്ഷൻ ക്ലീൻ ചെയ്യപ്പെടും.';
-  @override
-  String get multiple => 'ഫയൽസ് കുറേപേർക്കു അയക്കുക, അയച്ചു കഴിഞ്ഞ ശേഷം സെക്ഷൻ ക്ലീൻ ചെയ്യപ്പെടില്ല .';
-  @override
-  String get link => 'ലോക്കൽസെൻഡ്‌ ഇൻസ്റ്റാൾ ചെയ്തവർക് ഈ ലിങ്ക് ബ്രൗസറിൽ ഓപ്പൺ ചെയ്ത ഫയൽ ഡൌൺലോഡ് ചെയ്യാം.';
 }
 
 // Path: dialogs.zoom

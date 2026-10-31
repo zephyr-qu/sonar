@@ -203,7 +203,9 @@ class LsTokens extends ThemeExtension<LsTokens> {
     'monospace',
   ];
 
-  const LsTokens({
+  // Not `const` any more: the type scale below is cached per instance, and a
+  // `const` constructor cannot have lazily initialised fields.
+  LsTokens({
     required this.colors,
     this.radius = 16,
     this.radiusSm = 10,
@@ -252,35 +254,39 @@ class LsTokens extends ThemeExtension<LsTokens> {
   //  11  label        chips, buttons, tabs, badges, mono meta (mono)
   //  10  eyebrow      uppercase eyebrow / keycap labels (eyebrow, tabLabel)
 
+  //
+  // The styles are cached per instance: they are read on every build, and a getter
+  // returning a fresh `TextStyle` each time defeats `const` widgets and makes every
+  // `copyWith` allocate a new style as well.
   /// Hero title of a screen (30 / 700 / -0.02em).
-  TextStyle get display => TextStyle(fontSize: 30, height: 1.08, fontWeight: FontWeight.w700, letterSpacing: -0.6, color: colors.fg);
+  late final TextStyle display = TextStyle(fontSize: 30, height: 1.08, fontWeight: FontWeight.w700, letterSpacing: -0.6, color: colors.fg);
 
   /// Desktop / large-screen page title (24 / 700 / -0.02em).
-  TextStyle get pageTitle => TextStyle(fontSize: 24, height: 1.12, fontWeight: FontWeight.w700, letterSpacing: -0.48, color: colors.fg);
+  late final TextStyle pageTitle = TextStyle(fontSize: 24, height: 1.12, fontWeight: FontWeight.w700, letterSpacing: -0.48, color: colors.fg);
 
   /// Screen header, sheet / dialog / group title (17 / 700).
-  TextStyle get title => TextStyle(fontSize: 17, height: 1.2, fontWeight: FontWeight.w700, letterSpacing: -0.34, color: colors.fg);
+  late final TextStyle title = TextStyle(fontSize: 17, height: 1.2, fontWeight: FontWeight.w700, letterSpacing: -0.34, color: colors.fg);
 
   /// Emphasized name or secondary title (15 / 600).
-  TextStyle get subtitle => TextStyle(fontSize: 15, height: 1.25, fontWeight: FontWeight.w600, letterSpacing: -0.3, color: colors.fg);
+  late final TextStyle subtitle = TextStyle(fontSize: 15, height: 1.25, fontWeight: FontWeight.w600, letterSpacing: -0.3, color: colors.fg);
 
   /// Body copy and list item titles (13 / 400).
-  TextStyle get body => TextStyle(fontSize: 13, height: 1.45, color: colors.fg);
+  late final TextStyle body = TextStyle(fontSize: 13, height: 1.45, color: colors.fg);
 
   /// List item title / emphasized body copy (13 / 500).
-  TextStyle get bodyStrong => TextStyle(fontSize: 13, height: 1.4, fontWeight: FontWeight.w500, color: colors.fg);
+  late final TextStyle bodyStrong = TextStyle(fontSize: 13, height: 1.4, fontWeight: FontWeight.w500, color: colors.fg);
 
   /// Helper text and dense secondary rows (12 / 400, muted).
-  TextStyle get bodySm => TextStyle(fontSize: 12, height: 1.45, color: colors.muted);
+  late final TextStyle bodySm = TextStyle(fontSize: 12, height: 1.45, color: colors.muted);
 
   /// Chips, buttons, tabs, badges and small UI labels (11 / 500).
-  TextStyle get label => TextStyle(fontSize: 11, height: 1.3, fontWeight: FontWeight.w500, color: colors.muted);
+  late final TextStyle label = TextStyle(fontSize: 11, height: 1.3, fontWeight: FontWeight.w500, color: colors.muted);
 
   /// Button caption (13 / 600).
-  TextStyle get buttonLabel => TextStyle(fontSize: 13, height: 1.2, fontWeight: FontWeight.w600, letterSpacing: 0.13);
+  late final TextStyle buttonLabel = TextStyle(fontSize: 13, height: 1.2, fontWeight: FontWeight.w600, letterSpacing: 0.13);
 
   /// Monospace numerals / meta (11, tabular).
-  TextStyle get mono => TextStyle(
+  late final TextStyle mono = TextStyle(
     fontFamily: monoFamily,
     fontFamilyFallback: _monoFallback,
     fontSize: 11,
@@ -291,7 +297,7 @@ class LsTokens extends ThemeExtension<LsTokens> {
   );
 
   /// Dense monospace meta, e.g. timestamps inside a tile (10, tabular).
-  TextStyle get monoSm => TextStyle(
+  late final TextStyle monoSm = TextStyle(
     fontFamily: monoFamily,
     fontFamilyFallback: _monoFallback,
     fontSize: 10,
@@ -302,7 +308,7 @@ class LsTokens extends ThemeExtension<LsTokens> {
   );
 
   /// Uppercase eyebrow label (10, 0.12em).
-  TextStyle get eyebrow => TextStyle(
+  late final TextStyle eyebrow = TextStyle(
     fontFamily: monoFamily,
     fontFamilyFallback: _monoFallback,
     fontSize: 10,
@@ -313,7 +319,7 @@ class LsTokens extends ThemeExtension<LsTokens> {
   );
 
   /// Keycap / tab label (10, 0.05em).
-  TextStyle get tabLabel => TextStyle(
+  late final TextStyle tabLabel = TextStyle(
     fontFamily: monoFamily,
     fontFamilyFallback: _monoFallback,
     fontSize: 10,

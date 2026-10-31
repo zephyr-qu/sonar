@@ -4,7 +4,6 @@
     "accept": "Qabul qilish",
     "accepted": "Qabul qilindi",
     "add": "Qoʻshish",
-    "advanced": "Qoʻshimcha",
     "cancel": "Bekor qilish",
     "close": "Yopish",
     "confirm": "Tasdiqlash",
@@ -69,18 +68,11 @@
       "app": "Ilova",
       "clipboard": "Joylashtirish"
     },
-    "shareIntentInfo": "Fayllarni osonroq tanlash uchun mobil qurilmangizning \"Ulashish\" funksiyasidan ham foydalanishingiz mumkin.",
     "nearbyDevices": "Yaqin atrofdagi qurilmalar",
-    "thisDevice": "Bu qurilma",
     "scan": "Qurilmalarni qidirish",
-    "manualSending": "Qoʻlda yuborish",
-    "sendMode": "Yuborish rejimi",
     "sendModes": {
-      "single": "Bitta qabul qiluvchi",
-      "multiple": "Bir nechta qabul qiluvchi",
       "link": "Havola orqali ulashish"
     },
-    "sendModeHelp": "Tushuntirish",
     "help": "Kerakli qurilma ham bir xil Wi-Fi tarmogʻida ekanligiga ishonch hosil qiling.",
     "placeItems": "Ulashish uchun elementlarni joylashtiring."
   },
@@ -156,8 +148,7 @@
       "donate": "Xayriya",
       "privacyPolicy": "Maxfiylik siyosati",
       "termsOfUse": "Foydalanish shartlari"
-    },
-    "advancedSettings": "Qoʻshimcha sozlamalar"
+    }
   },
   "troubleshootPage": {
     "title": "Muammolarni bartaraf etish",
@@ -439,12 +430,6 @@
     },
     "pin": {
       "title": "PIN kiriting"
-    },
-    "sendModeHelp": {
-      "title": "Yuborish rejimlari",
-      "single": "Fayllarni bitta qabul qiluvchiga yuboradi. Fayl uzatish tugagandan soʻng tanlov tozalanadi.",
-      "multiple": "Fayllarni bir nechta qabul qiluvchiga yuboradi. Fayl uzatish tugagandan soʻng tanlov tozalanmaydi.",
-      "link": "LocalSend oʻrnatilmagan qabul qiluvchilar havolani brauzerlarida ochish orqali tanlangan fayllarni yuklab olishlari mumkin."
     },
     "zoom": {
       "title": "URL"

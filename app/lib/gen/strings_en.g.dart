@@ -96,9 +96,6 @@ class Translations$general$en {
   /// en: 'Add'
   String get add => 'Add';
 
-  /// en: 'Advanced'
-  String get advanced => 'Advanced';
-
   /// en: 'Cancel'
   String get cancel => 'Cancel';
 
@@ -234,28 +231,13 @@ class Translations$sendTab$en {
   late final Translations$sendTab$selection$en selection = Translations$sendTab$selection$en.internal(_root);
   late final Translations$sendTab$picker$en picker = Translations$sendTab$picker$en.internal(_root);
 
-  /// en: 'You can also use the "Share" feature of your mobile device to select files more easily.'
-  String get shareIntentInfo => 'You can also use the "Share" feature of your mobile device to select files more easily.';
-
   /// en: 'Nearby devices'
   String get nearbyDevices => 'Nearby devices';
-
-  /// en: 'This Device'
-  String get thisDevice => 'This Device';
 
   /// en: 'Search devices'
   String get scan => 'Search devices';
 
-  /// en: 'Manual sending'
-  String get manualSending => 'Manual sending';
-
-  /// en: 'Send mode'
-  String get sendMode => 'Send mode';
-
   late final Translations$sendTab$sendModes$en sendModes = Translations$sendTab$sendModes$en.internal(_root);
-
-  /// en: 'Explanation'
-  String get sendModeHelp => 'Explanation';
 
   /// en: 'Please ensure that the desired target is also on the same Wi-Fi network.'
   String get help => 'Please ensure that the desired target is also on the same Wi-Fi network.';
@@ -280,9 +262,6 @@ class Translations$settingsTab$en {
   late final Translations$settingsTab$send$en send = Translations$settingsTab$send$en.internal(_root);
   late final Translations$settingsTab$network$en network = Translations$settingsTab$network$en.internal(_root);
   late final Translations$settingsTab$other$en other = Translations$settingsTab$other$en.internal(_root);
-
-  /// en: 'Advanced settings'
-  String get advancedSettings => 'Advanced settings';
 }
 
 // Path: nearbyTab
@@ -422,14 +401,8 @@ class Translations$nearbyTab$en {
   /// en: 'or click to choose files / folders'
   String get dropHint => 'or click to choose files / folders';
 
-  /// en: 'Pick a device card, then confirm in the tray'
-  String get desktopHint => 'Pick a device card, then confirm in the tray';
-
   /// en: '{online} online'
   String desktopLede({required Object online}) => '${online} online';
-
-  /// en: 'Drop files into the tray on the right to start'
-  String get dragHint => 'Drop files into the tray on the right to start';
 
   /// en: 'just now'
   String get justNow => 'just now';
@@ -530,47 +503,11 @@ class Translations$settingsPage$en {
   /// en: '{n} groups'
   String groups({required Object n}) => '${n} groups';
 
-  /// en: 'Visibility'
-  String get groupVisibility => 'Visibility';
-
-  /// en: 'Alias · device type · visibility'
-  String get groupVisibilitySummary => 'Alias · device type · visibility';
-
-  /// en: 'Receiving'
-  String get groupReceive => 'Receiving';
-
-  /// en: 'Destination · quick save · PIN'
-  String get groupReceiveSummary => 'Destination · quick save · PIN';
-
-  /// en: 'Security & transfer'
-  String get groupSecurity => 'Security & transfer';
-
-  /// en: 'Encryption · checksums'
-  String get groupSecuritySummary => 'Encryption · checksums';
-
-  /// en: 'Appearance'
-  String get groupAppearance => 'Appearance';
-
-  /// en: 'Theme · color · language · layout'
-  String get groupAppearanceSummary => 'Theme · color · language · layout';
-
-  /// en: 'Advanced'
-  String get groupAdvanced => 'Advanced';
-
-  /// en: 'Port · multicast · network · debug'
-  String get groupAdvancedSummary => 'Port · multicast · network · debug';
-
   /// en: 'Visible to this network'
   String get visibleToNetwork => 'Visible to this network';
 
-  /// en: 'Turn off to receive only via link'
-  String get visibleToNetworkDesc => 'Turn off to receive only via link';
-
   /// en: 'Nearby layout'
   String get nearbyLayout => 'Nearby layout';
-
-  /// en: 'Grid: search and a two-column device grid. Radar: devices orbit the radar, files below.'
-  String get nearbyLayoutDesc => 'Grid: search and a two-column device grid. Radar: devices orbit the radar, files below.';
 
   /// en: 'Grid'
   String get nearbyLayoutGrid => 'Grid';
@@ -590,20 +527,8 @@ class Translations$settingsPage$en {
   /// en: 'All devices'
   String get quickSaveAll => 'All devices';
 
-  /// en: 'Requests from the selected devices are accepted without asking'
-  String get quickSaveDesc => 'Requests from the selected devices are accepted without asking';
-
   /// en: 'Accent color'
   String get accentColor => 'Accent color';
-
-  /// en: 'Discovery'
-  String get discoveryMode => 'Discovery';
-
-  /// en: 'Multicast finds devices instantly, a subnet scan covers networks where multicast is blocked'
-  String get discoveryModeDesc => 'Multicast finds devices instantly, a subnet scan covers networks where multicast is blocked';
-
-  /// en: 'Multicast + scan'
-  String get discoveryModeValue => 'Multicast + scan';
 
   /// en: 'Devices & visibility'
   String get groupDevice => 'Devices & visibility';
@@ -1221,7 +1146,6 @@ class Translations$dialogs$en {
   late final Translations$dialogs$quickSaveFromFavoritesNotice$en quickSaveFromFavoritesNotice =
       Translations$dialogs$quickSaveFromFavoritesNotice$en.internal(_root);
   late final Translations$dialogs$pin$en pin = Translations$dialogs$pin$en.internal(_root);
-  late final Translations$dialogs$sendModeHelp$en sendModeHelp = Translations$dialogs$sendModeHelp$en.internal(_root);
   late final Translations$dialogs$zoom$en zoom = Translations$dialogs$zoom$en.internal(_root);
 }
 
@@ -1473,12 +1397,6 @@ class Translations$sendTab$sendModes$en {
   final Translations _root; // ignore: unused_field
 
   // Translations
-
-  /// en: 'Single recipient'
-  String get single => 'Single recipient';
-
-  /// en: 'Multiple recipients'
-  String get multiple => 'Multiple recipients';
 
   /// en: 'Share via link'
   String get link => 'Share via link';
@@ -2245,27 +2163,6 @@ class Translations$dialogs$pin$en {
 
   /// en: 'Enter PIN'
   String get title => 'Enter PIN';
-}
-
-// Path: dialogs.sendModeHelp
-class Translations$dialogs$sendModeHelp$en {
-  Translations$dialogs$sendModeHelp$en.internal(this._root);
-
-  final Translations _root; // ignore: unused_field
-
-  // Translations
-
-  /// en: 'Send modes'
-  String get title => 'Send modes';
-
-  /// en: 'Sends files to one recipient. Selection will be cleared after finished files transfer.'
-  String get single => 'Sends files to one recipient. Selection will be cleared after finished files transfer.';
-
-  /// en: 'Sends files to multiple recipients. Selection will not be cleared after finished files transfer.'
-  String get multiple => 'Sends files to multiple recipients. Selection will not be cleared after finished files transfer.';
-
-  /// en: 'Recipients who do not have LocalSend installed can download the selected files by opening the link in their browser.'
-  String get link => 'Recipients who do not have LocalSend installed can download the selected files by opening the link in their browser.';
 }
 
 // Path: dialogs.zoom

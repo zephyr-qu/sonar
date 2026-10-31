@@ -111,8 +111,6 @@ class _Translations$general$ro extends Translations$general$en {
   @override
   String get add => 'Adaugă';
   @override
-  String get advanced => 'Avansat';
-  @override
   String get cancel => 'Anulare';
   @override
   String get close => 'Închide';
@@ -213,21 +211,11 @@ class _Translations$sendTab$ro extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$ro picker = _Translations$sendTab$picker$ro._(_root);
   @override
-  String get shareIntentInfo => 'Poți utiliza, de asemenea, funcția „Partajare” a dispozitivului pentru a selecta mai ușor fișierele.';
-  @override
   String get nearbyDevices => 'Dispozitive din apropiere';
-  @override
-  String get thisDevice => 'Acest dispozitiv';
   @override
   String get scan => 'Caută dispozitive';
   @override
-  String get manualSending => 'Trimitere manuală';
-  @override
-  String get sendMode => 'Mod de trimitere';
-  @override
   late final _Translations$sendTab$sendModes$ro sendModes = _Translations$sendTab$sendModes$ro._(_root);
-  @override
-  String get sendModeHelp => 'Explicație';
   @override
   String get help => 'Verifică dacă destinația se află în aceeași rețea Wi-Fi.';
   @override
@@ -253,8 +241,6 @@ class _Translations$settingsTab$ro extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$ro network = _Translations$settingsTab$network$ro._(_root);
   @override
   late final _Translations$settingsTab$other$ro other = _Translations$settingsTab$other$ro._(_root);
-  @override
-  String get advancedSettings => 'Setări avansate';
 }
 
 // Path: troubleshootPage
@@ -714,8 +700,6 @@ class _Translations$dialogs$ro extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$ro pin = _Translations$dialogs$pin$ro._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$ro sendModeHelp = _Translations$dialogs$sendModeHelp$ro._(_root);
-  @override
   late final _Translations$dialogs$zoom$ro zoom = _Translations$dialogs$zoom$ro._(_root);
 }
 
@@ -911,10 +895,6 @@ class _Translations$sendTab$sendModes$ro extends Translations$sendTab$sendModes$
   final TranslationsRo _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Un singur destinatar';
-  @override
-  String get multiple => 'Mai mulți destinatari';
   @override
   String get link => 'Partajează prin link';
 }
@@ -1538,23 +1518,6 @@ class _Translations$dialogs$pin$ro extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'Introdu codul PIN';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$ro extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$ro._(TranslationsRo root) : this._root = root, super.internal(root);
-
-  final TranslationsRo _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Moduri de trimitere';
-  @override
-  String get single => 'Trimite fișiere unui singur destinatar. Selecția va fi golită după ce transferul este finalizat.';
-  @override
-  String get multiple => 'Trimite fișiere la mai mulți destinatari. Selecția nu va fi ștearsă după transferul de fișiere terminate.';
-  @override
-  String get link => 'Destinatarii care nu au LocalSend instalat pot descărca fișierele selectate prin deschiderea linkului în browserul lor.';
 }
 
 // Path: dialogs.zoom

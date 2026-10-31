@@ -720,7 +720,8 @@ enum _HistoryEntryOption {
   open,
   showInFolder,
   info,
-  delete;
+  delete
+  ;
 
   String get label {
     return switch (this) {

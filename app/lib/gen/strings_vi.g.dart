@@ -109,8 +109,6 @@ class _Translations$general$vi extends Translations$general$en {
   @override
   String get add => 'Thêm';
   @override
-  String get advanced => 'Nâng cao';
-  @override
   String get cancel => 'Thoát';
   @override
   String get close => 'Đóng';
@@ -211,21 +209,11 @@ class _Translations$sendTab$vi extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$vi picker = _Translations$sendTab$picker$vi._(_root);
   @override
-  String get shareIntentInfo => 'Bạn có thể dùng tính năng "Chia sẻ" trong điện thoại của bạn để lựa chọn các tập tin dễ dàng hơn.';
-  @override
   String get nearbyDevices => 'Thiết bị lân cận';
-  @override
-  String get thisDevice => 'Thiết bị hiện tại';
   @override
   String get scan => 'Tìm kiếm thiết bị';
   @override
-  String get manualSending => 'Gửi thủ công';
-  @override
-  String get sendMode => 'Chế độ gửi';
-  @override
   late final _Translations$sendTab$sendModes$vi sendModes = _Translations$sendTab$sendModes$vi._(_root);
-  @override
-  String get sendModeHelp => 'Giải thích';
   @override
   String get help => 'Vui lòng đảm bảo thiết bị gửi và nhận dùng chung mạng wifi.';
   @override
@@ -251,8 +239,6 @@ class _Translations$settingsTab$vi extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$vi network = _Translations$settingsTab$network$vi._(_root);
   @override
   late final _Translations$settingsTab$other$vi other = _Translations$settingsTab$other$vi._(_root);
-  @override
-  String get advancedSettings => 'Cài đặt nâng cao';
 }
 
 // Path: troubleshootPage
@@ -632,8 +618,6 @@ class _Translations$dialogs$vi extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$vi pin = _Translations$dialogs$pin$vi._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$vi sendModeHelp = _Translations$dialogs$sendModeHelp$vi._(_root);
-  @override
   late final _Translations$dialogs$zoom$vi zoom = _Translations$dialogs$zoom$vi._(_root);
 }
 
@@ -829,10 +813,6 @@ class _Translations$sendTab$sendModes$vi extends Translations$sendTab$sendModes$
   final TranslationsVi _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Một người nhận';
-  @override
-  String get multiple => 'Nhiều người nhận';
   @override
   String get link => 'Chia sẻ liên kết';
 }
@@ -1456,23 +1436,6 @@ class _Translations$dialogs$pin$vi extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'Nhập mã PIN';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$vi extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$vi._(TranslationsVi root) : this._root = root, super.internal(root);
-
-  final TranslationsVi _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Chế độ gửi';
-  @override
-  String get single => 'Gửi tập tin tới một người nhận. Lựa chọn sẽ được xoá sau khi quá trình gửi hoàn thành.';
-  @override
-  String get multiple => 'Gửi tập tin tới nhiều người nhận. Lựa chọn sẽ không bị xoá.';
-  @override
-  String get link => 'Người nhận chưa cài đặt LocalSend có thể nhận tập tin bằng cách mở liên kết trong trình duyệt.';
 }
 
 // Path: dialogs.zoom

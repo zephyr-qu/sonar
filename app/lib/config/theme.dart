@@ -18,11 +18,57 @@ const _monoFontFamily = 'JetBrains Mono';
 final _borderRadius = BorderRadius.circular(10);
 final _cardRadius = BorderRadius.circular(16);
 
+/// Cache key of [getTheme]: only these inputs can change the resulting theme.
+class _ThemeKey {
+  final ColorMode colorMode;
+  final Color customColor;
+  final Brightness brightness;
+  final DynamicColors? dynamicColors;
+
+  const _ThemeKey(this.colorMode, this.customColor, this.brightness, this.dynamicColors);
+
+  @override
+  bool operator ==(Object other) {
+    return other is _ThemeKey &&
+        other.colorMode == colorMode &&
+        other.customColor == customColor &&
+        other.brightness == brightness &&
+        // The palette is recomputed by a provider; an unchanged provider state keeps the
+        // same instance, so identity is the cheap and correct comparison here.
+        identical(other.dynamicColors, dynamicColors);
+  }
+
+  @override
+  int get hashCode => Object.hash(colorMode, customColor, brightness, identityHashCode(dynamicColors));
+}
+
+/// Built themes, keyed by the settings that produced them.
+final _themeCache = <_ThemeKey, ThemeData>{};
+
 /// Builds the theme of the "Signal" redesign.
 ///
 /// The [ColorMode] variants are preserved: `system` (dynamic colors), `custom`
 /// (user seed color), `oled` (pure black) and `yaru` (untouched).
 ThemeData getTheme(ColorMode colorMode, Color customColor, Brightness brightness, DynamicColors? dynamicColors) {
+  final key = _ThemeKey(colorMode, customColor, brightness, dynamicColors);
+  final cached = _themeCache[key];
+  if (cached != null) {
+    return cached;
+  }
+
+  final theme = _buildTheme(colorMode, customColor, brightness, dynamicColors);
+  // `MaterialApp` asks for the light and the dark theme on every build, so a handful of
+  // entries covers every realistic case; more than that means stale combinations (e.g. a
+  // dragged color picker) and building a theme is cheap enough to redo once.
+  if (_themeCache.length >= 8) {
+    _themeCache.clear();
+  }
+  _themeCache[key] = theme;
+  return theme;
+}
+
+/// Builds a theme from scratch. Prefer [getTheme], which caches the result.
+ThemeData _buildTheme(ColorMode colorMode, Color customColor, Brightness brightness, DynamicColors? dynamicColors) {
   if (colorMode == ColorMode.yaru) {
     return _getYaruTheme(brightness);
   }

@@ -15,9 +15,7 @@
         "on": "@:general.on"
       }
     },
-    "sendTab": {
-      "thisDevice": "This Device"
-    },
+    "sendTab": {},
     "whatsNewPage": {
       "changes(interface=WhatsNewStrings)": {
         "v1_18_0": {

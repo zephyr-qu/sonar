@@ -4,7 +4,6 @@
     "accept": "Acceptér",
     "accepted": "Accepteret",
     "add": "Tilføj",
-    "advanced": "Avanceret",
     "cancel": "Afbryd",
     "close": "Luk",
     "confirm": "Bekræft",
@@ -69,18 +68,11 @@
       "app": "App",
       "clipboard": "Indsæt"
     },
-    "shareIntentInfo": "Du kan også bruge din mobilenheds \"Del\"-funktion til nemmere at vælge filer.",
     "nearbyDevices": "Enheder i nærheden",
-    "thisDevice": "Denne enhed",
     "scan": "Søg efter enheder",
-    "manualSending": "Manuel afsendelse",
-    "sendMode": "Send-tilstand",
     "sendModes": {
-      "single": "Enkel modtager",
-      "multiple": "Flere modtagere",
       "link": "Del med link"
     },
-    "sendModeHelp": "Forklaring",
     "help": "Sørg for, at den ønskede enhed er på det samme Wi-Fi-netværk.",
     "placeItems": "Placer filer til deling."
   },
@@ -156,8 +148,7 @@
       "donate": "Donér",
       "privacyPolicy": "Privatlivspolitik",
       "termsOfUse": "Brugsbetingelser"
-    },
-    "advancedSettings": "Avancerede indstillinger"
+    }
   },
   "troubleshootPage": {
     "title": "Fejlsøgning",
@@ -442,12 +433,6 @@
     },
     "pin": {
       "title": "Indtast PIN-kode"
-    },
-    "sendModeHelp": {
-      "title": "Send-tilstande",
-      "single": "Sender filer til én modtager. Valget ryddes efter filoverførsel er færdig.",
-      "multiple": "Sender filer til flere modtager. Valget ryddes ikke efter filoverførsel er færdig.",
-      "link": "Modtagere, der ikke har LocalSend installeret, kan hente de valgte filer ved at åbne linket i deres browser."
     },
     "zoom": {
       "title": "URL"

@@ -4,7 +4,6 @@
     "accept": "Kabul et",
     "accepted": "Kabul edildi",
     "add": "Ekle",
-    "advanced": "Gelişmiş",
     "cancel": "İptal et",
     "close": "Kapat",
     "confirm": "Onayla",
@@ -69,18 +68,11 @@
       "app": "Uygulama",
       "clipboard": "Yapıştır"
     },
-    "shareIntentInfo": "Dosyalarınızı daha kolay seçmek için cihazınızın \"Paylaş\" özelliğini kullanabilirsiniz.",
     "nearbyDevices": "Yakınınızdaki cihazlar",
-    "thisDevice": "Cihazınız",
     "scan": "Cihazları tara",
-    "manualSending": "Manuel Gönderme",
-    "sendMode": "Gönderme Modu",
     "sendModes": {
-      "single": "Tek alıcı",
-      "multiple": "Birden fazla alıcı",
       "link": "Link üzerinden paylaşın"
     },
-    "sendModeHelp": "Açıklama",
     "help": "Lütfen hedef cihaz ile aynı wifi ağında olduğunuzdan emin olun.",
     "placeItems": "Paylaşmak istediğiniz dosyayı yerleştiriniz."
   },
@@ -156,8 +148,7 @@
       "donate": "Bağış yap",
       "privacyPolicy": "Gizlilik politikası",
       "termsOfUse": "Kullanım koşulları"
-    },
-    "advancedSettings": "Gelişmiş ayarlar"
+    }
   },
   "troubleshootPage": {
     "title": "Sorun Giderme",
@@ -442,12 +433,6 @@
     },
     "pin": {
       "title": "PIN girin"
-    },
-    "sendModeHelp": {
-      "title": "Gönderme Modu",
-      "single": "Dosyaları bir alıcıya gönderir. Seçim, bitmiş dosya aktarımından sonra temizlenir.",
-      "multiple": "Dosyaları birden çok alıcıya gönderir. Seçim temizlenmeyecektir.",
-      "link": "LocalSend yüklü olmayan alıcılar, tarayıcılarındaki bağlantıyı açarak seçilen dosyaları indirebilir."
     },
     "zoom": {
       "title": "URL"

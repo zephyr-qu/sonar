@@ -109,8 +109,6 @@ class _Translations$general$eu extends Translations$general$en {
   @override
   String get add => 'Gehitu';
   @override
-  String get advanced => 'Aurreratua';
-  @override
   String get cancel => 'Utzi';
   @override
   String get close => 'Itxi';
@@ -211,21 +209,11 @@ class _Translations$sendTab$eu extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$eu picker = _Translations$sendTab$picker$eu._(_root);
   @override
-  String get shareIntentInfo => 'Zure gailuko "Elkarbanatu" aukera ere erabil dezakezu fitxategi gehiago errezago aukeratzeko.';
-  @override
   String get nearbyDevices => 'Inguruko Gailuak';
-  @override
-  String get thisDevice => 'Gailu hau';
   @override
   String get scan => 'Bilatu gailuak';
   @override
-  String get manualSending => 'Eskuzko bidalketa';
-  @override
-  String get sendMode => 'Bidalketa modua';
-  @override
   late final _Translations$sendTab$sendModes$eu sendModes = _Translations$sendTab$sendModes$eu._(_root);
-  @override
-  String get sendModeHelp => 'Azalpena';
   @override
   String get help => 'Ziurtatu zaitez aukeratutako hartzailea zure Wi-Fi sare berean dagoela.';
   @override
@@ -251,8 +239,6 @@ class _Translations$settingsTab$eu extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$eu network = _Translations$settingsTab$network$eu._(_root);
   @override
   late final _Translations$settingsTab$other$eu other = _Translations$settingsTab$other$eu._(_root);
-  @override
-  String get advancedSettings => 'Ezarpen aurreratuak';
 }
 
 // Path: troubleshootPage
@@ -632,8 +618,6 @@ class _Translations$dialogs$eu extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$eu pin = _Translations$dialogs$pin$eu._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$eu sendModeHelp = _Translations$dialogs$sendModeHelp$eu._(_root);
-  @override
   late final _Translations$dialogs$zoom$eu zoom = _Translations$dialogs$zoom$eu._(_root);
 }
 
@@ -829,10 +813,6 @@ class _Translations$sendTab$sendModes$eu extends Translations$sendTab$sendModes$
   final TranslationsEu _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Hartzaile bakarra';
-  @override
-  String get multiple => 'Hartzaile anitz';
   @override
   String get link => 'URL bidez partekatu';
 }
@@ -1457,23 +1437,6 @@ class _Translations$dialogs$pin$eu extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'Sartu PINa';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$eu extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$eu._(TranslationsEu root) : this._root = root, super.internal(root);
-
-  final TranslationsEu _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Bidalketa moduak';
-  @override
-  String get single => 'Bidali fitxategiak hartzaile bakar bati. Bidalketa bukatutakoan aukeraketa garbituko da.';
-  @override
-  String get multiple => 'Bidali fitxategiak hartzaile anitzeri. Aukeraketa ez da garbituko.';
-  @override
-  String get link => 'LocalSend instalatuta ez duten hartzaileak fitxategiak eskuratu ahali zango dituzte lotura nabigatzailean zabalduz.';
 }
 
 // Path: dialogs.zoom

@@ -56,10 +56,6 @@ class SettingsRow {
   /// State of a boolean setting, used to render a capsule instead of "on"/"off".
   final bool? on;
 
-  /// Marks a row that warns about a problem instead of showing a plain value,
-  /// e.g. a setting the running server has not picked up yet.
-  final bool warning;
-
   const SettingsRow({
     required this.id,
     required this.label,
@@ -68,7 +64,6 @@ class SettingsRow {
     this.description,
     this.value,
     this.on,
-    this.warning = false,
   });
 
   bool matches(String query) {
@@ -180,7 +175,6 @@ SettingsSection _deviceSection() => SettingsSection(
           ],
         ),
       ),
-      ..._restartHint(context, vm, ServerSetting.alias),
       SettingsRow(
         id: 'device.visible',
         label: t.settingsPage.visibleToNetwork,
@@ -427,7 +421,6 @@ SettingsSection _securitySection() => SettingsSection(
           },
         ),
       ),
-      ..._restartHint(context, vm, ServerSetting.https),
       SettingsRow(
         id: 'security.shareViaLink',
         label: t.settingsTab.send.shareViaLinkAutoAccept,
@@ -632,7 +625,6 @@ SettingsSection _networkSection() => SettingsSection(
           },
         ),
       ),
-      ..._restartHint(context, vm, ServerSetting.port),
       SettingsRow(
         id: 'network.multicast',
         label: t.settingsTab.network.multicastGroup,
@@ -649,7 +641,6 @@ SettingsSection _networkSection() => SettingsSection(
           },
         ),
       ),
-      ..._restartHint(context, vm, ServerSetting.multicastGroup),
       SettingsRow(
         id: 'network.timeout',
         label: t.settingsTab.network.discoveryTimeout,
@@ -666,7 +657,6 @@ SettingsSection _networkSection() => SettingsSection(
           },
         ),
       ),
-      ..._restartHint(context, vm, ServerSetting.discoveryTimeout),
       SettingsRow(
         id: 'network.interfaces',
         label: t.settingsTab.network.network,
@@ -685,7 +675,6 @@ SettingsSection _networkSection() => SettingsSection(
           ],
         ),
       ),
-      ..._restartHint(context, vm, ServerSetting.networkInterfaces),
       SettingsRow(
         id: 'network.debug',
         label: t.settingsPage.debug,
@@ -907,29 +896,6 @@ class SettingsTagsLine extends StatelessWidget {
   }
 }
 
-/// The hint shown right below a setting that the running server only reads when
-/// it starts. Without it, such a change would silently do nothing.
-List<SettingsRow> _restartHint(BuildContext context, SettingsTabVm vm, ServerSetting setting) {
-  if (!vm.pendingRestart.contains(setting)) {
-    return const [];
-  }
-
-  return [
-    SettingsRow(
-      id: 'network.restartHint.${setting.name}',
-      label: t.settingsTab.network.needRestart,
-      kind: SettingsRowKind.trailing,
-      warning: true,
-      child: LsButton(
-        label: t.general.restart,
-        icon: LucideIcons.refreshCw,
-        variant: LsButtonVariant.plain,
-        onPressed: () => vm.onTapRestartServer(context),
-      ),
-    ),
-  ];
-}
-
 /// One settings row: label (+ helper text) and the control, with a temporary
 /// accent wash when the row was reached from a search result.
 class SettingsRowTile extends StatelessWidget {
@@ -946,18 +912,7 @@ class SettingsRowTile extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (row.warning) ...[
-              Icon(LucideIcons.alertTriangle, size: 13, color: colors.danger),
-              const SizedBox(width: 5),
-            ],
-            Flexible(
-              child: Text(row.label, style: TextStyle(fontSize: 12.5, height: 1.3, color: row.warning ? colors.danger : colors.fg)),
-            ),
-          ],
-        ),
+        Text(row.label, style: TextStyle(fontSize: 12.5, height: 1.3, color: colors.fg)),
         if (row.description != null) ...[
           const SizedBox(height: 2),
           Text(row.description!, style: tokens.bodySm),

@@ -112,8 +112,6 @@ class _Translations$general$sr_Cyrl extends Translations$general$sr {
   @override
   String get add => 'Додај';
   @override
-  String get advanced => 'Напредно';
-  @override
   String get cancel => 'Откажи';
   @override
   String get close => 'Затвори';
@@ -214,21 +212,11 @@ class _Translations$sendTab$sr_Cyrl extends Translations$sendTab$sr {
   @override
   late final _Translations$sendTab$picker$sr_Cyrl picker = _Translations$sendTab$picker$sr_Cyrl._(_root);
   @override
-  String get shareIntentInfo => 'Такође, можете да користите функцију „Дели“ на свом мобилном уређају да бисте лакше бирали фајлове.';
-  @override
   String get nearbyDevices => 'Уређаји у близини';
-  @override
-  String get thisDevice => 'Овај уређај';
   @override
   String get scan => 'Претрага уређаја';
   @override
-  String get manualSending => 'Ручно слање';
-  @override
-  String get sendMode => 'Режим слања';
-  @override
   late final _Translations$sendTab$sendModes$sr_Cyrl sendModes = _Translations$sendTab$sendModes$sr_Cyrl._(_root);
-  @override
-  String get sendModeHelp => 'Објашњење';
   @override
   String get help => 'Уверите се да је прималац такође на истој Wi-Fi мрежи.';
   @override
@@ -254,8 +242,6 @@ class _Translations$settingsTab$sr_Cyrl extends Translations$settingsTab$sr {
   late final _Translations$settingsTab$network$sr_Cyrl network = _Translations$settingsTab$network$sr_Cyrl._(_root);
   @override
   late final _Translations$settingsTab$other$sr_Cyrl other = _Translations$settingsTab$other$sr_Cyrl._(_root);
-  @override
-  String get advancedSettings => 'Напредна подешавања';
 }
 
 // Path: troubleshootPage
@@ -721,8 +707,6 @@ class _Translations$dialogs$sr_Cyrl extends Translations$dialogs$sr {
   @override
   late final _Translations$dialogs$pin$sr_Cyrl pin = _Translations$dialogs$pin$sr_Cyrl._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$sr_Cyrl sendModeHelp = _Translations$dialogs$sendModeHelp$sr_Cyrl._(_root);
-  @override
   late final _Translations$dialogs$zoom$sr_Cyrl zoom = _Translations$dialogs$zoom$sr_Cyrl._(_root);
 }
 
@@ -918,10 +902,6 @@ class _Translations$sendTab$sendModes$sr_Cyrl extends Translations$sendTab$sendM
   final TranslationsSrCyrl _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Један прималац';
-  @override
-  String get multiple => 'Више прималаца';
   @override
   String get link => 'Дељење путем линка';
 }
@@ -1547,23 +1527,6 @@ class _Translations$dialogs$pin$sr_Cyrl extends Translations$dialogs$pin$sr {
   // Translations
   @override
   String get title => 'Унесите PIN';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$sr_Cyrl extends Translations$dialogs$sendModeHelp$sr {
-  _Translations$dialogs$sendModeHelp$sr_Cyrl._(TranslationsSrCyrl root) : this._root = root, super.internal(root);
-
-  final TranslationsSrCyrl _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Режими слања';
-  @override
-  String get single => 'Слање фајлова једном примаоцу. Избор ће бити очишћен након завршеног преноса фајлова.';
-  @override
-  String get multiple => 'Слање фајлове више прималаца. Избор неће бити очишћен након завршеног преноса фајлова.';
-  @override
-  String get link => 'Примаоци који немају инсталиран LocalSend могу преузети изабране фајлове отварањем линка у свом прегледачу.';
 }
 
 // Path: dialogs.zoom

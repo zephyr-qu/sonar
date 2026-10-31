@@ -4,7 +4,6 @@
     "accept": "Acceptera",
     "accepted": "Accepterad",
     "add": "Lägg till",
-    "advanced": "Avancerat",
     "cancel": "Avbryt",
     "close": "Stäng",
     "confirm": "Bekräfta",
@@ -69,18 +68,11 @@
       "app": "App",
       "clipboard": "Klistra in"
     },
-    "shareIntentInfo": "Du kan också använda funktionen ”Dela” på mobilen för att enklare välja filer.",
     "nearbyDevices": "Närbelägna enheter",
-    "thisDevice": "Den här enheten",
     "scan": "Sök efter enheter",
-    "manualSending": "Skicka manuellt",
-    "sendMode": "Sändningsläge",
     "sendModes": {
-      "single": "En mottagare",
-      "multiple": "Flera mottagare",
       "link": "Dela via länk"
     },
-    "sendModeHelp": "Förklaring",
     "help": "Kontrollera att målenheten är ansluten till samma Wi-Fi-nätverk.",
     "placeItems": "Lägg till objekt att dela."
   },
@@ -156,8 +148,7 @@
       "donate": "Donera",
       "privacyPolicy": "Sekretesspolicy",
       "termsOfUse": "Användarvillkor"
-    },
-    "advancedSettings": "Avancerade inställningar"
+    }
   },
   "troubleshootPage": {
     "title": "Felsökning",
@@ -512,12 +503,6 @@
     },
     "pin": {
       "title": "Ange PIN-kod"
-    },
-    "sendModeHelp": {
-      "title": "Sändningslägen",
-      "single": "Skickar filer till en mottagare. Valet rensas när filöverföringen är klar.",
-      "multiple": "Skickar filer till flera mottagare. Valet rensas inte när filöverföringen är klar.",
-      "link": "Mottagare som inte har LocalSend installerat kan ladda ner de valda filerna genom att öppna länken i sin webbläsare."
     },
     "zoom": {
       "title": "URL"

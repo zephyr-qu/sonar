@@ -4,7 +4,6 @@
     "accept": "承諾",
     "accepted": "承諾済み",
     "add": "追加",
-    "advanced": "詳細",
     "cancel": "キャンセル",
     "close": "閉じる",
     "confirm": "確認",
@@ -69,18 +68,11 @@
       "app": "アプリ",
       "clipboard": "ペースト"
     },
-    "shareIntentInfo": "モバイルデバイスの「共有」機能を使うと、より簡単にファイルを選択できます。",
     "nearbyDevices": "近くのデバイス",
-    "thisDevice": "このデバイス",
     "scan": "デバイスを検索",
-    "manualSending": "手動送信",
-    "sendMode": "送信モード",
     "sendModes": {
-      "single": "一対一送信",
-      "multiple": "一対多送信",
       "link": "リンク経由で共有"
     },
-    "sendModeHelp": "説明",
     "help": "目標のデバイスが同じWi-Fiネットワーク内にあることを確認してください。",
     "placeItems": "共有するアイテムを配置してください。"
   },
@@ -156,8 +148,7 @@
       "donate": "寄付",
       "privacyPolicy": "プライバシーポリシー",
       "termsOfUse": "利用規約"
-    },
-    "advancedSettings": "詳細設定"
+    }
   },
   "troubleshootPage": {
     "title": "トラブルシューティング",
@@ -442,12 +433,6 @@
     },
     "pin": {
       "title": "PINコードを入力"
-    },
-    "sendModeHelp": {
-      "title": "送信モード",
-      "single": "単一の受信者にファイルを送信します。ファイルの転送完了後、選択は解除されます。",
-      "multiple": "複数の受信者にファイルを送信します。ファイルの選択は解除されません。",
-      "link": "LocalSendをインストールしていない受信者でも、ブラウザでリンクを開くことで選択したファイルをダウンロードできます。"
     },
     "zoom": {
       "title": "URL"

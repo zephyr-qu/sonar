@@ -109,8 +109,6 @@ class _Translations$general$uk extends Translations$general$en {
   @override
   String get add => 'Додати';
   @override
-  String get advanced => 'Детальніше';
-  @override
   String get cancel => 'Скасувати';
   @override
   String get close => 'Закрити';
@@ -211,21 +209,11 @@ class _Translations$sendTab$uk extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$uk picker = _Translations$sendTab$picker$uk._(_root);
   @override
-  String get shareIntentInfo => 'Ви також можете скористатися функцією «Поділитися» на своєму мобільному пристрої, щоб швидше вибирати файли.';
-  @override
   String get nearbyDevices => 'Пристрої поблизу';
-  @override
-  String get thisDevice => 'Цей пристрій';
   @override
   String get scan => 'Пошук пристроїв';
   @override
-  String get manualSending => 'Ручне надсилання';
-  @override
-  String get sendMode => 'Режим надсилання';
-  @override
   late final _Translations$sendTab$sendModes$uk sendModes = _Translations$sendTab$sendModes$uk._(_root);
-  @override
-  String get sendModeHelp => 'Довідка';
   @override
   String get help => 'Будь ласка, переконайтеся, що отримувач перебуває в тій же ж Wi-Fi мережі, що й відправник.';
   @override
@@ -251,8 +239,6 @@ class _Translations$settingsTab$uk extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$uk network = _Translations$settingsTab$network$uk._(_root);
   @override
   late final _Translations$settingsTab$other$uk other = _Translations$settingsTab$other$uk._(_root);
-  @override
-  String get advancedSettings => 'Розширені налаштування';
 }
 
 // Path: troubleshootPage
@@ -632,8 +618,6 @@ class _Translations$dialogs$uk extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$uk pin = _Translations$dialogs$pin$uk._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$uk sendModeHelp = _Translations$dialogs$sendModeHelp$uk._(_root);
-  @override
   late final _Translations$dialogs$zoom$uk zoom = _Translations$dialogs$zoom$uk._(_root);
 }
 
@@ -829,10 +813,6 @@ class _Translations$sendTab$sendModes$uk extends Translations$sendTab$sendModes$
   final TranslationsUk _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Один отримувач';
-  @override
-  String get multiple => 'Декілька отримувачів';
   @override
   String get link => 'Поділитися через посилання';
 }
@@ -1457,23 +1437,6 @@ class _Translations$dialogs$pin$uk extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'Введіть PIN-код';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$uk extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$uk._(TranslationsUk root) : this._root = root, super.internal(root);
-
-  final TranslationsUk _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Режими надсилання';
-  @override
-  String get single => 'Надсилає файли одному отримувачу. Вибірку буде очищено після завершення передачі файлів.';
-  @override
-  String get multiple => 'Надсилає файли декільком отримувачам. Вибірку не буде очищено після завершення передачі файлів.';
-  @override
-  String get link => 'Отримувачі, у яких не встановлено LocalSend, можуть завантажити вибрані файли, відкривши посилання у своєму браузері.';
 }
 
 // Path: dialogs.zoom

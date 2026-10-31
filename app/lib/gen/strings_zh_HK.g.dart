@@ -109,8 +109,6 @@ class Translations$general$zh_HK extends Translations$general$en {
   @override
   String get add => '新增';
   @override
-  String get advanced => '更多資訊';
-  @override
   String get cancel => '取消';
   @override
   String get close => '關閉';
@@ -211,21 +209,11 @@ class Translations$sendTab$zh_HK extends Translations$sendTab$en {
   @override
   late final Translations$sendTab$picker$zh_HK picker = Translations$sendTab$picker$zh_HK.internal(_root);
   @override
-  String get shareIntentInfo => '用你裝置嘅「分享」功能以更方便揀選檔案。';
-  @override
   String get nearbyDevices => '附近裝置';
-  @override
-  String get thisDevice => '此裝置';
   @override
   String get scan => '掃描裝置';
   @override
-  String get manualSending => '手動傳送';
-  @override
-  String get sendMode => '傳送模式';
-  @override
   late final Translations$sendTab$sendModes$zh_HK sendModes = Translations$sendTab$sendModes$zh_HK.internal(_root);
-  @override
-  String get sendModeHelp => '説明';
   @override
   String get help => '請確保目標裝置駁緊同一個 Wi‑Fi 網絡。';
   @override
@@ -251,8 +239,6 @@ class Translations$settingsTab$zh_HK extends Translations$settingsTab$en {
   late final Translations$settingsTab$network$zh_HK network = Translations$settingsTab$network$zh_HK.internal(_root);
   @override
   late final Translations$settingsTab$other$zh_HK other = Translations$settingsTab$other$zh_HK.internal(_root);
-  @override
-  String get advancedSettings => '進階設定';
 }
 
 // Path: troubleshootPage
@@ -634,8 +620,6 @@ class Translations$dialogs$zh_HK extends Translations$dialogs$en {
   @override
   late final Translations$dialogs$pin$zh_HK pin = Translations$dialogs$pin$zh_HK.internal(_root);
   @override
-  late final Translations$dialogs$sendModeHelp$zh_HK sendModeHelp = Translations$dialogs$sendModeHelp$zh_HK.internal(_root);
-  @override
   late final Translations$dialogs$zoom$zh_HK zoom = Translations$dialogs$zoom$zh_HK.internal(_root);
 }
 
@@ -830,10 +814,6 @@ class Translations$sendTab$sendModes$zh_HK extends Translations$sendTab$sendMode
   final TranslationsZhHk _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => '單一接收者';
-  @override
-  String get multiple => '多個接收者';
   @override
   String get link => '用 link 分享';
 }
@@ -1456,23 +1436,6 @@ class Translations$dialogs$pin$zh_HK extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => _root.web.enterPin;
-}
-
-// Path: dialogs.sendModeHelp
-class Translations$dialogs$sendModeHelp$zh_HK extends Translations$dialogs$sendModeHelp$en {
-  Translations$dialogs$sendModeHelp$zh_HK.internal(TranslationsZhHk root) : this._root = root, super.internal(root);
-
-  final TranslationsZhHk _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => _root.sendTab.sendMode;
-  @override
-  String get single => '淨係 send 畀一部裝置，傳輸完成後會清除揀選項目。';
-  @override
-  String get multiple => '一次過 send 畀多部裝置，揀選項目會一路保留。';
-  @override
-  String get link => '冇裝 LocalSend 嘅裝置可以透過條 link 嚟 download 返揀選嘅項目。';
 }
 
 // Path: dialogs.zoom

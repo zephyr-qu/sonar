@@ -4,7 +4,6 @@
     "accept": "Nõustu",
     "accepted": "Nõustusid",
     "add": "Lisa",
-    "advanced": "Lisavalikud",
     "cancel": "Katkesta",
     "close": "Sulge",
     "confirm": "Kinnita",
@@ -69,18 +68,11 @@
       "app": "Rakendus",
       "clipboard": "Aseta"
     },
-    "shareIntentInfo": "Klikates nutiseadmes olevates rakendustes nuppu „Jaga“ võid kasutada ka mugavat jagamise võimalust.",
     "nearbyDevices": "Läheduses asuvad seadmed",
-    "thisDevice": "See seade",
     "scan": "Otsi seadmeid",
-    "manualSending": "Saada käsitsi",
-    "sendMode": "Saatmisviis",
     "sendModes": {
-      "single": "Üks vastuvõtja",
-      "multiple": "Mitu vastuvõtjat",
       "link": "Jagamine lingi vahendusel"
     },
-    "sendModeHelp": "Selgitus",
     "help": "Palun kontrolli, et sihtseade asub sama WiFi ühenduse piires.",
     "placeItems": "Lisa jagatavad failid siia."
   },
@@ -156,8 +148,7 @@
       "donate": "Toeta rahaliselt",
       "privacyPolicy": "Andmekaitsepõhimõtted",
       "termsOfUse": "Kasutustingimused"
-    },
-    "advancedSettings": "Täiendavad seadistused"
+    }
   },
   "troubleshootPage": {
     "title": "Veaotsing",
@@ -442,12 +433,6 @@
     },
     "pin": {
       "title": "Sisesta PIN-kood"
-    },
-    "sendModeHelp": {
-      "title": "Saatmisviisid",
-      "single": "Sellega saadame faile ühele vastuvõtjale. Peale failide saatmise lõppu eemaldame failid saatmisloendist.",
-      "multiple": "Sellega saadame faile mitmele vastuvõtjale. Peale failide saatmise lõppu failid jäävad saatmisloendisse alles.",
-      "link": "Kui failide vastuvõtjatel pole arvutis või nutiseadmes rakendust LocalSend, siis avades etteantud lingi oma veebibrauseris, saavad nad failid alla laadida."
     },
     "zoom": {
       "title": "Võrguaadress"

@@ -111,8 +111,6 @@ class _Translations$general$ms extends Translations$general$en {
   @override
   String get add => 'Tambah';
   @override
-  String get advanced => 'Lanjutan';
-  @override
   String get cancel => 'Batal';
   @override
   String get close => 'Tutup';
@@ -213,21 +211,11 @@ class _Translations$sendTab$ms extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$ms picker = _Translations$sendTab$picker$ms._(_root);
   @override
-  String get shareIntentInfo => 'Anda juga boleh menggunakan ciri "Kongsi" peranti mudah alih anda untuk memilih fail dengan lebih mudah.';
-  @override
   String get nearbyDevices => 'Peranti berdekatan';
-  @override
-  String get thisDevice => 'Peranti Ini';
   @override
   String get scan => 'Cari peranti';
   @override
-  String get manualSending => 'Penghantaran manual';
-  @override
-  String get sendMode => 'Mod penghantaran';
-  @override
   late final _Translations$sendTab$sendModes$ms sendModes = _Translations$sendTab$sendModes$ms._(_root);
-  @override
-  String get sendModeHelp => 'Penerangan';
   @override
   String get help => 'Sila pastikan sasaran yang diingini juga berada dalam rangkaian Wi-Fi yang sama.';
   @override
@@ -253,8 +241,6 @@ class _Translations$settingsTab$ms extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$ms network = _Translations$settingsTab$network$ms._(_root);
   @override
   late final _Translations$settingsTab$other$ms other = _Translations$settingsTab$other$ms._(_root);
-  @override
-  String get advancedSettings => 'Tetapan lanjutan';
 }
 
 // Path: troubleshootPage
@@ -714,8 +700,6 @@ class _Translations$dialogs$ms extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$ms pin = _Translations$dialogs$pin$ms._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$ms sendModeHelp = _Translations$dialogs$sendModeHelp$ms._(_root);
-  @override
   late final _Translations$dialogs$zoom$ms zoom = _Translations$dialogs$zoom$ms._(_root);
 }
 
@@ -911,10 +895,6 @@ class _Translations$sendTab$sendModes$ms extends Translations$sendTab$sendModes$
   final TranslationsMs _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Satu penerima';
-  @override
-  String get multiple => 'Pelbagai penerima';
   @override
   String get link => 'Kongsi melalui pautan';
 }
@@ -1539,24 +1519,6 @@ class _Translations$dialogs$pin$ms extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'Masukkan PIN';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$ms extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$ms._(TranslationsMs root) : this._root = root, super.internal(root);
-
-  final TranslationsMs _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Mod penghantaran';
-  @override
-  String get single => 'Menghantar fail kepada satu penerima. Pilihan akan dibersihkan selepas pemindahan fail selesai.';
-  @override
-  String get multiple => 'Menghantar fail kepada beberapa penerima. Pilihan tidak akan dibersihkan.';
-  @override
-  String get link =>
-      'Penerima yang tidak mempunyai LocalSend dipasang boleh memuat turun fail yang dipilih dengan membuka pautan dalam pelayar mereka.';
 }
 
 // Path: dialogs.zoom

@@ -111,8 +111,6 @@ class _Translations$general$fi extends Translations$general$en {
   @override
   String get add => 'Lisää';
   @override
-  String get advanced => 'Edistynyt';
-  @override
   String get cancel => 'Peruuta';
   @override
   String get close => 'Sulje';
@@ -213,21 +211,11 @@ class _Translations$sendTab$fi extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$fi picker = _Translations$sendTab$picker$fi._(_root);
   @override
-  String get shareIntentInfo => 'Sinä voit myös käyttää laitteesi "Jaa"-toimintoa valitaksesi tiedostoja helpommin.';
-  @override
   String get nearbyDevices => 'Lähellä olevat laitteet';
-  @override
-  String get thisDevice => 'Tämä laite';
   @override
   String get scan => 'Etsi laitteita';
   @override
-  String get manualSending => 'Manuaalinen lähetys';
-  @override
-  String get sendMode => 'Lähetystapa';
-  @override
   late final _Translations$sendTab$sendModes$fi sendModes = _Translations$sendTab$sendModes$fi._(_root);
-  @override
-  String get sendModeHelp => 'Selitys';
   @override
   String get help => 'Varmista, että haluttu kohde on myös samassa Wi-Fi-verkossa.';
   @override
@@ -253,8 +241,6 @@ class _Translations$settingsTab$fi extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$fi network = _Translations$settingsTab$network$fi._(_root);
   @override
   late final _Translations$settingsTab$other$fi other = _Translations$settingsTab$other$fi._(_root);
-  @override
-  String get advancedSettings => 'Edistyneet asetukset';
 }
 
 // Path: troubleshootPage
@@ -724,8 +710,6 @@ class _Translations$dialogs$fi extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$fi pin = _Translations$dialogs$pin$fi._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$fi sendModeHelp = _Translations$dialogs$sendModeHelp$fi._(_root);
-  @override
   late final _Translations$dialogs$zoom$fi zoom = _Translations$dialogs$zoom$fi._(_root);
 }
 
@@ -921,10 +905,6 @@ class _Translations$sendTab$sendModes$fi extends Translations$sendTab$sendModes$
   final TranslationsFi _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Yksi vastaanottaja';
-  @override
-  String get multiple => 'Monta vastaanottajaa';
   @override
   String get link => 'Jaa linkillä';
 }
@@ -1547,23 +1527,6 @@ class _Translations$dialogs$pin$fi extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'Syötä PIN-koodi';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$fi extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$fi._(TranslationsFi root) : this._root = root, super.internal(root);
-
-  final TranslationsFi _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Lähetystilat';
-  @override
-  String get single => 'Lähettää tiedostoja yhdelle vastaanottajalle. Valinta tyhjennetään tiedostonsiirron päätyttyä.';
-  @override
-  String get multiple => 'Lähettää tiedostoja useille vastaanottajille. Valinta ei tyhjene.';
-  @override
-  String get link => 'Vastaanottajat, joilla ei ole LocalSendia asennettuna, voivat ladata valitut tiedostot avaamalla linkin selaimessaan.';
 }
 
 // Path: dialogs.zoom

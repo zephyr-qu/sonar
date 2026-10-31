@@ -109,8 +109,6 @@ class _Translations$general$ko extends Translations$general$en {
   @override
   String get add => '추가';
   @override
-  String get advanced => '상세';
-  @override
   String get cancel => '취소';
   @override
   String get close => '닫기';
@@ -211,21 +209,11 @@ class _Translations$sendTab$ko extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$ko picker = _Translations$sendTab$picker$ko._(_root);
   @override
-  String get shareIntentInfo => '휴대전화의 \'공유\' 기능을 사용하면 보다 편리하게 파일을 선택할 수 있습니다';
-  @override
   String get nearbyDevices => '근처 기기';
-  @override
-  String get thisDevice => '이 기기';
   @override
   String get scan => '기기 검색';
   @override
-  String get manualSending => '수동 전송';
-  @override
-  String get sendMode => '전송 모드';
-  @override
   late final _Translations$sendTab$sendModes$ko sendModes = _Translations$sendTab$sendModes$ko._(_root);
-  @override
-  String get sendModeHelp => '설명';
   @override
   String get help => '파일을 전송받을 기기도 동일한 Wi-Fi 네트워크에 연결되어 있어야 합니다.';
   @override
@@ -251,8 +239,6 @@ class _Translations$settingsTab$ko extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$ko network = _Translations$settingsTab$network$ko._(_root);
   @override
   late final _Translations$settingsTab$other$ko other = _Translations$settingsTab$other$ko._(_root);
-  @override
-  String get advancedSettings => '고급 설정';
 }
 
 // Path: troubleshootPage
@@ -630,8 +616,6 @@ class _Translations$dialogs$ko extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$ko pin = _Translations$dialogs$pin$ko._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$ko sendModeHelp = _Translations$dialogs$sendModeHelp$ko._(_root);
-  @override
   late final _Translations$dialogs$zoom$ko zoom = _Translations$dialogs$zoom$ko._(_root);
 }
 
@@ -826,10 +810,6 @@ class _Translations$sendTab$sendModes$ko extends Translations$sendTab$sendModes$
   final TranslationsKo _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => '하나의 기기에 보내기';
-  @override
-  String get multiple => '여러 기기에 보내기';
   @override
   String get link => '링크로 공유하기';
 }
@@ -1448,23 +1428,6 @@ class _Translations$dialogs$pin$ko extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'PIN 번호 입력';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$ko extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$ko._(TranslationsKo root) : this._root = root, super.internal(root);
-
-  final TranslationsKo _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => '전송 모드';
-  @override
-  String get single => '파일을 하나의 기기에 보냅니다. 파일 전송이 완료된 후 선택 항목이 초기화됩니다.';
-  @override
-  String get multiple => '파일을 여러 기기에 보냅니다. 파일 전송이 완료된 뒤에도 선택 항목이 유지됩니다.';
-  @override
-  String get link => 'LocalSend가 설치되지 않은 기기에서도 브라우저를 통해 링크에 접속하여 파일을 다운로드 받을 수 있습니다.';
 }
 
 // Path: dialogs.zoom

@@ -4,7 +4,6 @@
     "accept": "Onartu",
     "accepted": "Onartuta",
     "add": "Gehitu",
-    "advanced": "Aurreratua",
     "cancel": "Utzi",
     "close": "Itxi",
     "confirm": "Baieztatu",
@@ -69,18 +68,11 @@
       "app": "App",
       "clipboard": "Itsatsi"
     },
-    "shareIntentInfo": "Zure gailuko \"Elkarbanatu\" aukera ere erabil dezakezu fitxategi gehiago errezago aukeratzeko.",
     "nearbyDevices": "Inguruko Gailuak",
-    "thisDevice": "Gailu hau",
     "scan": "Bilatu gailuak",
-    "manualSending": "Eskuzko bidalketa",
-    "sendMode": "Bidalketa modua",
     "sendModes": {
-      "single": "Hartzaile bakarra",
-      "multiple": "Hartzaile anitz",
       "link": "URL bidez partekatu"
     },
-    "sendModeHelp": "Azalpena",
     "help": "Ziurtatu zaitez aukeratutako hartzailea zure Wi-Fi sare berean dagoela.",
     "placeItems": "Aukeratu elkarbanatzeko elementuak."
   },
@@ -156,8 +148,7 @@
       "donate": "Dohaintza egin",
       "privacyPolicy": "Pribatutasun politika",
       "termsOfUse": "Erabilera baldintzak"
-    },
-    "advancedSettings": "Ezarpen aurreratuak"
+    }
   },
   "troubleshootPage": {
     "title": "Konpondu arazoak",
@@ -442,12 +433,6 @@
     },
     "pin": {
       "title": "Sartu PINa"
-    },
-    "sendModeHelp": {
-      "title": "Bidalketa moduak",
-      "single": "Bidali fitxategiak hartzaile bakar bati. Bidalketa bukatutakoan aukeraketa garbituko da.",
-      "multiple": "Bidali fitxategiak hartzaile anitzeri. Aukeraketa ez da garbituko.",
-      "link": "LocalSend instalatuta ez duten hartzaileak fitxategiak eskuratu ahali zango dituzte lotura nabigatzailean zabalduz."
     },
     "zoom": {
       "title": "URL"

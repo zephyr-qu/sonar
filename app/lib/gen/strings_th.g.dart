@@ -111,8 +111,6 @@ class _Translations$general$th extends Translations$general$en {
   @override
   String get add => 'เพิ่ม';
   @override
-  String get advanced => 'ขั้นสูง';
-  @override
   String get cancel => 'ยกเลิก';
   @override
   String get close => 'ปิด';
@@ -213,21 +211,11 @@ class _Translations$sendTab$th extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$th picker = _Translations$sendTab$picker$th._(_root);
   @override
-  String get shareIntentInfo => 'คุณยังสามารถใช้ฟีเจอร์ "แชร์" บนอุปกรณ์ของคุณเพื่อเลือกไฟล์ที่ต้องการได้อย่างง่ายดาย';
-  @override
   String get nearbyDevices => 'อุปกรณ์ที่อยู่ใกล้เคียง';
-  @override
-  String get thisDevice => 'อุปกรณ์นี้';
   @override
   String get scan => 'กำลังค้นหาอุปกรณ์ภายในเครือข่าย';
   @override
-  String get manualSending => 'ส่งด้วยตัวเอง';
-  @override
-  String get sendMode => 'โหมดการส่ง';
-  @override
   late final _Translations$sendTab$sendModes$th sendModes = _Translations$sendTab$sendModes$th._(_root);
-  @override
-  String get sendModeHelp => 'คำอธิบาย';
   @override
   String get help => 'โปรดตรวจสอบให้แน่ใจว่าอุปกรณ์เป้าหมายเชื่อมต่ออยู่ภายในเครือข่าย WiFi เดียวกันแล้ว';
   @override
@@ -253,8 +241,6 @@ class _Translations$settingsTab$th extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$th network = _Translations$settingsTab$network$th._(_root);
   @override
   late final _Translations$settingsTab$other$th other = _Translations$settingsTab$other$th._(_root);
-  @override
-  String get advancedSettings => 'ตั้งค่าขั้นสูง';
 }
 
 // Path: troubleshootPage
@@ -718,8 +704,6 @@ class _Translations$dialogs$th extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$th pin = _Translations$dialogs$pin$th._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$th sendModeHelp = _Translations$dialogs$sendModeHelp$th._(_root);
-  @override
   late final _Translations$dialogs$zoom$th zoom = _Translations$dialogs$zoom$th._(_root);
 }
 
@@ -915,10 +899,6 @@ class _Translations$sendTab$sendModes$th extends Translations$sendTab$sendModes$
   final TranslationsTh _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'ผู้รับคนเดียว';
-  @override
-  String get multiple => 'ผู้รับหลายคน';
   @override
   String get link => 'แชร์ผ่านลิงก์';
 }
@@ -1543,23 +1523,6 @@ class _Translations$dialogs$pin$th extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'กรอกรหัส PIN';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$th extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$th._(TranslationsTh root) : this._root = root, super.internal(root);
-
-  final TranslationsTh _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'โหมดส่งไฟล์';
-  @override
-  String get single => 'ส่งไฟล์ไปยังผู้รับเพียงอุปกรณ์เดียว ไฟล์ที่เลือกไว้จะถูกล้างออกจากรายการทันทีที่โอนไฟล์สำเร็จ';
-  @override
-  String get multiple => 'ส่งไฟล์ไปยังผู้รับหลายอุปกรณ์ ไฟล์ที่เลือกไว้จะไม่ถูกล้างออกจากรายการ';
-  @override
-  String get link => 'ผู้รับที่ไม่ได้ติดตั้งแอป LocalSend สามารถดาวน์โหลดไฟล์ที่เลือกไว้ในรายการได้โดยการเปิดลิงก์ในเบราว์เซอร์';
 }
 
 // Path: dialogs.zoom

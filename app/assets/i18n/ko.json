@@ -4,7 +4,6 @@
     "accept": "수락",
     "accepted": "수락됨",
     "add": "추가",
-    "advanced": "상세",
     "cancel": "취소",
     "close": "닫기",
     "confirm": "확인",
@@ -69,18 +68,11 @@
       "app": "앱",
       "clipboard": "붙여넣기"
     },
-    "shareIntentInfo": "휴대전화의 '공유' 기능을 사용하면 보다 편리하게 파일을 선택할 수 있습니다",
     "nearbyDevices": "근처 기기",
-    "thisDevice": "이 기기",
     "scan": "기기 검색",
-    "manualSending": "수동 전송",
-    "sendMode": "전송 모드",
     "sendModes": {
-      "single": "하나의 기기에 보내기",
-      "multiple": "여러 기기에 보내기",
       "link": "링크로 공유하기"
     },
-    "sendModeHelp": "설명",
     "help": "파일을 전송받을 기기도 동일한 Wi-Fi 네트워크에 연결되어 있어야 합니다.",
     "placeItems": "드롭하여 공유하기"
   },
@@ -156,8 +148,7 @@
       "donate": "기부",
       "privacyPolicy": "개인정보 처리 방침",
       "termsOfUse": "이용 약관"
-    },
-    "advancedSettings": "고급 설정"
+    }
   },
   "troubleshootPage": {
     "title": "문제 해결",
@@ -442,12 +433,6 @@
     },
     "pin": {
       "title": "PIN 번호 입력"
-    },
-    "sendModeHelp": {
-      "title": "전송 모드",
-      "single": "파일을 하나의 기기에 보냅니다. 파일 전송이 완료된 후 선택 항목이 초기화됩니다.",
-      "multiple": "파일을 여러 기기에 보냅니다. 파일 전송이 완료된 뒤에도 선택 항목이 유지됩니다.",
-      "link": "LocalSend가 설치되지 않은 기기에서도 브라우저를 통해 링크에 접속하여 파일을 다운로드 받을 수 있습니다."
     },
     "zoom": {
       "title": "URL"

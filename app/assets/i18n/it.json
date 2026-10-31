@@ -4,7 +4,6 @@
     "accept": "Accetta",
     "accepted": "Accettato",
     "add": "Aggiungi",
-    "advanced": "Avanzate",
     "cancel": "Annulla",
     "close": "Chiudi",
     "confirm": "Conferma",
@@ -69,18 +68,11 @@
       "app": "App",
       "clipboard": "Incolla"
     },
-    "shareIntentInfo": "Puoi anche usare la funzione \"Condividi\" del dispositivo mobile per selezionare più facilmente i file.",
     "nearbyDevices": "Dispositivi vicini",
-    "thisDevice": "Questo dispositivo",
     "scan": "Cerca dispositivi",
-    "manualSending": "Invio manuale",
-    "sendMode": "Modalità di invio",
     "sendModes": {
-      "single": "Destinatario singolo",
-      "multiple": "Destinatari multipli",
       "link": "Condividi tramite link"
     },
-    "sendModeHelp": "Spiegazione",
     "help": "Assicurati che il destinatario desiderato si trovi sulla stessa rete Wi-Fi.",
     "placeItems": "Rilascia qui gli elementi da condividere."
   },
@@ -156,8 +148,7 @@
       "donate": "Dona",
       "privacyPolicy": "Informativa sulla privacy",
       "termsOfUse": "Termini di utilizzo"
-    },
-    "advancedSettings": "Impostazioni avanzate"
+    }
   },
   "troubleshootPage": {
     "title": "Risoluzione dei problemi",
@@ -442,12 +433,6 @@
     },
     "pin": {
       "title": "Inserisci il PIN"
-    },
-    "sendModeHelp": {
-      "title": "Modalità di invio",
-      "single": "Invia file a un destinatario. Gli elementi saranno deselezionati dopo il trasferimento dei file.",
-      "multiple": "Invia file a più destinatari. Gli elementi non saranno deselezionati dopo il trasferimento dei file.",
-      "link": "I destinatari che non hanno installato LocalSend possono scaricare i file selezionati aprendo il link nel loro browser."
     },
     "zoom": {
       "title": "URL"

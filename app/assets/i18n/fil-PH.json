@@ -4,7 +4,6 @@
     "accept": "Tanggapin",
     "accepted": "Tinanggap",
     "add": "Magdagdag",
-    "advanced": "Advanced",
     "cancel": "Kanselahin",
     "close": "Isara",
     "confirm": "Kumpirmahin",
@@ -69,18 +68,11 @@
       "app": "App",
       "clipboard": "Paste"
     },
-    "shareIntentInfo": "Maaaring gamitin ang \"Share\" feature sa iyong mobile device para sa mas madaling pagpili ng mga file.",
     "nearbyDevices": "Malalapit na mga device",
-    "thisDevice": "Ang Device na Ito",
     "scan": "Maghanap ng mga device",
-    "manualSending": "Mano-manong pagpapadala",
-    "sendMode": "Send mode",
     "sendModes": {
-      "single": "Isang tatanggap",
-      "multiple": "Maramihang tatanggap",
       "link": "I-share gamit ang link"
     },
-    "sendModeHelp": "Paliwanag",
     "help": "Mangyaring siguraduhin na ang target ay nasa parehas na wifi network.",
     "placeItems": "Maglagay ng mga bagay na i-share."
   },
@@ -156,8 +148,7 @@
       "donate": "Mag-donate",
       "privacyPolicy": "Patakaran sa Privacy",
       "termsOfUse": "Mga Tuntunin sa Paggamit"
-    },
-    "advancedSettings": "Advanced settings"
+    }
   },
   "troubleshootPage": {
     "title": "Troubleshoot",
@@ -512,12 +503,6 @@
     },
     "pin": {
       "title": "Ilagay ang PIN"
-    },
-    "sendModeHelp": {
-      "title": "Send modes",
-      "single": "Magpadala ng mga file sa iisang recipient o tatanggap. Ang mga pagpipilian ay maaalis pagkatapos ipadala ang file.",
-      "multiple": "Magpadala ng mga file sa maraming recipient o tatanggap. Ang mga pagpipilian ay hindi maaalis.",
-      "link": "Ang mga recipient o tatanggap na walang nakainstall na LocalSend ay maaaring mag download nang mga napiling file sa pamamagitan ng pagbukas ng link sa kanilang browser."
     },
     "zoom": {
       "title": "URL"

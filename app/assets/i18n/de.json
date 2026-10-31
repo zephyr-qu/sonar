@@ -4,7 +4,6 @@
     "accept": "Akzeptieren",
     "accepted": "Akzeptiert",
     "add": "Hinzufügen",
-    "advanced": "Erweitert",
     "cancel": "Abbrechen",
     "close": "Schließen",
     "confirm": "Bestätigen",
@@ -69,18 +68,11 @@
       "app": "App",
       "clipboard": "Ablage"
     },
-    "shareIntentInfo": "Du kannst auch die \"Teilen\"-Funktion deines mobilen Geräts nutzen, um Dateien einfacher auszuwählen.",
     "nearbyDevices": "Geräte in der Nähe",
-    "thisDevice": "Dieses Gerät",
     "scan": "Geräte suchen",
-    "manualSending": "Manuelles Senden",
-    "sendMode": "Sendemodus",
     "sendModes": {
-      "single": "Einzelner Empfänger",
-      "multiple": "Mehrere Empfänger",
       "link": "Per Link teilen"
     },
-    "sendModeHelp": "Erklärung",
     "help": "Bitte stelle sicher, dass sich das gewünschte Ziel auch im selben WLAN-Netzwerk befindet.",
     "placeItems": "Dateien ablegen, um zu teilen."
   },
@@ -156,8 +148,7 @@
       "donate": "Spenden",
       "privacyPolicy": "Datenschutzerklärung",
       "termsOfUse": "Nutzungsbedingungen"
-    },
-    "advancedSettings": "Erweiterte Einstellungen"
+    }
   },
   "troubleshootPage": {
     "title": "Fehlerbehebung",
@@ -442,12 +433,6 @@
     },
     "pin": {
       "title": "PIN eingeben"
-    },
-    "sendModeHelp": {
-      "title": "Sendemodus",
-      "single": "Sende Dateien an einen Empfänger. Die Auswahl wird nach Abschluss der Dateiübertragung gelöscht.",
-      "multiple": "Sende Dateien an mehrere Empfänger. Die Auswahl bleibt erhalten.",
-      "link": "Empfänger, die LocalSend nicht installiert haben, können die ausgewählten Dateien herunterladen, in dem sie den Link im Browser öffnen."
     },
     "zoom": {
       "title": "URL"

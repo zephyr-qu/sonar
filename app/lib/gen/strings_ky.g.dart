@@ -111,8 +111,6 @@ class _Translations$general$ky extends Translations$general$en {
   @override
   String get add => 'Кошуу';
   @override
-  String get advanced => 'Өркүндөтүлгөн';
-  @override
   String get cancel => 'Жокко чыгаруу';
   @override
   String get close => 'Жабуу';
@@ -213,21 +211,11 @@ class _Translations$sendTab$ky extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$ky picker = _Translations$sendTab$picker$ky._(_root);
   @override
-  String get shareIntentInfo => 'Файлдарды оңой тандоо үчүн мобилдик түзмөгүңүздүн "Бөлүшүү" функциясын колдонсоңуз болот.';
-  @override
   String get nearbyDevices => 'Жакындагы түзмөктөр';
-  @override
-  String get thisDevice => 'Бул түзмөк';
   @override
   String get scan => 'Түзмөктөрдү издөө';
   @override
-  String get manualSending => 'Кол менен жөнөтүү';
-  @override
-  String get sendMode => 'Жөнөтүү режими';
-  @override
   late final _Translations$sendTab$sendModes$ky sendModes = _Translations$sendTab$sendModes$ky._(_root);
-  @override
-  String get sendModeHelp => 'Түшүндүрмө';
   @override
   String get help => 'Кабыл алуучу сиз менен бир Wi-Fi тармагында экенин текшериңиз.';
   @override
@@ -253,8 +241,6 @@ class _Translations$settingsTab$ky extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$ky network = _Translations$settingsTab$network$ky._(_root);
   @override
   late final _Translations$settingsTab$other$ky other = _Translations$settingsTab$other$ky._(_root);
-  @override
-  String get advancedSettings => 'Өркүндөтүлгөн жөндөөлөр';
 }
 
 // Path: troubleshootPage
@@ -717,8 +703,6 @@ class _Translations$dialogs$ky extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$ky pin = _Translations$dialogs$pin$ky._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$ky sendModeHelp = _Translations$dialogs$sendModeHelp$ky._(_root);
-  @override
   late final _Translations$dialogs$zoom$ky zoom = _Translations$dialogs$zoom$ky._(_root);
 }
 
@@ -914,10 +898,6 @@ class _Translations$sendTab$sendModes$ky extends Translations$sendTab$sendModes$
   final TranslationsKy _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Бир кабыл алуучу';
-  @override
-  String get multiple => 'Бир нече кабыл алуучу';
   @override
   String get link => 'Шилтеме аркылуу бөлүшүү';
 }
@@ -1537,23 +1517,6 @@ class _Translations$dialogs$pin$ky extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'PIN-кодду киргизиңиз';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$ky extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$ky._(TranslationsKy root) : this._root = root, super.internal(root);
-
-  final TranslationsKy _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Жөнөтүү режимдери';
-  @override
-  String get single => 'Файлдарды бир кабыл алуучуга жөнөтөт. Өткөрүү аяктагандан кийин тандоо тазаланат.';
-  @override
-  String get multiple => 'Файлдарды бир нече кабыл алуучуга жөнөтөт. Өткөрүү аяктагандан кийин тандоо тазаланбайт.';
-  @override
-  String get link => 'LocalSend орнотулбаган кабыл алуучулар шилтемени браузерде ачып, тандалган файлдарды жүктөй алышат.';
 }
 
 // Path: dialogs.zoom

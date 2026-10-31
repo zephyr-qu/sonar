@@ -4,7 +4,6 @@
     "accept": "接受",
     "accepted": "已接受",
     "add": "添加",
-    "advanced": "高级",
     "cancel": "取消",
     "close": "关闭",
     "confirm": "确认",
@@ -69,18 +68,11 @@
       "app": "应用",
       "clipboard": "剪贴板"
     },
-    "shareIntentInfo": "你也可以通过移动设备中的“分享”功能更简单地发送文件。",
     "nearbyDevices": "附近的设备",
-    "thisDevice": "这台设备",
     "scan": "扫描设备",
-    "manualSending": "手动发送",
-    "sendMode": "发送模式",
     "sendModes": {
-      "single": "一个接收者",
-      "multiple": "多个接收者",
       "link": "通过链接分享"
     },
-    "sendModeHelp": "提示",
     "help": "请确保目标连接到同一个 Wi‑Fi 网络。",
     "placeItems": "列出要分享的项目。"
   },
@@ -158,8 +150,7 @@
       "donate": "捐赠",
       "privacyPolicy": "隐私政策",
       "termsOfUse": "使用条款"
-    },
-    "advancedSettings": "高级设置"
+    }
   },
   "troubleshootPage": {
     "title": "故障排除",
@@ -520,12 +511,6 @@
     "pin": {
       "title": "输入 PIN"
     },
-    "sendModeHelp": {
-      "title": "发送模式",
-      "single": "发送文件给一个接收者。已选择的文件在发送后会取消选择。",
-      "multiple": "发送文件给多个接收者。已选择的文件在发送后不会取消选择。",
-      "link": "未安装 LocalSend 的接收者可以在浏览器中打开链接以下载选中的文件。"
-    },
     "zoom": {
       "title": "URL"
     }
@@ -625,9 +610,7 @@
     "securitySettings": "加密与 PIN 设置",
     "dropHere": "拖放文件到这里",
     "dropHint": "或点击选择文件 / 文件夹",
-    "desktopHint": "点卡片选择目标，右侧托盘确认后发送",
     "desktopLede": "{online} 台在线",
-    "dragHint": "拖放文件到右侧托盘即可开始",
     "justNow": "刚刚",
     "minutesAgo": "{n} 分钟前",
     "hoursAgo": "{n} 小时前",
@@ -659,31 +642,15 @@
     "noResults": "没有匹配“{query}”的设置",
     "items": "{n} 项",
     "groups": "{n} 组",
-    "groupVisibility": "可见性",
-    "groupVisibilitySummary": "别名 · 设备类型 · 可见性",
-    "groupReceive": "接收",
-    "groupReceiveSummary": "保存位置 · 快速保存 · PIN",
-    "groupSecurity": "安全与传输",
-    "groupSecuritySummary": "加密 · 校验和",
-    "groupAppearance": "外观",
-    "groupAppearanceSummary": "主题 · 强调色 · 语言 · 布局",
-    "groupAdvanced": "高级",
-    "groupAdvancedSummary": "端口 · 多播 · 网络 · 调试",
     "visibleToNetwork": "对本网络可见",
-    "visibleToNetworkDesc": "关闭后仅可通过链接接收",
     "nearbyLayout": "附近页布局",
-    "nearbyLayoutDesc": "网格：搜索 + 双列设备卡片。雷达：设备环绕在雷达中心，文件在下方。",
     "nearbyLayoutGrid": "网格",
     "nearbyLayoutRadar": "雷达",
     "debug": "调试与日志",
     "quickSaveOff": "关闭",
     "quickSaveFavorites": "仅收藏",
     "quickSaveAll": "全部设备",
-    "quickSaveDesc": "来自所选设备的请求将自动接收，不再询问",
     "accentColor": "强调色",
-    "discoveryMode": "发现方式",
-    "discoveryModeDesc": "多播即时发现，多播被拦截时自动回退到子网扫描",
-    "discoveryModeValue": "多播 + 扫描",
     "groupDevice": "设备与可见性",
     "groupReceiveSection": "接收与保存",
     "groupSecuritySection": "安全与分享",

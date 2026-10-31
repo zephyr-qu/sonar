@@ -4,7 +4,6 @@
     "accept": "Accepta",
     "accepted": "Acceptat",
     "add": "Afegeix",
-    "advanced": "Avançades",
     "cancel": "Cancel·la",
     "close": "Tanca",
     "confirm": "Confirma",
@@ -69,18 +68,11 @@
       "app": "Aplicació",
       "clipboard": "Enganxa"
     },
-    "shareIntentInfo": "També podeu utilitzar l'opció «Comparteix» del vostre dispositiu mòbil per a seleccionar fitxers d'una manera més fàcil.",
     "nearbyDevices": "Dispositius propers",
-    "thisDevice": "Aquest dispositiu",
     "scan": "Cerca dispositius",
-    "manualSending": "Enviament manual",
-    "sendMode": "Mode d'enviament",
     "sendModes": {
-      "single": "Destinatari únic",
-      "multiple": "Múltiples destinataris",
       "link": "Comparteix via enllaç"
     },
-    "sendModeHelp": "Explicació",
     "help": "Comproveu que el destinatari està en la mateixa xarxa Wi-Fi.",
     "placeItems": "Col·loqueu els elements per compartir."
   },
@@ -156,8 +148,7 @@
       "donate": "Donació",
       "privacyPolicy": "Política de privadesa",
       "termsOfUse": "Condicions d'ús"
-    },
-    "advancedSettings": "Configuració avançada"
+    }
   },
   "troubleshootPage": {
     "title": "Solució de problemes",
@@ -512,12 +503,6 @@
     },
     "pin": {
       "title": "Introduïu el PIN"
-    },
-    "sendModeHelp": {
-      "title": "Modes d'enviament",
-      "single": "Envia fitxers a un destinatari. La selecció s'esborrarà un cop finalitzada la transferència de fitxers.",
-      "multiple": "Envia fitxers a diversos destinataris. La selecció no s'esborrarà en finalitzar la trasferència.",
-      "link": "Els destinataris que no tinguin el LocalSend instal·lat poden baixar els fitxers seleccionats obrint l'enllaç al seu navegador."
     },
     "zoom": {
       "title": "URL"

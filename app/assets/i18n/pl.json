@@ -4,7 +4,6 @@
     "accept": "Akceptuj",
     "accepted": "Zaakceptowane",
     "add": "Dodaj",
-    "advanced": "Zaawansowane",
     "cancel": "Anuluj",
     "close": "Zamknij",
     "confirm": "Potwierdź",
@@ -69,18 +68,11 @@
       "app": "Aplikacja",
       "clipboard": "Wklej"
     },
-    "shareIntentInfo": "Możesz także skorzystać z funkcji „Udostępnij” swojego urządzenia mobilnego, aby łatwiej wybierać pliki.",
     "nearbyDevices": "Urządzenia w pobliżu",
-    "thisDevice": "To urządzenie",
     "scan": "Szukaj urządzeń",
-    "manualSending": "Wysyłanie ręczne",
-    "sendMode": "Tryb wysyłania",
     "sendModes": {
-      "single": "Pojedynczy odbiorca",
-      "multiple": "Wielu odbiorców",
       "link": "Udostępnij przez link"
     },
-    "sendModeHelp": "Wyjaśnienie",
     "help": "Upewnij się, że żądany cel również znajduje się w tej samej sieci Wi-Fi.",
     "placeItems": "Umieść elementy do udostępnienia."
   },
@@ -156,8 +148,7 @@
       "donate": "Przekaż darowiznę",
       "privacyPolicy": "Polityka prywatności",
       "termsOfUse": "Warunki korzystania"
-    },
-    "advancedSettings": "Zaawansowane ustawienia"
+    }
   },
   "troubleshootPage": {
     "title": "Rozwiązywanie problemów",
@@ -442,12 +433,6 @@
     },
     "pin": {
       "title": "Wpisz kod PIN"
-    },
-    "sendModeHelp": {
-      "title": "Tryby wysyłania",
-      "single": "Wysyła pliki do jednego odbiorcy. Wybór zostanie wyczyszczony po zakończonym transferze pliku.",
-      "multiple": "Wysyła pliki do wielu odbiorców. Wybór nie zostanie wyczyszczony.",
-      "link": "Odbiorcy, którzy nie mają zainstalowanego LocalSend, mogą pobrać wybrane pliki, otwierając link w swojej przeglądarce."
     },
     "zoom": {
       "title": "Adres URL"

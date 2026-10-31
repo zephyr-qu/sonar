@@ -4,7 +4,6 @@
     "accept": "Prihvati",
     "accepted": "Prihvaćeno",
     "add": "Dodaj",
-    "advanced": "Napredno",
     "cancel": "Otkaži",
     "close": "Zatvori",
     "confirm": "Potvrdi",
@@ -69,18 +68,11 @@
       "app": "Aplikacija",
       "clipboard": "Nalepi"
     },
-    "shareIntentInfo": "Takođe, možete da koristite funkciju „Deli“ na svom mobilnom uređaju da biste lakše birali fajlove.",
     "nearbyDevices": "Uređaji u blizini",
-    "thisDevice": "Ovaj uređaj",
     "scan": "Pretraga uređaja",
-    "manualSending": "Ručno slanje",
-    "sendMode": "Režim slanja",
     "sendModes": {
-      "single": "Jedan primalac",
-      "multiple": "Više primalaca",
       "link": "Deljenje putem linka"
     },
-    "sendModeHelp": "Objašnjenje",
     "help": "Uverite se da je primalac takođe na istoj Wi-Fi mreži.",
     "placeItems": "Postavite predmete za deljenje."
   },
@@ -156,8 +148,7 @@
       "donate": "Doniraj",
       "privacyPolicy": "Politika privatnosti",
       "termsOfUse": "Uslovi korišćenja"
-    },
-    "advancedSettings": "Napredna podešavanja"
+    }
   },
   "troubleshootPage": {
     "title": "Otklanjanje grešaka",
@@ -512,12 +503,6 @@
     },
     "pin": {
       "title": "Unesite PIN"
-    },
-    "sendModeHelp": {
-      "title": "Režimi slanja",
-      "single": "Slanje fajlova jednom primaocu. Izbor će biti očišćen nakon završenog prenosa fajlova.",
-      "multiple": "Slanje fajlova više primalaca. Izbor neće biti očišćen nakon završenog prenosa fajlova.",
-      "link": "Primaoci koji nemaju instaliran LocalSend mogu preuzeti izabrane fajlove otvaranjem linka u svom pregledaču."
     },
     "zoom": {
       "title": "URL"

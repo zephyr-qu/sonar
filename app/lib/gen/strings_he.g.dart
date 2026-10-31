@@ -109,8 +109,6 @@ class _Translations$general$he extends Translations$general$en {
   @override
   String get add => 'הוספה';
   @override
-  String get advanced => 'מידע נוסף';
-  @override
   String get cancel => 'ביטול';
   @override
   String get close => 'סגור';
@@ -211,21 +209,11 @@ class _Translations$sendTab$he extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$he picker = _Translations$sendTab$picker$he._(_root);
   @override
-  String get shareIntentInfo => 'תוכל גם להשתמש בתכונת "שתף" של המכשיר הנייד שלך כדי לבחור קבצים בקלות.';
-  @override
   String get nearbyDevices => 'מכשירים בקרבת מקום';
-  @override
-  String get thisDevice => 'המכשיר הזה';
   @override
   String get scan => 'חפש מכשירים';
   @override
-  String get manualSending => 'שליחה ידנית';
-  @override
-  String get sendMode => 'מצב שליחה';
-  @override
   late final _Translations$sendTab$sendModes$he sendModes = _Translations$sendTab$sendModes$he._(_root);
-  @override
-  String get sendModeHelp => 'עזרה';
   @override
   String get help => 'אנא ודא שאתה ומכשיר היעד נמצאים באותה רשת WiFi.';
   @override
@@ -251,8 +239,6 @@ class _Translations$settingsTab$he extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$he network = _Translations$settingsTab$network$he._(_root);
   @override
   late final _Translations$settingsTab$other$he other = _Translations$settingsTab$other$he._(_root);
-  @override
-  String get advancedSettings => 'הגדרות מתקדמות';
 }
 
 // Path: troubleshootPage
@@ -631,8 +617,6 @@ class _Translations$dialogs$he extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$he pin = _Translations$dialogs$pin$he._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$he sendModeHelp = _Translations$dialogs$sendModeHelp$he._(_root);
-  @override
   late final _Translations$dialogs$zoom$he zoom = _Translations$dialogs$zoom$he._(_root);
 }
 
@@ -827,10 +811,6 @@ class _Translations$sendTab$sendModes$he extends Translations$sendTab$sendModes$
   final TranslationsHe _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'שליחה למקבל בודד';
-  @override
-  String get multiple => 'שליחה למקבלים מרובים';
   @override
   String get link => 'שיתוף באמצעות קישור';
 }
@@ -1461,23 +1441,6 @@ class _Translations$dialogs$pin$he extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'הזן סיסמה';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$he extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$he._(TranslationsHe root) : this._root = root, super.internal(root);
-
-  final TranslationsHe _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'מצבי שליחה';
-  @override
-  String get single => 'שליחת קבצים למקבל בודד. בחירת הקבצים תתאפס לאחר השליחה.';
-  @override
-  String get multiple => 'שליחת קבצים למקבלים מרובים. בחירת הקבצים לא תתאפס.';
-  @override
-  String get link => 'מקבלים ש-LocalSend לא מותקן אצלם יוכלו להוריד את הקבצים שנבחרו על ידי פתיחת הקישור בדפדפן שלהם.';
 }
 
 // Path: dialogs.zoom

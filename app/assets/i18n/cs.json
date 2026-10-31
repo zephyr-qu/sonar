@@ -4,7 +4,6 @@
     "accept": "Přijmout",
     "accepted": "Přijato",
     "add": "Přidat",
-    "advanced": "Pokročilé",
     "cancel": "Zrušit",
     "close": "Zavřít",
     "confirm": "Potvrdit",
@@ -69,18 +68,11 @@
       "app": "Aplikace",
       "clipboard": "Vložit"
     },
-    "shareIntentInfo": "Pro snazší výběr souborů můžete také použít funkci \"Sdílet\" svého mobilního zařízení.",
     "nearbyDevices": "Zařízení v okolí",
-    "thisDevice": "Toto zařízení",
     "scan": "Hledat zařízení",
-    "manualSending": "Manuální odeslání",
-    "sendMode": "Režim odesílání",
     "sendModes": {
-      "single": "Jediný příjemce",
-      "multiple": "Více příjemců",
       "link": "Sdílet pomocí odkazu"
     },
-    "sendModeHelp": "Vysvětlení",
     "help": "Ujistěte se, že se požadovaný cíl nachází ve stejné síti Wi-Fi.",
     "placeItems": "Vložte položky, které chcete sdílet."
   },
@@ -156,8 +148,7 @@
       "donate": "Darovat",
       "privacyPolicy": "Zásady ochrany osobních údajů",
       "termsOfUse": "Podmínky použití"
-    },
-    "advancedSettings": "Pokročilá nastavení"
+    }
   },
   "troubleshootPage": {
     "title": "Odstraňování problémů",
@@ -442,12 +433,6 @@
     },
     "pin": {
       "title": "Vložit PIN"
-    },
-    "sendModeHelp": {
-      "title": "Režimy odesílání",
-      "single": "Odešle soubory jednomu příjemci. Po dokončení přenosu souboru bude výběr vymazán.",
-      "multiple": "Odešle soubory více příjemcům. Výběr nebude vymazán.",
-      "link": "Příjemci, kteří nemají nainstalovaný LocalSend, si mohou vybrané soubory stáhnout otevřením odkazu ve svém prohlížeči."
     },
     "zoom": {
       "title": "URL"

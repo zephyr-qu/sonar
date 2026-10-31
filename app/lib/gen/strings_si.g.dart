@@ -109,8 +109,6 @@ class _Translations$general$si extends Translations$general$en {
   @override
   String get add => 'ඇඩ් කරන්න';
   @override
-  String get advanced => 'ගැඹුරු';
-  @override
   String get cancel => 'අවලංගු කරන්න';
   @override
   String get close => 'වසා දමන්න';
@@ -211,21 +209,11 @@ class _Translations$sendTab$si extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$si picker = _Translations$sendTab$picker$si._(_root);
   @override
-  String get shareIntentInfo => 'ඔබට වඩාත් පහසුවෙන් ගොනු තේරීමට ඔබගේ ජංගම උපාංගයේ "Share" විශේෂාංගය භාවිතා කළ හැක.';
-  @override
   String get nearbyDevices => 'ආසන්න උපාංග';
-  @override
-  String get thisDevice => 'මෙම උපාංගය';
   @override
   String get scan => 'උපාංග සොයන්න';
   @override
-  String get manualSending => 'Manual යැවීම';
-  @override
-  String get sendMode => 'යැවීමේ ක්‍රමය';
-  @override
   late final _Translations$sendTab$sendModes$si sendModes = _Translations$sendTab$sendModes$si._(_root);
-  @override
-  String get sendModeHelp => 'පැහැදිලි කිරීම';
   @override
   String get help => 'කරුණාකර ලබන්නාගේ උපාංගය හා ඔබේ උපාංගය එකම Wi-Fi ජාලයේ ඇති බව සහතික කර ගන්න.';
   @override
@@ -251,8 +239,6 @@ class _Translations$settingsTab$si extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$si network = _Translations$settingsTab$network$si._(_root);
   @override
   late final _Translations$settingsTab$other$si other = _Translations$settingsTab$other$si._(_root);
-  @override
-  String get advancedSettings => 'ගැඹුරු සැකසුම්';
 }
 
 // Path: troubleshootPage
@@ -633,8 +619,6 @@ class _Translations$dialogs$si extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$si pin = _Translations$dialogs$pin$si._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$si sendModeHelp = _Translations$dialogs$sendModeHelp$si._(_root);
-  @override
   late final _Translations$dialogs$zoom$si zoom = _Translations$dialogs$zoom$si._(_root);
 }
 
@@ -830,10 +814,6 @@ class _Translations$sendTab$sendModes$si extends Translations$sendTab$sendModes$
   final TranslationsSi _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'තනි ලබන්නා';
-  @override
-  String get multiple => 'බහු ලබන්නන්';
   @override
   String get link => 'ලින්ක් (Link) ඔස්සේ බෙදාගන්න (Share)';
 }
@@ -1457,24 +1437,6 @@ class _Translations$dialogs$pin$si extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'PIN ඇතුල් කරන්න';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$si extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$si._(TranslationsSi root) : this._root = root, super.internal(root);
-
-  final TranslationsSi _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'යැවීමේ ක්‍රම';
-  @override
-  String get single => 'එක් ලබන්නෙකුට පමණක් ගොනු යැවීම කරයි. ගොනු හුවමාරු කිරීමෙන් පසුව, තේරීම මකා දමනු ලැබේ.';
-  @override
-  String get multiple => 'ලබන්නන් කිහිපදෙනෙකු වෙත ගොනු යැවීම කරයි. ගොනු හුවමාරු කිරීමෙන් පසුව ද තේරීම මකා දමන්නේ නැත.';
-  @override
-  String get link =>
-      'ලබන්නන් LocalSend ස්ථාපනය කර නොමැති නම්, ඔව්න්ගේ බ්‍රවුසර් (Browser) තුළ අදාල ලින්ක් (Link) එක විවෘත කර, ගොනු බාගත (Download) කළ හැක.';
 }
 
 // Path: dialogs.zoom

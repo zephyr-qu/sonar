@@ -111,8 +111,6 @@ class _Translations$general$sk extends Translations$general$en {
   @override
   String get add => 'Pridať';
   @override
-  String get advanced => 'Pokročilé';
-  @override
   String get cancel => 'Zrušiť';
   @override
   String get close => 'Zavrieť';
@@ -213,21 +211,11 @@ class _Translations$sendTab$sk extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$sk picker = _Translations$sendTab$picker$sk._(_root);
   @override
-  String get shareIntentInfo => 'Na jednoduchší výber súborov môžete použiť aj funkciu "Zdieľať" vášho mobilného zariadenia.';
-  @override
   String get nearbyDevices => 'Zariadenia v blízkosti';
-  @override
-  String get thisDevice => 'Toto zariadenie';
   @override
   String get scan => 'Vyhľadať zariadenia';
   @override
-  String get manualSending => 'Manuálne odoslanie';
-  @override
-  String get sendMode => 'Režim odosielania';
-  @override
   late final _Translations$sendTab$sendModes$sk sendModes = _Translations$sendTab$sendModes$sk._(_root);
-  @override
-  String get sendModeHelp => 'Vysvetlenie';
   @override
   String get help => 'Uistite sa, že je požadované zariadenie v rovnakej Wi-Fi sieti.';
   @override
@@ -253,8 +241,6 @@ class _Translations$settingsTab$sk extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$sk network = _Translations$settingsTab$network$sk._(_root);
   @override
   late final _Translations$settingsTab$other$sk other = _Translations$settingsTab$other$sk._(_root);
-  @override
-  String get advancedSettings => 'Pokročilé nastavenia';
 }
 
 // Path: troubleshootPage
@@ -716,8 +702,6 @@ class _Translations$dialogs$sk extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$sk pin = _Translations$dialogs$pin$sk._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$sk sendModeHelp = _Translations$dialogs$sendModeHelp$sk._(_root);
-  @override
   late final _Translations$dialogs$zoom$sk zoom = _Translations$dialogs$zoom$sk._(_root);
 }
 
@@ -913,10 +897,6 @@ class _Translations$sendTab$sendModes$sk extends Translations$sendTab$sendModes$
   final TranslationsSk _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Jeden príjemca';
-  @override
-  String get multiple => 'Viacerí príjemcovia';
   @override
   String get link => 'Zdieľať cez odkaz';
 }
@@ -1539,23 +1519,6 @@ class _Translations$dialogs$pin$sk extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'Zadajte PIN';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$sk extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$sk._(TranslationsSk root) : this._root = root, super.internal(root);
-
-  final TranslationsSk _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Režimy odosielania';
-  @override
-  String get single => 'Odošle súbory jednému príjemcovi. Výber sa vymaže po dokončení prenosu súborov.';
-  @override
-  String get multiple => 'Posiela súbory viacerým príjemcom. Výber sa vymaže po dokončení prenosu súborov.';
-  @override
-  String get link => 'Príjemcovia, ktorí nemajú nainštalovaný LocalSend, si môžu stiahnuť vybrané súbory otvorením odkazu vo svojom prehliadači.';
 }
 
 // Path: dialogs.zoom

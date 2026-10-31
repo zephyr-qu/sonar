@@ -109,8 +109,6 @@ class _Translations$general$mn extends Translations$general$en {
   @override
   String get add => 'Нэмэх';
   @override
-  String get advanced => 'Нэмэлт үйлчилгээ';
-  @override
   String get cancel => 'Цуцлах';
   @override
   String get close => 'Хаах';
@@ -211,21 +209,11 @@ class _Translations$sendTab$mn extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$mn picker = _Translations$sendTab$picker$mn._(_root);
   @override
-  String get shareIntentInfo => 'Та өөрийн төхөөрөмжийн "Хуваалцах" цэсийг ашиглан файлуудаа хялбар сонгох боломжтой.';
-  @override
   String get nearbyDevices => 'Ойролцоо төхөөрөмжүүд';
-  @override
-  String get thisDevice => 'Энэ төхөөрөмж';
   @override
   String get scan => 'Төхөөрөмжүүд хайх';
   @override
-  String get manualSending => 'Гар аргаар хайх';
-  @override
-  String get sendMode => 'Илгээх горим';
-  @override
   late final _Translations$sendTab$sendModes$mn sendModes = _Translations$sendTab$sendModes$mn._(_root);
-  @override
-  String get sendModeHelp => 'Тайлбар';
   @override
   String get help => 'Хүлээн авах төхөөрөмжийг адилхан Wi-Fi сүлжээнд байгаа эсэхийг шалгана уу.';
   @override
@@ -251,8 +239,6 @@ class _Translations$settingsTab$mn extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$mn network = _Translations$settingsTab$network$mn._(_root);
   @override
   late final _Translations$settingsTab$other$mn other = _Translations$settingsTab$other$mn._(_root);
-  @override
-  String get advancedSettings => 'Нэмэлт тохиргоо';
 }
 
 // Path: troubleshootPage
@@ -632,8 +618,6 @@ class _Translations$dialogs$mn extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$mn pin = _Translations$dialogs$pin$mn._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$mn sendModeHelp = _Translations$dialogs$sendModeHelp$mn._(_root);
-  @override
   late final _Translations$dialogs$zoom$mn zoom = _Translations$dialogs$zoom$mn._(_root);
 }
 
@@ -829,10 +813,6 @@ class _Translations$sendTab$sendModes$mn extends Translations$sendTab$sendModes$
   final TranslationsMn _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Ганц хүлээн авагч';
-  @override
-  String get multiple => 'Олон хүлээн авагч';
   @override
   String get link => 'Холбоосоор хуваалцах';
 }
@@ -1451,23 +1431,6 @@ class _Translations$dialogs$pin$mn extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'PIN код оруулах';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$mn extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$mn._(TranslationsMn root) : this._root = root, super.internal(root);
-
-  final TranslationsMn _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Илгээх горимууд';
-  @override
-  String get single => 'Нэг хүлээн авагчид файл илгээнэ. Дамжуулалт дууссаны дараа сонголт арилна.';
-  @override
-  String get multiple => 'Олон хүлээн авагчид файл илгээнэ. Дамжуулалт дууссаны дараа сонголт арилахгүй.';
-  @override
-  String get link => 'LocalSend суулгаагүй хүлээн авагчид холбоосыг хөтчөөрөө нээж сонгосон файлуудыг татаж авах боломжтой.';
 }
 
 // Path: dialogs.zoom

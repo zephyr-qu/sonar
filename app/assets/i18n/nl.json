@@ -4,7 +4,6 @@
     "accept": "Accepteren",
     "accepted": "Geaccepteerd",
     "add": "Toevoegen",
-    "advanced": "Geavanceerd",
     "cancel": "Annuleren",
     "close": "Sluiten",
     "confirm": "Bevestigen",
@@ -69,18 +68,11 @@
       "app": "App",
       "clipboard": "Plakken"
     },
-    "shareIntentInfo": "Je kunt ook de functie 'Delen' van je mobiele apparaat gebruiken om gemakkelijker bestanden te selecteren.",
     "nearbyDevices": "Apparaten in de buurt",
-    "thisDevice": "Dit apparaat",
     "scan": "Apparaten zoeken",
-    "manualSending": "Handmatig verzenden",
-    "sendMode": "Verzendmodus",
     "sendModes": {
-      "single": "Eén ontvanger",
-      "multiple": "Meerdere ontvangers",
       "link": "Delen via link"
     },
-    "sendModeHelp": "Informatie",
     "help": "Zorg ervoor dat de ontvanger is verbonden met hetzelfde wifi-netwerk.",
     "placeItems": "Zet items neer om te delen."
   },
@@ -156,8 +148,7 @@
       "donate": "Doneren",
       "privacyPolicy": "Privacybeleid",
       "termsOfUse": "Gebruiksvoorwaarden"
-    },
-    "advancedSettings": "Geavanceerde instellingen"
+    }
   },
   "troubleshootPage": {
     "title": "Problemen oplossen",
@@ -442,12 +433,6 @@
     },
     "pin": {
       "title": "Vul de code in"
-    },
-    "sendModeHelp": {
-      "title": "Verzendmodi",
-      "single": "Bestanden naar één ontvanger verzenden. De selectie wordt na de bestandsoverdracht gewist.",
-      "multiple": "Bestanden naar meerdere ontvangers verzenden. De selectie blijft na de bestandsoverdracht behouden.",
-      "link": "Ontvangers die LocalSend niet hebben geïnstalleerd kunnen de bestanden downloaden door de link in hun browser te openen."
     },
     "zoom": {
       "title": "URL"

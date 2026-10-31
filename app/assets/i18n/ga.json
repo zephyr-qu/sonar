@@ -4,7 +4,6 @@
     "accept": "Glac",
     "accepted": "Glactha",
     "add": "Cuir",
-    "advanced": "Casta",
     "cancel": "Cealaigh",
     "close": "Dún",
     "confirm": "Deimhnigh",
@@ -68,18 +67,11 @@
       "app": "Aip",
       "clipboard": "Greamaigh"
     },
-    "shareIntentInfo": "Is féidir leat an ghné \"Comhroinn\" de do ghléas soghluaiste a úsáid freisin chun comhaid a roghnú ar bhealach níos éasca.",
     "nearbyDevices": "Gléasanna in aice láimhe",
-    "thisDevice": "An Gléas seo",
     "scan": "Cuardaigh gléasanna",
-    "manualSending": "Seoladh de láimh",
-    "sendMode": "Mód seolta",
     "sendModes": {
-      "single": "Faighteoir aonair",
-      "multiple": "Faighteoirí iolracha",
       "link": "Comhroinn trí nasc"
     },
-    "sendModeHelp": "Míniú",
     "help": "Cinntigh le do thoil go bhfuil an sprioc atá uait ar an líonra Wi-Fi céanna freisin.",
     "placeItems": "Cuir míreanna le roinnt."
   },
@@ -152,8 +144,7 @@
       "donate": "Tabhair Síntiús",
       "privacyPolicy": "Polasaí Príobháideachais",
       "termsOfUse": "Téarmaí Úsáide"
-    },
-    "advancedSettings": "Socruithe ardleibhéil"
+    }
   },
   "troubleshootPage": {
     "title": "Fabhtcheartú",
@@ -459,12 +450,6 @@
     },
     "pin": {
       "title": "Iontráil UAP"
-    },
-    "sendModeHelp": {
-      "title": "Modhanna seolta",
-      "single": "Seolann sé comhaid chuig faighteoir amháin. Glanfar an rogha tar éis aistriú comhad a bheith críochnaithe.",
-      "multiple": "Seolann sé comhaid chuig ilfhaighteoirí. Ní ghlanfar an rogha tar éis aistriú comhad a bheith críochnaithe.",
-      "link": "Is féidir le faighteoirí nach bhfuil LocalSend suiteáilte acu na comhaid roghnaithe a íoslódáil tríd an nasc a oscailt ina mbrabhsálaí."
     },
     "zoom": {
       "title": "URL"

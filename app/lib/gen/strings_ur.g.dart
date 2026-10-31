@@ -109,8 +109,6 @@ class _Translations$general$ur extends Translations$general$en {
   @override
   String get add => 'شامل کریں';
   @override
-  String get advanced => 'اعلی درجے کی';
-  @override
   String get cancel => 'منسوخ کریں';
   @override
   String get close => 'بند کریں';
@@ -211,21 +209,11 @@ class _Translations$sendTab$ur extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$ur picker = _Translations$sendTab$picker$ur._(_root);
   @override
-  String get shareIntentInfo => 'آپ اپنے موبائل ڈیوائس کی "شیئر کریں" فیچر کو بھی آسانی سے فائلوں کو منتخب کرنے کے لیے استعمال کرسکتے ہیں۔';
-  @override
   String get nearbyDevices => 'قریبی ڈیوائس';
-  @override
-  String get thisDevice => 'یہ ڈیوائس';
   @override
   String get scan => 'ڈیوائس تلاش کریں';
   @override
-  String get manualSending => 'خود بھیجنا';
-  @override
-  String get sendMode => 'سینڈ موڈ';
-  @override
   late final _Translations$sendTab$sendModes$ur sendModes = _Translations$sendTab$sendModes$ur._(_root);
-  @override
-  String get sendModeHelp => 'وضاحت';
   @override
   String get help => 'براہ کرم یقینی بنائیں کہ مطلوبہ ہدف بھی اسی وائی فائی نیٹ ورک میں ہے۔';
   @override
@@ -251,8 +239,6 @@ class _Translations$settingsTab$ur extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$ur network = _Translations$settingsTab$network$ur._(_root);
   @override
   late final _Translations$settingsTab$other$ur other = _Translations$settingsTab$other$ur._(_root);
-  @override
-  String get advancedSettings => 'تجاویز شھر کی ترتیبات';
 }
 
 // Path: troubleshootPage
@@ -632,8 +618,6 @@ class _Translations$dialogs$ur extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$ur pin = _Translations$dialogs$pin$ur._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$ur sendModeHelp = _Translations$dialogs$sendModeHelp$ur._(_root);
-  @override
   late final _Translations$dialogs$zoom$ur zoom = _Translations$dialogs$zoom$ur._(_root);
 }
 
@@ -829,10 +813,6 @@ class _Translations$sendTab$sendModes$ur extends Translations$sendTab$sendModes$
   final TranslationsUr _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'سنگل رسپٹ';
-  @override
-  String get multiple => 'ملٹیپل رسپٹ';
   @override
   String get link => 'لنک کے ذریعے شیئر کریں';
 }
@@ -1455,23 +1435,6 @@ class _Translations$dialogs$pin$ur extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'PIN درج کریں';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$ur extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$ur._(TranslationsUr root) : this._root = root, super.internal(root);
-
-  final TranslationsUr _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'بھیجنے کے انداز';
-  @override
-  String get single => 'ایک ریسیور کو فائل بھیجتا ہے۔ بھیجتے وقت سلیکشن ختم ہوجائیگا۔';
-  @override
-  String get multiple => 'اکثر متعدد ریسیورز کو فائل بھیجتا ہے۔ سلیکشن ختم نہیں ہوگا۔';
-  @override
-  String get link => 'LocalSend نصب نہیں ہونے والے رسیورز منتخب شدہ فائلز کو لنک اپنے براؤزر میں کھولنے سے ڈاؤن لوڈ کر سکتے ہیں۔';
 }
 
 // Path: dialogs.zoom

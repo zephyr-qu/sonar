@@ -4,7 +4,6 @@
     "accept": "Qəbul et",
     "accepted": "Qəbul edildi",
     "add": "Əlavə et",
-    "advanced": "Qabaqcıl",
     "cancel": "Ləğv et",
     "close": "Bağla",
     "confirm": "Təsdiqlə",
@@ -69,18 +68,11 @@
       "app": "Tətbiq",
       "clipboard": "Yapışdır"
     },
-    "shareIntentInfo": "Faylları daha rahat seçmək üçün mobil cihazınızın \"Paylaş\" xüsusiyyətin də istifadə edə bilərsiniz.",
     "nearbyDevices": "Yaxınlıqdakı cihazlar",
-    "thisDevice": "Bu Cihaz",
     "scan": "Cihazları axtar",
-    "manualSending": "Özünüz göndərin",
-    "sendMode": "Göndərmə üsulu",
     "sendModes": {
-      "single": "Tək qəbul edən",
-      "multiple": "Çoxsaylı alıcılar",
       "link": "Keçid vasitəsilə paylaş"
     },
-    "sendModeHelp": "İzahat",
     "help": "Xahiş olunur, əmin olun ki, istədiyiniz hədəf eyni Wi-Fi şəbəkəsindədir.",
     "placeItems": "Paylaşmaq üçün elementləri yerləşdir."
   },
@@ -156,8 +148,7 @@
       "donate": "İanə et",
       "privacyPolicy": "Məxfilik siyasəti",
       "termsOfUse": "İstifadə şərtləri"
-    },
-    "advancedSettings": "Qabaqcıl parametrlər"
+    }
   },
   "troubleshootPage": {
     "title": "Problemləri həll etmə",
@@ -442,12 +433,6 @@
     },
     "pin": {
       "title": "PIN-i daxil et"
-    },
-    "sendModeHelp": {
-      "title": "Göndərmə rejimləri",
-      "single": "Faylları bir cihaza göndərir. Faylların ötürülməsi başa çatdıqdan sonra seçim silinəcək.",
-      "multiple": "Faylları birdən çox cihaza göndərir. Faylların ötürülməsi tamamlandıqdan sonra seçim silinməyəcək.",
-      "link": "LocalSend-i quraşdırmamış alıcılar linki brauzerlərində açaraq seçilmiş faylları endirə bilərlər."
     },
     "zoom": {
       "title": "URL"

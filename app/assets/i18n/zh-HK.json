@@ -4,7 +4,6 @@
     "accept": "接受",
     "accepted": "已接受",
     "add": "新增",
-    "advanced": "更多資訊",
     "cancel": "取消",
     "close": "關閉",
     "confirm": "確認",
@@ -69,18 +68,11 @@
       "app": "應用程式",
       "clipboard": "貼上"
     },
-    "shareIntentInfo": "用你裝置嘅「分享」功能以更方便揀選檔案。",
     "nearbyDevices": "附近裝置",
-    "thisDevice": "此裝置",
     "scan": "掃描裝置",
-    "manualSending": "手動傳送",
-    "sendMode": "傳送模式",
     "sendModes": {
-      "single": "單一接收者",
-      "multiple": "多個接收者",
       "link": "用 link 分享"
     },
-    "sendModeHelp": "説明",
     "help": "請確保目標裝置駁緊同一個 Wi‑Fi 網絡。",
     "placeItems": "將要分享嘅檔案拉過嚟呢度。"
   },
@@ -157,8 +149,7 @@
       "donate": "捐款",
       "privacyPolicy": "私隱權政策",
       "termsOfUse": "服務條款"
-    },
-    "advancedSettings": "進階設定"
+    }
   },
   "troubleshootPage": {
     "title": "疑難排解",
@@ -445,12 +436,6 @@
     },
     "pin": {
       "title": "@:web.enterPin"
-    },
-    "sendModeHelp": {
-      "title": "@:sendTab.sendMode",
-      "single": "淨係 send 畀一部裝置，傳輸完成後會清除揀選項目。",
-      "multiple": "一次過 send 畀多部裝置，揀選項目會一路保留。",
-      "link": "冇裝 LocalSend 嘅裝置可以透過條 link 嚟 download 返揀選嘅項目。"
     },
     "zoom": {
       "title": "網址"

@@ -19,7 +19,8 @@ import 'package:refena_flutter/refena_flutter.dart';
 enum HomeTab {
   nearby(LucideIcons.radar),
   transfer(LucideIcons.history),
-  settings(LucideIcons.slidersHorizontal);
+  settings(LucideIcons.slidersHorizontal)
+  ;
 
   const HomeTab(this.icon);
 
@@ -88,8 +89,13 @@ class _HomePageState extends State<HomePage> with Refena {
       },
       onDragDone: (event) async {
         // the drop may contain a mix of files and directories
-        final droppedDirectories = event.files.where((file) => Directory(file.path).existsSync()).toList();
-        final droppedFiles = event.files.where((file) => !Directory(file.path).existsSync()).toList();
+        // Partition the drop in a single pass: `existsSync()` is a synchronous stat call,
+        // so asking the file system twice per dropped item is wasted work on large drops.
+        final droppedDirectories = <DropItem>[];
+        final droppedFiles = <DropItem>[];
+        for (final file in event.files) {
+          (Directory(file.path).existsSync() ? droppedDirectories : droppedFiles).add(file);
+        }
 
         for (final directory in droppedDirectories) {
           await ref.redux(selectedSendingFilesProvider).dispatchAsync(AddDirectoryAction(directory.path));

@@ -111,8 +111,6 @@ class _Translations$general$sv extends Translations$general$en {
   @override
   String get add => 'Lägg till';
   @override
-  String get advanced => 'Avancerat';
-  @override
   String get cancel => 'Avbryt';
   @override
   String get close => 'Stäng';
@@ -213,21 +211,11 @@ class _Translations$sendTab$sv extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$sv picker = _Translations$sendTab$picker$sv._(_root);
   @override
-  String get shareIntentInfo => 'Du kan också använda funktionen ”Dela” på mobilen för att enklare välja filer.';
-  @override
   String get nearbyDevices => 'Närbelägna enheter';
-  @override
-  String get thisDevice => 'Den här enheten';
   @override
   String get scan => 'Sök efter enheter';
   @override
-  String get manualSending => 'Skicka manuellt';
-  @override
-  String get sendMode => 'Sändningsläge';
-  @override
   late final _Translations$sendTab$sendModes$sv sendModes = _Translations$sendTab$sendModes$sv._(_root);
-  @override
-  String get sendModeHelp => 'Förklaring';
   @override
   String get help => 'Kontrollera att målenheten är ansluten till samma Wi-Fi-nätverk.';
   @override
@@ -253,8 +241,6 @@ class _Translations$settingsTab$sv extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$sv network = _Translations$settingsTab$network$sv._(_root);
   @override
   late final _Translations$settingsTab$other$sv other = _Translations$settingsTab$other$sv._(_root);
-  @override
-  String get advancedSettings => 'Avancerade inställningar';
 }
 
 // Path: troubleshootPage
@@ -716,8 +702,6 @@ class _Translations$dialogs$sv extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$sv pin = _Translations$dialogs$pin$sv._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$sv sendModeHelp = _Translations$dialogs$sendModeHelp$sv._(_root);
-  @override
   late final _Translations$dialogs$zoom$sv zoom = _Translations$dialogs$zoom$sv._(_root);
 }
 
@@ -913,10 +897,6 @@ class _Translations$sendTab$sendModes$sv extends Translations$sendTab$sendModes$
   final TranslationsSv _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'En mottagare';
-  @override
-  String get multiple => 'Flera mottagare';
   @override
   String get link => 'Dela via länk';
 }
@@ -1538,23 +1518,6 @@ class _Translations$dialogs$pin$sv extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'Ange PIN-kod';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$sv extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$sv._(TranslationsSv root) : this._root = root, super.internal(root);
-
-  final TranslationsSv _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Sändningslägen';
-  @override
-  String get single => 'Skickar filer till en mottagare. Valet rensas när filöverföringen är klar.';
-  @override
-  String get multiple => 'Skickar filer till flera mottagare. Valet rensas inte när filöverföringen är klar.';
-  @override
-  String get link => 'Mottagare som inte har LocalSend installerat kan ladda ner de valda filerna genom att öppna länken i sin webbläsare.';
 }
 
 // Path: dialogs.zoom

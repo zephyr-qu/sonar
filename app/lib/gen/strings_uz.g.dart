@@ -109,8 +109,6 @@ class _Translations$general$uz extends Translations$general$en {
   @override
   String get add => 'Qoʻshish';
   @override
-  String get advanced => 'Qoʻshimcha';
-  @override
   String get cancel => 'Bekor qilish';
   @override
   String get close => 'Yopish';
@@ -211,21 +209,11 @@ class _Translations$sendTab$uz extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$uz picker = _Translations$sendTab$picker$uz._(_root);
   @override
-  String get shareIntentInfo => 'Fayllarni osonroq tanlash uchun mobil qurilmangizning "Ulashish" funksiyasidan ham foydalanishingiz mumkin.';
-  @override
   String get nearbyDevices => 'Yaqin atrofdagi qurilmalar';
-  @override
-  String get thisDevice => 'Bu qurilma';
   @override
   String get scan => 'Qurilmalarni qidirish';
   @override
-  String get manualSending => 'Qoʻlda yuborish';
-  @override
-  String get sendMode => 'Yuborish rejimi';
-  @override
   late final _Translations$sendTab$sendModes$uz sendModes = _Translations$sendTab$sendModes$uz._(_root);
-  @override
-  String get sendModeHelp => 'Tushuntirish';
   @override
   String get help => 'Kerakli qurilma ham bir xil Wi-Fi tarmogʻida ekanligiga ishonch hosil qiling.';
   @override
@@ -251,8 +239,6 @@ class _Translations$settingsTab$uz extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$uz network = _Translations$settingsTab$network$uz._(_root);
   @override
   late final _Translations$settingsTab$other$uz other = _Translations$settingsTab$other$uz._(_root);
-  @override
-  String get advancedSettings => 'Qoʻshimcha sozlamalar';
 }
 
 // Path: troubleshootPage
@@ -632,8 +618,6 @@ class _Translations$dialogs$uz extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$uz pin = _Translations$dialogs$pin$uz._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$uz sendModeHelp = _Translations$dialogs$sendModeHelp$uz._(_root);
-  @override
   late final _Translations$dialogs$zoom$uz zoom = _Translations$dialogs$zoom$uz._(_root);
 }
 
@@ -829,10 +813,6 @@ class _Translations$sendTab$sendModes$uz extends Translations$sendTab$sendModes$
   final TranslationsUz _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Bitta qabul qiluvchi';
-  @override
-  String get multiple => 'Bir nechta qabul qiluvchi';
   @override
   String get link => 'Havola orqali ulashish';
 }
@@ -1457,23 +1437,6 @@ class _Translations$dialogs$pin$uz extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'PIN kiriting';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$uz extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$uz._(TranslationsUz root) : this._root = root, super.internal(root);
-
-  final TranslationsUz _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Yuborish rejimlari';
-  @override
-  String get single => 'Fayllarni bitta qabul qiluvchiga yuboradi. Fayl uzatish tugagandan soʻng tanlov tozalanadi.';
-  @override
-  String get multiple => 'Fayllarni bir nechta qabul qiluvchiga yuboradi. Fayl uzatish tugagandan soʻng tanlov tozalanmaydi.';
-  @override
-  String get link => 'LocalSend oʻrnatilmagan qabul qiluvchilar havolani brauzerlarida ochish orqali tanlangan fayllarni yuklab olishlari mumkin.';
 }
 
 // Path: dialogs.zoom

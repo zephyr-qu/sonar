@@ -109,8 +109,6 @@ class _Translations$general$tr extends Translations$general$en {
   @override
   String get add => 'Ekle';
   @override
-  String get advanced => 'Gelişmiş';
-  @override
   String get cancel => 'İptal et';
   @override
   String get close => 'Kapat';
@@ -211,21 +209,11 @@ class _Translations$sendTab$tr extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$tr picker = _Translations$sendTab$picker$tr._(_root);
   @override
-  String get shareIntentInfo => 'Dosyalarınızı daha kolay seçmek için cihazınızın "Paylaş" özelliğini kullanabilirsiniz.';
-  @override
   String get nearbyDevices => 'Yakınınızdaki cihazlar';
-  @override
-  String get thisDevice => 'Cihazınız';
   @override
   String get scan => 'Cihazları tara';
   @override
-  String get manualSending => 'Manuel Gönderme';
-  @override
-  String get sendMode => 'Gönderme Modu';
-  @override
   late final _Translations$sendTab$sendModes$tr sendModes = _Translations$sendTab$sendModes$tr._(_root);
-  @override
-  String get sendModeHelp => 'Açıklama';
   @override
   String get help => 'Lütfen hedef cihaz ile aynı wifi ağında olduğunuzdan emin olun.';
   @override
@@ -251,8 +239,6 @@ class _Translations$settingsTab$tr extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$tr network = _Translations$settingsTab$network$tr._(_root);
   @override
   late final _Translations$settingsTab$other$tr other = _Translations$settingsTab$other$tr._(_root);
-  @override
-  String get advancedSettings => 'Gelişmiş ayarlar';
 }
 
 // Path: troubleshootPage
@@ -632,8 +618,6 @@ class _Translations$dialogs$tr extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$tr pin = _Translations$dialogs$pin$tr._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$tr sendModeHelp = _Translations$dialogs$sendModeHelp$tr._(_root);
-  @override
   late final _Translations$dialogs$zoom$tr zoom = _Translations$dialogs$zoom$tr._(_root);
 }
 
@@ -829,10 +813,6 @@ class _Translations$sendTab$sendModes$tr extends Translations$sendTab$sendModes$
   final TranslationsTr _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Tek alıcı';
-  @override
-  String get multiple => 'Birden fazla alıcı';
   @override
   String get link => 'Link üzerinden paylaşın';
 }
@@ -1456,23 +1436,6 @@ class _Translations$dialogs$pin$tr extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'PIN girin';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$tr extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$tr._(TranslationsTr root) : this._root = root, super.internal(root);
-
-  final TranslationsTr _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Gönderme Modu';
-  @override
-  String get single => 'Dosyaları bir alıcıya gönderir. Seçim, bitmiş dosya aktarımından sonra temizlenir.';
-  @override
-  String get multiple => 'Dosyaları birden çok alıcıya gönderir. Seçim temizlenmeyecektir.';
-  @override
-  String get link => 'LocalSend yüklü olmayan alıcılar, tarayıcılarındaki bağlantıyı açarak seçilen dosyaları indirebilir.';
 }
 
 // Path: dialogs.zoom

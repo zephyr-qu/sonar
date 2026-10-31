@@ -111,8 +111,6 @@ class _Translations$general$hy extends Translations$general$en {
   @override
   String get add => 'Ավելացնել';
   @override
-  String get advanced => 'Լրացուցիչ';
-  @override
   String get cancel => 'Չեղարկել';
   @override
   String get close => 'Փակել';
@@ -213,21 +211,11 @@ class _Translations$sendTab$hy extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$hy picker = _Translations$sendTab$picker$hy._(_root);
   @override
-  String get shareIntentInfo => 'Կարող եք նաև օգտագործել ձեր հեռախոսի «Կիսվել» ֆունկցիան՝ ֆայլերն ավելի հեշտությամբ ընտրելու համար։';
-  @override
   String get nearbyDevices => 'Սարքեր մոտակայքում';
-  @override
-  String get thisDevice => 'Այս սարքը';
   @override
   String get scan => 'Որոնել սարքեր';
   @override
-  String get manualSending => 'Ձեռքով ուղարկում';
-  @override
-  String get sendMode => 'Ուղարկման ռեժիմ';
-  @override
   late final _Translations$sendTab$sendModes$hy sendModes = _Translations$sendTab$sendModes$hy._(_root);
-  @override
-  String get sendModeHelp => 'Բացատրություն';
   @override
   String get help => 'Համոզվեք, որ ստացողը և Դուք միացած եք նույն Wi-Fi-ին։';
   @override
@@ -253,8 +241,6 @@ class _Translations$settingsTab$hy extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$hy network = _Translations$settingsTab$network$hy._(_root);
   @override
   late final _Translations$settingsTab$other$hy other = _Translations$settingsTab$other$hy._(_root);
-  @override
-  String get advancedSettings => 'Ընդլայնված կարգավորումներ';
 }
 
 // Path: troubleshootPage
@@ -715,8 +701,6 @@ class _Translations$dialogs$hy extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$hy pin = _Translations$dialogs$pin$hy._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$hy sendModeHelp = _Translations$dialogs$sendModeHelp$hy._(_root);
-  @override
   late final _Translations$dialogs$zoom$hy zoom = _Translations$dialogs$zoom$hy._(_root);
 }
 
@@ -912,10 +896,6 @@ class _Translations$sendTab$sendModes$hy extends Translations$sendTab$sendModes$
   final TranslationsHy _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Մեկ ստացող';
-  @override
-  String get multiple => 'Մի քանի ստացող';
   @override
   String get link => 'Կիսվել հղման միջոցով';
 }
@@ -1537,23 +1517,6 @@ class _Translations$dialogs$pin$hy extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'Գրեք PIN-ը';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$hy extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$hy._(TranslationsHy root) : this._root = root, super.internal(root);
-
-  final TranslationsHy _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Ուղարկման ռեժիմներ';
-  @override
-  String get single => 'Ֆայլերը ուղարկում է մեկ ստացողի: Ընտրությունը կջնջվի ֆայլերի փոխանցման ավարտից հետո:';
-  @override
-  String get multiple => 'Ֆայլերը ուղարկում է մի քանի ստացողների: Ընտրությունը չի ջնջվի ֆայլերի փոխանցման ավարտից հետո:';
-  @override
-  String get link => 'Ստացողները, որոնք չունեն LocalSend տեղադրված, կարող են ներբեռնել ընտրված ֆայլերը՝ բացելով հղումը իրենց բրաուզերում։';
 }
 
 // Path: dialogs.zoom

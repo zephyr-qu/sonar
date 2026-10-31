@@ -109,8 +109,6 @@ class _Translations$general$ru extends Translations$general$en {
   @override
   String get add => 'Добавить';
   @override
-  String get advanced => 'Подробнее';
-  @override
   String get cancel => 'Отменить';
   @override
   String get close => 'Закрыть';
@@ -211,21 +209,11 @@ class _Translations$sendTab$ru extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$ru picker = _Translations$sendTab$picker$ru._(_root);
   @override
-  String get shareIntentInfo => 'Вы также можете воспользоваться функцией "Поделиться" на своем мобильном устройстве, чтобы быстрее выбирать файлы.';
-  @override
   String get nearbyDevices => 'Устройства поблизости';
-  @override
-  String get thisDevice => 'Это устройство';
   @override
   String get scan => 'Поиск устройств';
   @override
-  String get manualSending => 'Ручная отправка';
-  @override
-  String get sendMode => 'Режим отправки';
-  @override
   late final _Translations$sendTab$sendModes$ru sendModes = _Translations$sendTab$sendModes$ru._(_root);
-  @override
-  String get sendModeHelp => 'Справка';
   @override
   String get help => 'Пожалуйста, убедитесь, что получатель находится в той же Wi-Fi сети, что и отправитель.';
   @override
@@ -251,8 +239,6 @@ class _Translations$settingsTab$ru extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$ru network = _Translations$settingsTab$network$ru._(_root);
   @override
   late final _Translations$settingsTab$other$ru other = _Translations$settingsTab$other$ru._(_root);
-  @override
-  String get advancedSettings => 'Расширенные настройки';
 }
 
 // Path: troubleshootPage
@@ -632,8 +618,6 @@ class _Translations$dialogs$ru extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$ru pin = _Translations$dialogs$pin$ru._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$ru sendModeHelp = _Translations$dialogs$sendModeHelp$ru._(_root);
-  @override
   late final _Translations$dialogs$zoom$ru zoom = _Translations$dialogs$zoom$ru._(_root);
 }
 
@@ -829,10 +813,6 @@ class _Translations$sendTab$sendModes$ru extends Translations$sendTab$sendModes$
   final TranslationsRu _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Один получатель';
-  @override
-  String get multiple => 'Несколько получателей';
   @override
   String get link => 'Поделиться по ссылке';
 }
@@ -1457,23 +1437,6 @@ class _Translations$dialogs$pin$ru extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'Введите PIN-код';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$ru extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$ru._(TranslationsRu root) : this._root = root, super.internal(root);
-
-  final TranslationsRu _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Режимы отправки';
-  @override
-  String get single => 'Отправляет файлы одному получателю. Выборка будет очищена после завершения передачи файлов.';
-  @override
-  String get multiple => 'Отправляет файлы нескольким получателям. Выборка не будет очищена после завершения передачи файлов.';
-  @override
-  String get link => 'Получатели, у которых не установлен LocalSend, могут загрузить выбранные файлы, открыв ссылку в своем браузере.';
 }
 
 // Path: dialogs.zoom

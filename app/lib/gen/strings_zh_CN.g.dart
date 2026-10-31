@@ -119,8 +119,6 @@ class Translations$general$zh_CN extends Translations$general$en {
   @override
   String get add => '添加';
   @override
-  String get advanced => '高级';
-  @override
   String get cancel => '取消';
   @override
   String get close => '关闭';
@@ -221,21 +219,11 @@ class Translations$sendTab$zh_CN extends Translations$sendTab$en {
   @override
   late final Translations$sendTab$picker$zh_CN picker = Translations$sendTab$picker$zh_CN.internal(_root);
   @override
-  String get shareIntentInfo => '你也可以通过移动设备中的“分享”功能更简单地发送文件。';
-  @override
   String get nearbyDevices => '附近的设备';
-  @override
-  String get thisDevice => '这台设备';
   @override
   String get scan => '扫描设备';
   @override
-  String get manualSending => '手动发送';
-  @override
-  String get sendMode => '发送模式';
-  @override
   late final Translations$sendTab$sendModes$zh_CN sendModes = Translations$sendTab$sendModes$zh_CN.internal(_root);
-  @override
-  String get sendModeHelp => '提示';
   @override
   String get help => '请确保目标连接到同一个 Wi‑Fi 网络。';
   @override
@@ -261,8 +249,6 @@ class Translations$settingsTab$zh_CN extends Translations$settingsTab$en {
   late final Translations$settingsTab$network$zh_CN network = Translations$settingsTab$network$zh_CN.internal(_root);
   @override
   late final Translations$settingsTab$other$zh_CN other = Translations$settingsTab$other$zh_CN.internal(_root);
-  @override
-  String get advancedSettings => '高级设置';
 }
 
 // Path: troubleshootPage
@@ -731,8 +717,6 @@ class Translations$dialogs$zh_CN extends Translations$dialogs$en {
   @override
   late final Translations$dialogs$pin$zh_CN pin = Translations$dialogs$pin$zh_CN.internal(_root);
   @override
-  late final Translations$dialogs$sendModeHelp$zh_CN sendModeHelp = Translations$dialogs$sendModeHelp$zh_CN.internal(_root);
-  @override
   late final Translations$dialogs$zoom$zh_CN zoom = Translations$dialogs$zoom$zh_CN.internal(_root);
 }
 
@@ -948,11 +932,7 @@ class Translations$nearbyTab$zh_CN extends Translations$nearbyTab$en {
   @override
   String get dropHint => '或点击选择文件 / 文件夹';
   @override
-  String get desktopHint => '点卡片选择目标，右侧托盘确认后发送';
-  @override
   String desktopLede({required Object online}) => '${online} 台在线';
-  @override
-  String get dragHint => '拖放文件到右侧托盘即可开始';
   @override
   String get justNow => '刚刚';
   @override
@@ -1026,33 +1006,9 @@ class Translations$settingsPage$zh_CN extends Translations$settingsPage$en {
   @override
   String groups({required Object n}) => '${n} 组';
   @override
-  String get groupVisibility => '可见性';
-  @override
-  String get groupVisibilitySummary => '别名 · 设备类型 · 可见性';
-  @override
-  String get groupReceive => '接收';
-  @override
-  String get groupReceiveSummary => '保存位置 · 快速保存 · PIN';
-  @override
-  String get groupSecurity => '安全与传输';
-  @override
-  String get groupSecuritySummary => '加密 · 校验和';
-  @override
-  String get groupAppearance => '外观';
-  @override
-  String get groupAppearanceSummary => '主题 · 强调色 · 语言 · 布局';
-  @override
-  String get groupAdvanced => '高级';
-  @override
-  String get groupAdvancedSummary => '端口 · 多播 · 网络 · 调试';
-  @override
   String get visibleToNetwork => '对本网络可见';
   @override
-  String get visibleToNetworkDesc => '关闭后仅可通过链接接收';
-  @override
   String get nearbyLayout => '附近页布局';
-  @override
-  String get nearbyLayoutDesc => '网格：搜索 + 双列设备卡片。雷达：设备环绕在雷达中心，文件在下方。';
   @override
   String get nearbyLayoutGrid => '网格';
   @override
@@ -1066,15 +1022,7 @@ class Translations$settingsPage$zh_CN extends Translations$settingsPage$en {
   @override
   String get quickSaveAll => '全部设备';
   @override
-  String get quickSaveDesc => '来自所选设备的请求将自动接收，不再询问';
-  @override
   String get accentColor => '强调色';
-  @override
-  String get discoveryMode => '发现方式';
-  @override
-  String get discoveryModeDesc => '多播即时发现，多播被拦截时自动回退到子网扫描';
-  @override
-  String get discoveryModeValue => '多播 + 扫描';
   @override
   String get groupDevice => '设备与可见性';
   @override
@@ -1225,10 +1173,6 @@ class Translations$sendTab$sendModes$zh_CN extends Translations$sendTab$sendMode
   final TranslationsZhCn _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => '一个接收者';
-  @override
-  String get multiple => '多个接收者';
   @override
   String get link => '通过链接分享';
 }
@@ -1858,23 +1802,6 @@ class Translations$dialogs$pin$zh_CN extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => '输入 PIN';
-}
-
-// Path: dialogs.sendModeHelp
-class Translations$dialogs$sendModeHelp$zh_CN extends Translations$dialogs$sendModeHelp$en {
-  Translations$dialogs$sendModeHelp$zh_CN.internal(TranslationsZhCn root) : this._root = root, super.internal(root);
-
-  final TranslationsZhCn _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => '发送模式';
-  @override
-  String get single => '发送文件给一个接收者。已选择的文件在发送后会取消选择。';
-  @override
-  String get multiple => '发送文件给多个接收者。已选择的文件在发送后不会取消选择。';
-  @override
-  String get link => '未安装 LocalSend 的接收者可以在浏览器中打开链接以下载选中的文件。';
 }
 
 // Path: dialogs.zoom

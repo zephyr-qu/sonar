@@ -111,8 +111,6 @@ class _Translations$general$ne extends Translations$general$en {
   @override
   String get add => 'थप्नुहोस्';
   @override
-  String get advanced => 'उन्नत';
-  @override
   String get cancel => 'रद्द गर्नुहोस्';
   @override
   String get close => 'बन्द गर्नुहोस्';
@@ -213,21 +211,11 @@ class _Translations$sendTab$ne extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$ne picker = _Translations$sendTab$picker$ne._(_root);
   @override
-  String get shareIntentInfo => 'तपाईले आफ्नो मोबाइल उपकरणको "साझेदारी" सुविधा पनि प्रयोग गर्न सक्नुहुन्छ फाइलहरू थप सजिलै चयन गर्न।';
-  @override
   String get nearbyDevices => 'नजिकैका उपकरणहरू';
-  @override
-  String get thisDevice => 'यो उपकरण';
   @override
   String get scan => 'उपकरणहरू खोज्नुहोस्';
   @override
-  String get manualSending => 'म्यानुअल पठाउने';
-  @override
-  String get sendMode => 'पठाउने मोड';
-  @override
   late final _Translations$sendTab$sendModes$ne sendModes = _Translations$sendTab$sendModes$ne._(_root);
-  @override
-  String get sendModeHelp => 'स्पष्टीकरण';
   @override
   String get help => 'कृपया सुनिश्चित गर्नुहोस् कि इच्छित लक्ष्य पनि उही वाइफाइ नेटवर्कमा छ।';
   @override
@@ -253,8 +241,6 @@ class _Translations$settingsTab$ne extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$ne network = _Translations$settingsTab$network$ne._(_root);
   @override
   late final _Translations$settingsTab$other$ne other = _Translations$settingsTab$other$ne._(_root);
-  @override
-  String get advancedSettings => 'उन्नत सेटिङहरू';
 }
 
 // Path: troubleshootPage
@@ -717,8 +703,6 @@ class _Translations$dialogs$ne extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$ne pin = _Translations$dialogs$pin$ne._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$ne sendModeHelp = _Translations$dialogs$sendModeHelp$ne._(_root);
-  @override
   late final _Translations$dialogs$zoom$ne zoom = _Translations$dialogs$zoom$ne._(_root);
 }
 
@@ -914,10 +898,6 @@ class _Translations$sendTab$sendModes$ne extends Translations$sendTab$sendModes$
   final TranslationsNe _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'एकल प्राप्तकर्ता';
-  @override
-  String get multiple => 'एकाधिक प्राप्तकर्ता';
   @override
   String get link => 'लिङ्क मार्फत सेयर गर्नुहोस्';
 }
@@ -1543,23 +1523,6 @@ class _Translations$dialogs$pin$ne extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'पिन प्रविष्ट गर्नुहोस्';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$ne extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$ne._(TranslationsNe root) : this._root = root, super.internal(root);
-
-  final TranslationsNe _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'पठाउने मोडहरू';
-  @override
-  String get single => 'एउटा प्राप्तकर्तालाई फाइलहरू पठाउँछ। फाइलहरू स्थानान्तरण सम्पन्न भएपछि चयन खाली गरिनेछ।';
-  @override
-  String get multiple => 'धेरै प्राप्तकर्ताहरूलाई फाइलहरू पठाउँछ। फाइलहरू स्थानान्तरण समाप्त भएपछि चयन खाली गरिने छैन।';
-  @override
-  String get link => 'LocalSend इन्स्टल नगरेका प्राप्तकर्ताहरूले आफ्नो ब्राउजरमा लिङ्क खोलेर चयन गरिएका फाइलहरू डाउनलोड गर्न सक्छन्।';
 }
 
 // Path: dialogs.zoom

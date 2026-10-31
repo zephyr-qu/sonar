@@ -4,7 +4,6 @@
     "accept": "Acceptă",
     "accepted": "Acceptat",
     "add": "Adaugă",
-    "advanced": "Avansat",
     "cancel": "Anulare",
     "close": "Închide",
     "confirm": "Confirmă",
@@ -69,18 +68,11 @@
       "app": "Aplicație",
       "clipboard": "Lipește"
     },
-    "shareIntentInfo": "Poți utiliza, de asemenea, funcția „Partajare” a dispozitivului pentru a selecta mai ușor fișierele.",
     "nearbyDevices": "Dispozitive din apropiere",
-    "thisDevice": "Acest dispozitiv",
     "scan": "Caută dispozitive",
-    "manualSending": "Trimitere manuală",
-    "sendMode": "Mod de trimitere",
     "sendModes": {
-      "single": "Un singur destinatar",
-      "multiple": "Mai mulți destinatari",
       "link": "Partajează prin link"
     },
-    "sendModeHelp": "Explicație",
     "help": "Verifică dacă destinația se află în aceeași rețea Wi-Fi.",
     "placeItems": "Adaugă elemente pentru a partaja."
   },
@@ -156,8 +148,7 @@
       "donate": "Donează",
       "privacyPolicy": "Politica de confidențialitate",
       "termsOfUse": "Termeni de utilizare"
-    },
-    "advancedSettings": "Setări avansate"
+    }
   },
   "troubleshootPage": {
     "title": "Depanare",
@@ -510,12 +501,6 @@
     },
     "pin": {
       "title": "Introdu codul PIN"
-    },
-    "sendModeHelp": {
-      "title": "Moduri de trimitere",
-      "single": "Trimite fișiere unui singur destinatar. Selecția va fi golită după ce transferul este finalizat.",
-      "multiple": "Trimite fișiere la mai mulți destinatari. Selecția nu va fi ștearsă după transferul de fișiere terminate.",
-      "link": "Destinatarii care nu au LocalSend instalat pot descărca fișierele selectate prin deschiderea linkului în browserul lor."
     },
     "zoom": {
       "title": "URL"

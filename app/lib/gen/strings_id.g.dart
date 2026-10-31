@@ -109,8 +109,6 @@ class _Translations$general$id extends Translations$general$en {
   @override
   String get add => 'Tambah';
   @override
-  String get advanced => 'Lanjutan';
-  @override
   String get cancel => 'Batal';
   @override
   String get close => 'Tutup';
@@ -211,21 +209,11 @@ class _Translations$sendTab$id extends Translations$sendTab$en {
   @override
   late final _Translations$sendTab$picker$id picker = _Translations$sendTab$picker$id._(_root);
   @override
-  String get shareIntentInfo => 'Anda juga dapat menggunakan fitur "Berbagi" agar dapat memilih berkas dengan lebih mudah.';
-  @override
   String get nearbyDevices => 'Perangkat Terdekat';
-  @override
-  String get thisDevice => 'Perangkat Ini';
   @override
   String get scan => 'Cari perangkat';
   @override
-  String get manualSending => 'Kirim secara manual';
-  @override
-  String get sendMode => 'Mode Pengiriman';
-  @override
   late final _Translations$sendTab$sendModes$id sendModes = _Translations$sendTab$sendModes$id._(_root);
-  @override
-  String get sendModeHelp => 'Penjelasan';
   @override
   String get help => 'Pastikan perangkat tujuan juga terkoneksi pada jaringan Wi-Fi yang sama.';
   @override
@@ -251,8 +239,6 @@ class _Translations$settingsTab$id extends Translations$settingsTab$en {
   late final _Translations$settingsTab$network$id network = _Translations$settingsTab$network$id._(_root);
   @override
   late final _Translations$settingsTab$other$id other = _Translations$settingsTab$other$id._(_root);
-  @override
-  String get advancedSettings => 'Pengaturan Lanjutan';
 }
 
 // Path: troubleshootPage
@@ -632,8 +618,6 @@ class _Translations$dialogs$id extends Translations$dialogs$en {
   @override
   late final _Translations$dialogs$pin$id pin = _Translations$dialogs$pin$id._(_root);
   @override
-  late final _Translations$dialogs$sendModeHelp$id sendModeHelp = _Translations$dialogs$sendModeHelp$id._(_root);
-  @override
   late final _Translations$dialogs$zoom$id zoom = _Translations$dialogs$zoom$id._(_root);
 }
 
@@ -829,10 +813,6 @@ class _Translations$sendTab$sendModes$id extends Translations$sendTab$sendModes$
   final TranslationsId _root; // ignore: unused_field
 
   // Translations
-  @override
-  String get single => 'Penerima tunggal';
-  @override
-  String get multiple => 'Banyak penerima';
   @override
   String get link => 'Bagikan melalui tautan';
 }
@@ -1455,23 +1435,6 @@ class _Translations$dialogs$pin$id extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => 'Masukkan PIN';
-}
-
-// Path: dialogs.sendModeHelp
-class _Translations$dialogs$sendModeHelp$id extends Translations$dialogs$sendModeHelp$en {
-  _Translations$dialogs$sendModeHelp$id._(TranslationsId root) : this._root = root, super.internal(root);
-
-  final TranslationsId _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Mode Pengiriman';
-  @override
-  String get single => 'Mengirim berkas ke satu penerima. Pilihan penerima akan dihapus setelah selesai membagikan berkas.';
-  @override
-  String get multiple => 'Mengirim berkas ke beberapa penerima. Pilihan penerima tidak akan dihapus.';
-  @override
-  String get link => 'Penerima yang tidak memiliki LocalSend dapat mengunduh berkas yang dipilih dengan membuka tautan di peramban.';
 }
 
 // Path: dialogs.zoom

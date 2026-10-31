@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:localsend_app/provider/animation_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
@@ -101,8 +100,7 @@ class _WindowWatcherState extends State<WindowWatcher> with WindowListener, Refe
       if (ref.read(settingsProvider).minimizeToTray) {
         await hideToTray();
       } else {
-        await destroyTray();
-        exit(0);
+        await quitApp();
       }
     } catch (e) {
       _logger.warning('Failed to close window', e);

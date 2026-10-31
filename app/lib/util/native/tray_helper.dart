@@ -100,3 +100,10 @@ Future<void> destroyTray() async {
     await tm.trayManager.destroy();
   }
 }
+
+/// Quits the app the way a window close does: the tray icon goes first, so
+/// neither the tray menu nor the Ctrl+Q shortcut leaves an orphan icon behind.
+Future<void> quitApp() async {
+  await destroyTray();
+  exit(0);
+}

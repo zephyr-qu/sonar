@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:localsend_app/util/native/platform_check.dart';
@@ -55,7 +53,7 @@ class _TrayWatcherState extends State<TrayWatcher> with TrayListener {
         await showFromTray();
         break;
       case TrayEntry.close:
-        exit(0);
+        await quitApp();
       default:
     }
   }

@@ -3,22 +3,17 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:localsend_app/config/design_tokens.dart';
 import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/cross_file.dart';
 import 'package:localsend_app/model/persistence/receive_history_entry.dart';
 import 'package:localsend_app/model/persistence/send_history_entry.dart';
 import 'package:localsend_app/model/state/send/send_session_state.dart';
 import 'package:localsend_app/model/state/server/receive_session_state.dart';
-import 'package:localsend_app/pages/home_page.dart';
-import 'package:localsend_app/pages/home_page_controller.dart';
 import 'package:localsend_app/pages/receive_page.dart';
 import 'package:localsend_app/pages/settings_page.dart';
-import 'package:localsend_app/pages/tabs/nearby_tab_vm.dart';
 import 'package:localsend_app/provider/file_transfer_provider.dart';
 import 'package:localsend_app/provider/network/send_provider.dart';
 import 'package:localsend_app/provider/network/server/server_provider.dart';
 import 'package:localsend_app/provider/receive_history_provider.dart';
 import 'package:localsend_app/provider/send_history_provider.dart';
-import 'package:localsend_app/provider/settings_provider.dart';
 import 'package:localsend_app/util/device_type_ext.dart';
 import 'package:localsend_app/util/file_type_ext.dart';
 import 'package:localsend_app/util/native/open_file.dart';
@@ -26,9 +21,9 @@ import 'package:localsend_app/util/native/open_folder.dart';
 import 'package:localsend_app/util/notification_strings.dart';
 import 'package:localsend_app/util/system_date_time_formatter.dart';
 import 'package:localsend_app/widget/desktop_scaffold.dart';
+import 'package:localsend_app/widget/desktop_tray.dart';
 import 'package:localsend_app/widget/dialogs/file_info_dialog.dart';
 import 'package:localsend_app/widget/dialogs/history_clear_dialog.dart';
-import 'package:localsend_app/widget/dialogs/quick_save_notice.dart';
 import 'package:localsend_app/widget/ls/ls_buttons.dart';
 import 'package:localsend_app/widget/ls/ls_card.dart';
 import 'package:localsend_app/widget/ls/ls_chip.dart';
@@ -36,7 +31,6 @@ import 'package:localsend_app/widget/ls/ls_header.dart';
 import 'package:localsend_app/widget/ls/ls_hover.dart';
 import 'package:localsend_app/widget/ls/ls_progress_bar.dart';
 import 'package:localsend_app/widget/ls/ls_section_label.dart';
-import 'package:localsend_app/widget/ls/ls_switch.dart';
 import 'package:localsend_app/widget/ls/ls_tile.dart';
 import 'package:localsend_isolates/model/device.dart';
 import 'package:localsend_isolates/model/dto/file_dto.dart';
@@ -109,7 +103,7 @@ class _TransferTabState extends State<TransferTab> {
           LsScreenHeader(mark: const Icon(LucideIcons.history), title: t.transferTab.title, subtitle: subtitle, actions: actions),
         Expanded(
           child: LsDesktopLayout(
-            aside: widget.desktop ? _desktopAside(context) : null,
+            aside: widget.desktop ? const LsDesktopTray() : null,
             content: ListView(
               padding: EdgeInsets.fromLTRB(tokens.pad, 0, tokens.pad, 18),
               children: [
@@ -184,165 +178,6 @@ class _TransferTabState extends State<TransferTab> {
         ),
       ],
     );
-  }
-
-  Widget _desktopAside(BuildContext context) {
-    final tokens = context.ls;
-    final colors = tokens.colors;
-    final settings = context.watch(settingsProvider);
-    final nearbyVm = context.watch(nearbyTabVmProvider);
-    final trayFiles = nearbyVm.selectedFiles;
-    final traySize = trayFiles.fold<int>(0, (sum, file) => sum + file.size);
-    final sendSessions = context.watch(sendProvider).values.where((session) => _isActive(session.status)).toList();
-    final receiveSession = context.watch(serverProvider)?.session;
-    final activeReceive = receiveSession != null && _isActive(receiveSession.status) ? receiveSession : null;
-    final activeCount = sendSessions.length + (activeReceive != null ? 1 : 0);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        LsSectionLabel(
-          label: t.nearbyTab.tray,
-          count: traySize.asReadableFileSize,
-          padding: const EdgeInsets.only(bottom: 8),
-        ),
-        if (trayFiles.isEmpty) ...[
-          LsLinkRow(
-            label: t.nearbyTab.dropHere,
-            leading: const Icon(LucideIcons.plus),
-            showTopBorder: false,
-            onTap: () async => nearbyVm.onAddFiles(context),
-          ),
-          Text(t.nearbyTab.dropHint, style: tokens.bodySm),
-        ] else ...[
-          for (final file in trayFiles.take(3))
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      file.displayName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: tokens.bodySm.copyWith(color: colors.fg),
-                    ),
-                  ),
-                  Text(file.size.asReadableFileSize, style: tokens.monoSm),
-                ],
-              ),
-            ),
-          LsLinkRow(label: t.nearbyTab.addFile, leading: const Icon(LucideIcons.plus), onTap: () async => nearbyVm.onAddFiles(context)),
-        ],
-        const SizedBox(height: 10),
-        LsSectionLabel(
-          label: t.nearbyTab.inProgress,
-          padding: const EdgeInsets.only(bottom: 8),
-        ),
-        if (activeCount == 0)
-          Text(t.transferTab.noActive, style: tokens.eyebrow)
-        else ...[
-          for (final session in sendSessions) ...[
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    session.target.alias,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: tokens.bodySm.copyWith(color: colors.fg),
-                  ),
-                ),
-                _SessionProgressBuilder(
-                  sessionId: session.sessionId,
-                  builder: (context, transfer) => Text('${(_sendProgress(session, transfer) * 100).round()}%', style: tokens.monoSm),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            _SessionProgressBuilder(
-              sessionId: session.sessionId,
-              builder: (context, transfer) => LsProgressBar(value: _sendProgress(session, transfer)),
-            ),
-            const SizedBox(height: 8),
-            LsButton(
-              label: t.transferTab.cancel,
-              variant: LsButtonVariant.ghost,
-              onPressed: () => context.notifier(sendProvider).cancelSession(session.sessionId),
-            ),
-            const SizedBox(height: 12),
-          ],
-          if (activeReceive != null) ...[
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    t.transferTab.receiving(device: activeReceive.senderAlias),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: tokens.bodySm.copyWith(color: colors.fg),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            LsButton(
-              label: t.transferTab.cancel,
-              variant: LsButtonVariant.ghost,
-              onPressed: () => context.notifier(serverProvider).cancelSession(),
-            ),
-            const SizedBox(height: 12),
-          ],
-        ],
-        LsSectionLabel(label: t.nearbyTab.receivePolicy),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                [
-                  '${t.general.quickSave}: ${settings.quickSave ? t.general.on : t.general.off}',
-                  settings.destination ?? t.settingsTab.receive.downloads,
-                ].join(' · '),
-                style: tokens.bodySm,
-              ),
-            ),
-            LsSwitch(
-              value: settings.quickSave,
-              label: t.general.quickSave,
-              onChanged: (value) async {
-                final wasQuickSave = settings.quickSave;
-                final settingsNotifier = context.notifier(settingsProvider);
-                await settingsNotifier.setQuickSave(value);
-                await settingsNotifier.setQuickSaveFromFavorites(false);
-                if (value && !wasQuickSave && context.mounted) {
-                  await QuickSaveNotice.open(context);
-                }
-              },
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        LsLinkRow(
-          label: t.nearbyTab.securitySettings,
-          leading: const Icon(LucideIcons.shield),
-          showTopBorder: false,
-          onTap: () => context.redux(homePageControllerProvider).dispatch(ChangeTabAction(HomeTab.settings)),
-        ),
-      ],
-    );
-  }
-
-  double _sendProgress(SendSessionState session, FileTransferNotifier transfer) {
-    final accepted = session.files.values.where((file) => file.token != null);
-    final total = accepted.fold<int>(0, (sum, file) => sum + file.file.size);
-    if (total == 0) {
-      return 0;
-    }
-    final transferred = accepted.fold<int>(
-      0,
-      (sum, file) => sum + (transfer.getProgress(sessionId: session.sessionId, fileId: file.file.id) * file.file.size).round(),
-    );
-    return (transferred / total).clamp(0.0, 1.0);
   }
 
   void _toggleGroup(String key) {

@@ -10,13 +10,18 @@ import 'package:routerino/routerino.dart';
 class TextFieldWithActions extends StatefulWidget {
   final String name;
   final TextEditingController controller;
-  final ValueChanged<String> onChanged;
+  final ValueChanged<String>? onChanged;
+
+  /// Called once when the dialog closes, with the final text. Use this instead of [onChanged]
+  /// for expensive writes (e.g. persisting a setting) so typing does not commit every keystroke.
+  final ValueChanged<String>? onClosed;
   final List<Widget> actions;
 
   const TextFieldWithActions({
     required this.name,
     required this.controller,
-    required this.onChanged,
+    this.onChanged,
+    this.onClosed,
     required this.actions,
   });
 
@@ -66,6 +71,10 @@ class _TextFieldWithActionsState extends State<TextFieldWithActions> {
             );
           },
         );
+        if (!mounted) {
+          return;
+        }
+        widget.onClosed?.call(widget.controller.text);
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),

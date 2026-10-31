@@ -161,6 +161,10 @@ class SettingsTabVmMapper extends ClassMapperBase<SettingsTabVm> {
     _$onTapStopServer,
     arg: _arg$onTapStopServer,
   );
+  static Set<ServerSetting> _$pendingRestart(SettingsTabVm v) =>
+      v.pendingRestart;
+  static const Field<SettingsTabVm, Set<ServerSetting>> _f$pendingRestart =
+      Field('pendingRestart', _$pendingRestart);
   static List<ThemeMode> _$themeModes(SettingsTabVm v) => v.themeModes;
   static const Field<SettingsTabVm, List<ThemeMode>> _f$themeModes = Field(
     'themeModes',
@@ -191,6 +195,7 @@ class SettingsTabVmMapper extends ClassMapperBase<SettingsTabVm> {
     #onTapRestartServer: _f$onTapRestartServer,
     #onTapStartServer: _f$onTapStartServer,
     #onTapStopServer: _f$onTapStopServer,
+    #pendingRestart: _f$pendingRestart,
     #themeModes: _f$themeModes,
   };
 
@@ -217,6 +222,7 @@ class SettingsTabVmMapper extends ClassMapperBase<SettingsTabVm> {
       onTapRestartServer: data.dec(_f$onTapRestartServer),
       onTapStartServer: data.dec(_f$onTapStartServer),
       onTapStopServer: data.dec(_f$onTapStopServer),
+      pendingRestart: data.dec(_f$pendingRestart),
     );
   }
 
@@ -308,6 +314,7 @@ abstract class SettingsTabVmCopyWith<$R, $In extends SettingsTabVm, $Out>
     void Function(BuildContext)? onTapRestartServer,
     void Function(BuildContext)? onTapStartServer,
     void Function()? onTapStopServer,
+    Set<ServerSetting>? pendingRestart,
   });
   SettingsTabVmCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t);
 }
@@ -356,6 +363,7 @@ class _SettingsTabVmCopyWithImpl<$R, $Out>
     void Function(BuildContext)? onTapRestartServer,
     void Function(BuildContext)? onTapStartServer,
     void Function()? onTapStopServer,
+    Set<ServerSetting>? pendingRestart,
   }) => $apply(
     FieldCopyWithData({
       if (aliasController != null) #aliasController: aliasController,
@@ -384,6 +392,7 @@ class _SettingsTabVmCopyWithImpl<$R, $Out>
       if (onTapRestartServer != null) #onTapRestartServer: onTapRestartServer,
       if (onTapStartServer != null) #onTapStartServer: onTapStartServer,
       if (onTapStopServer != null) #onTapStopServer: onTapStopServer,
+      if (pendingRestart != null) #pendingRestart: pendingRestart,
     }),
   );
   @override
@@ -439,6 +448,7 @@ class _SettingsTabVmCopyWithImpl<$R, $Out>
     ),
     onTapStartServer: data.get(#onTapStartServer, or: $value.onTapStartServer),
     onTapStopServer: data.get(#onTapStopServer, or: $value.onTapStopServer),
+    pendingRestart: data.get(#pendingRestart, or: $value.pendingRestart),
   );
 
   @override

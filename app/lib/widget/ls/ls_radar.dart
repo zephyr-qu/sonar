@@ -63,24 +63,40 @@ class LsRadar extends StatefulWidget {
 
 class _LsRadarState extends State<LsRadar> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
+  bool _animate = false;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 5500));
-    if (widget.animate) {
-      unawaited(_controller.repeat());
-    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncAnimation();
   }
 
   @override
   void didUpdateWidget(covariant LsRadar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.animate && !_controller.isAnimating) {
+    _syncAnimation();
+  }
+
+  /// A reduced-motion system setting outranks [LsRadar.animate]: the sweep is
+  /// decoration, and an endless animation is exactly what the setting asks apps
+  /// not to run. Stopping the controller also stops the frame callbacks.
+  void _syncAnimation() {
+    final animate = widget.animate && !MediaQuery.disableAnimationsOf(context);
+    if (animate == _controller.isAnimating) {
+      return;
+    }
+    if (animate) {
       unawaited(_controller.repeat());
-    } else if (!widget.animate && _controller.isAnimating) {
+    } else {
       _controller.stop();
     }
+    _animate = animate;
   }
 
   @override
@@ -118,7 +134,7 @@ class _LsRadarState extends State<LsRadar> with SingleTickerProviderStateMixin {
             child: LsDashedRing(size: size - 2, color: colors.line),
           ),
           // sweep
-          if (widget.animate)
+          if (_animate)
             AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {

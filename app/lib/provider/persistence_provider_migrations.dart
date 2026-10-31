@@ -1,6 +1,6 @@
 part of 'persistence_provider.dart';
 
-const _latestVersion = 4;
+const _latestVersion = 5;
 
 Future<void> _runMigrations(int from) async {
   if (from < 2) {
@@ -14,6 +14,10 @@ Future<void> _runMigrations(int from) async {
   if (from < 4) {
     await _migrate4();
     await SharedPreferencesStorePlatform.instance.setValue('Int', 'flutter.$_version', 4);
+  }
+  if (from < 5) {
+    await _migrate5();
+    await SharedPreferencesStorePlatform.instance.setValue('Int', 'flutter.$_version', 5);
   }
 }
 
@@ -62,5 +66,16 @@ Future<void> _migrate4() async {
     // Match migration 3 and the favorites-only default announced in What's new in 1.18.0.
     final quickSave = value ? QuickSaveMode.on : QuickSaveMode.paired;
     await SharedPreferencesStorePlatform.instance.setValue('String', 'flutter.$_quickSave', quickSave.name);
+  }
+}
+
+Future<void> _migrate5() async {
+  _logger.info('Migrating to version 5');
+
+  // The advanced settings and the send mode are gone from the settings page; their
+  // stored values would otherwise sit in the profile forever, read by nobody.
+  final store = SharedPreferencesStorePlatform.instance;
+  for (final key in ['ls_advanced_settings', 'ls_send_mode']) {
+    await store.remove('flutter.$key');
   }
 }

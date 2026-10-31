@@ -98,6 +98,10 @@ ThemeData _buildTheme(ColorMode colorMode, Color customColor, Brightness brightn
     canvasColor: palette.bg,
     cardColor: palette.bg2,
     dividerColor: palette.line,
+    // InkWell's default focus overlay is a 12% primary wash, invisible on the
+    // near-black background; tie it to the accent, like the focus halo LsSwitch
+    // draws for itself.
+    focusColor: palette.accent.withValues(alpha: 0.18),
     extensions: [tokens],
     textTheme: _lsTextTheme(tokens),
     cardTheme: CardThemeData(

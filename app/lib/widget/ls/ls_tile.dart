@@ -49,6 +49,7 @@ class LsFileTile extends StatelessWidget {
                     ),
                     child: InkWell(
                       onTap: onTap,
+                      mouseCursor: onTap == null ? MouseCursor.defer : SystemMouseCursors.click,
                       child: Center(
                         child:
                             thumbnail ??
@@ -134,6 +135,7 @@ class _RemoveButton extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
+          mouseCursor: SystemMouseCursors.click,
           child: SizedBox(
             width: 24,
             height: 24,
@@ -158,6 +160,7 @@ class LsAddFileTile extends StatelessWidget {
     final colors = tokens.colors;
     return InkWell(
       onTap: onTap,
+      mouseCursor: SystemMouseCursors.click,
       borderRadius: BorderRadius.circular(10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -303,84 +306,91 @@ class LsDeviceTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.ls;
     final colors = tokens.colors;
-    return Opacity(
-      opacity: offline ? 0.55 : 1,
-      child: Material(
-        color: selected ? colors.accentSoft : colors.bg2,
-        clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: selected ? colors.accent : colors.line),
-        ),
-        child: InkWell(
-          onTap: onTap,
-          onLongPress: onLongPress,
-          hoverColor: colors.bg3,
-          child: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(10, 8, 26, 8),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 30,
-                      height: 30,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(8)),
-                      child: IconTheme(
-                        data: IconThemeData(size: 16, color: selected ? colors.accentInk : colors.fg),
-                        child: glyph,
+    return Semantics(
+      container: true,
+      button: onTap != null,
+      selected: selected,
+      label: offline ? t.general.offline : null,
+      child: Opacity(
+        opacity: offline ? 0.55 : 1,
+        child: Material(
+          color: selected ? colors.accentSoft : colors.bg2,
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: selected ? colors.accent : colors.line),
+          ),
+          child: InkWell(
+            onTap: onTap,
+            mouseCursor: onTap == null ? MouseCursor.defer : SystemMouseCursors.click,
+            onLongPress: onLongPress,
+            hoverColor: colors.bg3,
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 8, 26, 8),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 30,
+                        height: 30,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(8)),
+                        child: IconTheme(
+                          data: IconThemeData(size: 16, color: selected ? colors.accentInk : colors.fg),
+                          child: glyph,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            name,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            // The device grid caps the tile at 62px; pin the line box so a two-line name still fits.
-                            style: tokens.bodyStrong.copyWith(height: 1.15),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            meta,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: tokens.monoSm,
-                          ),
-                        ],
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              name,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              // The device grid caps the tile at 62px; pin the line box so a two-line name still fits.
+                              style: tokens.bodyStrong.copyWith(height: 1.15),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              meta,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: tokens.monoSm,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              if (multi)
-                Positioned(
-                  top: 4,
-                  right: 4,
-                  child: Icon(
-                    selected ? LucideIcons.checkCircle : LucideIcons.circle,
-                    size: 14,
-                    color: selected ? colors.accent : colors.faint,
+                    ],
                   ),
-                )
-              else if (showFavoriteButton && onFavorite != null)
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: _FavoriteStar(favorite: favorite, onTap: onFavorite!, size: 22, iconSize: 13, hitSize: 28),
                 ),
-              if (!multi && onDetails != null)
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: _DetailsButton(onTap: onDetails!),
-                ),
-            ],
+                if (multi)
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: Icon(
+                      selected ? LucideIcons.checkCircle : LucideIcons.circle,
+                      size: 14,
+                      color: selected ? colors.accent : colors.faint,
+                    ),
+                  )
+                else if (showFavoriteButton && onFavorite != null)
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: _FavoriteStar(favorite: favorite, onTap: onFavorite!, size: 22, iconSize: 13, hitSize: 28),
+                  ),
+                if (!multi && onDetails != null)
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: _DetailsButton(onTap: onDetails!),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -434,86 +444,93 @@ class _LsDeviceCardState extends State<LsDeviceCard> {
         ? colors.lineStrong
         : colors.line;
 
-    return MouseRegion(
-      cursor: widget.onTap == null ? MouseCursor.defer : SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        curve: Curves.easeOut,
-        transformAlignment: Alignment.center,
-        transform: Matrix4.translationValues(0, _hover ? -1 : 0, 0),
-        decoration: BoxDecoration(
-          color: widget.selected ? colors.accentSoft : colors.bg2,
-          borderRadius: tokens.cardRadius,
-          border: Border.all(color: borderColor, width: tokens.hairlineOf(context)),
-        ),
-        child: Material(
-          type: MaterialType.transparency,
-          clipBehavior: Clip.antiAlias,
-          shape: RoundedRectangleBorder(borderRadius: tokens.cardRadius),
-          child: InkWell(
-            onTap: widget.onTap,
-            onLongPress: widget.onDetails,
-            hoverColor: colors.bg3,
+    return Semantics(
+      container: true,
+      button: widget.onTap != null,
+      selected: widget.selected,
+      label: widget.offline ? t.general.offline : null,
+      child: MouseRegion(
+        cursor: widget.onTap == null ? MouseCursor.defer : SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hover = true),
+        onExit: (_) => setState(() => _hover = false),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOut,
+          transformAlignment: Alignment.center,
+          transform: Matrix4.translationValues(0, _hover ? -1 : 0, 0),
+          decoration: BoxDecoration(
+            color: widget.selected ? colors.accentSoft : colors.bg2,
             borderRadius: tokens.cardRadius,
-            child: Opacity(
-              opacity: widget.offline ? 0.6 : 1,
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Container(
-                              width: 34,
-                              height: 34,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(10)),
-                              child: IconTheme(
-                                data: IconThemeData(size: 18, color: widget.selected ? colors.accentInk : colors.fg),
-                                child: widget.glyph,
-                              ),
-                            ),
-                            if (widget.selected)
-                              Positioned(
-                                right: -4,
-                                bottom: -4,
-                                child: Container(
-                                  width: 15,
-                                  height: 15,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: colors.accent,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: colors.bg2, width: 1.5),
-                                  ),
-                                  child: Icon(LucideIcons.check, size: 9, color: colors.accentInk),
+            border: Border.all(color: borderColor, width: tokens.hairlineOf(context)),
+          ),
+          child: Material(
+            type: MaterialType.transparency,
+            clipBehavior: Clip.antiAlias,
+            shape: RoundedRectangleBorder(borderRadius: tokens.cardRadius),
+            child: InkWell(
+              onTap: widget.onTap,
+              mouseCursor: widget.onTap == null ? MouseCursor.defer : SystemMouseCursors.click,
+              onLongPress: widget.onDetails,
+              hoverColor: colors.bg3,
+              borderRadius: tokens.cardRadius,
+              child: Opacity(
+                opacity: widget.offline ? 0.6 : 1,
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Container(
+                                width: 34,
+                                height: 34,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(10)),
+                                child: IconTheme(
+                                  data: IconThemeData(size: 18, color: widget.selected ? colors.accentInk : colors.fg),
+                                  child: widget.glyph,
                                 ),
                               ),
-                          ],
-                        ),
-                        const Spacer(),
-                        if (widget.onFavorite != null)
-                          _FavoriteStar(favorite: widget.favorite, onTap: widget.onFavorite!, size: 30, iconSize: 16, hitSize: 34),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      widget.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: tokens.subtitle,
-                    ),
-                    const SizedBox(height: 6),
-                    Text(widget.meta, style: tokens.monoSm),
-                    if (widget.metaSecondary != null) Text(widget.metaSecondary!, style: tokens.monoSm),
-                  ],
+                              if (widget.selected)
+                                Positioned(
+                                  right: -4,
+                                  bottom: -4,
+                                  child: Container(
+                                    width: 15,
+                                    height: 15,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: colors.accent,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: colors.bg2, width: 1.5),
+                                    ),
+                                    child: Icon(LucideIcons.check, size: 9, color: colors.accentInk),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const Spacer(),
+                          if (widget.onFavorite != null)
+                            _FavoriteStar(favorite: widget.favorite, onTap: widget.onFavorite!, size: 30, iconSize: 16, hitSize: 34),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        widget.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: tokens.subtitle,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(widget.meta, style: tokens.monoSm),
+                      if (widget.metaSecondary != null) Text(widget.metaSecondary!, style: tokens.monoSm),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -552,6 +569,7 @@ class _FavoriteStar extends StatelessWidget {
         shape: const CircleBorder(),
         child: InkWell(
           onTap: onTap,
+          mouseCursor: SystemMouseCursors.click,
           customBorder: const CircleBorder(),
           child: SizedBox(
             width: hitSize,
@@ -589,6 +607,7 @@ class _DetailsButton extends StatelessWidget {
         shape: const CircleBorder(),
         child: InkWell(
           onTap: onTap,
+          mouseCursor: SystemMouseCursors.click,
           customBorder: const CircleBorder(),
           child: SizedBox(
             width: 28,

@@ -381,7 +381,7 @@ class LsDeviceTile extends StatelessWidget {
                   Positioned(
                     top: 0,
                     right: 0,
-                    child: _FavoriteStar(favorite: favorite, onTap: onFavorite!, size: 22, iconSize: 13, hitSize: 28),
+                    child: LsFavoriteStar(favorite: favorite, onTap: onFavorite!, size: 22, iconSize: 13, hitSize: 28),
                   ),
                 if (!multi && onDetails != null)
                   Positioned(
@@ -516,7 +516,7 @@ class _LsDeviceCardState extends State<LsDeviceCard> {
                           ),
                           const Spacer(),
                           if (widget.onFavorite != null)
-                            _FavoriteStar(favorite: widget.favorite, onTap: widget.onFavorite!, size: 30, iconSize: 16, hitSize: 34),
+                            LsFavoriteStar(favorite: widget.favorite, onTap: widget.onFavorite!, size: 30, iconSize: 16, hitSize: 34),
                         ],
                       ),
                       const SizedBox(height: 10),
@@ -547,7 +547,10 @@ class _LsDeviceCardState extends State<LsDeviceCard> {
 /// favorite sits on an [`LsColors.accentSoft`] disc with the accent star, a
 /// non-favorite is a bare faint star. Both branches used to draw the identical
 /// glyph, which left the color as the only difference.
-class _FavoriteStar extends StatelessWidget {
+///
+/// Public because the desktop nearby tab reuses it: an offline favorite is not a device,
+/// so it never reaches the details page and its row has no other remove affordance.
+class LsFavoriteStar extends StatelessWidget {
   final bool favorite;
   final VoidCallback onTap;
   final double size;
@@ -557,7 +560,7 @@ class _FavoriteStar extends StatelessWidget {
   /// 22px hit area on a touch screen.
   final double hitSize;
 
-  const _FavoriteStar({required this.favorite, required this.onTap, required this.size, required this.iconSize, required this.hitSize});
+  const LsFavoriteStar({required this.favorite, required this.onTap, required this.size, required this.iconSize, required this.hitSize});
 
   @override
   Widget build(BuildContext context) {

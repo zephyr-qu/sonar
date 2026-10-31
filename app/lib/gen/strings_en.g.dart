@@ -362,6 +362,9 @@ class Translations$nearbyTab$en {
   /// en: 'No matching online devices'
   String get noOnlineMatch => 'No matching online devices';
 
+  /// en: 'No matching devices'
+  String get noMatch => 'No matching devices';
+
   /// en: 'No devices found yet. Make sure the other device is on the same network.'
   String get noDevices => 'No devices found yet. Make sure the other device is on the same network.';
 

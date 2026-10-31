@@ -56,12 +56,16 @@ class _NearbyView extends StatefulWidget {
 class _NearbyViewState extends State<_NearbyView> {
   final TextEditingController _query = TextEditingController();
 
+  /// Bound to the desktop search field so the Ctrl/Cmd+F shortcut can focus it.
+  final FocusNode _searchFocus = FocusNode();
+
   /// Ephemeral view state of this page. Replaced through [NearbyUi.copyWith], never mutated in place.
   NearbyUi _ui = const NearbyUi.initial();
 
   @override
   void dispose() {
     _query.dispose();
+    _searchFocus.dispose();
     super.dispose();
   }
 
@@ -72,6 +76,7 @@ class _NearbyViewState extends State<_NearbyView> {
   /// Built on demand: the views only need callbacks, so there is nothing to cache.
   NearbyActions get _actions => NearbyActions(
     query: _query,
+    searchFocus: _searchFocus,
     onQueryChanged: () => setState(() {}),
     onFilterChanged: (filter) => setState(() => _ui = _ui.copyWith(filter: filter)),
     onFilesOpenChanged: (open) => setState(() => _ui = _ui.copyWith(filesOpen: open)),
@@ -81,6 +86,15 @@ class _NearbyViewState extends State<_NearbyView> {
     onToggleFavorite: _onToggleFavorite,
     onPickedCleared: () => setState(() => _ui = _ui.copyWith(picked: const <String>{}, clearMultiOverride: true)),
   );
+
+  /// Puts the cursor in the search field. The tabs keep their state (and their focus)
+  /// alive in the PageView, so the handler only fires for the visible tab.
+  void _focusSearch() {
+    if (context.read(homePageControllerProvider).currentTab != HomeTab.nearby) {
+      return;
+    }
+    _searchFocus.requestFocus();
+  }
 
   void _toggleMulti({String? preselect}) {
     final active = _multiActive;
@@ -152,19 +166,27 @@ class _NearbyViewState extends State<_NearbyView> {
 
     if (widget.desktop) {
       final view = NearbyDesktopView(vm: vm, ui: _ui, actions: _actions);
-      return Column(
-        children: [
-          _desktopHeader(context),
-          Expanded(
-            child: LsDesktopLayout(
-              content: ListView(
-                padding: const EdgeInsets.fromLTRB(22, 18, 22, 26),
-                children: view.content(context, favoritesSection, onlineSection, offlineSection),
+      // Ctrl/Cmd+F anywhere inside the tab. The binding is scoped to this subtree,
+      // which also keeps it from stealing the shortcut on the other tabs.
+      return CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.keyF, control: true): _focusSearch,
+          const SingleActivator(LogicalKeyboardKey.keyF, meta: true): _focusSearch,
+        },
+        child: Column(
+          children: [
+            _desktopHeader(context),
+            Expanded(
+              child: LsDesktopLayout(
+                content: ListView(
+                  padding: const EdgeInsets.fromLTRB(22, 18, 22, 26),
+                  children: view.content(context, favoritesSection, onlineSection, offlineSection),
+                ),
+                aside: view.aside(context),
               ),
-              aside: view.aside(context),
             ),
-          ),
-        ],
+          ],
+        ),
       );
     }
 

@@ -598,6 +598,7 @@
     "offline": "离线",
     "offlineHint": "此设备当前离线",
     "noOnlineMatch": "没有匹配的在线设备",
+    "noMatch": "没有匹配的设备",
     "noDevices": "还没有发现设备。请确认另一台设备在同一网络中。",
     "radarHidden": "显示 {shown}/{total}",
     "favorited": "已加入收藏",

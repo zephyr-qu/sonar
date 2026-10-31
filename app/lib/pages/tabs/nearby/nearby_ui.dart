@@ -78,6 +78,9 @@ int offlineFavoriteCount(NearbyTabVm vm) {
 class NearbyActions {
   /// The search field's controller lives in the page so it can be disposed there.
   final TextEditingController query;
+
+  /// Focus node of the same field, so the page can bind Ctrl/Cmd+F to it.
+  final FocusNode searchFocus;
   final VoidCallback onQueryChanged;
   final void Function(NearbyFilter filter) onFilterChanged;
   final void Function(bool open) onFilesOpenChanged;
@@ -91,6 +94,7 @@ class NearbyActions {
 
   const NearbyActions({
     required this.query,
+    required this.searchFocus,
     required this.onQueryChanged,
     required this.onFilterChanged,
     required this.onFilesOpenChanged,

@@ -906,6 +906,8 @@ class Translations$nearbyTab$zh_CN extends Translations$nearbyTab$en {
   @override
   String get noOnlineMatch => '没有匹配的在线设备';
   @override
+  String get noMatch => '没有匹配的设备';
+  @override
   String get noDevices => '还没有发现设备。请确认另一台设备在同一网络中。';
   @override
   String radarHidden({required Object shown, required Object total}) => '显示 ${shown}/${total}';

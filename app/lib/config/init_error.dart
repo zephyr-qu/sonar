@@ -29,7 +29,8 @@ void showInitErrorApp({
     ),
   );
 
-  await showFromTray();
+  // `runApp` only schedules the first frame; Refena is still unmounted here.
+  await showFromTray(updateSleepState: false);
 }
 
 class _ErrorApp extends StatefulWidget {

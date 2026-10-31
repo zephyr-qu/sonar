@@ -62,7 +62,14 @@ Future<void> initTray() async {
   }
 }
 
-Future<void> hideToTray() async {
+/// Hides the window into the tray.
+///
+/// [updateSleepState] must be `false` when called before the Refena container is
+/// mounted (e.g. `startHidden` during bootstrap): `RefenaScope.defaultRef` is a
+/// `late` field that only exists once `RefenaScope` is built, so touching a
+/// notifier then throws `LateInitializationError`. The state is seeded by
+/// `sleepProvider.overrideWithInitialState` right after the mount instead.
+Future<void> hideToTray({bool updateSleepState = true}) async {
   await windowManager.hide();
   if (checkPlatform([TargetPlatform.macOS])) {
     // This will crash on Windows
@@ -70,15 +77,16 @@ Future<void> hideToTray() async {
     await windowManager.setSkipTaskbar(true);
   }
 
-  // Disable animations
-  try {
-    RefenaScope.defaultRef.notifier(sleepProvider).setState((_) => true);
-  } catch (e) {
-    _logger.warning('Failed to update sleep state (Refena not yet initialized)', e);
+  if (updateSleepState) {
+    // Disable animations
+    _updateSleepState(sleeping: true);
   }
 }
 
-Future<void> showFromTray() async {
+/// Shows and focuses the window from the tray.
+///
+/// See [hideToTray] for why [updateSleepState] can be `false`.
+Future<void> showFromTray({bool updateSleepState = true}) async {
   await windowManager.show();
   await windowManager.focus();
   if (checkPlatform([TargetPlatform.macOS])) {
@@ -87,11 +95,21 @@ Future<void> showFromTray() async {
     await windowManager.setSkipTaskbar(false);
   }
 
-  // Enable animations
+  if (updateSleepState) {
+    // Enable animations
+    _updateSleepState(sleeping: false);
+  }
+}
+
+/// Mirrors the sleeping flag into [sleepProvider], which pauses the animations.
+///
+/// Never throws when Refena is not mounted: the failure is only reported at
+/// [Level.FINEST] because the bootstrap call sites are expected to skip it.
+void _updateSleepState({required bool sleeping}) {
   try {
-    RefenaScope.defaultRef.notifier(sleepProvider).setState((_) => false);
+    RefenaScope.defaultRef.notifier(sleepProvider).setState((_) => sleeping);
   } catch (e) {
-    _logger.warning('Failed to update sleep state (Refena not yet initialized)', e);
+    _logger.finest('Failed to update sleep state (Refena is not mounted yet)', e);
   }
 }
 

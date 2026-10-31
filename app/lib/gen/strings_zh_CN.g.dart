@@ -988,6 +988,48 @@ class Translations$transferTab$zh_CN extends Translations$transferTab$en {
   String items({required Object n}) => '${n} 项';
   @override
   String get noHistory => '还没有传输记录';
+  @override
+  String historySummary({required Object files, required Object sessions}) => '历史 ${files} 项 · ${sessions} 次';
+  @override
+  String get today => '今天';
+  @override
+  String get yesterday => '昨天';
+  @override
+  String searchInSession({required Object n}) => '在这 ${n} 项里搜索';
+  @override
+  String allItems({required Object n}) => '全部 ${n}';
+  @override
+  String get typeImage => '图片';
+  @override
+  String get typeVideo => '视频';
+  @override
+  String get typePdf => '文档';
+  @override
+  String get typeText => '文本';
+  @override
+  String get typeApk => '应用';
+  @override
+  String get typeOther => '其他';
+  @override
+  String sortBy({required Object mode}) => '排序 · ${mode}';
+  @override
+  String get sortDate => '日期 ↓';
+  @override
+  String get sortName => '名称 ↑';
+  @override
+  String get sortSize => '大小 ↓';
+  @override
+  String get gridView => '网格';
+  @override
+  String get listView => '列表';
+  @override
+  String get noResults => '没有匹配的文件';
+  @override
+  String get received => '收到';
+  @override
+  String get sent => '发出';
+  @override
+  String get historyHint => '按日期倒序，最新的在最上面 · 点一行进入这次传输的页面';
 }
 
 // Path: settingsPage
@@ -1636,6 +1678,8 @@ class Translations$dialogs$fileInfo$zh_CN extends Translations$dialogs$fileInfo$
   String get size => '大小：';
   @override
   String get sender => '发送者：';
+  @override
+  String get receiver => '接收者：';
   @override
   String get time => '时间：';
 }

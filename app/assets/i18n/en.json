@@ -221,7 +221,28 @@
     "remaining": "{time} left",
     "speed": "{speed} MB/s",
     "items": "{n} items",
-    "noHistory": "No transfers yet"
+    "noHistory": "No transfers yet",
+    "historySummary": "History: {files} files · {sessions} transfers",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "searchInSession": "Search these {n} files",
+    "allItems": "All {n}",
+    "typeImage": "Images",
+    "typeVideo": "Videos",
+    "typePdf": "PDFs",
+    "typeText": "Text",
+    "typeApk": "Apps",
+    "typeOther": "Other",
+    "sortBy": "Sort · {mode}",
+    "sortDate": "Date ↓",
+    "sortName": "Name ↑",
+    "sortSize": "Size ↓",
+    "gridView": "Grid",
+    "listView": "List",
+    "noResults": "No matching files",
+    "received": "Received",
+    "sent": "Sent",
+    "historyHint": "Newest first · tap a row to open that transfer"
   },
   "settingsPage": {
     "search": "Search {count} settings",
@@ -580,6 +601,7 @@
       "path": "Path:",
       "size": "Size:",
       "sender": "Sender:",
+      "receiver": "Receiver:",
       "time": "Time:"
     },
     "fileNameInput": {

@@ -1,28 +1,20 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:localsend_app/config/design_tokens.dart';
 import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/receive_history_entry.dart';
-import 'package:localsend_app/model/persistence/send_history_entry.dart';
+import 'package:localsend_app/model/persistence/transfer_history_session.dart';
 import 'package:localsend_app/model/state/send/send_session_state.dart';
 import 'package:localsend_app/model/state/server/receive_session_state.dart';
-import 'package:localsend_app/pages/receive_page.dart';
 import 'package:localsend_app/pages/settings_page.dart';
+import 'package:localsend_app/pages/transfer_detail_page.dart';
 import 'package:localsend_app/provider/file_transfer_provider.dart';
 import 'package:localsend_app/provider/network/send_provider.dart';
 import 'package:localsend_app/provider/network/server/server_provider.dart';
-import 'package:localsend_app/provider/receive_history_provider.dart';
-import 'package:localsend_app/provider/send_history_provider.dart';
+import 'package:localsend_app/provider/transfer_history_provider.dart';
 import 'package:localsend_app/util/device_type_ext.dart';
-import 'package:localsend_app/util/file_type_ext.dart';
-import 'package:localsend_app/util/native/open_file.dart';
-import 'package:localsend_app/util/native/open_folder.dart';
 import 'package:localsend_app/util/notification_strings.dart';
 import 'package:localsend_app/util/system_date_time_formatter.dart';
 import 'package:localsend_app/widget/desktop_scaffold.dart';
 import 'package:localsend_app/widget/desktop_tray.dart';
-import 'package:localsend_app/widget/dialogs/file_info_dialog.dart';
 import 'package:localsend_app/widget/dialogs/history_clear_dialog.dart';
 import 'package:localsend_app/widget/ls/ls_buttons.dart';
 import 'package:localsend_app/widget/ls/ls_card.dart';
@@ -38,15 +30,15 @@ import 'package:localsend_isolates/model/session_status.dart';
 import 'package:localsend_isolates/util/file_size_helper.dart';
 import 'package:localsend_isolates/util/file_speed_helper.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:path/path.dart' as path;
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
 
 /// The "Transfers" tab: active send/receive sessions on top, the history of
 /// finished transfers below.
 ///
-/// The history is entirely inline: a row per transfer group expands in place
-/// into its files, so there is no separate history page anymore.
+/// The history is one row per finished transfer session, grouped by day. A row
+/// opens the detail page of that session, which lists its files (searchable,
+/// list or grid) — the group no longer expands in place.
 class TransferTab extends StatefulWidget {
   /// Whether the desktop shell layout is used (header is then rendered by the shell).
   final bool desktop;
@@ -58,9 +50,6 @@ class TransferTab extends StatefulWidget {
 }
 
 class _TransferTabState extends State<TransferTab> {
-  /// Keys of the history groups whose file list is expanded in place.
-  final Set<String> _expandedGroups = {};
-
   @override
   Widget build(BuildContext context) {
     final tokens = context.ls;
@@ -69,18 +58,19 @@ class _TransferTabState extends State<TransferTab> {
     final finishedSends = allSends.where(_isDone).toList();
     final receiveSession = context.watch(serverProvider)?.session;
     final activeReceive = receiveSession != null && _isActive(receiveSession.status) ? receiveSession : null;
-    final receiveEntries = context.watch(receiveHistoryProvider);
-    final sendEntries = context.watch(sendHistoryProvider);
-    final groups = _groupHistory(receiveEntries, sendEntries);
-    final historyCount = receiveEntries.length + sendEntries.length;
+    final historySessions = context.watch(transferHistoryProvider);
+    final days = _groupSessionsByDay(historySessions);
+    final historyFileCount = historySessions.fold<int>(0, (sum, session) => sum + session.files.length);
     final activeCount = sendSessions.length + (activeReceive != null ? 1 : 0);
 
     final subtitle = Text(
-      activeCount > 0 ? t.transferTab.inProgress(n: activeCount) : t.transferTab.historyCount(n: historyCount),
+      activeCount > 0
+          ? t.transferTab.inProgress(n: activeCount)
+          : t.transferTab.historySummary(files: historyFileCount, sessions: historySessions.length),
       style: tokens.mono,
     );
     final actions = [
-      if (historyCount > 0)
+      if (historySessions.isNotEmpty)
         LsIconButton(
           icon: LucideIcons.trash2,
           tooltip: t.receiveHistoryPage.deleteHistory,
@@ -111,7 +101,7 @@ class _TransferTabState extends State<TransferTab> {
                   Row(
                     children: [
                       Expanded(child: Text(t.transferTab.title, style: tokens.pageTitle)),
-                      if (historyCount > 0)
+                      if (historySessions.isNotEmpty)
                         LsIconButton(
                           icon: LucideIcons.trash2,
                           tooltip: t.receiveHistoryPage.deleteHistory,
@@ -157,21 +147,28 @@ class _TransferTabState extends State<TransferTab> {
                     padding: const EdgeInsets.only(bottom: 10),
                     child: _SendSessionCard(session: session, done: true),
                   ),
-                LsSectionLabel(label: t.transferTab.recent, count: groups.isEmpty ? null : '${groups.length}'),
-                if (groups.isEmpty)
+                LsSectionLabel(label: t.transferTab.recent, count: historySessions.isEmpty ? null : '${historySessions.length}'),
+                if (days.isEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: Text(t.transferTab.noHistory, style: tokens.bodySm),
                   )
                 else
-                  for (final group in groups)
-                    _HistoryRow(
-                      group: group,
-                      expanded: _expandedGroups.contains(group.key),
-                      onToggle: () => _toggleGroup(group.key),
-                      onOpenEntry: _openReceiveEntry,
-                      onEntryAction: _onReceiveEntryAction,
+                  for (final day in days) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12, bottom: 2),
+                      child: Text(_dayLabel(context, day.day), style: tokens.eyebrow),
                     ),
+                    for (final session in day.sessions) _HistorySessionRow(session: session),
+                  ],
+                if (days.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 14),
+                    child: Text(
+                      t.transferTab.historyHint,
+                      style: tokens.monoSm.copyWith(color: tokens.colors.faint, height: 1.7),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -180,92 +177,7 @@ class _TransferTabState extends State<TransferTab> {
     );
   }
 
-  void _toggleGroup(String key) {
-    setState(() {
-      if (!_expandedGroups.remove(key)) {
-        _expandedGroups.add(key);
-      }
-    });
-  }
-
-  /// Opens one history entry in place: received messages show the message page,
-  /// received files are opened with the system handler.
-  Future<void> _openReceiveEntry(ReceiveHistoryEntry entry) async {
-    if (entry.isMessage) {
-      await _showMessage(entry);
-      return;
-    }
-    final filePath = entry.path;
-    if (filePath == null) {
-      return;
-    }
-    await openFile(
-      context,
-      entry.fileType,
-      filePath,
-      onDeleteTap: () => context.redux(receiveHistoryProvider).dispatchAsync(RemoveHistoryEntryAction(entry.id)),
-    );
-  }
-
-  Future<void> _onReceiveEntryAction(ReceiveHistoryEntry entry, _HistoryEntryOption option) {
-    return switch (option) {
-      _HistoryEntryOption.open => _openReceiveEntry(entry),
-      _HistoryEntryOption.showInFolder => _showInFolder(entry),
-      _HistoryEntryOption.info => _showInfo(entry),
-      _HistoryEntryOption.delete => _deleteEntry(entry),
-    };
-  }
-
-  /// Shows a received text message in the (read-only) receive page, like the
-  /// removed history page did.
-  Future<void> _showMessage(ReceiveHistoryEntry entry) async {
-    final vm = ViewProvider((ref) {
-      return ReceivePageVm(
-        status: SessionStatus.waiting,
-        sender: Device(
-          signalingId: null,
-          ip: '0.0.0.0',
-          version: '1.0.0',
-          port: 8080,
-          https: false,
-          fingerprint: 'fingerprint',
-          alias: entry.senderAlias,
-          deviceModel: 'deviceModel',
-          deviceType: DeviceType.web,
-          download: true,
-          channels: const [],
-        ),
-        showSenderInfo: false,
-        files: [],
-        message: entry.fileName,
-        onAccept: () {},
-        onDecline: () {},
-        onClose: () {},
-      );
-    });
-    await context.push(() => ReceivePage(vm));
-  }
-
-  Future<void> _showInFolder(ReceiveHistoryEntry entry) async {
-    final filePath = entry.path;
-    if (filePath == null) {
-      return;
-    }
-    await openFolder(folderPath: File(filePath).parent.path, fileName: path.basename(filePath));
-  }
-
-  Future<void> _showInfo(ReceiveHistoryEntry entry) async {
-    await showDialog(
-      context: context,
-      builder: (_) => FileInfoDialog(entry: entry),
-    );
-  }
-
-  Future<void> _deleteEntry(ReceiveHistoryEntry entry) async {
-    await context.redux(receiveHistoryProvider).dispatchAsync(RemoveHistoryEntryAction(entry.id));
-  }
-
-  /// Clears received and sent history at once, as the history page used to do.
+  /// Clears the whole transfer history, as the history page used to do.
   Future<void> _clearHistory() async {
     final result = await showDialog<bool>(
       context: context,
@@ -274,15 +186,7 @@ class _TransferTabState extends State<TransferTab> {
     if (result != true || !mounted) {
       return;
     }
-    await context.redux(receiveHistoryProvider).dispatchAsync(RemoveAllHistoryEntriesAction());
-    if (!mounted) {
-      return;
-    }
-    await context.redux(sendHistoryProvider).dispatchAsync(RemoveAllSendHistoryEntriesAction());
-    if (!mounted) {
-      return;
-    }
-    setState(_expandedGroups.clear);
+    await context.redux(transferHistoryProvider).dispatchAsync(RemoveAllTransferHistorySessionsAction());
   }
 }
 
@@ -313,7 +217,6 @@ class _SendSessionCard extends StatelessWidget {
 
   const _SendSessionCard({required this.session, this.done = false});
 
-  @override
   @override
   Widget build(BuildContext context) {
     // Only this card follows the progress of its own session.
@@ -548,102 +451,57 @@ String _kindOfName(String name) {
   return kind.length > 4 ? kind.substring(0, 4) : kind;
 }
 
-enum _Direction { send, receive }
+/// One day of the history, with its finished transfer sessions.
+class _HistoryDay {
+  final DateTime day;
 
-/// The per-file actions of a received history entry.
-enum _HistoryEntryOption {
-  open,
-  showInFolder,
-  info,
-  delete
-  ;
+  final List<TransferHistorySession> sessions = [];
 
-  String get label {
-    return switch (this) {
-      _HistoryEntryOption.open => t.receiveHistoryPage.entryActions.open,
-      _HistoryEntryOption.showInFolder => t.receiveHistoryPage.entryActions.showInFolder,
-      _HistoryEntryOption.info => t.receiveHistoryPage.entryActions.info,
-      _HistoryEntryOption.delete => t.receiveHistoryPage.entryActions.deleteFromHistory,
-    };
-  }
+  _HistoryDay(this.day);
 }
 
-/// Entries of one transfer (same direction, peer and minute) that the history
-/// row shows as a single line and expands into its files.
-class _HistoryGroup {
-  /// Stable identity of the group, used as the key of the expanded state.
-  final String key;
-
-  final _Direction direction;
-  final String alias;
-  final DateTime time;
-
-  /// Received entries of this group; empty for sent groups.
-  final List<ReceiveHistoryEntry> receiveEntries = [];
-
-  /// Sent entries of this group; empty for received groups.
-  final List<SendHistoryEntry> sendEntries = [];
-
-  _HistoryGroup({
-    required this.key,
-    required this.direction,
-    required this.alias,
-    required this.time,
-  });
-
-  int get count => receiveEntries.length + sendEntries.length;
-
-  int get size => receiveEntries.fold<int>(0, (sum, entry) => sum + entry.fileSize) + sendEntries.fold<int>(0, (sum, entry) => sum + entry.fileSize);
-
-  /// Number of entries that were saved to the gallery; the row only notes it
-  /// when the whole group went to the gallery.
-  int get galleryCount => receiveEntries.where((entry) => entry.savedToGallery).length;
+/// Groups the history into days, newest day and newest transfer first.
+List<_HistoryDay> _groupSessionsByDay(List<TransferHistorySession> sessions) {
+  final days = <String, _HistoryDay>{};
+  for (final session in sessions) {
+    final time = session.timestamp.toLocal();
+    final day = DateTime(time.year, time.month, time.day);
+    (days['${day.year}-${day.month}-${day.day}'] ??= _HistoryDay(day)).sessions.add(session);
+  }
+  final sorted = days.values.toList()..sort((a, b) => b.day.compareTo(a.day));
+  for (final day in sorted) {
+    day.sessions.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+  }
+  return sorted;
 }
 
-/// Groups received and sent entries into one history, one row per transfer.
-List<_HistoryGroup> _groupHistory(List<ReceiveHistoryEntry> received, List<SendHistoryEntry> sent) {
-  final map = <String, _HistoryGroup>{};
-
-  String keyOf(_Direction direction, String alias, DateTime time) {
-    return '${direction.name}|$alias|${time.year}-${time.month}-${time.day}-${time.hour}-${time.minute}';
+/// `Today`, `Yesterday` or the date of a history day.
+String _dayLabel(BuildContext context, DateTime day) {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final difference = today.difference(day).inDays;
+  if (difference == 0) {
+    return t.transferTab.today;
   }
-
-  for (final entry in received) {
-    final time = entry.timestamp.toLocal();
-    final key = keyOf(_Direction.receive, entry.senderAlias, time);
-    (map[key] ??= _HistoryGroup(key: key, direction: _Direction.receive, alias: entry.senderAlias, time: time)).receiveEntries.add(entry);
+  if (difference == 1) {
+    return t.transferTab.yesterday;
   }
-  for (final entry in sent) {
-    final time = entry.timestamp.toLocal();
-    final key = keyOf(_Direction.send, entry.receiverAlias, time);
-    (map[key] ??= _HistoryGroup(key: key, direction: _Direction.send, alias: entry.receiverAlias, time: time)).sendEntries.add(entry);
-  }
-
-  return map.values.toList()..sort((a, b) => b.time.compareTo(a.time));
+  return SystemDateTimeFormatter.date(context, day);
 }
 
-/// One group of the history: the collapsed row and, when expanded, its files
-/// rendered in place.
-class _HistoryRow extends StatelessWidget {
-  final _HistoryGroup group;
-  final bool expanded;
-  final VoidCallback onToggle;
-  final Future<void> Function(ReceiveHistoryEntry entry) onOpenEntry;
-  final Future<void> Function(ReceiveHistoryEntry entry, _HistoryEntryOption option) onEntryAction;
+/// One finished transfer session: direction, peer, files and the time of day.
+///
+/// The row only summarizes; tapping it opens the detail page with the files.
+class _HistorySessionRow extends StatelessWidget {
+  final TransferHistorySession session;
 
-  const _HistoryRow({
-    required this.group,
-    required this.expanded,
-    required this.onToggle,
-    required this.onOpenEntry,
-    required this.onEntryAction,
-  });
+  const _HistorySessionRow({required this.session});
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.ls;
     final colors = tokens.colors;
-    final isReceive = group.direction == _Direction.receive;
+    final isReceive = !session.isSend;
 
     return Container(
       decoration: BoxDecoration(
@@ -651,177 +509,61 @@ class _HistoryRow extends StatelessWidget {
           bottom: BorderSide(color: colors.line, width: tokens.hairlineOf(context)),
         ),
       ),
-      child: Column(
-        children: [
-          // Only the header row toggles: taps inside the expanded file list must
-          // not collapse it again.
-          LsHover(
-            color: Colors.transparent,
-            hoverColor: colors.bg3,
-            borderRadius: BorderRadius.zero,
-            onTap: onToggle,
-            builder: (context, hovered) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 11),
-              child: Row(
-                children: [
-                  Container(
-                    width: 30,
-                    height: 30,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(tokens.radiusSm)),
-                    child: Icon(
-                      isReceive ? LucideIcons.arrowDown : LucideIcons.arrowUp,
-                      size: 14,
-                      color: isReceive ? colors.accent : colors.muted,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          isReceive ? t.transferTab.receivedFrom(device: group.alias) : t.transferTab.sentTo(device: group.alias),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: tokens.bodyStrong,
-                        ),
-                        const SizedBox(height: 1),
-                        Text(
-                          [
-                            t.transferTab.items(n: group.count),
-                            group.size.asReadableFileSize,
-                            if (group.galleryCount == group.count) t.progressPage.savedToGallery,
-                            SystemDateTimeFormatter.dateTime(context, group.time),
-                          ].join(' · '),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: tokens.monoSm,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  AnimatedRotation(
-                    turns: expanded ? 0.25 : 0,
-                    duration: const Duration(milliseconds: 150),
-                    curve: Curves.easeOut,
-                    child: Icon(LucideIcons.chevronRight, size: 14, color: hovered ? colors.muted : colors.faint),
-                  ),
-                ],
+      child: LsHover(
+        color: Colors.transparent,
+        hoverColor: colors.bg3,
+        borderRadius: BorderRadius.zero,
+        onTap: () async {
+          await context.push(() => TransferDetailPage(session: session));
+        },
+        builder: (context, hovered) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 11),
+          child: Row(
+            children: [
+              Container(
+                width: 30,
+                height: 30,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(tokens.radiusSm)),
+                child: Icon(
+                  isReceive ? LucideIcons.arrowDown : LucideIcons.arrowUp,
+                  size: 14,
+                  color: isReceive ? colors.accent : colors.muted,
+                ),
               ),
-            ),
-          ),
-          if (expanded)
-            Padding(
-              padding: const EdgeInsets.only(left: 40, bottom: 6),
-              child: LsCard(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+              const SizedBox(width: 10),
+              Expanded(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    for (var index = 0; index < group.receiveEntries.length; index++)
-                      _ReceiveEntryRow(
-                        entry: group.receiveEntries[index],
-                        showDivider: index < group.count - 1,
-                        onOpen: onOpenEntry,
-                        onAction: onEntryAction,
-                      ),
-                    for (var index = 0; index < group.sendEntries.length; index++)
-                      _SendEntryRow(
-                        entry: group.sendEntries[index],
-                        showDivider: group.receiveEntries.length + index < group.count - 1,
-                      ),
+                    Text(
+                      isReceive ? t.transferTab.receivedFrom(device: session.peerAlias) : t.transferTab.sentTo(device: session.peerAlias),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: tokens.bodyStrong,
+                    ),
+                    const SizedBox(height: 1),
+                    Text(
+                      [
+                        t.transferTab.items(n: session.files.length),
+                        session.totalSize.asReadableFileSize,
+                        if (session.savedToGallery) t.progressPage.savedToGallery,
+                        SystemDateTimeFormatter.time(context, session.timestamp.toLocal()),
+                      ].join(' · '),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: tokens.monoSm,
+                    ),
                   ],
                 ),
               ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-/// One received file inside an expanded history row.
-///
-/// Tapping it opens the file (or shows a received message); the trailing menu
-/// offers the per-file actions of the old history page.
-class _ReceiveEntryRow extends StatelessWidget {
-  final ReceiveHistoryEntry entry;
-  final bool showDivider;
-  final Future<void> Function(ReceiveHistoryEntry entry) onOpen;
-  final Future<void> Function(ReceiveHistoryEntry entry, _HistoryEntryOption option) onAction;
-
-  const _ReceiveEntryRow({
-    required this.entry,
-    required this.showDivider,
-    required this.onOpen,
-    required this.onAction,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.ls.colors;
-    final canOpen = entry.path != null || entry.isMessage;
-
-    return InkWell(
-      onTap: canOpen
-          ? () async {
-              await onOpen(entry);
-            }
-          : null,
-      child: LsFileRow(
-        kind: entry.isMessage ? 'MSG' : _kindOfName(entry.fileName),
-        leadingIcon: entry.fileType.icon,
-        name: entry.fileName,
-        meta: [
-          if (!entry.isMessage) entry.fileSize.asReadableFileSize,
-          entry.timestampString(context),
-          entry.senderAlias,
-          if (entry.savedToGallery) t.progressPage.savedToGallery,
-        ].join(' · '),
-        showDivider: showDivider,
-        trailing: PopupMenuButton<_HistoryEntryOption>(
-          icon: Icon(LucideIcons.moreHorizontal, size: 16, color: colors.muted),
-          onSelected: (option) async {
-            await onAction(entry, option);
-          },
-          itemBuilder: (context) {
-            final options = entry.path != null ? _HistoryEntryOption.values : const [_HistoryEntryOption.info, _HistoryEntryOption.delete];
-            return [
-              for (final option in options)
-                PopupMenuItem<_HistoryEntryOption>(
-                  value: option,
-                  child: Text(option.label, style: context.ls.body),
-                ),
-            ];
-          },
+              const SizedBox(width: 8),
+              Icon(LucideIcons.chevronRight, size: 14, color: hovered ? colors.muted : colors.faint),
+            ],
+          ),
         ),
       ),
-    );
-  }
-}
-
-/// One sent file inside an expanded history row. Sent history has no per-entry
-/// actions (the provider can only clear the whole list), so it is read-only.
-class _SendEntryRow extends StatelessWidget {
-  final SendHistoryEntry entry;
-  final bool showDivider;
-
-  const _SendEntryRow({required this.entry, required this.showDivider});
-
-  @override
-  Widget build(BuildContext context) {
-    return LsFileRow(
-      kind: _kindOfName(entry.fileName),
-      leadingIcon: entry.fileType.icon,
-      name: entry.fileName,
-      meta: [
-        entry.fileSize.asReadableFileSize,
-        SystemDateTimeFormatter.dateTime(context, entry.timestamp.toLocal()),
-        entry.receiverAlias,
-      ].join(' · '),
-      showDivider: showDivider,
     );
   }
 }

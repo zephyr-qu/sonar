@@ -9,8 +9,7 @@ import 'package:localsend_app/model/persistence/color_mode.dart';
 import 'package:localsend_app/model/persistence/favorite_device.dart';
 import 'package:localsend_app/model/persistence/nearby_layout.dart';
 import 'package:localsend_app/model/persistence/quick_save_mode.dart';
-import 'package:localsend_app/model/persistence/receive_history_entry.dart';
-import 'package:localsend_app/model/persistence/send_history_entry.dart';
+import 'package:localsend_app/model/persistence/transfer_history_session.dart';
 import 'package:localsend_app/provider/window_dimensions_provider.dart';
 import 'package:localsend_app/util/alias_generator.dart';
 import 'package:localsend_app/util/native/autostart_helper.dart';
@@ -22,6 +21,7 @@ import 'package:localsend_app/util/shared_preferences/shared_preferences_portabl
 import 'package:localsend_app/util/ui/animations_status.dart';
 import 'package:localsend_isolates/constants.dart';
 import 'package:localsend_isolates/model/device.dart';
+import 'package:localsend_isolates/model/file_type.dart';
 import 'package:localsend_isolates/model/stored_security_context.dart';
 import 'package:logging/logging.dart';
 import 'package:refena_flutter/refena_flutter.dart';
@@ -53,11 +53,8 @@ const _securityContext = 'ls_security_context';
 const _signalingServers = 'ls_signaling_servers';
 const _stunServers = 'ls_stun_servers';
 
-// Received file history
-const _receiveHistory = 'ls_receive_history';
-
-// Sent file history
-const _sendHistory = 'ls_send_history';
+// Transfer history, one entry per finished session
+const _transferHistory = 'ls_transfer_history';
 
 // Favorites
 const _favorites = 'ls_favorites';
@@ -272,24 +269,14 @@ class PersistenceService {
     await _prefs.setString(_stunServers, jsonEncode(servers));
   }
 
-  List<ReceiveHistoryEntry> getReceiveHistory() {
-    final historyRaw = _prefs.getStringList(_receiveHistory) ?? [];
-    return historyRaw.map((entry) => ReceiveHistoryEntry.fromJson(jsonDecode(entry))).toList();
+  List<TransferHistorySession> getTransferHistory() {
+    final historyRaw = _prefs.getStringList(_transferHistory) ?? [];
+    return historyRaw.map((entry) => TransferHistorySession.fromJson(jsonDecode(entry))).toList();
   }
 
-  Future<void> setReceiveHistory(List<ReceiveHistoryEntry> entries) async {
-    final historyRaw = entries.map((entry) => jsonEncode(entry.toJson())).toList();
-    await _prefs.setStringList(_receiveHistory, historyRaw);
-  }
-
-  List<SendHistoryEntry> getSendHistory() {
-    final historyRaw = _prefs.getStringList(_sendHistory) ?? [];
-    return historyRaw.map((entry) => SendHistoryEntry.fromJson(jsonDecode(entry))).toList();
-  }
-
-  Future<void> setSendHistory(List<SendHistoryEntry> entries) async {
-    final historyRaw = entries.map((entry) => jsonEncode(entry.toJson())).toList();
-    await _prefs.setStringList(_sendHistory, historyRaw);
+  Future<void> setTransferHistory(List<TransferHistorySession> sessions) async {
+    final historyRaw = sessions.map((session) => jsonEncode(session.toJson())).toList();
+    await _prefs.setStringList(_transferHistory, historyRaw);
   }
 
   Map<String, DateTime> getDeviceLastSeen() {

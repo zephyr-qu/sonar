@@ -1,6 +1,6 @@
 part of 'persistence_provider.dart';
 
-const _latestVersion = 5;
+const _latestVersion = 6;
 
 Future<void> _runMigrations(int from) async {
   if (from < 2) {
@@ -18,6 +18,10 @@ Future<void> _runMigrations(int from) async {
   if (from < 5) {
     await _migrate5();
     await SharedPreferencesStorePlatform.instance.setValue('Int', 'flutter.$_version', 5);
+  }
+  if (from < 6) {
+    await _migrate6();
+    await SharedPreferencesStorePlatform.instance.setValue('Int', 'flutter.$_version', 6);
   }
 }
 
@@ -76,6 +80,84 @@ Future<void> _migrate5() async {
   // stored values would otherwise sit in the profile forever, read by nobody.
   final store = SharedPreferencesStorePlatform.instance;
   for (final key in ['ls_advanced_settings', 'ls_send_mode']) {
+    await store.remove('flutter.$key');
+  }
+}
+
+const _legacyHistoryKeys = {
+  TransferHistoryDirection.send: 'ls_send_history',
+  TransferHistoryDirection.receive: 'ls_receive_history',
+};
+
+/// The transfer history used to be one entry per file, in two separate lists.
+/// It is now one entry per finished session: group the old entries back into
+/// sessions (one per sender/receiver alias and minute) so existing installations
+/// do not lose their history.
+Future<void> _migrate6() async {
+  _logger.info('Migrating to version 6');
+
+  final store = SharedPreferencesStorePlatform.instance;
+  final prefs = await store.getAll();
+
+  final sessions = <String, TransferHistorySession>{};
+  var sessionCounter = 0;
+  for (final MapEntry(key: direction, value: legacyKey) in _legacyHistoryKeys.entries) {
+    final raw = prefs['flutter.$legacyKey'];
+    if (raw is! List) {
+      continue;
+    }
+
+    for (final item in raw) {
+      if (item is! String) {
+        continue;
+      }
+      final Map<String, dynamic> legacy;
+      try {
+        legacy = jsonDecode(item) as Map<String, dynamic>;
+      } catch (_) {
+        continue;
+      }
+
+      final fileName = legacy['fileName'] as String?;
+      final timestamp = DateTime.tryParse(legacy['timestamp'] as String? ?? '')?.toUtc();
+      if (fileName == null || timestamp == null) {
+        continue;
+      }
+
+      final alias = (legacy['senderAlias'] ?? legacy['receiverAlias'] as String? ?? '') as String;
+      final groupKey = '${direction.name}|$alias|${timestamp.year}-${timestamp.month}-${timestamp.day}-${timestamp.hour}-${timestamp.minute}';
+      final file = TransferHistoryFile(
+        id: legacy['id'] as String? ?? '$groupKey-$sessionCounter',
+        fileName: fileName,
+        fileType: FileType.values.firstWhereOrNull((type) => type.name == legacy['fileType']) ?? FileType.other,
+        fileSize: legacy['fileSize'] as int? ?? 0,
+        path: legacy['path'] as String?,
+        savedToGallery: legacy['savedToGallery'] == true,
+        isMessage: legacy['isMessage'] == true,
+        modified: null, // the old schema did not store it
+      );
+
+      final existing = sessions[groupKey];
+      if (existing == null) {
+        sessionCounter++;
+        sessions[groupKey] = TransferHistorySession(
+          id: 'legacy-$sessionCounter',
+          peerAlias: alias,
+          direction: direction,
+          timestamp: timestamp,
+          files: [file],
+        );
+      } else {
+        sessions[groupKey] = existing.withFiles([...existing.files, file]);
+      }
+    }
+  }
+
+  if (sessions.isNotEmpty) {
+    final sorted = sessions.values.sorted((a, b) => b.timestamp.compareTo(a.timestamp));
+    await store.setValue('StringList', 'flutter.$_transferHistory', [for (final session in sorted) jsonEncode(session.toJson())]);
+  }
+  for (final key in ['ls_receive_history', 'ls_send_history']) {
     await store.remove('flutter.$key');
   }
 }

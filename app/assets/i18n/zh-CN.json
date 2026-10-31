@@ -456,6 +456,7 @@
       "path": "路径：",
       "size": "大小：",
       "sender": "发送者：",
+      "receiver": "接收者：",
       "time": "时间："
     },
     "fileNameInput": {
@@ -635,7 +636,28 @@
     "remaining": "剩余 {time}",
     "speed": "{speed} MB/s",
     "items": "{n} 项",
-    "noHistory": "还没有传输记录"
+    "noHistory": "还没有传输记录",
+    "historySummary": "历史 {files} 项 · {sessions} 次",
+    "today": "今天",
+    "yesterday": "昨天",
+    "searchInSession": "在这 {n} 项里搜索",
+    "allItems": "全部 {n}",
+    "typeImage": "图片",
+    "typeVideo": "视频",
+    "typePdf": "文档",
+    "typeText": "文本",
+    "typeApk": "应用",
+    "typeOther": "其他",
+    "sortBy": "排序 · {mode}",
+    "sortDate": "日期 ↓",
+    "sortName": "名称 ↑",
+    "sortSize": "大小 ↓",
+    "gridView": "网格",
+    "listView": "列表",
+    "noResults": "没有匹配的文件",
+    "received": "收到",
+    "sent": "发出",
+    "historyHint": "按日期倒序，最新的在最上面 · 点一行进入这次传输的页面"
   },
   "settingsPage": {
     "search": "搜索设置项（共 {count} 项）",

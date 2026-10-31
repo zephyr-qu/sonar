@@ -481,6 +481,69 @@ class Translations$transferTab$en {
 
   /// en: 'No transfers yet'
   String get noHistory => 'No transfers yet';
+
+  /// en: 'History: {files} files · {sessions} transfers'
+  String historySummary({required Object files, required Object sessions}) => 'History: ${files} files · ${sessions} transfers';
+
+  /// en: 'Today'
+  String get today => 'Today';
+
+  /// en: 'Yesterday'
+  String get yesterday => 'Yesterday';
+
+  /// en: 'Search these {n} files'
+  String searchInSession({required Object n}) => 'Search these ${n} files';
+
+  /// en: 'All {n}'
+  String allItems({required Object n}) => 'All ${n}';
+
+  /// en: 'Images'
+  String get typeImage => 'Images';
+
+  /// en: 'Videos'
+  String get typeVideo => 'Videos';
+
+  /// en: 'PDFs'
+  String get typePdf => 'PDFs';
+
+  /// en: 'Text'
+  String get typeText => 'Text';
+
+  /// en: 'Apps'
+  String get typeApk => 'Apps';
+
+  /// en: 'Other'
+  String get typeOther => 'Other';
+
+  /// en: 'Sort · {mode}'
+  String sortBy({required Object mode}) => 'Sort · ${mode}';
+
+  /// en: 'Date ↓'
+  String get sortDate => 'Date ↓';
+
+  /// en: 'Name ↑'
+  String get sortName => 'Name ↑';
+
+  /// en: 'Size ↓'
+  String get sortSize => 'Size ↓';
+
+  /// en: 'Grid'
+  String get gridView => 'Grid';
+
+  /// en: 'List'
+  String get listView => 'List';
+
+  /// en: 'No matching files'
+  String get noResults => 'No matching files';
+
+  /// en: 'Received'
+  String get received => 'Received';
+
+  /// en: 'Sent'
+  String get sent => 'Sent';
+
+  /// en: 'Newest first · tap a row to open that transfer'
+  String get historyHint => 'Newest first · tap a row to open that transfer';
 }
 
 // Path: settingsPage
@@ -1969,6 +2032,9 @@ class Translations$dialogs$fileInfo$en {
 
   /// en: 'Sender:'
   String get sender => 'Sender:';
+
+  /// en: 'Receiver:'
+  String get receiver => 'Receiver:';
 
   /// en: 'Time:'
   String get time => 'Time:';

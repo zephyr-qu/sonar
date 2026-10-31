@@ -134,9 +134,11 @@ Future<RefenaContainer> preInit(List<String> args) async {
     }
 
     if (startHidden) {
-      unawaited(hideToTray());
+      // Refena is not mounted yet, so the sleep state cannot be dispatched:
+      // it is seeded by [sleepProvider.overrideWithInitialState] below instead.
+      unawaited(hideToTray(updateSleepState: false));
     } else {
-      unawaited(showFromTray());
+      unawaited(showFromTray(updateSleepState: false));
     }
 
     if (defaultTargetPlatform == TargetPlatform.macOS) {

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:localsend_app/model/persistence/transfer_history_session.dart';
 import 'package:localsend_app/model/state/server/receive_session_state.dart';
 import 'package:localsend_app/model/state/server/receiving_file.dart';
 import 'package:localsend_app/pages/home_page.dart';
@@ -17,11 +18,11 @@ import 'package:localsend_app/provider/logging/discovery_logs_provider.dart';
 import 'package:localsend_app/provider/network/send_provider.dart';
 import 'package:localsend_app/provider/network/server/server_provider.dart';
 import 'package:localsend_app/provider/network/server/server_utils.dart';
-import 'package:localsend_app/provider/receive_history_provider.dart';
 import 'package:localsend_app/provider/security_provider.dart';
 import 'package:localsend_app/provider/selection/selected_receiving_files_provider.dart';
 import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
+import 'package:localsend_app/provider/transfer_history_provider.dart';
 import 'package:localsend_app/util/native/directories.dart';
 import 'package:localsend_app/util/native/platform_check.dart';
 import 'package:localsend_app/util/native/tray_helper.dart';
@@ -165,18 +166,27 @@ class ReceiveController {
     if (message != null) {
       // Message already received
       await server.ref
-          .redux(receiveHistoryProvider)
+          .redux(transferHistoryProvider)
           .dispatchAsync(
-            AddHistoryEntryAction(
-              entryId: const Uuid().v4(),
-              fileName: message,
-              fileType: FileType.text,
-              path: null,
-              savedToGallery: false,
-              isMessage: true,
-              fileSize: utf8.encode(message).length,
-              senderAlias: server.getState().session!.senderAlias,
-              timestamp: DateTime.now().toUtc(),
+            AddTransferHistorySessionAction(
+              TransferHistorySession(
+                id: server.getState().session!.sessionId,
+                peerAlias: server.getState().session!.senderAlias,
+                direction: TransferHistoryDirection.receive,
+                timestamp: DateTime.now().toUtc(),
+                files: [
+                  TransferHistoryFile(
+                    id: const Uuid().v4(),
+                    fileName: message,
+                    fileType: FileType.text,
+                    fileSize: utf8.encode(message).length,
+                    path: null,
+                    savedToGallery: false,
+                    isMessage: true,
+                    modified: null,
+                  ),
+                ],
+              ),
             ),
           );
     }
@@ -349,23 +359,6 @@ class ReceiveController {
           ),
         ),
       );
-
-      // Track it in history
-      await server.ref
-          .redux(receiveHistoryProvider)
-          .dispatchAsync(
-            AddHistoryEntryAction(
-              entryId: fileId,
-              fileName: receivingFile.desiredName!,
-              fileType: fileType,
-              path: filePath,
-              savedToGallery: event.savedToGallery,
-              isMessage: false,
-              fileSize: receivingFile.file.size,
-              senderAlias: receiveState.senderAlias,
-              timestamp: DateTime.now().toUtc(),
-            ),
-          );
     } else {
       server.ref.notifier(fileTransferProvider).setStatus(sessionId: event.sessionId, fileId: fileId, status: FileStatus.failed);
       server.setState(
@@ -409,6 +402,11 @@ class ReceiveController {
           ),
         ),
       );
+
+      if (!hasError) {
+        await _recordHistory(server.getState().session!);
+      }
+
       final settings = server.ref.read(settingsProvider);
       // Only auto-close fully successful sessions: a failed file may still be
       // retried by the sender (e.g. after a checksum mismatch), which requires
@@ -472,6 +470,42 @@ class ReceiveController {
       case SessionEndReasonV2.cancelled:
         _cancelBySender(server);
     }
+  }
+
+  /// Records the finished session as one history entry, so the transfer tab can
+  /// list it as a single row.
+  Future<void> _recordHistory(ReceiveSessionState session) async {
+    final files = [
+      for (final file in session.files.values)
+        if (file.path != null)
+          TransferHistoryFile(
+            id: file.file.id,
+            fileName: file.desiredName ?? file.file.fileName,
+            fileType: file.file.fileType,
+            fileSize: file.file.size,
+            path: file.path,
+            savedToGallery: file.savedToGallery,
+            isMessage: false,
+            modified: TransferHistoryFile.parseModified(file.file.metadata),
+          ),
+    ];
+    if (files.isEmpty) {
+      return;
+    }
+
+    await server.ref
+        .redux(transferHistoryProvider)
+        .dispatchAsync(
+          AddTransferHistorySessionAction(
+            TransferHistorySession(
+              id: session.sessionId,
+              peerAlias: session.senderAlias,
+              direction: TransferHistoryDirection.receive,
+              timestamp: DateTime.fromMillisecondsSinceEpoch(session.startTime ?? DateTime.now().millisecondsSinceEpoch, isUtc: true),
+              files: files,
+            ),
+          ),
+        );
   }
 
   /// The sender aborted the request while the user was still deciding.

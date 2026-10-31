@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:localsend_app/model/cross_file.dart';
-import 'package:localsend_app/model/persistence/send_history_entry.dart';
+import 'package:localsend_app/model/persistence/transfer_history_session.dart';
 import 'package:localsend_app/model/state/send/send_session_state.dart';
 import 'package:localsend_app/model/state/send/sending_file.dart';
 import 'package:localsend_app/pages/home_page.dart';
@@ -13,8 +13,8 @@ import 'package:localsend_app/provider/device_info_provider.dart';
 import 'package:localsend_app/provider/file_transfer_provider.dart';
 import 'package:localsend_app/provider/http_provider.dart';
 import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
-import 'package:localsend_app/provider/send_history_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
+import 'package:localsend_app/provider/transfer_history_provider.dart';
 import 'package:localsend_app/widget/dialogs/pin_dialog.dart';
 import 'package:localsend_isolates/isolate.dart';
 import 'package:localsend_isolates/model/device.dart';
@@ -537,23 +537,36 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
   /// Records the delivered files of a successfully finished session, so the
   /// "Transfers" history can show sent and received transfers side by side.
   Future<void> _recordHistory(SendSessionState sessionState) async {
-    final now = DateTime.now().toUtc();
-    final entries = [
+    final files = [
       for (final file in sessionState.files.values)
         if (file.token != null)
-          SendHistoryEntry(
+          TransferHistoryFile(
             id: '${sessionState.sessionId}-${file.file.id}',
             fileName: file.file.fileName,
             fileType: file.file.fileType,
             fileSize: file.file.size,
-            receiverAlias: sessionState.target.alias,
-            timestamp: now,
+            path: file.path,
+            savedToGallery: false,
+            isMessage: false,
+            modified: TransferHistoryFile.parseModified(file.file.metadata),
           ),
     ];
-    if (entries.isEmpty) {
+    if (files.isEmpty) {
       return;
     }
-    await ref.redux(sendHistoryProvider).dispatchAsync(AddSendHistoryEntriesAction(entries));
+    await ref
+        .redux(transferHistoryProvider)
+        .dispatchAsync(
+          AddTransferHistorySessionAction(
+            TransferHistorySession(
+              id: sessionState.sessionId,
+              peerAlias: sessionState.target.alias,
+              direction: TransferHistoryDirection.send,
+              timestamp: DateTime.fromMillisecondsSinceEpoch(sessionState.startTime ?? DateTime.now().millisecondsSinceEpoch, isUtc: true),
+              files: files,
+            ),
+          ),
+        );
   }
 
   final uriContent = UriContent();

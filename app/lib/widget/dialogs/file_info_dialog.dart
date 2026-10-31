@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/receive_history_entry.dart';
+import 'package:localsend_app/model/persistence/transfer_history_session.dart';
+import 'package:localsend_app/util/system_date_time_formatter.dart';
 import 'package:localsend_app/widget/ls/ls_buttons.dart';
 import 'package:localsend_app/widget/ls/ls_dialog.dart';
 import 'package:localsend_isolates/util/file_size_helper.dart';
 import 'package:routerino/routerino.dart';
 
 class FileInfoDialog extends StatelessWidget {
-  final ReceiveHistoryEntry entry;
+  final TransferHistoryFile file;
+  final TransferHistorySession session;
 
-  const FileInfoDialog({required this.entry, super.key});
+  const FileInfoDialog({required this.file, required this.session, super.key});
 
   @override
   Widget build(BuildContext context) {
+    final time = file.modified ?? session.timestamp;
     return LsDialog(
       maxWidth: 480,
       title: Text(t.dialogs.fileInfo.title),
@@ -31,19 +34,19 @@ class FileInfoDialog extends StatelessWidget {
                   2: IntrinsicColumnWidth(),
                 },
                 children: [
-                  if (!entry.isMessage) ...[
+                  if (!file.isMessage) ...[
                     TableRow(
                       children: [
                         Text(t.dialogs.fileInfo.fileName, maxLines: 1),
                         const SizedBox(width: 10),
-                        SelectableText(entry.fileName),
+                        SelectableText(file.fileName),
                       ],
                     ),
                     TableRow(
                       children: [
                         Text(t.dialogs.fileInfo.path),
                         const SizedBox(width: 10),
-                        SelectableText(entry.savedToGallery ? t.progressPage.savedToGallery : (entry.path ?? '')),
+                        SelectableText(file.savedToGallery ? t.progressPage.savedToGallery : (file.path ?? '')),
                       ],
                     ),
                   ],
@@ -51,29 +54,29 @@ class FileInfoDialog extends StatelessWidget {
                     children: [
                       Text(t.dialogs.fileInfo.size),
                       const SizedBox(width: 10),
-                      SelectableText(entry.fileSize.asReadableFileSize),
+                      SelectableText(file.fileSize.asReadableFileSize),
                     ],
                   ),
                   TableRow(
                     children: [
-                      Text(t.dialogs.fileInfo.sender),
+                      Text(session.isSend ? t.dialogs.fileInfo.receiver : t.dialogs.fileInfo.sender),
                       const SizedBox(width: 10),
-                      SelectableText(entry.senderAlias),
+                      SelectableText(session.peerAlias),
                     ],
                   ),
                   TableRow(
                     children: [
                       Text(t.dialogs.fileInfo.time),
                       const SizedBox(width: 10),
-                      SelectableText(entry.timestampString(context)),
+                      SelectableText(SystemDateTimeFormatter.dateTime(context, time.toLocal())),
                     ],
                   ),
                 ],
               ),
-              if (entry.isMessage)
+              if (file.isMessage)
                 Padding(
                   padding: const EdgeInsets.only(top: 10),
-                  child: SelectableText(entry.fileName),
+                  child: SelectableText(file.fileName),
                 ),
             ],
           ),

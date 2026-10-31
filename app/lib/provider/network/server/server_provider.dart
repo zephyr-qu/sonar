@@ -200,6 +200,15 @@ class ServerService extends Notifier<ServerState?> {
           _logger.severe('HTTP server error: $error');
         }
       },
+      // The child isolate can end this stream without ever starting the server
+      // (a dead connection, a restart racing the start). Without this the
+      // await below never settles, which reached the UI as a button that does
+      // nothing at all.
+      onDone: () {
+        if (!started.isCompleted) {
+          started.completeError(StateError('The server event stream ended before the server started'));
+        }
+      },
     );
 
     try {

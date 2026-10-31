@@ -4,6 +4,7 @@ import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/provider/local_ip_provider.dart';
 import 'package:localsend_app/provider/network/server/server_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
+import 'package:localsend_app/util/ui/snackbar.dart';
 import 'package:localsend_app/widget/ls/ls_chip.dart';
 import 'package:localsend_app/widget/ls/ls_header.dart';
 import 'package:localsend_app/widget/ls/ls_switch.dart';
@@ -108,19 +109,76 @@ class LsDesktopDeviceHeader extends StatelessWidget {
         const SizedBox(width: 8),
         LsChip.text(t.receiveRequestPage.protocol(version: protocolVersion)),
         const SizedBox(width: 12),
-        Text(visible ? t.nearbyTab.visible : t.nearbyTab.hidden, style: tokens.mono),
+        _VisibilityControl(visible: visible),
+      ],
+    );
+  }
+}
+
+/// The "visible on the network" toggle of the window header: a status word and
+/// the switch, nothing more.
+///
+/// Starting and stopping the server hands off to a child isolate and can fail (a
+/// port taken meanwhile, a missing connection), which used to look like a dead
+/// button — a failure now reports itself instead of vanishing.
+class _VisibilityControl extends StatefulWidget {
+  final bool visible;
+
+  const _VisibilityControl({required this.visible});
+
+  @override
+  State<_VisibilityControl> createState() => _VisibilityControlState();
+}
+
+class _VisibilityControlState extends State<_VisibilityControl> {
+  /// Keeps a second start/stop from racing the one still in flight.
+  bool _busy = false;
+
+  /// Starting or stopping the server hands off to a child isolate. If that child
+  /// is gone (a missing connection, a port taken meanwhile) the call would
+  /// otherwise never settle, which is indistinguishable from a dead button.
+  static const _timeout = Duration(seconds: 8);
+
+  Future<void> _toggle() async {
+    if (_busy) {
+      return;
+    }
+    setState(() => _busy = true);
+    final notifier = context.notifier(serverProvider);
+    try {
+      // Read the state at tap time, not at build time.
+      if (context.read(serverProvider) == null) {
+        await notifier.startServerFromSettings().timeout(_timeout);
+      } else {
+        await notifier.stopServer().timeout(_timeout);
+      }
+    } catch (e) {
+      // A failure used to be swallowed here: the switch stayed where it was and
+      // nothing on screen said why.
+      if (mounted) {
+        context.showSnackBar('${t.general.error}: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _busy = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.ls;
+    final enabled = !_busy;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Only the capsule toggles; the word beside it is a plain label.
+        Text(widget.visible ? t.nearbyTab.visible : t.nearbyTab.hidden, style: tokens.mono),
         const SizedBox(width: 6),
         LsSwitch(
-          value: visible,
+          value: widget.visible,
           label: t.settingsPage.visibleToNetwork,
-          onChanged: (_) async {
-            final notifier = context.notifier(serverProvider);
-            if (server == null) {
-              await notifier.startServerFromSettings();
-            } else {
-              await notifier.stopServer();
-            }
-          },
+          onChanged: enabled ? (_) => _toggle() : null,
         ),
       ],
     );

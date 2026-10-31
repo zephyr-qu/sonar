@@ -189,6 +189,13 @@ class LsDesktopTray extends StatelessWidget {
         LsSectionLabel(label: t.nearbyTab.receivePolicy),
         Row(
           children: [
+            // The glyph slot matches the two rows below (folder, shield), so the
+            // whole receive-policy block reads as one list.
+            Padding(
+              padding: const EdgeInsets.only(left: 2),
+              child: Icon(LucideIcons.zap, size: 15, color: colors.muted),
+            ),
+            const SizedBox(width: 8),
             Expanded(
               child: Text(
                 // The switch alone says whether this is on, so the row only
@@ -217,7 +224,6 @@ class LsDesktopTray extends StatelessWidget {
             label: t.settingsTab.receive.destination,
             value: settings.destination == null ? t.settingsTab.receive.downloads : _folderName(settings.destination!),
             leading: const Icon(LucideIcons.folderOpen),
-            trailingIcon: LucideIcons.pencil,
             showTopBorder: false,
             onTap: () async {
               final directory = await pickDirectoryPath();

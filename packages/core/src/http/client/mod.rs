@@ -2,13 +2,11 @@ mod scoped_host;
 mod server_cert_verifier;
 mod url;
 pub mod v2;
-pub mod v3;
 
 pub use v2::LsHttpClientV2;
-pub use v3::LsHttpClientV3;
 
 use crate::http::StatusCodeError;
-use crate::{crypto, http, model};
+use crate::{crypto, model};
 use bytes::Bytes;
 use futures_util::StreamExt;
 use reqwest::Response;
@@ -17,16 +15,6 @@ use rustls::pki_types::{CertificateDer, PrivateKeyDer};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use thiserror::Error;
-
-pub enum LsHttpClient {
-    V2(LsHttpClientV2),
-    V3(LsHttpClientV3),
-}
-
-pub enum LsHttpClientVersion {
-    V2,
-    V3,
-}
 
 #[derive(Debug, Error)]
 pub enum ClientError {
@@ -47,129 +35,6 @@ pub enum ClientError {
 
     #[error("Upload cancelled")]
     Cancelled,
-}
-
-impl LsHttpClient {
-    /// Creates a client for the given protocol version.
-    ///
-    /// `expected_fingerprint` pins the peer to the certificate with that
-    /// SHA-256 fingerprint (uppercase hex). It is checked during the TLS
-    /// handshake, so a mismatching peer never receives the request. Pass
-    /// [`None`] only when the peer is not known yet, i.e. for discovery.
-    pub fn new(
-        private_key: &str,
-        cert: &str,
-        version: LsHttpClientVersion,
-        expected_fingerprint: Option<String>,
-        timeout: Option<std::time::Duration>,
-    ) -> Result<LsHttpClient, ClientError> {
-        let client = match version {
-            LsHttpClientVersion::V2 => LsHttpClient::V2(LsHttpClientV2::try_new(
-                private_key,
-                cert,
-                expected_fingerprint,
-                timeout,
-            )?),
-            LsHttpClientVersion::V3 => LsHttpClient::V3(LsHttpClientV3::try_new(
-                private_key,
-                cert,
-                expected_fingerprint,
-                timeout,
-            )?),
-        };
-
-        Ok(client)
-    }
-
-    pub async fn register(
-        &self,
-        protocol: model::discovery::ProtocolType,
-        ip: &str,
-        port: u16,
-        payload: http::dto::RegisterDto,
-    ) -> Result<ResultWithPublicKey<http::dto::RegisterResponseDto>, ClientError> {
-        match self {
-            LsHttpClient::V2(client) => {
-                let result = client.register(protocol, ip, port, payload.into()).await?;
-                Ok(ResultWithPublicKey {
-                    public_key: result.public_key,
-                    cert_fingerprint: result.cert_fingerprint,
-                    body: result.body.into(),
-                })
-            }
-            LsHttpClient::V3(client) => client.register(protocol, ip, port, payload).await,
-        }
-    }
-
-    pub async fn prepare_upload(
-        &self,
-        protocol: model::discovery::ProtocolType,
-        ip: &str,
-        port: u16,
-        public_key: Option<String>,
-        payload: http::dto::PrepareUploadRequestDto,
-        pin: Option<&str>,
-        cancel: tokio_util::sync::CancellationToken,
-    ) -> Result<http::dto::PrepareUploadResult, ClientError> {
-        match self {
-            LsHttpClient::V2(client) => {
-                let result = client
-                    .prepare_upload(protocol, ip, port, public_key, payload.into(), pin, cancel)
-                    .await?;
-                Ok(result.into())
-            }
-            LsHttpClient::V3(client) => {
-                client
-                    .prepare_upload(protocol, ip, port, public_key, payload, cancel)
-                    .await
-            }
-        }
-    }
-
-    pub async fn upload(
-        &self,
-        protocol: model::discovery::ProtocolType,
-        ip: &str,
-        port: u16,
-        public_key: Option<String>,
-        session_id: &str,
-        file_id: &str,
-        token: &str,
-        content: model::transfer::FileContent,
-        progress: impl Fn(u64) + Send + 'static,
-        cancel: tokio_util::sync::CancellationToken,
-    ) -> Result<(), ClientError> {
-        let body = upload_body(content, progress);
-        match self {
-            LsHttpClient::V2(client) => {
-                client
-                    .upload(
-                        protocol, ip, port, public_key, session_id, file_id, token, body, cancel,
-                    )
-                    .await
-            }
-            LsHttpClient::V3(client) => {
-                client
-                    .upload(
-                        protocol, ip, port, public_key, session_id, file_id, token, body, cancel,
-                    )
-                    .await
-            }
-        }
-    }
-
-    pub async fn cancel(
-        &self,
-        protocol: model::discovery::ProtocolType,
-        ip: &str,
-        port: u16,
-        session_id: &str,
-    ) -> Result<(), ClientError> {
-        match self {
-            LsHttpClient::V2(client) => client.cancel(protocol, ip, port, session_id).await,
-            LsHttpClient::V3(client) => client.cancel(protocol, ip, port, session_id).await,
-        }
-    }
 }
 
 /// Builds a streaming request body from the file content, invoking `progress`

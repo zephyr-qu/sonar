@@ -1,8 +1,8 @@
 use super::{ClientError, ResponseExt, ResultWithPublicKey};
-use crate::http::client::url::{ApiVersion, TargetUrl};
-use crate::http::dto_v2::{
-    InfoResponseDtoV2, PrepareDownloadResponseDtoV2, PrepareUploadRequestDtoV2,
-    PrepareUploadResponseDtoV2, PrepareUploadResultV2, RegisterDtoV2, RegisterResponseDtoV2,
+use crate::http::client::url::TargetUrl;
+use crate::http::dto::{
+    InfoResponseDto, PrepareDownloadResponseDto, PrepareUploadRequestDto, PrepareUploadResponseDto,
+    PrepareUploadResult, RegisterDto, RegisterResponseDto,
 };
 use crate::model::discovery::ProtocolType;
 use futures_util::StreamExt;
@@ -76,10 +76,9 @@ impl LsHttpClientV2 {
         protocol: ProtocolType,
         ip: &str,
         port: u16,
-        payload: RegisterDtoV2,
-    ) -> Result<ResultWithPublicKey<RegisterResponseDtoV2>, ClientError> {
+        payload: RegisterDto,
+    ) -> Result<ResultWithPublicKey<RegisterResponseDto>, ClientError> {
         let url = TargetUrl {
-            version: ApiVersion::V2,
             protocol: protocol.as_str(),
             host: ip.to_string(),
             port,
@@ -108,7 +107,7 @@ impl LsHttpClientV2 {
             _ => (None, None),
         };
 
-        let body = res.json::<RegisterResponseDtoV2>().await?;
+        let body = res.json::<RegisterResponseDto>().await?;
 
         Ok(ResultWithPublicKey {
             public_key,
@@ -152,16 +151,15 @@ impl LsHttpClientV2 {
         ip: &str,
         port: u16,
         public_key: Option<String>,
-        payload: PrepareUploadRequestDtoV2,
+        payload: PrepareUploadRequestDto,
         pin: Option<&str>,
         cancel: CancellationToken,
-    ) -> Result<PrepareUploadResultV2, ClientError> {
+    ) -> Result<PrepareUploadResult, ClientError> {
         let pin_params: &[(&'static str, &str)] = match &pin {
             Some(pin) => &[("pin", pin)],
             None => &[],
         };
         let url = TargetUrl {
-            version: ApiVersion::V2,
             protocol: protocol.as_str(),
             host: ip.to_string(),
             port,
@@ -193,15 +191,15 @@ impl LsHttpClientV2 {
         }
 
         if status == StatusCode::NO_CONTENT {
-            return Ok(PrepareUploadResultV2 {
+            return Ok(PrepareUploadResult {
                 status_code: status.as_u16(),
                 response: None,
             });
         }
 
-        let body = res.json::<PrepareUploadResponseDtoV2>().await?;
+        let body = res.json::<PrepareUploadResponseDto>().await?;
 
-        Ok(PrepareUploadResultV2 {
+        Ok(PrepareUploadResult {
             status_code: status.as_u16(),
             response: Some(body),
         })
@@ -221,7 +219,8 @@ impl LsHttpClientV2 {
     /// * `session_id` - Session ID from prepare_upload
     /// * `file_id` - File ID to upload
     /// * `token` - File-specific token from prepare_upload
-    /// * `body` - The streaming request body carrying the file content
+    /// * `content` - The file content being uploaded
+    /// * `progress` - Called with the cumulative number of bytes sent
     /// * `cancel` - Cancellation token; cancelling it aborts the upload with [`ClientError::Cancelled`]
     ///
     /// # Errors
@@ -239,11 +238,11 @@ impl LsHttpClientV2 {
         session_id: &str,
         file_id: &str,
         token: &str,
-        body: reqwest::Body,
+        content: crate::model::transfer::FileContent,
+        progress: impl Fn(u64) + Send + 'static,
         cancel: CancellationToken,
     ) -> Result<(), ClientError> {
         let url = TargetUrl {
-            version: ApiVersion::V2,
             protocol: protocol.as_str(),
             host: ip.to_string(),
             port,
@@ -256,6 +255,7 @@ impl LsHttpClientV2 {
         }
         .to_string();
 
+        let body = super::upload_body(content, progress);
         let res = tokio::select! {
             res = self.client.post(&url).body(body).send() => res?,
             _ = cancel.cancelled() => return Err(ClientError::Cancelled),
@@ -289,7 +289,6 @@ impl LsHttpClientV2 {
         session_id: &str,
     ) -> Result<(), ClientError> {
         let url = TargetUrl {
-            version: ApiVersion::V2,
             protocol: protocol.as_str(),
             host: ip.to_string(),
             port,
@@ -321,9 +320,8 @@ impl LsHttpClientV2 {
         protocol: ProtocolType,
         ip: &str,
         port: u16,
-    ) -> Result<InfoResponseDtoV2, ClientError> {
+    ) -> Result<InfoResponseDto, ClientError> {
         let url = TargetUrl {
-            version: ApiVersion::V2,
             protocol: protocol.as_str(),
             host: ip.to_string(),
             port,
@@ -338,7 +336,7 @@ impl LsHttpClientV2 {
             return res.into_error().await;
         }
 
-        let body = res.json::<InfoResponseDtoV2>().await?;
+        let body = res.json::<InfoResponseDto>().await?;
 
         Ok(body)
     }
@@ -372,7 +370,7 @@ impl LsHttpClientV2 {
         port: u16,
         session_id: Option<&str>,
         pin: Option<&str>,
-    ) -> Result<PrepareDownloadResponseDtoV2, ClientError> {
+    ) -> Result<PrepareDownloadResponseDto, ClientError> {
         let mut params: Vec<(&'static str, &str)> = Vec::new();
         if let Some(session_id) = session_id {
             params.push(("sessionId", session_id));
@@ -381,7 +379,6 @@ impl LsHttpClientV2 {
             params.push(("pin", pin));
         }
         let url = TargetUrl {
-            version: ApiVersion::V2,
             protocol: protocol.as_str(),
             host: ip.to_string(),
             port,
@@ -396,7 +393,7 @@ impl LsHttpClientV2 {
             return res.into_error().await;
         }
 
-        let body = res.json::<PrepareDownloadResponseDtoV2>().await?;
+        let body = res.json::<PrepareDownloadResponseDto>().await?;
 
         Ok(body)
     }
@@ -425,7 +422,6 @@ impl LsHttpClientV2 {
         file_id: &str,
     ) -> Result<Response, ClientError> {
         let url = TargetUrl {
-            version: ApiVersion::V2,
             protocol: protocol.as_str(),
             host: ip.to_string(),
             port,

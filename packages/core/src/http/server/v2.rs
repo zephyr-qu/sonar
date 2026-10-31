@@ -1,6 +1,6 @@
-use crate::http::dto_v2::{
-    InfoResponseDtoV2, PrepareUploadRequestDtoV2, PrepareUploadResponseDtoV2, RegisterDtoV2,
-    RegisterResponseDtoV2,
+use crate::http::dto::{
+    InfoResponseDto, PrepareUploadRequestDto, PrepareUploadResponseDto, RegisterDto,
+    RegisterResponseDto,
 };
 use crate::http::server::common::collect_to_json::CollectToJson;
 use crate::http::server::common::error::AppError;
@@ -36,7 +36,7 @@ pub enum ServerEventV2 {
         ip: PeerIp,
 
         /// The device information sent by the remote device.
-        info: RegisterDtoV2,
+        info: RegisterDto,
     },
 
     /// A sender requests to upload files via `POST /api/localsend/v2/prepare-upload`.
@@ -53,7 +53,7 @@ pub enum ServerEventV2 {
         ip: PeerIp,
 
         /// The device information of the sender.
-        info: RegisterDtoV2,
+        info: RegisterDto,
 
         /// The SHA-256 fingerprint (uppercase hex) of the sender's client
         /// certificate verified during the mTLS handshake. Unlike
@@ -179,8 +179,8 @@ pub(crate) async fn register(
     body: Incoming,
     state: AppState,
     client_info: RequestClientInfo,
-) -> Result<JsonResponse<RegisterResponseDtoV2>, AppError> {
-    let payload = body.collect_to_json::<RegisterDtoV2>().await?;
+) -> Result<JsonResponse<RegisterResponseDto>, AppError> {
+    let payload = body.collect_to_json::<RegisterDto>().await?;
 
     // On TLS, only trust registrations whose claimed fingerprint is proven
     // by the client certificate of the mTLS handshake.
@@ -219,7 +219,7 @@ pub(crate) async fn register(
 
     Ok(JsonResponse {
         status: StatusCode::OK,
-        body: RegisterResponseDtoV2 {
+        body: RegisterResponseDto {
             alias: info.alias,
             version: PROTOCOL_VERSION_V2.to_string(),
             device_model: info.device_model,
@@ -230,13 +230,13 @@ pub(crate) async fn register(
     })
 }
 
-pub(crate) async fn info(state: AppState) -> Result<JsonResponse<InfoResponseDtoV2>, AppError> {
+pub(crate) async fn info(state: AppState) -> Result<JsonResponse<InfoResponseDto>, AppError> {
     let info = state.info.lock().await.clone();
     let download = state.web.share.download().is_some();
 
     Ok(JsonResponse {
         status: StatusCode::OK,
-        body: InfoResponseDtoV2 {
+        body: InfoResponseDto {
             alias: info.alias,
             version: PROTOCOL_VERSION_V2.to_string(),
             device_model: info.device_model,
@@ -265,7 +265,7 @@ pub(crate) async fn prepare_upload(
 
     let payload = req
         .into_body()
-        .collect_to_json::<PrepareUploadRequestDtoV2>()
+        .collect_to_json::<PrepareUploadRequestDto>()
         .await?;
 
     if payload.files.is_empty() {
@@ -376,7 +376,7 @@ pub(crate) async fn prepare_upload(
 
     Ok(JsonResponse {
         status: StatusCode::OK,
-        body: PrepareUploadResponseDtoV2 {
+        body: PrepareUploadResponseDto {
             session_id,
             files: tokens,
         },

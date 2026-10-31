@@ -6,7 +6,7 @@ pub use store::{
 };
 
 use crate::http::client::{ClientError, LsHttpClientV2};
-use crate::http::dto_v2::{RegisterDtoV2, RegisterResponseDtoV2};
+use crate::http::dto::{RegisterDto, RegisterResponseDto};
 use crate::model::discovery::{MulticastMessageV2, ProtocolType};
 use crate::multicast::{self, MulticastConfig, MulticastDevice, MulticastEvent, MulticastHandle};
 use crate::util::error::ErrorChain;
@@ -126,8 +126,8 @@ struct DiscoveryState {
 }
 
 impl DiscoveryState {
-    fn register_dto(&self) -> RegisterDtoV2 {
-        RegisterDtoV2 {
+    fn register_dto(&self) -> RegisterDto {
+        RegisterDto {
             alias: self.device.alias.clone(),
             version: self.device.version.clone(),
             device_model: self.device.device_model.clone(),
@@ -180,7 +180,14 @@ impl DiscoveryState {
             return Ok(None);
         }
 
-        let device = confirmed_device(response.body, host.to_string(), port, protocol, fingerprint, rtt_ms);
+        let device = confirmed_device(
+            response.body,
+            host.to_string(),
+            port,
+            protocol,
+            fingerprint,
+            rtt_ms,
+        );
         let (_, merged) = self.found(device).await;
         Ok(Some(merged))
     }
@@ -572,7 +579,7 @@ async fn answer_announcement(
 /// Builds the stored device from the register response of a peer confirmed
 /// over HTTP.
 fn confirmed_device(
-    response: RegisterResponseDtoV2,
+    response: RegisterResponseDto,
     host: String,
     port: u16,
     protocol: ProtocolType,

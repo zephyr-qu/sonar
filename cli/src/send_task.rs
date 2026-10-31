@@ -4,14 +4,12 @@ use crate::storage::Identity;
 use crate::ui::Category;
 use crate::util;
 use bytes::Bytes;
-use futures_util::StreamExt;
 use localsend::discovery::StatefulDevice;
 use localsend::http::client::ClientError;
 use localsend::http::client::v2::LsHttpClientV2;
-use localsend::http::dto_v2::PrepareUploadRequestDtoV2;
+use localsend::http::dto::PrepareUploadRequestDto;
 use localsend::model::discovery::ProtocolType;
 use localsend::model::transfer::{FileContent, FileDto};
-use localsend::reqwest;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -115,7 +113,7 @@ async fn send_inner(
 
     let offered = files.len();
     let is_message = offered == 1 && files.values().all(|file| file.preview.is_some());
-    let payload = PrepareUploadRequestDtoV2 {
+    let payload = PrepareUploadRequestDto {
         info: identity.register_dto(),
         files: files.clone(),
     };
@@ -218,12 +216,10 @@ async fn send_inner(
             None => unreachable!("every offered file has a source"),
         };
 
-        let body = {
-            let progress = progress.clone();
-            let base = sent_bytes;
-            upload_body(content, move |bytes_of_file| {
-                progress.store(base + bytes_of_file, Ordering::Relaxed);
-            })
+        let counter = progress.clone();
+        let base = sent_bytes;
+        let on_progress = move |bytes_of_file| {
+            counter.store(base + bytes_of_file, Ordering::Relaxed);
         };
 
         match client
@@ -235,7 +231,8 @@ async fn send_inner(
                 &response.session_id,
                 file_id,
                 token,
-                body,
+                content,
+                on_progress,
                 cancel.token.clone(),
             )
             .await
@@ -296,17 +293,4 @@ async fn send_inner(
     ))
     .await;
     true
-}
-
-/// Builds a streaming request body from the file content, invoking `progress`
-/// with the cumulative number of bytes of this file as chunks are sent.
-fn upload_body(content: FileContent, progress: impl Fn(u64) + Send + 'static) -> reqwest::Body {
-    let mut sent = 0u64;
-    let stream = content.into_stream().map(move |chunk| {
-        let chunk = chunk?;
-        sent += chunk.len() as u64;
-        progress(sent);
-        Ok::<Bytes, anyhow::Error>(chunk)
-    });
-    reqwest::Body::wrap_stream(stream)
 }

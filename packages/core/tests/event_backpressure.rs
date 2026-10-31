@@ -11,7 +11,7 @@
 use localsend::crypto::cert::generate_self_signed;
 use localsend::discovery::{self, DeviceIdentity, DiscoveryConfig, DiscoveryEvent};
 use localsend::http::client::LsHttpClientV2;
-use localsend::http::dto_v2::RegisterDtoV2;
+use localsend::http::dto::RegisterDto;
 use localsend::http::server::v2::ServerEventV2;
 use localsend::http::server::web::WebConfig;
 use localsend::http::server::{start_with_port, ServerConfigV2};
@@ -30,8 +30,8 @@ const CHANNEL_CAPACITY: usize = 16;
 /// stopped instance would leak messages into the next test.
 static NEXT_MULTICAST_PORT: AtomicU16 = AtomicU16::new(43551);
 
-fn register_dto(port: u16) -> RegisterDtoV2 {
-    RegisterDtoV2 {
+fn register_dto(port: u16) -> RegisterDto {
+    RegisterDto {
         alias: "Probe".to_string(),
         version: PROTOCOL_VERSION_V2.to_string(),
         device_model: None,

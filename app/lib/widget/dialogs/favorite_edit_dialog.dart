@@ -213,7 +213,7 @@ class _FavoriteEditDialogState extends State<FavoriteEditDialog> with Refena {
                           .dispatchAsync(
                             AddFavoriteAction(
                               FavoriteDevice.fromValues(
-                                fingerprint: response.body.token,
+                                fingerprint: response.body.fingerprint,
                                 ip: _ipController.text,
                                 port: port,
                                 alias: name.isEmpty ? response.body.alias : name,

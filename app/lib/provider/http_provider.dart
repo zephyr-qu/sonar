@@ -31,7 +31,6 @@ class HttpClientCollection {
     return createClient(
       privateKey: _privateKey,
       cert: _certificate,
-      version: LsHttpClientVersion.v2,
       expectedFingerprint: fingerprint,
     );
   }
@@ -46,7 +45,6 @@ final httpProvider = ViewProvider((ref) {
     discovery: createClient(
       privateKey: securityContext.privateKey,
       cert: securityContext.certificate,
-      version: LsHttpClientVersion.v2,
       expectedFingerprint: null,
     ),
   );

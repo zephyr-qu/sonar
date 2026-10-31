@@ -2,7 +2,6 @@ use crate::http::client::scoped_host;
 use std::borrow::Cow;
 
 pub struct TargetUrl<'a> {
-    pub version: ApiVersion,
     pub protocol: &'static str,
     pub host: String,
     pub port: u16,
@@ -10,11 +9,6 @@ pub struct TargetUrl<'a> {
 
     /// Query parameters as raw key-value pairs; encoded when building the URL.
     pub params: &'a [(&'static str, &'a str)],
-}
-
-pub enum ApiVersion {
-    V2,
-    V3,
 }
 
 impl<'a> TargetUrl<'a> {
@@ -32,10 +26,7 @@ impl<'a> TargetUrl<'a> {
                 },
             },
             self.port,
-            match self.version {
-                ApiVersion::V2 => "v2",
-                ApiVersion::V3 => "v3",
-            },
+            "v2",
             self.path
         );
         if self.params.is_empty() {
@@ -51,13 +42,12 @@ impl<'a> TargetUrl<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::{ApiVersion, TargetUrl};
+    use super::TargetUrl;
 
     #[test]
     fn test_pin_survives_query_round_trip() {
         for pin in ["1234", "a+b", "a&b", "a#b", "%41", "a b", "קוד", ""] {
             let url = TargetUrl {
-                version: ApiVersion::V2,
                 protocol: "https",
                 host: "192.168.1.1".to_string(),
                 port: 53317,
@@ -83,7 +73,6 @@ mod tests {
     #[test]
     fn test_build_url_ipv4() {
         let url = TargetUrl {
-            version: ApiVersion::V2,
             protocol: "https",
             host: "192.168.1.1".to_string(),
             port: 53317,
@@ -97,7 +86,6 @@ mod tests {
     #[test]
     fn test_build_url_ipv6() {
         let url = TargetUrl {
-            version: ApiVersion::V2,
             protocol: "https",
             host: "::1".to_string(),
             port: 53317,
@@ -111,7 +99,6 @@ mod tests {
     #[test]
     fn test_build_url_scoped_ipv6() {
         let url = TargetUrl {
-            version: ApiVersion::V2,
             protocol: "https",
             host: "fe80::1%3".to_string(),
             port: 53317,
@@ -128,7 +115,6 @@ mod tests {
     #[test]
     fn test_build_url_http() {
         let url = TargetUrl {
-            version: ApiVersion::V2,
             protocol: "http",
             host: "192.168.1.1".to_string(),
             port: 53317,

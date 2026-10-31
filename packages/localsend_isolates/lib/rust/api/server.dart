@@ -123,53 +123,6 @@ abstract class RsHttpServer implements RustOpaqueInterface {
   Future<void> stop();
 }
 
-class RegisterDtoV2 {
-  final String alias;
-  final String version;
-  final String? deviceModel;
-  final DeviceType? deviceType;
-  final String fingerprint;
-  final int port;
-  final ProtocolType protocol;
-  final bool download;
-
-  const RegisterDtoV2({
-    required this.alias,
-    required this.version,
-    this.deviceModel,
-    this.deviceType,
-    required this.fingerprint,
-    required this.port,
-    required this.protocol,
-    required this.download,
-  });
-
-  @override
-  int get hashCode =>
-      alias.hashCode ^
-      version.hashCode ^
-      deviceModel.hashCode ^
-      deviceType.hashCode ^
-      fingerprint.hashCode ^
-      port.hashCode ^
-      protocol.hashCode ^
-      download.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is RegisterDtoV2 &&
-          runtimeType == other.runtimeType &&
-          alias == other.alias &&
-          version == other.version &&
-          deviceModel == other.deviceModel &&
-          deviceType == other.deviceType &&
-          fingerprint == other.fingerprint &&
-          port == other.port &&
-          protocol == other.protocol &&
-          download == other.download;
-}
-
 @freezed
 sealed class RsServerEvent with _$RsServerEvent {
   const RsServerEvent._();
@@ -181,7 +134,7 @@ sealed class RsServerEvent with _$RsServerEvent {
   /// handshake, so the fingerprint cannot be spoofed.
   const factory RsServerEvent.register({
     required String ip,
-    required RegisterDtoV2 info,
+    required RegisterDto info,
   }) = RsServerEvent_Register;
 
   /// A sender requests to upload files via `POST /api/localsend/v2/prepare-upload`.
@@ -189,7 +142,7 @@ sealed class RsServerEvent with _$RsServerEvent {
     /// The session ID the upload session will have when the request is accepted.
     required String sessionId,
     required String ip,
-    required RegisterDtoV2 info,
+    required RegisterDto info,
 
     /// The SHA-256 fingerprint (uppercase hex) of the sender's client
     /// certificate verified during the mTLS handshake. Unlike

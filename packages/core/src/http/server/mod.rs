@@ -3,12 +3,11 @@ mod connection_limit;
 pub mod internal;
 mod peer_ip;
 pub mod v2;
-pub mod v3;
 pub mod web;
 
 pub use peer_ip::PeerIp;
 
-use crate::crypto::cert::{fingerprint_from_cert_der, public_key_from_cert_der};
+use crate::crypto::cert::fingerprint_from_cert_der;
 use crate::http::server::internal::{InternalConfig, InternalState};
 use crate::http::server::v2::ServerEventV2;
 use crate::http::server::web::{WebConfig, WebShare};
@@ -79,12 +78,6 @@ pub struct AppState {
     /// State for application-internal endpoints.
     internal: Option<Arc<InternalState>>,
 
-    /// Maps client identifiers to nonces that have been received from remote.
-    received_nonce_map: Arc<Mutex<LruCache<String, Vec<u8>>>>,
-
-    /// Maps client identifiers to nonces that are expected to be received from remote.
-    generated_nonce_map: Arc<Mutex<LruCache<String, Vec<u8>>>>,
-
     /// State of the v2 protocol endpoints. `None` disables the v2 routes.
     v2: Option<Arc<V2State>>,
 
@@ -115,12 +108,6 @@ impl AppState {
             info,
             web: Arc::new(WebState::from(web_config)),
             internal,
-            received_nonce_map: Arc::new(Mutex::new(LruCache::new(
-                NonZeroUsize::new(200).unwrap(),
-            ))),
-            generated_nonce_map: Arc::new(Mutex::new(LruCache::new(
-                NonZeroUsize::new(200).unwrap(),
-            ))),
             v2,
             connection_limiter: ConnectionLimiter::new(MAX_CONNECTIONS, MAX_CONNECTIONS_PER_IP),
         }
@@ -587,24 +574,6 @@ impl RequestClientInfo {
     fn cert_fingerprint(&self) -> Option<String> {
         self.cert.as_deref().map(fingerprint_from_cert_der)
     }
-
-    fn extract_public_key(&self) -> Option<String> {
-        match &self.cert {
-            Some(cert) => match public_key_from_cert_der(cert) {
-                Ok(public_key) => Some(public_key),
-                Err(err) => {
-                    tracing::warn!("Failed to extract public key from certificate: {err:#}");
-                    None
-                }
-            },
-            None => None,
-        }
-    }
-
-    fn identifier(&self) -> String {
-        self.extract_public_key()
-            .unwrap_or_else(|| self.ip.to_string())
-    }
 }
 
 async fn handle_request(req: Request<Incoming>) -> Result<Response<BoxedBody>, hyper::Error> {
@@ -674,16 +643,6 @@ async fn handle_request_inner(mut req: Request<Incoming>) -> Result<Response<Box
         }
         // The versioned path is retained for compatibility, but this endpoint is internal.
         (&Method::POST, "/api/localsend/v2/show") => internal::show(req, state).await,
-        (&Method::POST, "/api/localsend/v3/nonce") => {
-            Ok(v3::nonce_exchange(req.into_body(), state, client_info)
-                .await?
-                .into_response())
-        }
-        (&Method::POST, "/api/localsend/v3/register") => {
-            Ok(v3::register(req.into_body(), state, client_info)
-                .await?
-                .into_response())
-        }
         _ => {
             let mut res = Response::new(response::empty_body());
             *res.status_mut() = StatusCode::NOT_FOUND;

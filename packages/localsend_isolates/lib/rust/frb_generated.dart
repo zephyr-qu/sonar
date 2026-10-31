@@ -80,7 +80,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 
   static const kDefaultExternalLibraryLoaderConfig = ExternalLibraryLoaderConfig(
     stem: 'rust_lib_localsend_app',
-    ioDirectory: 'rust/target/release/',
+    ioDirectory: '../../.local/tmp/gen-rust/target/release/',
     webPrefix: 'pkg/',
     wasmBindgenName: 'wasm_bindgen',
   );
@@ -259,13 +259,7 @@ abstract class RustLibApi extends BaseApi {
 
   RsCancellationToken crateApiCancelCreateCancellationToken();
 
-  RsHttpClient crateApiHttpCreateClient({
-    required String privateKey,
-    required String cert,
-    required LsHttpClientVersion version,
-    String? expectedFingerprint,
-    int? timeoutMs,
-  });
+  RsHttpClient crateApiHttpCreateClient({required String privateKey, required String cert, String? expectedFingerprint, int? timeoutMs});
 
   Future<(Dart2RustStreamSink, Dart2RustStreamReceiver)> crateApiStreamCreateStream();
 
@@ -1774,20 +1768,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   );
 
   @override
-  RsHttpClient crateApiHttpCreateClient({
-    required String privateKey,
-    required String cert,
-    required LsHttpClientVersion version,
-    String? expectedFingerprint,
-    int? timeoutMs,
-  }) {
+  RsHttpClient crateApiHttpCreateClient({required String privateKey, required String cert, String? expectedFingerprint, int? timeoutMs}) {
     return handler.executeSync(
       SyncTask(
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(privateKey, serializer);
           sse_encode_String(cert, serializer);
-          sse_encode_ls_http_client_version(version, serializer);
           sse_encode_opt_String(expectedFingerprint, serializer);
           sse_encode_opt_box_autoadd_u_32(timeoutMs, serializer);
           return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 47)!;
@@ -1797,7 +1784,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_rs_http_client_error,
         ),
         constMeta: kCrateApiHttpCreateClientConstMeta,
-        argValues: [privateKey, cert, version, expectedFingerprint, timeoutMs],
+        argValues: [privateKey, cert, expectedFingerprint, timeoutMs],
         apiImpl: this,
       ),
     );
@@ -1805,7 +1792,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiHttpCreateClientConstMeta => const TaskConstMeta(
     debugName: 'create_client',
-    argNames: ['privateKey', 'cert', 'version', 'expectedFingerprint', 'timeoutMs'],
+    argNames: ['privateKey', 'cert', 'expectedFingerprint', 'timeoutMs'],
   );
 
   @override
@@ -2663,12 +2650,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  RegisterDtoV2 dco_decode_box_autoadd_register_dto_v_2(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    return dco_decode_register_dto_v_2(raw);
-  }
-
-  @protected
   RsDiscoveredDevice dco_decode_box_autoadd_rs_discovered_device(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_rs_discovered_device(raw);
@@ -2879,12 +2860,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  LsHttpClientVersion dco_decode_ls_http_client_version(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    return LsHttpClientVersion.values[raw as int];
-  }
-
-  @protected
   String? dco_decode_opt_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_String(raw);
@@ -3080,23 +3055,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       version: dco_decode_String(arr[1]),
       deviceModel: dco_decode_opt_String(arr[2]),
       deviceType: dco_decode_opt_box_autoadd_device_type(arr[3]),
-      token: dco_decode_String(arr[4]),
-      port: dco_decode_u_16(arr[5]),
-      protocol: dco_decode_protocol_type(arr[6]),
-      hasWebInterface: dco_decode_bool(arr[7]),
-    );
-  }
-
-  @protected
-  RegisterDtoV2 dco_decode_register_dto_v_2(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    final arr = raw as List<dynamic>;
-    if (arr.length != 8) throw Exception('unexpected arr length: expect 8 but see ${arr.length}');
-    return RegisterDtoV2(
-      alias: dco_decode_String(arr[0]),
-      version: dco_decode_String(arr[1]),
-      deviceModel: dco_decode_opt_String(arr[2]),
-      deviceType: dco_decode_opt_box_autoadd_device_type(arr[3]),
       fingerprint: dco_decode_String(arr[4]),
       port: dco_decode_u_16(arr[5]),
       protocol: dco_decode_protocol_type(arr[6]),
@@ -3114,8 +3072,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       version: dco_decode_String(arr[1]),
       deviceModel: dco_decode_opt_String(arr[2]),
       deviceType: dco_decode_opt_box_autoadd_device_type(arr[3]),
-      token: dco_decode_String(arr[4]),
-      hasWebInterface: dco_decode_bool(arr[5]),
+      fingerprint: dco_decode_String(arr[4]),
+      download: dco_decode_bool(arr[5]),
     );
   }
 
@@ -3226,13 +3184,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       case 0:
         return RsServerEvent_Register(
           ip: dco_decode_String(raw[1]),
-          info: dco_decode_box_autoadd_register_dto_v_2(raw[2]),
+          info: dco_decode_box_autoadd_register_dto(raw[2]),
         );
       case 1:
         return RsServerEvent_PrepareUpload(
           sessionId: dco_decode_String(raw[1]),
           ip: dco_decode_String(raw[2]),
-          info: dco_decode_box_autoadd_register_dto_v_2(raw[3]),
+          info: dco_decode_box_autoadd_register_dto(raw[3]),
           certFingerprint: dco_decode_opt_String(raw[4]),
           files: dco_decode_Map_String_file_dto_None(raw[5]),
         );
@@ -3968,12 +3926,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  RegisterDtoV2 sse_decode_box_autoadd_register_dto_v_2(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return (sse_decode_register_dto_v_2(deserializer));
-  }
-
-  @protected
   RsDiscoveredDevice sse_decode_box_autoadd_rs_discovered_device(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_rs_discovered_device(deserializer));
@@ -4220,13 +4172,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  LsHttpClientVersion sse_decode_ls_http_client_version(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    var inner = sse_decode_i_32(deserializer);
-    return LsHttpClientVersion.values[inner];
-  }
-
-  @protected
   String? sse_decode_opt_String(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -4455,34 +4400,11 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_version = sse_decode_String(deserializer);
     var var_deviceModel = sse_decode_opt_String(deserializer);
     var var_deviceType = sse_decode_opt_box_autoadd_device_type(deserializer);
-    var var_token = sse_decode_String(deserializer);
-    var var_port = sse_decode_u_16(deserializer);
-    var var_protocol = sse_decode_protocol_type(deserializer);
-    var var_hasWebInterface = sse_decode_bool(deserializer);
-    return RegisterDto(
-      alias: var_alias,
-      version: var_version,
-      deviceModel: var_deviceModel,
-      deviceType: var_deviceType,
-      token: var_token,
-      port: var_port,
-      protocol: var_protocol,
-      hasWebInterface: var_hasWebInterface,
-    );
-  }
-
-  @protected
-  RegisterDtoV2 sse_decode_register_dto_v_2(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    var var_alias = sse_decode_String(deserializer);
-    var var_version = sse_decode_String(deserializer);
-    var var_deviceModel = sse_decode_opt_String(deserializer);
-    var var_deviceType = sse_decode_opt_box_autoadd_device_type(deserializer);
     var var_fingerprint = sse_decode_String(deserializer);
     var var_port = sse_decode_u_16(deserializer);
     var var_protocol = sse_decode_protocol_type(deserializer);
     var var_download = sse_decode_bool(deserializer);
-    return RegisterDtoV2(
+    return RegisterDto(
       alias: var_alias,
       version: var_version,
       deviceModel: var_deviceModel,
@@ -4501,15 +4423,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_version = sse_decode_String(deserializer);
     var var_deviceModel = sse_decode_opt_String(deserializer);
     var var_deviceType = sse_decode_opt_box_autoadd_device_type(deserializer);
-    var var_token = sse_decode_String(deserializer);
-    var var_hasWebInterface = sse_decode_bool(deserializer);
+    var var_fingerprint = sse_decode_String(deserializer);
+    var var_download = sse_decode_bool(deserializer);
     return RegisterResponseDto(
       alias: var_alias,
       version: var_version,
       deviceModel: var_deviceModel,
       deviceType: var_deviceType,
-      token: var_token,
-      hasWebInterface: var_hasWebInterface,
+      fingerprint: var_fingerprint,
+      download: var_download,
     );
   }
 
@@ -4616,12 +4538,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     switch (tag_) {
       case 0:
         var var_ip = sse_decode_String(deserializer);
-        var var_info = sse_decode_box_autoadd_register_dto_v_2(deserializer);
+        var var_info = sse_decode_box_autoadd_register_dto(deserializer);
         return RsServerEvent_Register(ip: var_ip, info: var_info);
       case 1:
         var var_sessionId = sse_decode_String(deserializer);
         var var_ip = sse_decode_String(deserializer);
-        var var_info = sse_decode_box_autoadd_register_dto_v_2(deserializer);
+        var var_info = sse_decode_box_autoadd_register_dto(deserializer);
         var var_certFingerprint = sse_decode_opt_String(deserializer);
         var var_files = sse_decode_Map_String_file_dto_None(deserializer);
         return RsServerEvent_PrepareUpload(
@@ -5479,12 +5401,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_box_autoadd_register_dto_v_2(RegisterDtoV2 self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_register_dto_v_2(self, serializer);
-  }
-
-  @protected
   void sse_encode_box_autoadd_rs_discovered_device(RsDiscoveredDevice self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_rs_discovered_device(self, serializer);
@@ -5691,12 +5607,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     for (final item in self) {
       sse_encode_rs_device_log(item, serializer);
     }
-  }
-
-  @protected
-  void sse_encode_ls_http_client_version(LsHttpClientVersion self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_i_32(self.index, serializer);
   }
 
   @protected
@@ -5907,19 +5817,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_String(self.version, serializer);
     sse_encode_opt_String(self.deviceModel, serializer);
     sse_encode_opt_box_autoadd_device_type(self.deviceType, serializer);
-    sse_encode_String(self.token, serializer);
-    sse_encode_u_16(self.port, serializer);
-    sse_encode_protocol_type(self.protocol, serializer);
-    sse_encode_bool(self.hasWebInterface, serializer);
-  }
-
-  @protected
-  void sse_encode_register_dto_v_2(RegisterDtoV2 self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_String(self.alias, serializer);
-    sse_encode_String(self.version, serializer);
-    sse_encode_opt_String(self.deviceModel, serializer);
-    sse_encode_opt_box_autoadd_device_type(self.deviceType, serializer);
     sse_encode_String(self.fingerprint, serializer);
     sse_encode_u_16(self.port, serializer);
     sse_encode_protocol_type(self.protocol, serializer);
@@ -5933,8 +5830,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_String(self.version, serializer);
     sse_encode_opt_String(self.deviceModel, serializer);
     sse_encode_opt_box_autoadd_device_type(self.deviceType, serializer);
-    sse_encode_String(self.token, serializer);
-    sse_encode_bool(self.hasWebInterface, serializer);
+    sse_encode_String(self.fingerprint, serializer);
+    sse_encode_bool(self.download, serializer);
   }
 
   @protected
@@ -6017,7 +5914,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       case RsServerEvent_Register(ip: final ip, info: final info):
         sse_encode_i_32(0, serializer);
         sse_encode_String(ip, serializer);
-        sse_encode_box_autoadd_register_dto_v_2(info, serializer);
+        sse_encode_box_autoadd_register_dto(info, serializer);
       case RsServerEvent_PrepareUpload(
         sessionId: final sessionId,
         ip: final ip,
@@ -6028,7 +5925,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_i_32(1, serializer);
         sse_encode_String(sessionId, serializer);
         sse_encode_String(ip, serializer);
-        sse_encode_box_autoadd_register_dto_v_2(info, serializer);
+        sse_encode_box_autoadd_register_dto(info, serializer);
         sse_encode_opt_String(certFingerprint, serializer);
         sse_encode_Map_String_file_dto_None(files, serializer);
       case RsServerEvent_FileUpload(sessionId: final sessionId, fileId: final fileId, file: final file):

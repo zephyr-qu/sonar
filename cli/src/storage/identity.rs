@@ -2,7 +2,7 @@
 
 use anyhow::Context;
 use localsend::crypto::cert::fingerprint_from_cert_der;
-use localsend::http::dto_v2::RegisterDtoV2;
+use localsend::http::dto::RegisterDto;
 use localsend::http::server::TlsConfig;
 use localsend::http::state::ClientInfo;
 use localsend::model::discovery::DeviceType;
@@ -115,8 +115,8 @@ impl Identity {
         }
     }
 
-    pub fn register_dto(&self) -> RegisterDtoV2 {
-        RegisterDtoV2 {
+    pub fn register_dto(&self) -> RegisterDto {
+        RegisterDto {
             alias: self.alias.clone(),
             version: PROTOCOL_VERSION_V2.to_string(),
             device_model: Some("CLI".to_string()),

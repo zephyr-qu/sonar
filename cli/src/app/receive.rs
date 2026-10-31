@@ -206,7 +206,9 @@ impl App {
                 file,
                 target_tx,
             } => self.handle_file_upload(session_id, file_id, file, target_tx),
-            ServerEventV2::SessionEnd { session_id, reason } => {
+            ServerEventV2::SessionEnd {
+                session_id, reason, ..
+            } => {
                 let Some(session) = self
                     .receive
                     .as_mut()

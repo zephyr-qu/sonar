@@ -1,147 +1,267 @@
-use crate::http::dto_v2::{
-    PrepareUploadRequestDtoV2, PrepareUploadResponseDtoV2, RegisterDtoV2, RegisterResponseDtoV2,
-};
 use crate::model::discovery::DeviceType;
-use crate::model::discovery::ProtocolType;
 use crate::model::transfer::FileDto;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
-pub struct NonceRequest {
-    /// The nonce string.
-    pub nonce: String,
-}
+// Discovery types are shared with the (HTTP-independent) multicast module and
+// therefore live in `crate::model::discovery`. They are re-exported here so that
+// the DTOs remain available under a single path.
+use crate::model::discovery::ProtocolType;
+use crate::model::discovery::{device_type_v2, protocol_type_v2};
 
-#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
-pub struct NonceResponse {
-    /// The nonce string.
-    pub nonce: String,
-}
-
+/// Body of an error response. Defined by the protocol, so every endpoint uses it.
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct ErrorResponse {
     /// The error message.
     pub message: String,
 }
 
+/// Register request DTO for v2.2 protocol.
+///
+/// Sent to POST /api/localsend/v2/register for device discovery.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RegisterDto {
+    /// The display name of the device.
     pub alias: String,
 
+    /// Protocol version (e.g., "2.0", "2.2").
     pub version: String,
 
+    /// Device model (e.g., "Samsung", "Windows"). Optional.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_model: Option<String>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Device type category. Optional.
+    #[serde(
+        default,
+        with = "device_type_v2",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub device_type: Option<DeviceType>,
 
-    pub token: String,
+    /// Fingerprint for device identification.
+    /// Ignored in HTTPS mode (certificate is used instead).
+    pub fingerprint: String,
 
+    /// Port number the device is listening on.
     pub port: u16,
 
+    /// Protocol type (http or https).
+    #[serde(with = "protocol_type_v2")]
     pub protocol: ProtocolType,
 
-    #[serde(default, skip_serializing_if = "is_default")]
-    pub has_web_interface: bool,
+    /// Whether the download API (sections 5.2, 5.3) is active.
+    #[serde(default)]
+    pub download: bool,
 }
 
-impl From<RegisterDto> for RegisterDtoV2 {
-    fn from(v3: RegisterDto) -> Self {
-        RegisterDtoV2 {
-            alias: v3.alias,
-            version: v3.version,
-            device_model: v3.device_model,
-            device_type: v3.device_type,
-            fingerprint: v3.token,
-            port: v3.port,
-            protocol: v3.protocol,
-            download: v3.has_web_interface,
-        }
-    }
-}
-
-/// Similar to `RegisterDto`, but without `port` and `protocol` (those are already known).
+/// Register response DTO for v2.2 protocol.
+///
+/// Response from POST /api/localsend/v2/register.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RegisterResponseDto {
+    /// The display name of the device.
     pub alias: String,
 
+    /// Protocol version (e.g., "2.0", "2.2").
     pub version: String,
 
+    /// Device model. Optional.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_model: Option<String>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Device type category. Optional.
+    #[serde(
+        default,
+        with = "device_type_v2",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub device_type: Option<DeviceType>,
 
-    pub token: String,
+    /// Fingerprint for device identification.
+    /// Ignored in HTTPS mode (certificate is used instead).
+    #[serde(default)]
+    pub fingerprint: String,
 
-    #[serde(default, skip_serializing_if = "is_default")]
-    pub has_web_interface: bool,
+    /// Whether the download API (sections 5.2, 5.3) is active.
+    #[serde(default)]
+    pub download: bool,
 }
 
+/// Prepare upload request DTO for v2.2 protocol.
+///
+/// Sent to POST /api/localsend/v2/prepare-upload to initiate a file transfer.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PrepareUploadRequestDto {
+    /// Sender's device information.
     pub info: RegisterDto,
+
+    /// Map of file ID to file metadata.
     pub files: HashMap<String, FileDto>,
 }
 
+/// Prepare upload response DTO for v2.2 protocol.
+///
+/// Response from POST /api/localsend/v2/prepare-upload.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PrepareUploadResponseDto {
+    /// Session ID for the file transfer.
     pub session_id: String,
+
+    /// Map of file ID to file token.
+    /// Only contains files that were accepted by the receiver.
     pub files: HashMap<String, String>,
 }
 
-impl From<PrepareUploadRequestDto> for PrepareUploadRequestDtoV2 {
-    fn from(v3: PrepareUploadRequestDto) -> Self {
-        PrepareUploadRequestDtoV2 {
-            info: v3.info.into(),
-            files: v3.files,
-        }
-    }
-}
-
+/// The status code a prepare-upload request answered with, and its body if it
+/// was accepted.
 pub struct PrepareUploadResult {
     pub status_code: u16,
     pub response: Option<PrepareUploadResponseDto>,
 }
 
-impl From<PrepareUploadResponseDtoV2> for PrepareUploadResponseDto {
-    fn from(v2: PrepareUploadResponseDtoV2) -> Self {
-        PrepareUploadResponseDto {
-            session_id: v2.session_id,
-            files: v2.files,
-        }
-    }
+/// Prepare download response DTO for v2.2 protocol (Download API).
+///
+/// Response from POST /api/localsend/v2/prepare-download.
+/// Used when the sender provides files for others to download.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PrepareDownloadResponseDto {
+    /// Sender's device information.
+    pub info: InfoResponseDto,
+
+    /// Session ID for the download session.
+    pub session_id: String,
+
+    /// Map of file ID to file metadata.
+    pub files: HashMap<String, FileDto>,
 }
 
-impl From<crate::http::dto_v2::PrepareUploadResultV2> for PrepareUploadResult {
-    fn from(v2: crate::http::dto_v2::PrepareUploadResultV2) -> Self {
-        PrepareUploadResult {
-            status_code: v2.status_code,
-            response: v2.response.map(|r| r.into()),
-        }
-    }
+/// Info response DTO for v2.2 protocol.
+///
+/// Response from GET /api/localsend/v2/info.
+/// Also used as the `info` field in PrepareDownloadResponseDto.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InfoResponseDto {
+    /// The display name of the device.
+    pub alias: String,
+
+    /// Protocol version (e.g., "2.0", "2.2").
+    pub version: String,
+
+    /// Device model. Optional.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub device_model: Option<String>,
+
+    /// Device type category. Optional.
+    #[serde(
+        default,
+        with = "device_type_v2",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub device_type: Option<DeviceType>,
+
+    /// Fingerprint for device identification.
+    pub fingerprint: String,
+
+    /// Whether the download API (sections 5.2, 5.3) is active.
+    #[serde(default)]
+    pub download: bool,
 }
 
-impl From<RegisterResponseDtoV2> for RegisterResponseDto {
-    fn from(v2: RegisterResponseDtoV2) -> Self {
-        RegisterResponseDto {
-            alias: v2.alias,
-            version: v2.version,
-            device_model: v2.device_model,
-            device_type: v2.device_type,
-            token: v2.fingerprint,
-            has_web_interface: v2.download,
-        }
-    }
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-fn is_default<T: Default + PartialEq>(t: &T) -> bool {
-    t == &T::default()
+    #[test]
+    fn test_register_dto_deserialization() {
+        let json = r#"{
+            "alias": "Secret Banana",
+            "version": "2.0",
+            "deviceModel": "Windows",
+            "deviceType": "desktop",
+            "fingerprint": "random string",
+            "port": 53317,
+            "protocol": "https",
+            "download": true
+        }"#;
+
+        let dto: RegisterDto = serde_json::from_str(json).unwrap();
+        assert_eq!(dto.alias, "Secret Banana");
+        assert_eq!(dto.version, "2.0");
+        assert_eq!(dto.device_model, Some("Windows".to_string()));
+        assert_eq!(dto.device_type, Some(DeviceType::Desktop));
+        assert_eq!(dto.fingerprint, "random string");
+        assert_eq!(dto.port, 53317);
+        assert_eq!(dto.protocol, ProtocolType::Https);
+        assert!(dto.download);
+    }
+
+    #[test]
+    fn test_device_type_unknown_falls_back_to_desktop() {
+        // Unknown device types must fall back to desktop (protocol section 7.1).
+        let json = r#"{
+            "alias": "Test Device",
+            "version": "2.0",
+            "deviceType": "fridge",
+            "fingerprint": "abc123",
+            "port": 53317,
+            "protocol": "http"
+        }"#;
+
+        let dto: RegisterDto = serde_json::from_str(json).unwrap();
+        assert_eq!(dto.device_type, Some(DeviceType::Desktop));
+    }
+
+    #[test]
+    fn test_register_response_without_download_field() {
+        // Test that download defaults to false when not present
+        let json = r#"{
+            "alias": "Test Device",
+            "version": "2.0",
+            "fingerprint": "abc123"
+        }"#;
+
+        let dto: RegisterResponseDto = serde_json::from_str(json).unwrap();
+        assert_eq!(dto.alias, "Test Device");
+        assert!(!dto.download);
+    }
+
+    #[test]
+    fn test_prepare_upload_request() {
+        let request = PrepareUploadRequestDto {
+            info: RegisterDto {
+                alias: "Sender".to_string(),
+                version: "2.2".to_string(),
+                device_model: None,
+                device_type: None,
+                fingerprint: "sender-fingerprint".to_string(),
+                port: 53317,
+                protocol: ProtocolType::Https,
+                download: false,
+            },
+            files: HashMap::from([(
+                "file1".to_string(),
+                FileDto {
+                    id: "file1".to_string(),
+                    file_name: "test.png".to_string(),
+                    size: 1024,
+                    file_type: "image/png".to_string(),
+                    sha256: None,
+                    preview: None,
+                    metadata: None,
+                },
+            )]),
+        };
+
+        let json = serde_json::to_string(&request).unwrap();
+        assert!(json.contains("\"info\""));
+        assert!(json.contains("\"files\""));
+        assert!(json.contains("\"fingerprint\":\"sender-fingerprint\""));
+    }
 }

@@ -1,12 +1,13 @@
 #![cfg(feature = "http")]
 
 use bytes::Bytes;
-use futures_util::StreamExt;
 use localsend::crypto::hash::sha256_hex;
-use localsend::http::client::{ClientError, LsHttpClient, LsHttpClientV2};
-use localsend::http::dto_v2::{PrepareUploadRequestDtoV2, RegisterDtoV2};
+use localsend::http::client::{ClientError, LsHttpClientV2};
+use localsend::http::dto::{PrepareUploadRequestDto, RegisterDto};
 use localsend::http::server::common::save::FileUploadTarget;
-use localsend::http::server::v2::{ChecksumSummaryV2, PrepareUploadDecisionV2, ServerEventV2, SessionEndReasonV2};
+use localsend::http::server::v2::{
+    ChecksumSummaryV2, PrepareUploadDecisionV2, ServerEventV2, SessionEndReasonV2,
+};
 use localsend::http::server::web::WebConfig;
 use localsend::http::server::{start_with_port, ServerConfigV2};
 use localsend::http::state::ClientInfo;
@@ -18,7 +19,6 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::{mpsc, oneshot, Mutex};
-use tokio_stream::wrappers::ReceiverStream;
 use tokio_util::sync::CancellationToken;
 
 struct TestServer {
@@ -52,7 +52,8 @@ async fn start_test_server_with_verification(
 ) -> TestServer {
     let _ = tracing_subscriber::fmt().with_test_writer().try_init();
     let received: Arc<Mutex<HashMap<String, Vec<u8>>>> = Arc::new(Mutex::new(HashMap::new()));
-    let session_checksums: Arc<Mutex<Vec<Option<ChecksumSummaryV2>>>> = Arc::new(Mutex::new(Vec::new()));
+    let session_checksums: Arc<Mutex<Vec<Option<ChecksumSummaryV2>>>> =
+        Arc::new(Mutex::new(Vec::new()));
     let session_ends: Arc<Mutex<Vec<(String, SessionEndReasonV2)>>> =
         Arc::new(Mutex::new(Vec::new()));
 
@@ -115,7 +116,11 @@ async fn start_test_server_with_verification(
                             }
                         }
                     }
-                    ServerEventV2::SessionEnd { session_id, reason, checksums } => {
+                    ServerEventV2::SessionEnd {
+                        session_id,
+                        reason,
+                        checksums,
+                    } => {
                         session_ends.lock().await.push((session_id, reason));
                         session_checksums.lock().await.push(checksums);
                     }
@@ -161,8 +166,8 @@ async fn start_test_server_with_verification(
     }
 }
 
-fn sender_info() -> RegisterDtoV2 {
-    RegisterDtoV2 {
+fn sender_info() -> RegisterDto {
+    RegisterDto {
         alias: "Test Sender".to_string(),
         version: "2.2".to_string(),
         device_model: Some("Rust".to_string()),
@@ -186,8 +191,8 @@ fn file_dto(id: &str, name: &str, size: u64) -> FileDto {
     }
 }
 
-fn prepare_upload_request(files: &[FileDto]) -> PrepareUploadRequestDtoV2 {
-    PrepareUploadRequestDtoV2 {
+fn prepare_upload_request(files: &[FileDto]) -> PrepareUploadRequestDto {
+    PrepareUploadRequestDto {
         info: sender_info(),
         files: files
             .iter()
@@ -215,14 +220,8 @@ async fn upload_bytes(
         }
     });
 
-    // The caller now owns building the request body; track cumulative bytes
-    // sent so the progress assertion below still holds.
+    // Cumulative bytes sent are tracked through the progress callback.
     let progress = sent.clone();
-    let body =
-        localsend::reqwest::Body::wrap_stream(ReceiverStream::new(rx).map(move |chunk: Bytes| {
-            progress.fetch_add(chunk.len() as u64, Ordering::Relaxed);
-            Ok::<Bytes, std::io::Error>(chunk)
-        }));
     let result = client
         .upload(
             ProtocolType::Http,
@@ -232,7 +231,10 @@ async fn upload_bytes(
             session_id,
             file_id,
             token,
-            body,
+            FileContent::Stream(rx),
+            move |total| {
+                progress.store(total, Ordering::Relaxed);
+            },
             CancellationToken::new(),
         )
         .await;
@@ -356,10 +358,11 @@ async fn test_full_upload_flow() {
     .await
     .unwrap();
 
-    let received = server.received.lock().await;
-    assert_eq!(received["file-a"], bytes_a);
-    assert_eq!(received["file-b"], bytes_b);
-    drop(received);
+    {
+        let received = server.received.lock().await;
+        assert_eq!(received["file-a"], bytes_a);
+        assert_eq!(received["file-b"], bytes_b);
+    }
 
     // The session should have ended after all files were uploaded.
     tokio::time::sleep(Duration::from_millis(100)).await;
@@ -859,10 +862,11 @@ async fn test_upload_saved_to_path_by_server() {
 
     // The test harness reads the files back after the server reported the result.
     tokio::time::sleep(Duration::from_millis(100)).await;
-    let received = server.received.lock().await;
-    assert_eq!(received["file-a"], bytes_a);
-    assert_eq!(received["file-b"], bytes_b);
-    drop(received);
+    {
+        let received = server.received.lock().await;
+        assert_eq!(received["file-a"], bytes_a);
+        assert_eq!(received["file-b"], bytes_b);
+    }
 
     let session_ends = server.session_ends.lock().await;
     assert_eq!(
@@ -905,7 +909,7 @@ async fn test_upload_of_unreadable_file_fails_instead_of_sending_an_empty_body()
     // The source is gone by the time the upload starts, as an OS-managed
     // temporary copy of a picked file can be.
     let missing = save_dir.join("source-is-gone.bin");
-    let result = LsHttpClient::V2(client)
+    let result = client
         .upload(
             ProtocolType::Http,
             "127.0.0.1",

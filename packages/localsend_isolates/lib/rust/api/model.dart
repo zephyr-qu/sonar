@@ -112,20 +112,20 @@ class RegisterDto {
   final String version;
   final String? deviceModel;
   final DeviceType? deviceType;
-  final String token;
+  final String fingerprint;
   final int port;
   final ProtocolType protocol;
-  final bool hasWebInterface;
+  final bool download;
 
   const RegisterDto({
     required this.alias,
     required this.version,
     this.deviceModel,
     this.deviceType,
-    required this.token,
+    required this.fingerprint,
     required this.port,
     required this.protocol,
-    required this.hasWebInterface,
+    required this.download,
   });
 
   @override
@@ -134,10 +134,10 @@ class RegisterDto {
       version.hashCode ^
       deviceModel.hashCode ^
       deviceType.hashCode ^
-      token.hashCode ^
+      fingerprint.hashCode ^
       port.hashCode ^
       protocol.hashCode ^
-      hasWebInterface.hashCode;
+      download.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -148,10 +148,10 @@ class RegisterDto {
           version == other.version &&
           deviceModel == other.deviceModel &&
           deviceType == other.deviceType &&
-          token == other.token &&
+          fingerprint == other.fingerprint &&
           port == other.port &&
           protocol == other.protocol &&
-          hasWebInterface == other.hasWebInterface;
+          download == other.download;
 }
 
 class RegisterResponseDto {
@@ -159,20 +159,20 @@ class RegisterResponseDto {
   final String version;
   final String? deviceModel;
   final DeviceType? deviceType;
-  final String token;
-  final bool hasWebInterface;
+  final String fingerprint;
+  final bool download;
 
   const RegisterResponseDto({
     required this.alias,
     required this.version,
     this.deviceModel,
     this.deviceType,
-    required this.token,
-    required this.hasWebInterface,
+    required this.fingerprint,
+    required this.download,
   });
 
   @override
-  int get hashCode => alias.hashCode ^ version.hashCode ^ deviceModel.hashCode ^ deviceType.hashCode ^ token.hashCode ^ hasWebInterface.hashCode;
+  int get hashCode => alias.hashCode ^ version.hashCode ^ deviceModel.hashCode ^ deviceType.hashCode ^ fingerprint.hashCode ^ download.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -183,6 +183,6 @@ class RegisterResponseDto {
           version == other.version &&
           deviceModel == other.deviceModel &&
           deviceType == other.deviceType &&
-          token == other.token &&
-          hasWebInterface == other.hasWebInterface;
+          fingerprint == other.fingerprint &&
+          download == other.download;
 }

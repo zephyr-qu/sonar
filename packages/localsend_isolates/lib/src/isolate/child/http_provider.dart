@@ -26,7 +26,6 @@ class HttpClientCollection {
     return createClient(
       privateKey: _privateKey,
       cert: _certificate,
-      version: LsHttpClientVersion.v2,
       expectedFingerprint: fingerprint,
       timeoutMs: timeoutMs,
     );

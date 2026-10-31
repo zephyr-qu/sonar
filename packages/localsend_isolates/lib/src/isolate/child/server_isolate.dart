@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:localsend_isolates/constants.dart';
 import 'package:localsend_isolates/model/dto/multicast_dto.dart';
 import 'package:localsend_isolates/model/file_type.dart';
-import 'package:localsend_isolates/rust/api/model.dart' show FileDto;
+import 'package:localsend_isolates/rust/api/model.dart' show FileDto, RegisterDto;
 import 'package:localsend_isolates/rust/api/server.dart';
 import 'package:localsend_isolates/src/isolate/child/main.dart';
 import 'package:localsend_isolates/src/isolate/child/sync_provider.dart';
@@ -172,12 +172,12 @@ class HttpServerStartedEvent extends HttpServerEvent {}
 
 /// A device registered itself on this server.
 ///
-/// On TLS, this event is only emitted when [RegisterDtoV2.fingerprint] matches
+/// On TLS, this event is only emitted when [RegisterDto.fingerprint] matches
 /// the fingerprint of the client certificate verified during the mTLS
 /// handshake, so the fingerprint cannot be spoofed.
 class HttpServerRegisterEvent extends HttpServerEvent {
   final String ip;
-  final RegisterDtoV2 info;
+  final RegisterDto info;
 
   HttpServerRegisterEvent({
     required this.ip,
@@ -191,11 +191,11 @@ class HttpServerPrepareUploadEvent extends HttpServerEvent {
   /// The session ID the upload session will have when the request is accepted.
   final String sessionId;
   final String ip;
-  final RegisterDtoV2 info;
+  final RegisterDto info;
 
   /// The SHA-256 fingerprint (uppercase hex) of the sender's client
   /// certificate verified during the mTLS handshake. Unlike
-  /// [RegisterDtoV2.fingerprint], this value cannot be spoofed.
+  /// [RegisterDto.fingerprint], this value cannot be spoofed.
   /// `null` when the server runs without TLS.
   final String? certFingerprint;
 

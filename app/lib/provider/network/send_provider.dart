@@ -239,10 +239,10 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
         version: originDevice.version,
         deviceModel: originDevice.deviceModel,
         deviceType: originDevice.deviceType.toRust(),
-        token: originDevice.fingerprint,
+        fingerprint: originDevice.fingerprint,
         port: originDevice.port,
         protocol: originDevice.https ? rust_model.ProtocolType.https : rust_model.ProtocolType.http,
-        hasWebInterface: originDevice.download,
+        download: originDevice.download,
       ),
       files: {
         for (final entry in requestState.files.entries) entry.key: entry.value.file.toRust(),

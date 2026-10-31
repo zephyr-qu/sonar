@@ -6,7 +6,6 @@ import 'package:localsend_isolates/model/dto/multicast_dto.dart';
 import 'package:localsend_isolates/rust/api/discovery.dart' as rust_discovery;
 import 'package:localsend_isolates/rust/api/http.dart' as rust_http;
 import 'package:localsend_isolates/rust/api/model.dart' as rust_model;
-import 'package:localsend_isolates/rust/api/server.dart' as rust_server;
 import 'package:localsend_isolates/src/isolate/child/sync_provider.dart';
 import 'package:mime/mime.dart';
 
@@ -33,10 +32,10 @@ extension DeviceExt on Device {
       version: version,
       deviceModel: deviceModel,
       deviceType: deviceType.toRust(),
-      token: fingerprint,
+      fingerprint: fingerprint,
       port: port,
       protocol: getProtocolType(),
-      hasWebInterface: download,
+      download: download,
     );
   }
 }
@@ -91,10 +90,10 @@ extension SyncStateToRegisterDtoExt on SyncState {
       version: protocolVersion,
       deviceModel: deviceInfo.deviceModel,
       deviceType: deviceInfo.deviceType.toRust(),
-      token: securityContext.certificateHash,
+      fingerprint: securityContext.certificateHash,
       port: port,
       protocol: protocol.toRust(),
-      hasWebInterface: download,
+      download: download,
     );
   }
 }
@@ -193,7 +192,7 @@ extension DeviceToRsDiscoveredDeviceExt on Device {
   }
 }
 
-extension RegisterDtoV2Ext on rust_server.RegisterDtoV2 {
+extension RegisterDtoExt on rust_model.RegisterDto {
   Device toDevice(String ip, {required bool withChannel}) {
     return Device(
       signalingId: null,
@@ -219,11 +218,11 @@ extension RegisterResponseDtoExt on rust_model.RegisterResponseDto {
       version: version,
       port: port,
       https: https,
-      fingerprint: token,
+      fingerprint: fingerprint,
       alias: alias,
       deviceModel: deviceModel,
       deviceType: deviceType?.toDart() ?? DeviceType.desktop,
-      download: hasWebInterface,
+      download: download,
       channels: [HttpChannel(host: ip, port: port, https: https)],
     );
   }

@@ -266,9 +266,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   RegisterDto dco_decode_box_autoadd_register_dto(dynamic raw);
 
   @protected
-  RegisterDtoV2 dco_decode_box_autoadd_register_dto_v_2(dynamic raw);
-
-  @protected
   RsDiscoveredDevice dco_decode_box_autoadd_rs_discovered_device(dynamic raw);
 
   @protected
@@ -353,9 +350,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<RsDeviceLog> dco_decode_list_rs_device_log(dynamic raw);
 
   @protected
-  LsHttpClientVersion dco_decode_ls_http_client_version(dynamic raw);
-
-  @protected
   String? dco_decode_opt_String(dynamic raw);
 
   @protected
@@ -427,9 +421,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   RegisterDto dco_decode_register_dto(dynamic raw);
-
-  @protected
-  RegisterDtoV2 dco_decode_register_dto_v_2(dynamic raw);
 
   @protected
   RegisterResponseDto dco_decode_register_response_dto(dynamic raw);
@@ -736,9 +727,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   RegisterDto sse_decode_box_autoadd_register_dto(SseDeserializer deserializer);
 
   @protected
-  RegisterDtoV2 sse_decode_box_autoadd_register_dto_v_2(SseDeserializer deserializer);
-
-  @protected
   RsDiscoveredDevice sse_decode_box_autoadd_rs_discovered_device(SseDeserializer deserializer);
 
   @protected
@@ -823,9 +811,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<RsDeviceLog> sse_decode_list_rs_device_log(SseDeserializer deserializer);
 
   @protected
-  LsHttpClientVersion sse_decode_ls_http_client_version(SseDeserializer deserializer);
-
-  @protected
   String? sse_decode_opt_String(SseDeserializer deserializer);
 
   @protected
@@ -899,9 +884,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   RegisterDto sse_decode_register_dto(SseDeserializer deserializer);
-
-  @protected
-  RegisterDtoV2 sse_decode_register_dto_v_2(SseDeserializer deserializer);
 
   @protected
   RegisterResponseDto sse_decode_register_response_dto(SseDeserializer deserializer);
@@ -1253,9 +1235,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_box_autoadd_register_dto(RegisterDto self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_register_dto_v_2(RegisterDtoV2 self, SseSerializer serializer);
-
-  @protected
   void sse_encode_box_autoadd_rs_discovered_device(RsDiscoveredDevice self, SseSerializer serializer);
 
   @protected
@@ -1340,9 +1319,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_list_rs_device_log(List<RsDeviceLog> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_ls_http_client_version(LsHttpClientVersion self, SseSerializer serializer);
-
-  @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
@@ -1417,9 +1393,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_register_dto(RegisterDto self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_register_dto_v_2(RegisterDtoV2 self, SseSerializer serializer);
 
   @protected
   void sse_encode_register_response_dto(RegisterResponseDto self, SseSerializer serializer);

@@ -1,4 +1,5 @@
 use crate::model::discovery::DeviceType;
+#[cfg(feature = "webrtc-signaling")]
 use crate::util::base64;
 use anyhow::Result;
 use futures_util::stream::StreamExt;
@@ -8,6 +9,7 @@ use std::cmp::PartialEq;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{mpsc, Mutex};
+#[cfg(feature = "webrtc-signaling")]
 use tokio::time::Duration;
 #[cfg(feature = "webrtc-signaling")]
 use tokio_tungstenite::connect_async;

@@ -6,12 +6,13 @@
 //!   cargo run --release --example stress_send --features full -- [host] [port] [pin]
 
 use localsend::http::client::LsHttpClientV2;
-use localsend::http::dto_v2::PrepareUploadRequestDtoV2;
-use localsend::http::dto_v2::RegisterDtoV2;
+use localsend::http::dto::PrepareUploadRequestDto;
+use localsend::http::dto::RegisterDto;
 use localsend::model::discovery::{DeviceType, ProtocolType, PROTOCOL_VERSION_V2};
-use localsend::model::transfer::FileDto;
+use localsend::model::transfer::{FileContent, FileDto};
 use rand::{Rng, RngExt};
 use std::collections::HashMap;
+use tokio::sync::mpsc;
 use tokio_util::sync::CancellationToken;
 
 const FILE_COUNT: usize = 1000;
@@ -21,14 +22,20 @@ const FILE_SIZE: usize = 1024 * 1024;
 async fn main() -> anyhow::Result<()> {
     let mut args = std::env::args().skip(1);
     let host = args.next().unwrap_or_else(|| "127.0.0.1".to_string());
-    let port: u16 = args.next().map(|arg| arg.parse()).transpose()?.unwrap_or(53317);
+    let port: u16 = args
+        .next()
+        .map(|arg| arg.parse())
+        .transpose()?
+        .unwrap_or(53317);
     let pin = args.next();
 
     let mut rng = rand::rng();
 
     // Random fingerprint in the SHA-256 uppercase hex format.
     // A fresh one per run, so the receiver treats every run as a new device.
-    let fingerprint: String = (0..32).map(|_| format!("{:02X}", rng.random::<u8>())).collect();
+    let fingerprint: String = (0..32)
+        .map(|_| format!("{:02X}", rng.random::<u8>()))
+        .collect();
 
     let files: HashMap<String, FileDto> = (0..FILE_COUNT)
         .map(|i| {
@@ -46,8 +53,8 @@ async fn main() -> anyhow::Result<()> {
         })
         .collect();
 
-    let payload = PrepareUploadRequestDtoV2 {
-        info: RegisterDtoV2 {
+    let payload = PrepareUploadRequestDto {
+        info: RegisterDto {
             alias: "Stress Sender".to_string(),
             version: PROTOCOL_VERSION_V2.to_string(),
             device_model: Some("Stress".to_string()),
@@ -79,7 +86,10 @@ async fn main() -> anyhow::Result<()> {
         .await?;
 
     let Some(response) = prepared.response else {
-        println!("Receiver accepted no files (status {})", prepared.status_code);
+        println!(
+            "Receiver accepted no files (status {})",
+            prepared.status_code
+        );
         return Ok(());
     };
     println!(
@@ -98,6 +108,10 @@ async fn main() -> anyhow::Result<()> {
 
         let mut bytes = vec![0_u8; FILE_SIZE];
         rng.fill_bytes(&mut bytes);
+        let (tx, rx) = mpsc::channel(1);
+        tx.send(bytes::Bytes::from(bytes))
+            .await
+            .map_err(|_| anyhow::anyhow!("Upload of {id}: content channel closed"))?;
 
         client
             .upload(
@@ -108,7 +122,8 @@ async fn main() -> anyhow::Result<()> {
                 &response.session_id,
                 &id,
                 token,
-                localsend::reqwest::Body::from(bytes),
+                FileContent::Stream(rx),
+                |_| {},
                 CancellationToken::new(),
             )
             .await

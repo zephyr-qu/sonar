@@ -2,7 +2,7 @@ use crate::api::cancel::RsCancellationToken;
 use crate::api::stream;
 use crate::frb_generated::StreamSink;
 use flutter_rust_bridge::frb;
-pub use localsend::http::client::{ClientError, LsHttpClientVersion};
+pub use localsend::http::client::{ClientError, LsHttpClientV2};
 pub use localsend::http::dto::{
     PrepareUploadRequestDto, PrepareUploadResponseDto, PrepareUploadResult, RegisterDto,
     RegisterResponseDto,
@@ -11,7 +11,7 @@ use localsend::model::discovery::ProtocolType;
 use localsend::util::error::ErrorChain;
 
 pub struct RsHttpClient {
-    inner: localsend::http::client::LsHttpClient,
+    inner: localsend::http::client::LsHttpClientV2,
 }
 
 /// Creates an HTTP client.
@@ -24,14 +24,12 @@ pub struct RsHttpClient {
 pub fn create_client(
     private_key: String,
     cert: String,
-    version: LsHttpClientVersion,
     expected_fingerprint: Option<String>,
     timeout_ms: Option<u32>,
 ) -> Result<RsHttpClient, RsHttpClientError> {
-    let inner = localsend::http::client::LsHttpClient::new(
+    let inner = localsend::http::client::LsHttpClientV2::try_new(
         &private_key,
         &cert,
-        version,
         expected_fingerprint,
         timeout_ms.map(|ms| std::time::Duration::from_millis(ms as u64)),
     )
@@ -238,12 +236,6 @@ impl From<ClientError> for RsHttpClientError {
             ClientError::Cancelled => RsHttpClientError::Other("Upload cancelled".to_string()),
         }
     }
-}
-
-#[frb(mirror(LsHttpClientVersion))]
-pub enum _LsHttpClientVersion {
-    V2,
-    V3,
 }
 
 #[frb(mirror(PrepareUploadResult))]

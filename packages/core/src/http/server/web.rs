@@ -1,4 +1,4 @@
-use crate::http::dto_v2::{InfoResponseDtoV2, PrepareDownloadResponseDtoV2};
+use crate::http::dto::{InfoResponseDto, PrepareDownloadResponseDto};
 use crate::http::server::common::error::AppError;
 use crate::http::server::common::pin::check_pin;
 use crate::http::server::common::query::parse_query;
@@ -505,8 +505,8 @@ async fn file_list_response(
 
     JsonResponse {
         status: StatusCode::OK,
-        body: PrepareDownloadResponseDtoV2 {
-            info: InfoResponseDtoV2 {
+        body: PrepareDownloadResponseDto {
+            info: InfoResponseDto {
                 alias: info.alias,
                 version: PROTOCOL_VERSION_V2.to_string(),
                 device_model: info.device_model,

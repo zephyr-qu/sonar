@@ -1,6 +1,6 @@
 use crate::frb_generated::StreamSink;
 use flutter_rust_bridge::frb;
-pub use localsend::http::dto_v2::RegisterDtoV2;
+pub use localsend::http::dto::RegisterDto;
 use localsend::http::server::ServerConfigV2;
 pub use localsend::http::server::TlsConfig;
 use localsend::http::server::common::save::FileUploadTarget;
@@ -33,14 +33,14 @@ pub enum RsServerEvent {
     /// On TLS, this event is only emitted when `info.fingerprint` matches the
     /// fingerprint of the client certificate verified during the mTLS
     /// handshake, so the fingerprint cannot be spoofed.
-    Register { ip: String, info: RegisterDtoV2 },
+    Register { ip: String, info: RegisterDto },
 
     /// A sender requests to upload files via `POST /api/localsend/v2/prepare-upload`.
     PrepareUpload {
         /// The session ID the upload session will have when the request is accepted.
         session_id: String,
         ip: String,
-        info: RegisterDtoV2,
+        info: RegisterDto,
         /// The SHA-256 fingerprint (uppercase hex) of the sender's client
         /// certificate verified during the mTLS handshake. Unlike
         /// `info.fingerprint`, this value cannot be spoofed.
@@ -814,8 +814,8 @@ pub struct _TlsConfig {
     pub private_key: String,
 }
 
-#[frb(mirror(RegisterDtoV2))]
-pub struct _RegisterDtoV2 {
+#[frb(mirror(RegisterDto))]
+pub struct _RegisterDto {
     pub alias: String,
     pub version: String,
     pub device_model: Option<String>,

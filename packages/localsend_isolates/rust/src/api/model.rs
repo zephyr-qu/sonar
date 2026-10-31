@@ -13,10 +13,10 @@ pub struct _RegisterDto {
     pub version: String,
     pub device_model: Option<String>,
     pub device_type: Option<DeviceType>,
-    pub token: String,
+    pub fingerprint: String,
     pub port: u16,
     pub protocol: ProtocolType,
-    pub has_web_interface: bool,
+    pub download: bool,
 }
 
 #[frb(mirror(RegisterResponseDto))]
@@ -25,8 +25,8 @@ pub struct _RegisterResponseDto {
     pub version: String,
     pub device_model: Option<String>,
     pub device_type: Option<DeviceType>,
-    pub token: String,
-    pub has_web_interface: bool,
+    pub fingerprint: String,
+    pub download: bool,
 }
 
 #[frb(mirror(DeviceType))]

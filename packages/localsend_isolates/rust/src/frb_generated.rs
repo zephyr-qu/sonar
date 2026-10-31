@@ -33,7 +33,7 @@ use crate::api::server::*;
 use crate::api::stream::*;
 use crate::api::webrtc::*;
 use flutter_rust_bridge::for_generated::byteorder::{NativeEndian, ReadBytesExt, WriteBytesExt};
-use flutter_rust_bridge::for_generated::{transform_result_dco, Lifetimeable, Lockable};
+use flutter_rust_bridge::for_generated::{Lifetimeable, Lockable, transform_result_dco};
 use flutter_rust_bridge::{Handler, IntoIntoDart};
 
 // Section: boilerplate
@@ -2880,8 +2880,6 @@ fn wire__crate__api__http__create_client_impl(
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_private_key = <String>::sse_decode(&mut deserializer);
             let api_cert = <String>::sse_decode(&mut deserializer);
-            let api_version =
-                <crate::api::http::LsHttpClientVersion>::sse_decode(&mut deserializer);
             let api_expected_fingerprint = <Option<String>>::sse_decode(&mut deserializer);
             let api_timeout_ms = <Option<u32>>::sse_decode(&mut deserializer);
             deserializer.end();
@@ -2889,7 +2887,6 @@ fn wire__crate__api__http__create_client_impl(
                 let output_ok = crate::api::http::create_client(
                     api_private_key,
                     api_cert,
-                    api_version,
                     api_expected_fingerprint,
                     api_timeout_ms,
                 )?;
@@ -3431,21 +3428,10 @@ const _: fn() = || {
         let _: String = RegisterDto.version;
         let _: Option<String> = RegisterDto.device_model;
         let _: Option<crate::api::model::DeviceType> = RegisterDto.device_type;
-        let _: String = RegisterDto.token;
+        let _: String = RegisterDto.fingerprint;
         let _: u16 = RegisterDto.port;
         let _: crate::api::model::ProtocolType = RegisterDto.protocol;
-        let _: bool = RegisterDto.has_web_interface;
-    }
-    {
-        let RegisterDtoV2 = None::<crate::api::server::RegisterDtoV2>.unwrap();
-        let _: String = RegisterDtoV2.alias;
-        let _: String = RegisterDtoV2.version;
-        let _: Option<String> = RegisterDtoV2.device_model;
-        let _: Option<crate::api::model::DeviceType> = RegisterDtoV2.device_type;
-        let _: String = RegisterDtoV2.fingerprint;
-        let _: u16 = RegisterDtoV2.port;
-        let _: crate::api::model::ProtocolType = RegisterDtoV2.protocol;
-        let _: bool = RegisterDtoV2.download;
+        let _: bool = RegisterDto.download;
     }
     {
         let RegisterResponseDto = None::<crate::api::model::RegisterResponseDto>.unwrap();
@@ -3453,8 +3439,8 @@ const _: fn() = || {
         let _: String = RegisterResponseDto.version;
         let _: Option<String> = RegisterResponseDto.device_model;
         let _: Option<crate::api::model::DeviceType> = RegisterResponseDto.device_type;
-        let _: String = RegisterResponseDto.token;
-        let _: bool = RegisterResponseDto.has_web_interface;
+        let _: String = RegisterResponseDto.fingerprint;
+        let _: bool = RegisterResponseDto.download;
     }
     {
         let RTCFileError = None::<crate::api::webrtc::RTCFileError>.unwrap();
@@ -4242,18 +4228,6 @@ impl SseDecode for Vec<crate::api::discovery::RsDeviceLog> {
     }
 }
 
-impl SseDecode for crate::api::http::LsHttpClientVersion {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut inner = <i32>::sse_decode(deserializer);
-        return match inner {
-            0 => crate::api::http::LsHttpClientVersion::V2,
-            1 => crate::api::http::LsHttpClientVersion::V3,
-            _ => unreachable!("Invalid variant for LsHttpClientVersion: {}", inner),
-        };
-    }
-}
-
 impl SseDecode for Option<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -4515,35 +4489,11 @@ impl SseDecode for crate::api::model::RegisterDto {
         let mut var_version = <String>::sse_decode(deserializer);
         let mut var_deviceModel = <Option<String>>::sse_decode(deserializer);
         let mut var_deviceType = <Option<crate::api::model::DeviceType>>::sse_decode(deserializer);
-        let mut var_token = <String>::sse_decode(deserializer);
-        let mut var_port = <u16>::sse_decode(deserializer);
-        let mut var_protocol = <crate::api::model::ProtocolType>::sse_decode(deserializer);
-        let mut var_hasWebInterface = <bool>::sse_decode(deserializer);
-        return crate::api::model::RegisterDto {
-            alias: var_alias,
-            version: var_version,
-            device_model: var_deviceModel,
-            device_type: var_deviceType,
-            token: var_token,
-            port: var_port,
-            protocol: var_protocol,
-            has_web_interface: var_hasWebInterface,
-        };
-    }
-}
-
-impl SseDecode for crate::api::server::RegisterDtoV2 {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut var_alias = <String>::sse_decode(deserializer);
-        let mut var_version = <String>::sse_decode(deserializer);
-        let mut var_deviceModel = <Option<String>>::sse_decode(deserializer);
-        let mut var_deviceType = <Option<crate::api::model::DeviceType>>::sse_decode(deserializer);
         let mut var_fingerprint = <String>::sse_decode(deserializer);
         let mut var_port = <u16>::sse_decode(deserializer);
         let mut var_protocol = <crate::api::model::ProtocolType>::sse_decode(deserializer);
         let mut var_download = <bool>::sse_decode(deserializer);
-        return crate::api::server::RegisterDtoV2 {
+        return crate::api::model::RegisterDto {
             alias: var_alias,
             version: var_version,
             device_model: var_deviceModel,
@@ -4563,15 +4513,15 @@ impl SseDecode for crate::api::model::RegisterResponseDto {
         let mut var_version = <String>::sse_decode(deserializer);
         let mut var_deviceModel = <Option<String>>::sse_decode(deserializer);
         let mut var_deviceType = <Option<crate::api::model::DeviceType>>::sse_decode(deserializer);
-        let mut var_token = <String>::sse_decode(deserializer);
-        let mut var_hasWebInterface = <bool>::sse_decode(deserializer);
+        let mut var_fingerprint = <String>::sse_decode(deserializer);
+        let mut var_download = <bool>::sse_decode(deserializer);
         return crate::api::model::RegisterResponseDto {
             alias: var_alias,
             version: var_version,
             device_model: var_deviceModel,
             device_type: var_deviceType,
-            token: var_token,
-            has_web_interface: var_hasWebInterface,
+            fingerprint: var_fingerprint,
+            download: var_download,
         };
     }
 }
@@ -4705,7 +4655,7 @@ impl SseDecode for crate::api::server::RsServerEvent {
         match tag_ {
             0 => {
                 let mut var_ip = <String>::sse_decode(deserializer);
-                let mut var_info = <crate::api::server::RegisterDtoV2>::sse_decode(deserializer);
+                let mut var_info = <crate::api::model::RegisterDto>::sse_decode(deserializer);
                 return crate::api::server::RsServerEvent::Register {
                     ip: var_ip,
                     info: var_info,
@@ -4714,7 +4664,7 @@ impl SseDecode for crate::api::server::RsServerEvent {
             1 => {
                 let mut var_sessionId = <String>::sse_decode(deserializer);
                 let mut var_ip = <String>::sse_decode(deserializer);
-                let mut var_info = <crate::api::server::RegisterDtoV2>::sse_decode(deserializer);
+                let mut var_info = <crate::api::model::RegisterDto>::sse_decode(deserializer);
                 let mut var_certFingerprint = <Option<String>>::sse_decode(deserializer);
                 let mut var_files =
                     <std::collections::HashMap<String, crate::api::model::FileDto>>::sse_decode(
@@ -5772,27 +5722,6 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::crypto::KeyPair>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::http::LsHttpClientVersion> {
-    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
-        match self.0 {
-            crate::api::http::LsHttpClientVersion::V2 => 0.into_dart(),
-            crate::api::http::LsHttpClientVersion::V3 => 1.into_dart(),
-            _ => unreachable!(),
-        }
-    }
-}
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for FrbWrapper<crate::api::http::LsHttpClientVersion>
-{
-}
-impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::http::LsHttpClientVersion>>
-    for crate::api::http::LsHttpClientVersion
-{
-    fn into_into_dart(self) -> FrbWrapper<crate::api::http::LsHttpClientVersion> {
-        self.into()
-    }
-}
-// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::webrtc::PinConfig> {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -5928,10 +5857,10 @@ impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::model::RegisterDto
             self.0.version.into_into_dart().into_dart(),
             self.0.device_model.into_into_dart().into_dart(),
             self.0.device_type.into_into_dart().into_dart(),
-            self.0.token.into_into_dart().into_dart(),
+            self.0.fingerprint.into_into_dart().into_dart(),
             self.0.port.into_into_dart().into_dart(),
             self.0.protocol.into_into_dart().into_dart(),
-            self.0.has_web_interface.into_into_dart().into_dart(),
+            self.0.download.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -5948,33 +5877,6 @@ impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::model::RegisterDto
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::server::RegisterDtoV2> {
-    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
-        [
-            self.0.alias.into_into_dart().into_dart(),
-            self.0.version.into_into_dart().into_dart(),
-            self.0.device_model.into_into_dart().into_dart(),
-            self.0.device_type.into_into_dart().into_dart(),
-            self.0.fingerprint.into_into_dart().into_dart(),
-            self.0.port.into_into_dart().into_dart(),
-            self.0.protocol.into_into_dart().into_dart(),
-            self.0.download.into_into_dart().into_dart(),
-        ]
-        .into_dart()
-    }
-}
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for FrbWrapper<crate::api::server::RegisterDtoV2>
-{
-}
-impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::server::RegisterDtoV2>>
-    for crate::api::server::RegisterDtoV2
-{
-    fn into_into_dart(self) -> FrbWrapper<crate::api::server::RegisterDtoV2> {
-        self.into()
-    }
-}
-// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::model::RegisterResponseDto> {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -5982,8 +5884,8 @@ impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::model::RegisterRes
             self.0.version.into_into_dart().into_dart(),
             self.0.device_model.into_into_dart().into_dart(),
             self.0.device_type.into_into_dart().into_dart(),
-            self.0.token.into_into_dart().into_dart(),
-            self.0.has_web_interface.into_into_dart().into_dart(),
+            self.0.fingerprint.into_into_dart().into_dart(),
+            self.0.download.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -7189,22 +7091,6 @@ impl SseEncode for Vec<crate::api::discovery::RsDeviceLog> {
     }
 }
 
-impl SseEncode for crate::api::http::LsHttpClientVersion {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <i32>::sse_encode(
-            match self {
-                crate::api::http::LsHttpClientVersion::V2 => 0,
-                crate::api::http::LsHttpClientVersion::V3 => 1,
-                _ => {
-                    unimplemented!("");
-                }
-            },
-            serializer,
-        );
-    }
-}
-
 impl SseEncode for Option<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -7429,20 +7315,6 @@ impl SseEncode for crate::api::model::RegisterDto {
         <String>::sse_encode(self.version, serializer);
         <Option<String>>::sse_encode(self.device_model, serializer);
         <Option<crate::api::model::DeviceType>>::sse_encode(self.device_type, serializer);
-        <String>::sse_encode(self.token, serializer);
-        <u16>::sse_encode(self.port, serializer);
-        <crate::api::model::ProtocolType>::sse_encode(self.protocol, serializer);
-        <bool>::sse_encode(self.has_web_interface, serializer);
-    }
-}
-
-impl SseEncode for crate::api::server::RegisterDtoV2 {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <String>::sse_encode(self.alias, serializer);
-        <String>::sse_encode(self.version, serializer);
-        <Option<String>>::sse_encode(self.device_model, serializer);
-        <Option<crate::api::model::DeviceType>>::sse_encode(self.device_type, serializer);
         <String>::sse_encode(self.fingerprint, serializer);
         <u16>::sse_encode(self.port, serializer);
         <crate::api::model::ProtocolType>::sse_encode(self.protocol, serializer);
@@ -7457,8 +7329,8 @@ impl SseEncode for crate::api::model::RegisterResponseDto {
         <String>::sse_encode(self.version, serializer);
         <Option<String>>::sse_encode(self.device_model, serializer);
         <Option<crate::api::model::DeviceType>>::sse_encode(self.device_type, serializer);
-        <String>::sse_encode(self.token, serializer);
-        <bool>::sse_encode(self.has_web_interface, serializer);
+        <String>::sse_encode(self.fingerprint, serializer);
+        <bool>::sse_encode(self.download, serializer);
     }
 }
 
@@ -7561,7 +7433,7 @@ impl SseEncode for crate::api::server::RsServerEvent {
             crate::api::server::RsServerEvent::Register { ip, info } => {
                 <i32>::sse_encode(0, serializer);
                 <String>::sse_encode(ip, serializer);
-                <crate::api::server::RegisterDtoV2>::sse_encode(info, serializer);
+                <crate::api::model::RegisterDto>::sse_encode(info, serializer);
             }
             crate::api::server::RsServerEvent::PrepareUpload {
                 session_id,
@@ -7573,7 +7445,7 @@ impl SseEncode for crate::api::server::RsServerEvent {
                 <i32>::sse_encode(1, serializer);
                 <String>::sse_encode(session_id, serializer);
                 <String>::sse_encode(ip, serializer);
-                <crate::api::server::RegisterDtoV2>::sse_encode(info, serializer);
+                <crate::api::model::RegisterDto>::sse_encode(info, serializer);
                 <Option<String>>::sse_encode(cert_fingerprint, serializer);
                 <std::collections::HashMap<String, crate::api::model::FileDto>>::sse_encode(
                     files, serializer,
@@ -7935,7 +7807,7 @@ mod io {
     use flutter_rust_bridge::for_generated::byteorder::{
         NativeEndian, ReadBytesExt, WriteBytesExt,
     };
-    use flutter_rust_bridge::for_generated::{transform_result_dco, Lifetimeable, Lockable};
+    use flutter_rust_bridge::for_generated::{Lifetimeable, Lockable, transform_result_dco};
     use flutter_rust_bridge::{Handler, IntoIntoDart};
 
     // Section: boilerplate
@@ -8119,7 +7991,7 @@ mod web {
     };
     use flutter_rust_bridge::for_generated::wasm_bindgen;
     use flutter_rust_bridge::for_generated::wasm_bindgen::prelude::*;
-    use flutter_rust_bridge::for_generated::{transform_result_dco, Lifetimeable, Lockable};
+    use flutter_rust_bridge::for_generated::{Lifetimeable, Lockable, transform_result_dco};
     use flutter_rust_bridge::{Handler, IntoIntoDart};
 
     // Section: boilerplate

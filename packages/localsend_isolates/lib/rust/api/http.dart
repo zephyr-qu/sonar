@@ -21,19 +21,8 @@ part 'http.freezed.dart';
 /// fingerprint (uppercase hex). It is enforced during the TLS handshake, so a
 /// peer that does not present the expected certificate never receives the
 /// request. Pass `None` only for discovery, where the peer is not known yet.
-RsHttpClient createClient({
-  required String privateKey,
-  required String cert,
-  required LsHttpClientVersion version,
-  String? expectedFingerprint,
-  int? timeoutMs,
-}) => RustLib.instance.api.crateApiHttpCreateClient(
-  privateKey: privateKey,
-  cert: cert,
-  version: version,
-  expectedFingerprint: expectedFingerprint,
-  timeoutMs: timeoutMs,
-);
+RsHttpClient createClient({required String privateKey, required String cert, String? expectedFingerprint, int? timeoutMs}) =>
+    RustLib.instance.api.crateApiHttpCreateClient(privateKey: privateKey, cert: cert, expectedFingerprint: expectedFingerprint, timeoutMs: timeoutMs);
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RsHttpClient>>
 abstract class RsHttpClient implements RustOpaqueInterface {
@@ -76,11 +65,6 @@ abstract class RsHttpClient implements RustOpaqueInterface {
     required BigInt contentLength,
     required RsCancellationToken cancelToken,
   });
-}
-
-enum LsHttpClientVersion {
-  v2,
-  v3,
 }
 
 class PrepareUploadResult {

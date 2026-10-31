@@ -1,12 +1,13 @@
 use crate::config::error::AppError;
 use crate::config::state::{AppState, ClientState, IpRequestCountMap, TxMap};
-use crate::util;
 use crate::util::ip::get_ip_group;
 use axum::body::Body;
 use axum::extract::ws::{Message, WebSocket};
 use axum::extract::{ConnectInfo, Query, State, WebSocketUpgrade};
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::Response;
+use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+use base64::Engine;
 use futures_util::stream::StreamExt;
 use futures_util::SinkExt;
 use localsend::webrtc::signaling::{
@@ -58,7 +59,8 @@ pub async fn ws_handler(
     headers: HeaderMap,
 ) -> Result<Response<Body>, AppError> {
     let peer_info = {
-        let base64_decoded: Vec<u8> = util::base64::decode(&payload.d)
+        let base64_decoded: Vec<u8> = URL_SAFE_NO_PAD
+            .decode(&payload.d)
             .map_err(|_| AppError::status(StatusCode::BAD_REQUEST, None))?;
 
         let base64_decoded: String = String::from_utf8(base64_decoded)

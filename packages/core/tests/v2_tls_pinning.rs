@@ -4,20 +4,18 @@
 //! handshake, i.e. before any request data is written.
 
 use bytes::Bytes;
-use futures_util::StreamExt;
 use localsend::http::client::{ClientError, LsHttpClientV2};
-use localsend::http::dto_v2::{PrepareUploadRequestDtoV2, RegisterDtoV2};
+use localsend::http::dto::{PrepareUploadRequestDto, RegisterDto};
 use localsend::http::server::common::save::FileUploadTarget;
 use localsend::http::server::v2::{PrepareUploadDecisionV2, ServerEventV2};
 use localsend::http::server::web::{WebConfig, WebMode};
 use localsend::http::server::{start_with_port, ServerConfigV2, TlsConfig};
 use localsend::http::state::ClientInfo;
 use localsend::model::discovery::ProtocolType;
-use localsend::model::transfer::FileDto;
+use localsend::model::transfer::{FileContent, FileDto};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot, Mutex};
-use tokio_stream::wrappers::ReceiverStream;
 use tokio_util::sync::CancellationToken;
 
 /// A generated self-signed certificate, as LocalSend peers use them.
@@ -149,8 +147,8 @@ fn client(sender: &Identity, expected_fingerprint: Option<&str>) -> LsHttpClient
     .unwrap()
 }
 
-fn sender_info(fingerprint: &str) -> RegisterDtoV2 {
-    RegisterDtoV2 {
+fn sender_info(fingerprint: &str) -> RegisterDto {
+    RegisterDto {
         alias: "Test Sender".to_string(),
         version: "2.2".to_string(),
         device_model: Some("Rust".to_string()),
@@ -174,8 +172,8 @@ fn file_dto(id: &str, size: u64) -> FileDto {
     }
 }
 
-fn prepare_upload_request(sender: &Identity, files: &[FileDto]) -> PrepareUploadRequestDtoV2 {
-    PrepareUploadRequestDtoV2 {
+fn prepare_upload_request(sender: &Identity, files: &[FileDto]) -> PrepareUploadRequestDto {
+    PrepareUploadRequestDto {
         info: sender_info(&sender.fingerprint),
         files: files
             .iter()
@@ -206,11 +204,6 @@ async fn upload_bytes(
 
     let sent = Arc::new(AtomicU64::new(0));
     let progress = sent.clone();
-    let body =
-        localsend::reqwest::Body::wrap_stream(ReceiverStream::new(rx).map(move |chunk: Bytes| {
-            progress.fetch_add(chunk.len() as u64, Ordering::Relaxed);
-            Ok::<Bytes, std::io::Error>(chunk)
-        }));
 
     let result = client
         .upload(
@@ -221,7 +214,10 @@ async fn upload_bytes(
             session_id,
             file_id,
             token,
-            body,
+            FileContent::Stream(rx),
+            move |total| {
+                progress.store(total, Ordering::Relaxed);
+            },
             CancellationToken::new(),
         )
         .await;

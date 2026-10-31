@@ -143,7 +143,7 @@ return listenerFailed(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String ip,  RegisterDtoV2 info)?  register,TResult Function( String sessionId,  String ip,  RegisterDtoV2 info,  String? certFingerprint,  Map<String, FileDto> files)?  prepareUpload,TResult Function( String sessionId,  String fileId,  FileDto file)?  fileUpload,TResult Function( String sessionId,  SessionEndReasonV2 reason,  int checksumVerified,  int checksumUnchecked,  int checksumFailed)?  sessionEnd,TResult Function( String sessionId)?  prepareUploadAborted,TResult Function( String ip,  String sessionId)?  cancelReceived,TResult Function( String ip,  String sessionId,  String? userAgent)?  webPrepareDownload,TResult Function( String sessionId,  String fileId,  FileDto file)?  webFileDownload,TResult Function( List<String> args)?  show_,TResult Function( String error)?  listenerFailed,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String ip,  RegisterDto info)?  register,TResult Function( String sessionId,  String ip,  RegisterDto info,  String? certFingerprint,  Map<String, FileDto> files)?  prepareUpload,TResult Function( String sessionId,  String fileId,  FileDto file)?  fileUpload,TResult Function( String sessionId,  SessionEndReasonV2 reason,  int checksumVerified,  int checksumUnchecked,  int checksumFailed)?  sessionEnd,TResult Function( String sessionId)?  prepareUploadAborted,TResult Function( String ip,  String sessionId)?  cancelReceived,TResult Function( String ip,  String sessionId,  String? userAgent)?  webPrepareDownload,TResult Function( String sessionId,  String fileId,  FileDto file)?  webFileDownload,TResult Function( List<String> args)?  show_,TResult Function( String error)?  listenerFailed,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case RsServerEvent_Register() when register != null:
 return register(_that.ip,_that.info);case RsServerEvent_PrepareUpload() when prepareUpload != null:
@@ -173,7 +173,7 @@ return listenerFailed(_that.error);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String ip,  RegisterDtoV2 info)  register,required TResult Function( String sessionId,  String ip,  RegisterDtoV2 info,  String? certFingerprint,  Map<String, FileDto> files)  prepareUpload,required TResult Function( String sessionId,  String fileId,  FileDto file)  fileUpload,required TResult Function( String sessionId,  SessionEndReasonV2 reason,  int checksumVerified,  int checksumUnchecked,  int checksumFailed)  sessionEnd,required TResult Function( String sessionId)  prepareUploadAborted,required TResult Function( String ip,  String sessionId)  cancelReceived,required TResult Function( String ip,  String sessionId,  String? userAgent)  webPrepareDownload,required TResult Function( String sessionId,  String fileId,  FileDto file)  webFileDownload,required TResult Function( List<String> args)  show_,required TResult Function( String error)  listenerFailed,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String ip,  RegisterDto info)  register,required TResult Function( String sessionId,  String ip,  RegisterDto info,  String? certFingerprint,  Map<String, FileDto> files)  prepareUpload,required TResult Function( String sessionId,  String fileId,  FileDto file)  fileUpload,required TResult Function( String sessionId,  SessionEndReasonV2 reason,  int checksumVerified,  int checksumUnchecked,  int checksumFailed)  sessionEnd,required TResult Function( String sessionId)  prepareUploadAborted,required TResult Function( String ip,  String sessionId)  cancelReceived,required TResult Function( String ip,  String sessionId,  String? userAgent)  webPrepareDownload,required TResult Function( String sessionId,  String fileId,  FileDto file)  webFileDownload,required TResult Function( List<String> args)  show_,required TResult Function( String error)  listenerFailed,}) {final _that = this;
 switch (_that) {
 case RsServerEvent_Register():
 return register(_that.ip,_that.info);case RsServerEvent_PrepareUpload():
@@ -199,7 +199,7 @@ return listenerFailed(_that.error);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String ip,  RegisterDtoV2 info)?  register,TResult? Function( String sessionId,  String ip,  RegisterDtoV2 info,  String? certFingerprint,  Map<String, FileDto> files)?  prepareUpload,TResult? Function( String sessionId,  String fileId,  FileDto file)?  fileUpload,TResult? Function( String sessionId,  SessionEndReasonV2 reason,  int checksumVerified,  int checksumUnchecked,  int checksumFailed)?  sessionEnd,TResult? Function( String sessionId)?  prepareUploadAborted,TResult? Function( String ip,  String sessionId)?  cancelReceived,TResult? Function( String ip,  String sessionId,  String? userAgent)?  webPrepareDownload,TResult? Function( String sessionId,  String fileId,  FileDto file)?  webFileDownload,TResult? Function( List<String> args)?  show_,TResult? Function( String error)?  listenerFailed,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String ip,  RegisterDto info)?  register,TResult? Function( String sessionId,  String ip,  RegisterDto info,  String? certFingerprint,  Map<String, FileDto> files)?  prepareUpload,TResult? Function( String sessionId,  String fileId,  FileDto file)?  fileUpload,TResult? Function( String sessionId,  SessionEndReasonV2 reason,  int checksumVerified,  int checksumUnchecked,  int checksumFailed)?  sessionEnd,TResult? Function( String sessionId)?  prepareUploadAborted,TResult? Function( String ip,  String sessionId)?  cancelReceived,TResult? Function( String ip,  String sessionId,  String? userAgent)?  webPrepareDownload,TResult? Function( String sessionId,  String fileId,  FileDto file)?  webFileDownload,TResult? Function( List<String> args)?  show_,TResult? Function( String error)?  listenerFailed,}) {final _that = this;
 switch (_that) {
 case RsServerEvent_Register() when register != null:
 return register(_that.ip,_that.info);case RsServerEvent_PrepareUpload() when prepareUpload != null:
@@ -227,7 +227,7 @@ class RsServerEvent_Register extends RsServerEvent {
   
 
  final  String ip;
- final  RegisterDtoV2 info;
+ final  RegisterDto info;
 
 /// Create a copy of RsServerEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -259,7 +259,7 @@ abstract mixin class $RsServerEvent_RegisterCopyWith<$Res> implements $RsServerE
   factory $RsServerEvent_RegisterCopyWith(RsServerEvent_Register value, $Res Function(RsServerEvent_Register) _then) = _$RsServerEvent_RegisterCopyWithImpl;
 @useResult
 $Res call({
- String ip, RegisterDtoV2 info
+ String ip, RegisterDto info
 });
 
 
@@ -280,7 +280,7 @@ class _$RsServerEvent_RegisterCopyWithImpl<$Res>
   return _then(RsServerEvent_Register(
 ip: null == ip ? _self.ip : ip // ignore: cast_nullable_to_non_nullable
 as String,info: null == info ? _self.info : info // ignore: cast_nullable_to_non_nullable
-as RegisterDtoV2,
+as RegisterDto,
   ));
 }
 
@@ -297,7 +297,7 @@ class RsServerEvent_PrepareUpload extends RsServerEvent {
 /// The session ID the upload session will have when the request is accepted.
  final  String sessionId;
  final  String ip;
- final  RegisterDtoV2 info;
+ final  RegisterDto info;
 /// The SHA-256 fingerprint (uppercase hex) of the sender's client
 /// certificate verified during the mTLS handshake. Unlike
 /// `info.fingerprint`, this value cannot be spoofed.
@@ -341,7 +341,7 @@ abstract mixin class $RsServerEvent_PrepareUploadCopyWith<$Res> implements $RsSe
   factory $RsServerEvent_PrepareUploadCopyWith(RsServerEvent_PrepareUpload value, $Res Function(RsServerEvent_PrepareUpload) _then) = _$RsServerEvent_PrepareUploadCopyWithImpl;
 @useResult
 $Res call({
- String sessionId, String ip, RegisterDtoV2 info, String? certFingerprint, Map<String, FileDto> files
+ String sessionId, String ip, RegisterDto info, String? certFingerprint, Map<String, FileDto> files
 });
 
 
@@ -363,7 +363,7 @@ class _$RsServerEvent_PrepareUploadCopyWithImpl<$Res>
 sessionId: null == sessionId ? _self.sessionId : sessionId // ignore: cast_nullable_to_non_nullable
 as String,ip: null == ip ? _self.ip : ip // ignore: cast_nullable_to_non_nullable
 as String,info: null == info ? _self.info : info // ignore: cast_nullable_to_non_nullable
-as RegisterDtoV2,certFingerprint: freezed == certFingerprint ? _self.certFingerprint : certFingerprint // ignore: cast_nullable_to_non_nullable
+as RegisterDto,certFingerprint: freezed == certFingerprint ? _self.certFingerprint : certFingerprint // ignore: cast_nullable_to_non_nullable
 as String?,files: null == files ? _self._files : files // ignore: cast_nullable_to_non_nullable
 as Map<String, FileDto>,
   ));

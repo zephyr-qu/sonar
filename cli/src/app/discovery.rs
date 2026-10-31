@@ -11,7 +11,7 @@ use crate::ui::{Category, Ui};
 use localsend::discovery::{
     DeviceChannel, DiscoveredDevice, DiscoveryEvent, DiscoveryHandle, HttpChannel,
 };
-use localsend::http::dto_v2::RegisterDtoV2;
+use localsend::http::dto::RegisterDto;
 use std::sync::Arc;
 
 impl App {
@@ -58,7 +58,7 @@ impl App {
         );
     }
 
-    pub(super) fn device_confirmed(&self, host: String, info: RegisterDtoV2) {
+    pub(super) fn device_confirmed(&self, host: String, info: RegisterDto) {
         device_confirmed(
             &self.discovery,
             &self.storage.identity.fingerprint,
@@ -102,7 +102,7 @@ pub(super) fn device_confirmed(
     discovery: &Arc<DiscoveryHandle>,
     own_fingerprint: &str,
     host: String,
-    info: RegisterDtoV2,
+    info: RegisterDto,
 ) {
     if info.fingerprint == own_fingerprint {
         return;
@@ -119,6 +119,7 @@ pub(super) fn device_confirmed(
             protocol: info.protocol,
         }),
         download: info.download,
+        rtt_ms: None,
     };
     let discovery = discovery.clone();
     tokio::spawn(async move {

@@ -255,11 +255,25 @@ mod tests {
     }
 
     #[test]
-    fn formats_nanosecond_timestamp() {
-        let time = SystemTime::UNIX_EPOCH + Duration::from_nanos(123_456_789);
+    fn formats_subsecond_timestamp() {
+        // `SystemTime` only has 100 ns resolution on Windows, so the value has to be
+        // 100 ns aligned to be exactly representable on every platform.
+        let time = SystemTime::UNIX_EPOCH + Duration::from_nanos(123_456_700);
         let formatted = format_timestamp(time).unwrap();
-        assert_eq!(formatted, "1970-01-01T00:00:00.123456789Z");
+        // RFC 3339 drops trailing zeros from the fractional part.
+        assert_eq!(formatted, "1970-01-01T00:00:00.1234567Z");
         assert_eq!(parse_timestamp(&formatted), Some(time));
+
+        let trimmed = SystemTime::UNIX_EPOCH + Duration::from_nanos(123_400_000);
+        assert_eq!(
+            format_timestamp(trimmed).unwrap(),
+            "1970-01-01T00:00:00.1234Z",
+        );
+        // A whole second carries no fractional part at all.
+        assert_eq!(
+            format_timestamp(SystemTime::UNIX_EPOCH + Duration::from_secs(1)).unwrap(),
+            "1970-01-01T00:00:01Z",
+        );
     }
 
     #[test]

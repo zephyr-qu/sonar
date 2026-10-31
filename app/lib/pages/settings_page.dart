@@ -63,6 +63,12 @@ class _SettingsViewState extends State<_SettingsView> {
   /// Rows of every section, built at most once per build (see [_rowsOf]).
   final Map<SettingsSectionId, List<SettingsRow>> _rowsCache = {};
 
+  /// The rows matching the current query, filtered at most once per build. The
+  /// count text and the result list both ask for it (on desktop that is the
+  /// sidebar and the content), so filtering used to run twice per keystroke.
+  List<(SettingsSection, SettingsRow)>? _searchCache;
+  String? _searchCacheQuery;
+
   SettingsTabVm get vm => widget.vm;
 
   @override
@@ -77,6 +83,8 @@ class _SettingsViewState extends State<_SettingsView> {
     final sections = buildSettingsSections().where((section) => !section.desktopOnly || widget.desktop).toList();
     final query = _query.text.trim().toLowerCase();
     _rowsCache.clear();
+    _searchCache = null;
+    _searchCacheQuery = null;
     final totalRows = sections.fold<int>(0, (sum, section) => sum + _rowsOf(context, section).length);
 
     if (widget.desktop) {
@@ -464,6 +472,10 @@ class _SettingsViewState extends State<_SettingsView> {
   // ------------------------------------------------------------------ helpers
 
   List<(SettingsSection, SettingsRow)> _search(BuildContext context, {required List<SettingsSection> sections, required String query}) {
+    final cached = _searchCache;
+    if (cached != null && _searchCacheQuery == query) {
+      return cached;
+    }
     final results = <(SettingsSection, SettingsRow)>[];
     for (final section in sections) {
       for (final row in _rowsOf(context, section)) {
@@ -472,6 +484,8 @@ class _SettingsViewState extends State<_SettingsView> {
         }
       }
     }
+    _searchCache = results;
+    _searchCacheQuery = query;
     return results;
   }
 

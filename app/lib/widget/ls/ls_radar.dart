@@ -124,14 +124,19 @@ class _LsRadarState extends State<LsRadar> with SingleTickerProviderStateMixin {
               builder: (context, child) {
                 return Transform.rotate(angle: _controller.value * 2 * math.pi, child: child);
               },
-              child: Container(
-                width: size,
-                height: size,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: SweepGradient(
-                    colors: [colors.accent.withValues(alpha: 0.16), colors.accent.withValues(alpha: 0)],
-                    stops: const [0, 0.3],
+              child: RepaintBoundary(
+                // The gradient never changes, so it lives in its own layer: the
+                // rotation above then only rewrites a transform matrix instead of
+                // re-rasterizing the sweep on every animation frame.
+                child: Container(
+                  width: size,
+                  height: size,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: SweepGradient(
+                      colors: [colors.accent.withValues(alpha: 0.16), colors.accent.withValues(alpha: 0)],
+                      stops: const [0, 0.3],
+                    ),
                   ),
                 ),
               ),

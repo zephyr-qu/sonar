@@ -135,9 +135,15 @@ class _HomePageState extends State<HomePage> with Refena {
             children: [
               // Kept alive so switching tabs does not drop the tab state
               // (search term, selection, expanded history, scroll position).
-              _KeepAliveTab(child: NearbyTab(desktop: sizingInformation.isDesktop)),
-              _KeepAliveTab(child: TransferTab(desktop: sizingInformation.isDesktop)),
-              if (sizingInformation.isDesktop) _KeepAliveTab(child: const SettingsPage(desktop: true)),
+              _KeepAliveTab(
+                active: vm.currentTab == HomeTab.nearby,
+                child: NearbyTab(desktop: sizingInformation.isDesktop),
+              ),
+              _KeepAliveTab(
+                active: vm.currentTab == HomeTab.transfer,
+                child: TransferTab(desktop: sizingInformation.isDesktop),
+              ),
+              if (sizingInformation.isDesktop) _KeepAliveTab(active: vm.currentTab == HomeTab.settings, child: const SettingsPage(desktop: true)),
             ],
           );
 
@@ -203,10 +209,17 @@ class _HomePageState extends State<HomePage> with Refena {
 /// [PageView] disposes its off-screen pages, which dropped the whole tab state
 /// on every tab switch (search term, selection, expanded history, scroll
 /// position) and could trigger a new device scan when going back to the nearby tab.
+///
+/// A kept-alive page stays mounted, so it also keeps its tickers running: [TickerMode]
+/// mutes the animations of a hidden tab (the radar sweep would otherwise request a
+/// frame on every vsync while the user is on another tab).
 class _KeepAliveTab extends StatefulWidget {
   final Widget child;
 
-  const _KeepAliveTab({required this.child});
+  /// Whether this tab is the one on screen. Only the visible tab may animate.
+  final bool active;
+
+  const _KeepAliveTab({required this.child, required this.active});
 
   @override
   State<_KeepAliveTab> createState() => _KeepAliveTabState();
@@ -219,6 +232,6 @@ class _KeepAliveTabState extends State<_KeepAliveTab> with AutomaticKeepAliveCli
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return widget.child;
+    return TickerMode(enabled: widget.active, child: widget.child);
   }
 }

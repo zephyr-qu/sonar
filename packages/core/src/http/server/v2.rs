@@ -183,10 +183,17 @@ pub(crate) async fn register(
     let payload = body.collect_to_json::<RegisterDto>().await?;
 
     // On TLS, only trust registrations whose claimed fingerprint is proven
-    // by the client certificate of the mTLS handshake.
+    // by the client certificate of the mTLS handshake. Without a certificate
+    // the registration must not be trusted: while the web pages are served,
+    // client auth is optional, and a peer could otherwise claim any fingerprint
+    // (e.g. one of the favorites) by simply omitting its certificate. Browsers
+    // never call `register`, so dropping certificate-less registrations on TLS
+    // breaks no web feature.
     let fingerprint_valid = match client_info.cert_fingerprint() {
         Some(cert_fingerprint) => payload.fingerprint.to_ascii_uppercase() == cert_fingerprint,
-        None => true,
+        // No TLS at all: the payload fingerprint is all there is, which is the
+        // only case the application may use as a fallback.
+        None => !state.tls_enabled,
     };
 
     if let Some(v2) = &state.v2 {

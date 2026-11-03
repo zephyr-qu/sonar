@@ -82,6 +82,11 @@ pub struct AppState {
 
     /// Limits the connections being served, shared by the IPv4 and IPv6 listeners.
     connection_limiter: Arc<ConnectionLimiter>,
+
+    /// Whether the listener serves TLS. A request without a client certificate
+    /// can only be trusted when TLS is disabled entirely, because otherwise the
+    /// missing certificate means the client is a browser, not a peer device.
+    tls_enabled: bool,
 }
 
 impl AppState {
@@ -90,6 +95,7 @@ impl AppState {
         internal_config: Option<InternalConfig>,
         v2_config: Option<ServerConfigV2>,
         web_config: WebConfig,
+        tls_enabled: bool,
     ) -> Self {
         let v2 = v2_config.map(|config| {
             Arc::new(V2State {
@@ -109,6 +115,7 @@ impl AppState {
             internal,
             v2,
             connection_limiter: ConnectionLimiter::new(MAX_CONNECTIONS, MAX_CONNECTIONS_PER_IP),
+            tls_enabled,
         }
     }
 }
@@ -215,7 +222,13 @@ pub async fn start_with_port(
 
     let ipv4_socket_addr = SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), port);
     let info = Arc::new(Mutex::new(info));
-    let state = AppState::new(info.clone(), internal_config, v2_config, web_config);
+    let state = AppState::new(
+        info.clone(),
+        internal_config,
+        v2_config,
+        web_config,
+        tls_config.is_some(),
+    );
 
     let ipv4_listener = tokio::net::TcpListener::bind(ipv4_socket_addr).await?;
     // With port 0, the IPv6 listener must reuse the port the IPv4 listener got.

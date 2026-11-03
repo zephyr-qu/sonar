@@ -42,6 +42,8 @@ struct TestServer {
     prepare_uploads: Arc<Mutex<Vec<String>>>,
     /// Uploaded file contents, mapped by file ID.
     received: Arc<Mutex<Vec<(String, Vec<u8>)>>>,
+    /// Fingerprints of the registrations the application was told about.
+    registers: Arc<Mutex<Vec<String>>>,
     _stop_tx: oneshot::Sender<()>,
 }
 
@@ -56,12 +58,14 @@ async fn start_tls_server_with_web(identity: &Identity, web: WebConfig) -> TestS
     let _ = tracing_subscriber::fmt().with_test_writer().try_init();
     let prepare_uploads: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
     let received: Arc<Mutex<Vec<(String, Vec<u8>)>>> = Arc::new(Mutex::new(Vec::new()));
+    let registers: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
 
     let (event_tx, mut event_rx) = mpsc::channel::<ServerEventV2>(16);
 
     tokio::spawn({
         let prepare_uploads = prepare_uploads.clone();
         let received = received.clone();
+        let registers = registers.clone();
         async move {
             while let Some(event) = event_rx.recv().await {
                 match event {
@@ -94,6 +98,9 @@ async fn start_tls_server_with_web(identity: &Identity, web: WebConfig) -> TestS
                             received.lock().await.push((file_id, bytes));
                             let _ = result_tx.send(Ok(()));
                         });
+                    }
+                    ServerEventV2::Register { info, .. } => {
+                        registers.lock().await.push(info.fingerprint);
                     }
                     _ => {}
                 }
@@ -133,6 +140,7 @@ async fn start_tls_server_with_web(identity: &Identity, web: WebConfig) -> TestS
         port: handle.port(),
         prepare_uploads,
         received,
+        registers,
         _stop_tx: stop_tx,
     }
 }
@@ -402,6 +410,68 @@ async fn test_client_without_cert_allowed_in_web_mode() {
         .await
         .expect("register with client certificate should succeed");
     assert!(response.public_key.is_some());
+}
+
+/// While the web pages are served the client certificate is optional, so a
+/// client without one could claim any fingerprint. Such a registration must
+/// never reach the application: it would let a peer impersonate a device (for
+/// example one of the favorites, whose files are accepted without asking).
+#[tokio::test]
+async fn test_certless_register_is_ignored_in_web_mode() {
+    let server_identity = generate_identity();
+    let claimed = generate_identity();
+    let server = start_tls_server_with_web(
+        &server_identity,
+        WebConfig {
+            mode: WebMode::Upload,
+            ..WebConfig::default()
+        },
+    )
+    .await;
+
+    // A browser-like client: no client certificate, self-signed server cert accepted.
+    let browser = localsend::reqwest::Client::builder()
+        .use_rustls_tls()
+        .danger_accept_invalid_certs(true)
+        .build()
+        .unwrap();
+    let body = serde_json::to_string(&sender_info(&claimed.fingerprint)).unwrap();
+    let response = browser
+        .post(format!(
+            "https://127.0.0.1:{}/api/localsend/v2/register",
+            server.port
+        ))
+        .header("Content-Type", "application/json")
+        .body(body)
+        .send()
+        .await
+        .expect("the request is answered, only the registration event is dropped");
+    assert_eq!(response.status().as_u16(), 200);
+
+    // A peer proving its identity with a certificate is still announced.
+    let client = client(&claimed, Some(&server_identity.fingerprint));
+    client
+        .register(
+            ProtocolType::Https,
+            "127.0.0.1",
+            server.port,
+            sender_info(&claimed.fingerprint),
+        )
+        .await
+        .expect("register with client certificate should succeed");
+
+    // The event is recorded asynchronously by the event handler task.
+    for _ in 0..100 {
+        if server.registers.lock().await.len() == 1 {
+            break;
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+    }
+    assert_eq!(
+        server.registers.lock().await.clone(),
+        vec![claimed.fingerprint.clone()],
+        "only the certificate-proven registration may reach the application"
+    );
 }
 
 /// Discovery has no fingerprint to pin yet, so any valid certificate is

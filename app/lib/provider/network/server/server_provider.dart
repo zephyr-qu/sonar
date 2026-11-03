@@ -237,10 +237,16 @@ class ServerService extends Notifier<ServerState?> {
 
   Future<void> stopServer() async {
     _logger.info('Stopping server...');
-    await _subscription?.cancel();
-    _subscription = null;
-    await ref.redux(parentIsolateProvider).dispatchAsync(IsolateHttpServerStopAction());
-    state = null;
+    try {
+      await _subscription?.cancel();
+      _subscription = null;
+      await ref.redux(parentIsolateProvider).dispatchAsync(IsolateHttpServerStopAction());
+    } finally {
+      // The recorded state must not outlive the server, even if the isolate
+      // failed to confirm the stop: otherwise the UI keeps offering a running
+      // server whose port is free again.
+      state = null;
+    }
     _logger.info('Server stopped.');
   }
 

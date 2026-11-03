@@ -108,6 +108,8 @@ Future<void> setupDiscoveryIsolate(
     receiveFromMain: receiveFromMain,
     sendToMain: sendToMain,
     initialData: initialData,
+    taskIdOf: (task) => task.id,
+    errorResultOf: (id, error) => IsolateTaskStreamResult<DiscoveryResult>.error(id: id, error: error),
     handler: (ref, task) async {
       switch (task.data) {
         case DiscoveryListenTask():

@@ -400,6 +400,8 @@ Future<void> setupHttpServerIsolate(
     receiveFromMain: receiveFromMain,
     sendToMain: sendToMain,
     initialData: initialData,
+    taskIdOf: (task) => task.id,
+    errorResultOf: (id, error) => IsolateTaskStreamResult<HttpServerEvent>.error(id: id, error: error),
     init: (ref) async {
       // Initialize the platform method channel so SAF (file creation) and the
       // gallery plugin work inside this isolate.
@@ -579,13 +581,19 @@ Future<void> setupHttpServerIsolate(
           }
           return;
         case HttpServerStopTask _:
-          ref.read(_receiveSessionProvider).session = null;
-          await ref.read(httpServerProvider).stop();
-          sendToMain(
-            IsolateTaskStreamResult.done(
-              id: task.id,
-            ),
-          );
+          try {
+            // The session is gone even if stopping fails: the reply below must
+            // leave the isolate in any case, because the parent awaits the
+            // task stream without a timeout.
+            ref.read(_receiveSessionProvider).session = null;
+            await ref.read(httpServerProvider).stop();
+          } finally {
+            sendToMain(
+              IsolateTaskStreamResult.done(
+                id: task.id,
+              ),
+            );
+          }
           return;
         case HttpServerPrepareUploadDecisionTask decisionTask:
           final config = decisionTask.config;

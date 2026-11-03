@@ -115,6 +115,8 @@ Future<void> setupHttpUploadIsolate(
     receiveFromMain: receiveFromMain,
     sendToMain: sendToMain,
     initialData: initialData,
+    taskIdOf: (task) => task.id,
+    errorResultOf: (id, error) => IsolateTaskStreamResult<HttpUploadEvent>.error(id: id, error: error),
     init: (ref) async {
       // Initialize the platform method channel so getFileDescriptorAndroid
       // (used to resolve "content://" files) works inside this isolate.

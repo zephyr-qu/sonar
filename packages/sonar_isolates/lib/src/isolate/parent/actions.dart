@@ -355,7 +355,11 @@ class IsolateHttpServerStopAction extends AsyncReduxAction<IsolateController, Pa
         .sendWrappedTaskAndListenStream(
           task: HttpServerStopTask(),
         )
-        .drain<void>();
+        .drain<void>()
+        // A stop the child never reports back on would block the application
+        // forever, so the reply is awaited with a budget. The caller still has
+        // to reset its own state, because this throws on timeout.
+        .timeout(const Duration(seconds: 10));
 
     return state;
   }

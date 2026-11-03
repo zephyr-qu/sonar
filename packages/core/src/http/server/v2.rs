@@ -621,7 +621,7 @@ impl PendingSessionGuard {
     /// Frees the pending slot immediately.
     async fn clear(&mut self) {
         self.armed = false;
-        clear_pending_session(&self.v2).await;
+        clear_pending_session(&self.v2, &self.session_id).await;
     }
 }
 
@@ -633,7 +633,7 @@ impl Drop for PendingSessionGuard {
         let v2 = self.v2.clone();
         let session_id = std::mem::take(&mut self.session_id);
         tokio::spawn(async move {
-            clear_pending_session(&v2).await;
+            clear_pending_session(&v2, &session_id).await;
             // The application may still be waiting for a decision; tell it
             // that answering is pointless now.
             let _ = v2
@@ -644,9 +644,16 @@ impl Drop for PendingSessionGuard {
     }
 }
 
-async fn clear_pending_session(v2: &V2State) {
+/// Frees the pending slot of `session_id`, and only that one: the spawn in
+/// [`PendingSessionGuard::drop`] may run after a later request has already
+/// claimed the slot, and clearing that one would abort an unrelated session.
+async fn clear_pending_session(v2: &V2State, session_id: &str) {
     let mut slot = v2.session.lock().await;
-    if matches!(*slot, Some(SessionStateV2::Pending(_))) {
+    let matches_session = match slot.as_ref() {
+        Some(SessionStateV2::Pending(pending)) => pending.session_id == session_id,
+        _ => false,
+    };
+    if matches_session {
         *slot = None;
     }
 }
@@ -793,5 +800,55 @@ async fn finalize_file(
                 checksums: Some(checksums),
             })
             .await;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::http::server::common::pin::PinAttempts;
+    use std::net::IpAddr;
+    use tokio::sync::mpsc;
+
+    fn state() -> V2State {
+        let (event_tx, _event_rx) = mpsc::channel(1);
+        V2State {
+            pin: None,
+            verify_checksums: true,
+            event_tx,
+            session: Default::default(),
+            pin_attempts: PinAttempts::new(),
+        }
+    }
+
+    fn pending(session_id: &str) -> SessionStateV2 {
+        SessionStateV2::Pending(PendingSessionV2 {
+            session_id: session_id.to_string(),
+            sender_ip: PeerIp {
+                ip: IpAddr::from([127, 0, 0, 1]),
+                scope_id: None,
+            },
+            cancel: CancellationToken::new(),
+        })
+    }
+
+    /// A clear that a dropped guard spawned may run after another request
+    /// already claimed the slot. It must not clear that unrelated session.
+    #[tokio::test]
+    async fn clear_pending_session_only_clears_its_own_session() {
+        let v2 = state();
+        *v2.session.lock().await = Some(pending("other"));
+
+        clear_pending_session(&v2, "mine").await;
+        assert!(
+            matches!(*v2.session.lock().await, Some(SessionStateV2::Pending(_))),
+            "an unrelated pending session must survive"
+        );
+
+        clear_pending_session(&v2, "other").await;
+        assert!(
+            v2.session.lock().await.is_none(),
+            "the own session is cleared"
+        );
     }
 }

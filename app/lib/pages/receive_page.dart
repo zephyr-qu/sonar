@@ -346,17 +346,27 @@ class _ReceiveRequestDialogState extends State<ReceiveRequestDialog> with Refena
 
   /// The file list keeps its own scroll area so a request with hundreds of files
   /// cannot grow the dialog past the window; the action row stays in the footer.
+  ///
+  /// The rows are built lazily: a single request may carry thousands of files
+  /// (`MAX_FILES_PER_SESSION` in the server is 10_000), and a `Column` would
+  /// mount every one of them up front. `shrinkWrap` still only lays out until
+  /// the 240px viewport is full, so the card keeps its natural height for the
+  /// usual handful of files.
   Widget _fileList(BuildContext context, ReceivePageVm vm) {
+    final files = vm.files;
     return ConstrainedBox(
       constraints: const BoxConstraints(maxHeight: 240),
-      child: SingleChildScrollView(
-        child: LsCard(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-          child: Column(
-            children: [
-              for (final file in vm.files) LsFileRow(kind: _kindOf(file), name: file.fileName, meta: file.size.asReadableFileSize),
-            ],
-          ),
+      child: LsCard(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+        child: ListView.builder(
+          primary: false,
+          shrinkWrap: true,
+          padding: EdgeInsets.zero,
+          itemCount: files.length,
+          itemBuilder: (context, index) {
+            final file = files[index];
+            return LsFileRow(kind: _kindOf(file), name: file.fileName, meta: file.size.asReadableFileSize);
+          },
         ),
       ),
     );

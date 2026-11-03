@@ -271,8 +271,10 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
     final doneLabel = _finishTimer != null ? '${t.general.done} ($_finishCounter)' : t.general.done;
     final canOpenFolder = receiveSession != null && checkPlatformWithFileSystem();
 
-    final fileRows = <Widget>[];
-    for (var i = 0; i < _files.length; i++) {
+    // Built on demand by the sliver below: a session can carry thousands of
+    // files and every row subscribes to its own progress listenable, so mounting
+    // them all up front costs more than the widgets themselves.
+    Widget fileRow(BuildContext context, int i) {
       final file = _files[i];
       final fileName = receiveSession?.files[file.id]?.desiredName ?? file.fileName;
       final savedToGallery = receiveSession?.files[file.id]?.savedToGallery ?? false;
@@ -287,56 +289,54 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
       }
 
       // Only this row rebuilds when the state of this file changes, not the whole page.
-      fileRows.add(
-        ValueListenableBuilder<FileTransfer>(
-          valueListenable: transferNotifier.fileListenable(sessionId: widget.sessionId, fileId: file.id),
-          builder: (context, transfer, _) {
-            final fileStatus = transfer.status;
-            final statusLabel = savedToGallery ? t.progressPage.savedToGallery : fileStatus.label;
+      return ValueListenableBuilder<FileTransfer>(
+        valueListenable: transferNotifier.fileListenable(sessionId: widget.sessionId, fileId: file.id),
+        builder: (context, transfer, _) {
+          final fileStatus = transfer.status;
+          final statusLabel = savedToGallery ? t.progressPage.savedToGallery : fileStatus.label;
 
-            final Widget? trailing;
-            if (sendSession != null && fileStatus == FileStatus.failed) {
-              trailing = LsIconButton(
-                icon: LucideIcons.refreshCw,
-                tooltip: t.general.restart,
-                onPressed: () => ref
-                    .notifier(sendProvider)
-                    .sendFile(
-                      sessionId: widget.sessionId,
-                      file: sendSession.files[file.id]!,
-                      isRetry: true,
-                    ),
-              );
-            } else if (errorMessage != null) {
-              trailing = LsIconButton(
-                icon: LucideIcons.info,
-                tooltip: t.general.error,
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (_) => ErrorDialog(error: errorMessage!),
-                ),
-              );
-            } else {
-              trailing = null;
-            }
-
-            return LsFileRow(
-              kind: _kindOfFile(file),
-              name: fileName,
-              meta: [
-                file.size.asReadableFileSize,
-                if (fileStatus != FileStatus.sending) statusLabel,
-              ].join('  '),
-              progress: switch (fileStatus) {
-                FileStatus.sending => transfer.progress.clamp(0.0, 1.0),
-                FileStatus.finished => 1.0,
-                _ => null,
-              },
-              showDivider: i != _files.length - 1,
-              trailing: trailing,
+          final Widget? trailing;
+          if (sendSession != null && fileStatus == FileStatus.failed) {
+            trailing = LsIconButton(
+              icon: LucideIcons.refreshCw,
+              tooltip: t.general.restart,
+              onPressed: () => ref
+                  .notifier(sendProvider)
+                  .sendFile(
+                    sessionId: widget.sessionId,
+                    file: sendSession.files[file.id]!,
+                    isRetry: true,
+                  ),
             );
-          },
-        ),
+          } else if (errorMessage != null) {
+            trailing = LsIconButton(
+              icon: LucideIcons.info,
+              tooltip: t.general.error,
+              onPressed: () => showDialog(
+                context: context,
+                builder: (_) => ErrorDialog(error: errorMessage!),
+              ),
+            );
+          } else {
+            trailing = null;
+          }
+
+          return LsFileRow(
+            kind: _kindOfFile(file),
+            name: fileName,
+            meta: [
+              file.size.asReadableFileSize,
+              if (fileStatus != FileStatus.sending) statusLabel,
+            ].join('  '),
+            progress: switch (fileStatus) {
+              FileStatus.sending => transfer.progress.clamp(0.0, 1.0),
+              FileStatus.finished => 1.0,
+              _ => null,
+            },
+            showDivider: i != _files.length - 1,
+            trailing: trailing,
+          );
+        },
       );
     }
 
@@ -382,101 +382,119 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
                 onBack: () => _exit(closeSession: false),
               ),
               Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-                  children: [
-                    _ProgressScope(
-                      notifier: transferNotifier,
-                      sessionId: widget.sessionId,
-                      files: _files,
-                      totalBytes: _totalBytes,
-                      startTime: startTime,
-                      endTime: endTime,
-                      status: status,
-                      isSending: isSending,
-                      builder: (context, snapshot) => LsCard(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  width: 34,
-                                  height: 34,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(10)),
-                                  child: Icon(device?.deviceType.icon ?? LucideIcons.monitor, size: 18, color: colors.fg),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Column(
+                child: CustomScrollView(
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                      sliver: SliverList.list(
+                        children: [
+                          _ProgressScope(
+                            notifier: transferNotifier,
+                            sessionId: widget.sessionId,
+                            files: _files,
+                            totalBytes: _totalBytes,
+                            startTime: startTime,
+                            endTime: endTime,
+                            status: status,
+                            isSending: isSending,
+                            builder: (context, snapshot) => LsCard(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Text(
-                                        deviceTitle,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: tokens.bodyStrong,
+                                      Container(
+                                        width: 34,
+                                        height: 34,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(10)),
+                                        child: Icon(device?.deviceType.icon ?? LucideIcons.monitor, size: 18, color: colors.fg),
                                       ),
-                                      const SizedBox(height: 2),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              deviceTitle,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: tokens.bodyStrong,
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              [
+                                                meta,
+                                                if (isSending && snapshot.speedInBytes != null)
+                                                  t.transferTab.speed(speed: snapshot.speedInBytes!.asReadableFileSize),
+                                              ].join('  '),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: tokens.mono,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      if (statusChip != null)
+                                        statusChip
+                                      else if (isSending && snapshot.remainingTime != null)
+                                        Text(
+                                          t.transferTab.remaining(time: snapshot.remainingTime!),
+                                          style: tokens.mono,
+                                        ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  LsProgressBar(value: snapshot.progress),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('${(snapshot.progress * 100).round()}%', style: tokens.monoSm),
                                       Text(
-                                        [
-                                          meta,
-                                          if (isSending && snapshot.speedInBytes != null)
-                                            t.transferTab.speed(speed: snapshot.speedInBytes!.asReadableFileSize),
-                                        ].join('  '),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: tokens.mono,
+                                        '${snapshot.currentBytes.asReadableFileSize} / ${_totalBytes == double.maxFinite.toInt() ? '-' : _totalBytes.asReadableFileSize}',
+                                        style: tokens.monoSm,
                                       ),
                                     ],
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                if (statusChip != null)
-                                  statusChip
-                                else if (isSending && snapshot.remainingTime != null)
-                                  Text(
-                                    t.transferTab.remaining(time: snapshot.remainingTime!),
-                                    style: tokens.mono,
-                                  ),
-                              ],
+                                ],
+                              ),
                             ),
-                            const SizedBox(height: 12),
-                            LsProgressBar(value: snapshot.progress),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('${(snapshot.progress * 100).round()}%', style: tokens.monoSm),
-                                Text(
-                                  '${snapshot.currentBytes.asReadableFileSize} / ${_totalBytes == double.maxFinite.toInt() ? '-' : _totalBytes.asReadableFileSize}',
-                                  style: tokens.monoSm,
-                                ),
-                              ],
+                          ),
+                          if (sendSession?.errorMessage != null)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: SelectableText(
+                                sendSession!.errorMessage!,
+                                style: tokens.bodySm.copyWith(color: colors.danger),
+                              ),
                             ),
-                          ],
-                        ),
+                          if (_files.isNotEmpty) LsSectionLabel(label: t.general.files, count: '${_files.length}'),
+                        ],
                       ),
                     ),
-                    if (sendSession?.errorMessage != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10),
-                        child: SelectableText(
-                          sendSession!.errorMessage!,
-                          style: tokens.bodySm.copyWith(color: colors.danger),
+                    if (_files.isNotEmpty)
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                        sliver: DecoratedSliver(
+                          decoration: ShapeDecoration(
+                            color: colors.bg2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: tokens.cardRadius,
+                              side: BorderSide(color: colors.line, width: tokens.hairlineOf(context)),
+                            ),
+                          ),
+                          sliver: SliverPadding(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+                            sliver: SliverList.builder(itemCount: _files.length, itemBuilder: fileRow),
+                          ),
                         ),
                       ),
-                    if (fileRows.isNotEmpty) ...[
-                      LsSectionLabel(label: t.general.files, count: '${_files.length}'),
-                      LsCard(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-                        child: Column(children: fileRows),
-                      ),
-                    ],
+                    const SliverToBoxAdapter(child: SizedBox(height: 16)),
                   ],
                 ),
               ),

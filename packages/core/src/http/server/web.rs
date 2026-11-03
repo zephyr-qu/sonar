@@ -16,6 +16,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot, Mutex};
 use tokio_stream::StreamExt;
+use uuid::Uuid;
 
 /// Events emitted by the web download (download API) endpoints that must be handled
 /// by the application. Web download can be enabled independently of the v2 endpoints.
@@ -192,7 +193,8 @@ pub(crate) struct WebDownloadState {
     /// Channel on which server events are emitted to the application.
     pub(crate) event_tx: mpsc::Sender<WebDownloadEvent>,
 
-    /// Download sessions, keyed by session ID (the client's IP address).
+    /// Download sessions, keyed by their random session ID.
+    /// At most one session exists per client IP.
     pub(crate) sessions: Mutex<HashMap<String, WebDownloadSession>>,
 
     /// Failed PIN attempts of the clients, see [`PinAttempts`].
@@ -336,10 +338,15 @@ pub(crate) async fn prepare_download(
         .and_then(|value| value.to_str().ok())
         .map(str::to_string);
 
-    // One session per IP; a new request replaces any previous session of this client.
-    let session_id = client_info.ip.to_string();
+    // The session ID is a capability: the reuse path above hands out the file
+    // list without asking for the PIN again, so it must not be derivable from
+    // the client address (a port-forwarded server, CGNAT or another process on
+    // the same host share it). One session per IP keeps the map bounded and
+    // makes a new request replace any previous session of this client.
+    let session_id = Uuid::new_v4().to_string();
     {
         let mut sessions = web.sessions.lock().await;
+        sessions.retain(|_, session| session.ip != client_info.ip);
         sessions.insert(
             session_id.clone(),
             WebDownloadSession {

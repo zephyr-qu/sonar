@@ -244,7 +244,7 @@ async fn test_web_page() {
     let response = client.get(&base_url).send().await.unwrap();
     assert_eq!(response.status().as_u16(), 200);
     let body = response.text().await.unwrap();
-    assert!(body.contains("LocalSend"));
+    assert!(body.contains("Sonar"));
     assert!(body.contains("prepare-download"));
 
     let response = client
@@ -331,7 +331,7 @@ async fn test_upload_page() {
     let response = client.get(&base_url).send().await.unwrap();
     assert_eq!(response.status().as_u16(), 200);
     let body = response.text().await.unwrap();
-    assert!(body.contains("LocalSend"));
+    assert!(body.contains("Sonar"));
     assert!(body.contains("prepare-upload"));
     // The download page is not served without web download.
     assert!(!body.contains("prepare-download"));
@@ -527,6 +527,74 @@ async fn test_download_invalid_session() {
         )
         .await;
     assert_status(result, 403);
+
+    let _ = std::fs::remove_file(disk_path);
+}
+
+#[tokio::test]
+async fn test_session_id_is_a_secret() {
+    let (config, contents, disk_path, _) = web_download_config(Some("123456".to_string()));
+    let server = start_test_server(Some((config, contents)), true).await;
+    let client = LsHttpClientV2::try_new_without_cert().unwrap();
+
+    let response = client
+        .prepare_download(
+            ProtocolType::Http,
+            "127.0.0.1",
+            server.port,
+            None,
+            Some("123456"),
+        )
+        .await
+        .unwrap();
+    assert_eq!(server.prepare_download_events.load(Ordering::SeqCst), 1);
+
+    // The session ID is the capability that lets the reuse path skip the PIN, so
+    // it must not be derivable from the client address: a client sharing that
+    // address (port-forwarded server, CGNAT, another process on the same host)
+    // would otherwise take over the accepted session.
+    let local_ip: IpAddr = "127.0.0.1".parse().unwrap();
+    assert_ne!(response.session_id, local_ip.to_string());
+
+    let result = client
+        .download(
+            ProtocolType::Http,
+            "127.0.0.1",
+            server.port,
+            &local_ip.to_string(),
+            "file-text",
+        )
+        .await;
+    assert_status(result, 403);
+
+    // Asking for the file list with the address instead of the session ID is a
+    // new request: it needs the PIN and must not reuse the accepted session.
+    let result = client
+        .prepare_download(
+            ProtocolType::Http,
+            "127.0.0.1",
+            server.port,
+            Some(&local_ip.to_string()),
+            None,
+        )
+        .await;
+    assert_status(result, 401);
+    assert_eq!(server.prepare_download_events.load(Ordering::SeqCst), 1);
+
+    // The accepted session stays usable.
+    let mut bytes = Vec::new();
+    client
+        .download_to_writer(
+            ProtocolType::Http,
+            "127.0.0.1",
+            server.port,
+            &response.session_id,
+            "file-text",
+            &mut bytes,
+        )
+        .await
+        .unwrap();
+    assert_eq!(bytes, b"hello");
 
     let _ = std::fs::remove_file(disk_path);
 }

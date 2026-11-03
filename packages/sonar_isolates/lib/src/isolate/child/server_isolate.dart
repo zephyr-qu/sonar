@@ -718,8 +718,10 @@ Future<void> _handleFileUpload({
       );
     }
   } catch (e, st) {
-    // The incomplete file is kept: a retry of this file overwrites it, and
-    // otherwise it stays behind as the partial file of a failed transfer.
+    // A path target leaves nothing behind: the server moves the file to its
+    // final name only once it is complete, so no partial upload stays in the
+    // destination directory. An Android file descriptor target cannot be
+    // renamed, so it keeps the partial content, which a retry overwrites.
     _logger.severe('Failed to save file', e, st);
     emitFailed(e);
     return;

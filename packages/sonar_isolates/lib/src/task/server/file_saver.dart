@@ -98,7 +98,8 @@ Future<FileSaveTarget> prepareFileSaveTarget({
 Future<FileSaveTarget> reopenFileSaveTarget(FileSaveTarget target) async {
   final path = target.path;
   if (path != null) {
-    // The server opens (and truncates) the path itself.
+    // The server writes next to the path and replaces it when the attempt
+    // completes, so the same path can be reused without truncating it first.
     return target;
   }
 

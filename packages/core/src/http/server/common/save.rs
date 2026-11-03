@@ -3,8 +3,9 @@ use bytes::Bytes;
 use http_body_util::BodyExt;
 use hyper::body::Incoming;
 use hyper::Request;
+use std::ffi::OsString;
 use std::future::Future;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use tokio::sync::{mpsc, oneshot};
 
 /// Channel capacity for file upload chunks (provides backpressure).
@@ -36,8 +37,12 @@ pub enum FileUploadTarget {
         result_rx: oneshot::Receiver<Result<(), String>>,
     },
 
-    /// The server writes the file to this path (created or truncated)
-    /// and reports the result on `result_tx`.
+    /// The server writes the file to this path and reports the result on
+    /// `result_tx`.
+    ///
+    /// The content is written to a temporary file next to `path` and moved to
+    /// `path` (replacing an existing file of that name) only once it is
+    /// complete, so a failed or aborted transfer leaves no file behind.
     ///
     /// Timestamps provided in the sender's file metadata are applied to the
     /// written file, so the application does not need to set them itself.
@@ -89,6 +94,99 @@ impl FileTimestamps {
     }
 }
 
+/// The temporary file an upload to [FileUploadTarget::Path] is written to
+/// before it is moved to its final name.
+///
+/// Writing straight to the final name leaves a partial file behind whenever a
+/// transfer fails or is aborted (sender disconnect, user cancel, a full disk),
+/// and such a file cannot be told apart from a completely received one.
+/// Writing next to the destination and renaming afterwards keeps the final
+/// name unoccupied until the content is complete; the rename stays within one
+/// directory, so it is atomic.
+struct PendingFile {
+    /// The file the upload is written to.
+    temp: PathBuf,
+
+    /// The name [Self::persist] moves the file to.
+    final_path: PathBuf,
+
+    /// Whether the temporary file has already been moved or removed.
+    finished: bool,
+}
+
+impl PendingFile {
+    /// Creates the temporary path for an upload that belongs at `final_path`.
+    ///
+    /// The name is hidden, ends in `.part` and carries a random component, so
+    /// that it cannot collide with a file the user has.
+    fn new(final_path: PathBuf) -> Self {
+        let mut name = OsString::from(".");
+        name.push(final_path.file_name().unwrap_or_default());
+        let suffix = format!(".{:08x}.part", uuid::Uuid::new_v4().as_u128() as u32);
+        name.push(suffix);
+
+        Self {
+            temp: final_path.with_file_name(name),
+            final_path,
+            finished: false,
+        }
+    }
+
+    /// Moves the completely received file to its final name, replacing a file
+    /// of that name (a retry of the same upload overwrites its target).
+    async fn persist(&mut self) -> Result<(), String> {
+        tokio::fs::rename(&self.temp, &self.final_path)
+            .await
+            .map_err(|e| {
+                format!(
+                    "Failed to move {} to {}: {e}",
+                    self.temp.display(),
+                    self.final_path.display()
+                )
+            })?;
+        self.finished = true;
+        Ok(())
+    }
+
+    /// Removes the incomplete file, so that no partial upload is left behind.
+    async fn discard(mut self) {
+        self.finished = true;
+        remove_temporary_file(&self.temp).await;
+    }
+}
+
+impl Drop for PendingFile {
+    fn drop(&mut self) {
+        if self.finished {
+            return;
+        }
+
+        // The request was dropped before the outcome was known (e.g. the
+        // connection closed), so the writer task may still be writing. The
+        // temporary file is removed either way; its handle being open only
+        // delays the deletion on some platforms, it does not keep the partial
+        // data under the final name.
+        let temp = std::mem::take(&mut self.temp);
+        match tokio::runtime::Handle::try_current() {
+            Ok(handle) => {
+                handle.spawn(async move { remove_temporary_file(&temp).await });
+            }
+            Err(_) => {
+                let _ = std::fs::remove_file(&temp);
+            }
+        }
+    }
+}
+
+/// Removes a temporary file of an upload, if it still exists.
+async fn remove_temporary_file(path: &Path) {
+    if let Err(e) = tokio::fs::remove_file(path).await {
+        if e.kind() != std::io::ErrorKind::NotFound {
+            tracing::warn!("Could not remove incomplete upload {}: {e}", path.display());
+        }
+    }
+}
+
 /// Outcome of receiving an uploaded file.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum SaveResult {
@@ -116,27 +214,31 @@ pub(crate) async fn save_req_to_target(
     // For [FileUploadTarget::Path] and [FileUploadTarget::Fd], the application's
     // result channel is answered by this function once the complete outcome
     // (including the checksum verification) is known.
-    let (binary_tx, result_rx, app_result_tx) = match target {
+    let (binary_tx, result_rx, app_result_tx, pending_file) = match target {
         FileUploadTarget::Stream {
             binary_tx,
             result_rx,
-        } => (binary_tx, result_rx, None),
+        } => (binary_tx, result_rx, None, None),
         FileUploadTarget::Path {
             path,
             result_tx,
             progress_tx,
         } => {
-            let (binary_tx, result_rx) = spawn_file_writer(
+            // The upload is written next to its destination and moved to
+            // `path` only once it is known to be complete, so a failed or
+            // aborted transfer cannot leave a file under the final name.
+            let pending_file = PendingFile::new(path);
+            let open = {
+                let temp = pending_file.temp.clone();
                 async move {
-                    tokio::fs::File::create(&path)
+                    tokio::fs::File::create(&temp)
                         .await
-                        .map_err(|e| format!("Failed to create {}: {e}", path.display()))
-                },
-                file_size,
-                progress_tx,
-                timestamps,
-            );
-            (binary_tx, result_rx, Some(result_tx))
+                        .map_err(|e| format!("Failed to create {}: {e}", temp.display()))
+                }
+            };
+            let (binary_tx, result_rx) =
+                spawn_file_writer(open, file_size, progress_tx, timestamps);
+            (binary_tx, result_rx, Some(result_tx), Some(pending_file))
         }
         #[cfg(target_os = "android")]
         FileUploadTarget::Fd {
@@ -157,7 +259,7 @@ pub(crate) async fn save_req_to_target(
                 progress_tx,
                 timestamps,
             );
-            (binary_tx, result_rx, Some(result_tx))
+            (binary_tx, result_rx, Some(result_tx), None)
         }
     };
 
@@ -196,7 +298,7 @@ pub(crate) async fn save_req_to_target(
     drop(binary_tx);
 
     // Determine the outcome; `error` carries the reason for the application.
-    let (result, error): (SaveResult, Option<String>) = 'outcome: {
+    let (mut result, mut error): (SaveResult, Option<String>) = 'outcome: {
         if stream_error {
             // The file writer (if any) fails with a size mismatch or its own
             // write error once the channel is closed; collect that reason.
@@ -235,6 +337,21 @@ pub(crate) async fn save_req_to_target(
 
         (SaveResult::Success, None)
     };
+
+    // Publish the file only once it is known to be complete: a failed or
+    // aborted transfer has to leave nothing under its final name.
+    if let Some(mut pending_file) = pending_file {
+        match result {
+            SaveResult::Success => {
+                if let Err(err) = pending_file.persist().await {
+                    tracing::warn!("{err}");
+                    error = Some(err);
+                    result = SaveResult::Failed;
+                }
+            }
+            SaveResult::Failed | SaveResult::HashMismatch => pending_file.discard().await,
+        }
+    }
 
     if let Some(app_result_tx) = app_result_tx {
         let _ = app_result_tx.send(match error {
@@ -333,8 +450,9 @@ async fn write_file_from_receiver(
     // The timestamps are applied last because the writes and the truncation
     // above update the modification time themselves.
     //
-    // Best-effort: the provider backing an Android file descriptor may not
-    // support changing timestamps, which must not fail the completed transfer.
+    // The handle is closed before the result is reported: the caller moves the
+    // file to its final name, which a still open file would block (Windows).
+    let file = file.into_std().await;
     if !timestamps.is_empty() {
         let mut times = std::fs::FileTimes::new();
         if let Some(modified) = timestamps.modified {
@@ -343,8 +461,11 @@ async fn write_file_from_receiver(
         if let Some(accessed) = timestamps.accessed {
             times = times.set_accessed(accessed);
         }
-        let file = file.into_std().await;
         // Also closes the file, off the async runtime like tokio::fs does.
+        //
+        // Best-effort: the provider backing an Android file descriptor may not
+        // support changing timestamps, which must not fail the completed
+        // transfer.
         let result = tokio::task::spawn_blocking(move || file.set_times(times)).await;
         if let Ok(Err(e)) = result {
             tracing::warn!("Could not set file timestamps: {e}");

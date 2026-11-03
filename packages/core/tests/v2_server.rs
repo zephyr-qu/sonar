@@ -989,6 +989,61 @@ async fn test_upload_saved_to_path_by_server() {
     let _ = tokio::fs::remove_dir_all(&save_dir).await;
 }
 
+/// A transfer that ends before the announced size has been received must not
+/// leave anything behind: a partial file under the final name cannot be told
+/// apart from a completely received one.
+#[tokio::test]
+async fn test_failed_upload_leaves_no_file_behind() {
+    let save_dir = std::env::temp_dir().join(format!("localsend-test-{}", uuid::Uuid::new_v4()));
+    tokio::fs::create_dir_all(&save_dir).await.unwrap();
+
+    let server = start_test_server(None, true, Some(save_dir.clone())).await;
+    let client = LsHttpClientV2::try_new_without_cert().unwrap();
+
+    // The sender announces more bytes than it delivers, like a connection that
+    // drops mid-transfer.
+    let file = file_dto("file-a", "a.bin", 100_000);
+    let response = client
+        .prepare_upload(
+            ProtocolType::Http,
+            "127.0.0.1",
+            server.port,
+            None,
+            prepare_upload_request(&[file]),
+            None,
+            CancellationToken::new(),
+        )
+        .await
+        .unwrap()
+        .response
+        .unwrap();
+
+    let result = upload_bytes(
+        &client,
+        server.port,
+        &response.session_id,
+        "file-a",
+        &response.files["file-a"],
+        &[0_u8; 50_000],
+    )
+    .await;
+    assert_status(result, 500);
+
+    tokio::time::sleep(Duration::from_millis(100)).await;
+    assert!(!server.received.lock().await.contains_key("file-a"));
+
+    // Neither the final name nor the temporary file of the upload may remain.
+    let mut entries = tokio::fs::read_dir(&save_dir).await.unwrap();
+    if let Some(entry) = entries.next_entry().await.unwrap() {
+        panic!(
+            "a failed upload left {} behind",
+            entry.file_name().to_string_lossy()
+        );
+    }
+
+    let _ = tokio::fs::remove_dir_all(&save_dir).await;
+}
+
 /// A source file the sender cannot read must fail the upload instead of being
 /// sent as an empty body.
 ///

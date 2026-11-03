@@ -12,6 +12,7 @@ use futures_util::StreamExt;
 use reqwest::Response;
 use rustls::pki_types::pem::PemObject;
 use rustls::pki_types::{CertificateDer, PrivateKeyDer};
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use thiserror::Error;
@@ -35,6 +36,66 @@ pub enum ClientError {
 
     #[error("Upload cancelled")]
     Cancelled,
+    /// The peer answered with a body larger than [`MAX_RESPONSE_BODY_SIZE`].
+    #[error("Response body too large")]
+    BodyTooLarge,
+}
+
+/// Upper bound for a response body that the client buffers.
+///
+/// Every answer of a peer is read into memory, and the subnet scan asks dozens
+/// of hosts at once without any user interaction, so a peer that streams an
+/// endless body would otherwise decide how much memory this process allocates.
+///
+/// Chosen like the server-side [`MAX_JSON_BODY_SIZE`], which bounds the matching
+/// request: a file list is metadata only (a preview is at most one small text
+/// file), so the limit only has to leave room for very large shares.
+///
+/// [`MAX_JSON_BODY_SIZE`]: crate::http::server::common::collect_to_json::MAX_JSON_BODY_SIZE
+pub const MAX_RESPONSE_BODY_SIZE: usize = 4 * 1024 * 1024;
+
+/// Reads the body of a response, refusing to buffer more than
+/// [`MAX_RESPONSE_BODY_SIZE`] bytes.
+///
+/// The advertised length is checked first, so a body that announces itself as
+/// too large is rejected without reading it.
+async fn read_capped_body(mut res: Response) -> Result<Bytes, ClientError> {
+    if let Some(length) = res.content_length() {
+        if length > MAX_RESPONSE_BODY_SIZE as u64 {
+            return Err(ClientError::BodyTooLarge);
+        }
+    }
+
+    let mut body = Vec::new();
+    while let Some(chunk) = res.chunk().await? {
+        if body.len() + chunk.len() > MAX_RESPONSE_BODY_SIZE {
+            return Err(ClientError::BodyTooLarge);
+        }
+        body.extend_from_slice(&chunk);
+    }
+
+    Ok(Bytes::from(body))
+}
+
+/// Reads the body of a failed response as text, truncated to
+/// [`MAX_RESPONSE_BODY_SIZE`] bytes.
+///
+/// Truncated instead of rejected: the status code is the answer, the body only
+/// explains it, and an error path must not turn into a memory exhaustion.
+async fn read_capped_text(mut res: Response) -> String {
+    let mut body = Vec::new();
+    while let Ok(Some(chunk)) = res.chunk().await {
+        let room = MAX_RESPONSE_BODY_SIZE - body.len();
+        if chunk.len() > room {
+            body.extend_from_slice(&chunk[..room]);
+            break;
+        }
+        body.extend_from_slice(&chunk);
+        if body.len() >= MAX_RESPONSE_BODY_SIZE {
+            break;
+        }
+    }
+    String::from_utf8_lossy(&body).into_owned()
 }
 
 /// Builds a streaming request body from the file content, invoking `progress`
@@ -193,12 +254,18 @@ pub struct ResultWithPublicKey<T> {
 
 pub(super) trait ResponseExt {
     async fn into_error<T>(self) -> Result<T, ClientError>;
+
+    /// Reads the body as JSON, refusing to buffer more than
+    /// [`MAX_RESPONSE_BODY_SIZE`] bytes.
+    async fn json_capped<T: DeserializeOwned>(self) -> Result<T, ClientError>;
 }
 
 impl ResponseExt for Response {
     async fn into_error<T>(self) -> Result<T, ClientError> {
         let status = self.status().as_u16();
-        let body = self.text().await.unwrap_or_default();
+        // Truncated instead of rejected: a status code explains an error better
+        // than a transport error, and a body must never decide the allocation.
+        let body = read_capped_text(self).await;
         let message = match serde_json::from_str::<ErrorResponse>(&body) {
             Ok(error) => error.message,
             Err(_) => body,
@@ -211,5 +278,10 @@ impl ResponseExt for Response {
                 Some(message)
             },
         }))
+    }
+
+    async fn json_capped<T: DeserializeOwned>(self) -> Result<T, ClientError> {
+        let body = read_capped_body(self).await?;
+        Ok(serde_json::from_slice(&body)?)
     }
 }

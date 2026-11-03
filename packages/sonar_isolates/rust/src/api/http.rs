@@ -234,6 +234,9 @@ impl From<ClientError> for RsHttpClientError {
             ClientError::Io(e) => RsHttpClientError::Io(e.to_string()),
             ClientError::Other(e) => RsHttpClientError::Other(e.to_string()),
             ClientError::Cancelled => RsHttpClientError::Other("Upload cancelled".to_string()),
+            ClientError::BodyTooLarge => {
+                RsHttpClientError::Other("Response body too large".to_string())
+            }
         }
     }
 }

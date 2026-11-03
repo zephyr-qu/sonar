@@ -107,7 +107,7 @@ impl LsHttpClientV2 {
             _ => (None, None),
         };
 
-        let body = res.json::<RegisterResponseDto>().await?;
+        let body = res.json_capped::<RegisterResponseDto>().await?;
 
         Ok(ResultWithPublicKey {
             public_key,
@@ -197,7 +197,7 @@ impl LsHttpClientV2 {
             });
         }
 
-        let body = res.json::<PrepareUploadResponseDto>().await?;
+        let body = res.json_capped::<PrepareUploadResponseDto>().await?;
 
         Ok(PrepareUploadResult {
             status_code: status.as_u16(),
@@ -336,7 +336,7 @@ impl LsHttpClientV2 {
             return res.into_error().await;
         }
 
-        let body = res.json::<InfoResponseDto>().await?;
+        let body = res.json_capped::<InfoResponseDto>().await?;
 
         Ok(body)
     }
@@ -393,7 +393,7 @@ impl LsHttpClientV2 {
             return res.into_error().await;
         }
 
-        let body = res.json::<PrepareDownloadResponseDto>().await?;
+        let body = res.json_capped::<PrepareDownloadResponseDto>().await?;
 
         Ok(body)
     }

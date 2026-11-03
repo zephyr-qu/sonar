@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -120,7 +121,11 @@ class PersistenceService {
   final SharedPreferences _prefs;
   final bool isFirstAppStart;
 
-  PersistenceService._(this._prefs, this.isFirstAppStart);
+  /// Decoded once in [initialize], so that a corrupted value is repaired there instead of failing
+  /// every startup. The security context is a derived device identity, not user data.
+  StoredSecurityContext _securityContextValue;
+
+  PersistenceService._(this._prefs, this.isFirstAppStart, this._securityContextValue);
 
   static Future<PersistenceService> initialize({
     required bool supportsDynamicColors,
@@ -187,8 +192,19 @@ class PersistenceService {
       await prefs.setString(_aliasKey, generateRandomAlias());
     }
 
-    if (prefs.getString(_securityContext) == null) {
-      await prefs.setString(_securityContext, jsonEncode(await generateSecurityContext()));
+    // A corrupted or incompatible (schema changed) security context must not brick the app: it is
+    // regenerated, and peers simply see this device as a new one.
+    final storedSecurityContext = prefs.getString(_securityContext);
+    var securityContext = _decodeOrNull<StoredSecurityContext>(
+      storedSecurityContext,
+      (json) => StoredSecurityContext.fromJson(json as Map<String, dynamic>),
+    );
+    if (securityContext == null) {
+      if (storedSecurityContext != null) {
+        _logger.warning('Security context is unreadable, generating a new one');
+      }
+      securityContext = await generateSecurityContext();
+      await prefs.setString(_securityContext, jsonEncode(securityContext));
     }
 
     if (isFirstAppStart) {
@@ -220,7 +236,7 @@ class PersistenceService {
       await prefs.remove(launchMinimizedLegacyKey);
     }
 
-    return PersistenceService._(prefs, isFirstAppStart);
+    return PersistenceService._(prefs, isFirstAppStart, securityContext);
   }
 
   static Future<void> _initColorSetting(SharedPreferences prefs, bool supportsDynamicColors) async {
@@ -234,44 +250,73 @@ class PersistenceService {
     return SharedPreferencesStorePlatform.instance is SharedPreferencesPortable;
   }
 
-  StoredSecurityContext getSecurityContext() {
-    final contextRaw = _prefs.getString(_securityContext)!;
-    return StoredSecurityContext.fromJson(jsonDecode(contextRaw));
-  }
-
-  Future<void> setSecurityContext(StoredSecurityContext context) async {
-    await _prefs.setString(_securityContext, jsonEncode(context));
-  }
-
-  List<String>? getSignalingServers() {
-    final serversRaw = _prefs.getString(_signalingServers);
-    if (serversRaw == null) {
+  /// Parses a persisted JSON document, returning `null` when it is unreadable.
+  ///
+  /// Startup reads happen before any error UI exists and are not awaited by a global handler, so a
+  /// single corrupted value (interrupted write, full disk, old schema) would otherwise break every
+  /// launch. Callers treat `null` as "not set" and fall back to a default or regenerate the value.
+  static T? _decodeOrNull<T>(String? raw, T Function(dynamic) parse) {
+    if (raw == null) {
       return null;
     }
 
-    return (jsonDecode(serversRaw) as List).cast<String>();
+    try {
+      return parse(jsonDecode(raw));
+    } catch (e) {
+      _logger.warning('Discarding unreadable persisted value', e);
+      return null;
+    }
   }
+
+  static List<String> _parseStringList(dynamic json) => List<String>.from(json as List);
+
+  /// Decodes stores where every list entry is its own JSON document, dropping unreadable entries.
+  ///
+  /// Returns the readable entries and whether anything was dropped, so the caller can heal the store.
+  static (List<T>, bool) _decodeEntries<T>(List<String> raw, T Function(dynamic) parse) {
+    final entries = <T>[];
+    var dropped = false;
+    for (final entry in raw) {
+      final decoded = _decodeOrNull<T>(entry, parse);
+      if (decoded == null) {
+        dropped = true;
+        continue;
+      }
+      entries.add(decoded);
+    }
+    return (entries, dropped);
+  }
+
+  StoredSecurityContext getSecurityContext() => _securityContextValue;
+
+  Future<void> setSecurityContext(StoredSecurityContext context) async {
+    _securityContextValue = context;
+    await _prefs.setString(_securityContext, jsonEncode(context));
+  }
+
+  List<String>? getSignalingServers() => _decodeOrNull(_prefs.getString(_signalingServers), _parseStringList);
 
   Future<void> setSignalingServers(List<String> servers) async {
     await _prefs.setString(_signalingServers, jsonEncode(servers));
   }
 
-  List<String>? getStunServers() {
-    final serversRaw = _prefs.getString(_stunServers);
-    if (serversRaw == null) {
-      return null;
-    }
-
-    return (jsonDecode(serversRaw) as List).cast<String>();
-  }
+  List<String>? getStunServers() => _decodeOrNull(_prefs.getString(_stunServers), _parseStringList);
 
   Future<void> setStunServers(List<String> servers) async {
     await _prefs.setString(_stunServers, jsonEncode(servers));
   }
 
   List<TransferHistorySession> getTransferHistory() {
-    final historyRaw = _prefs.getStringList(_transferHistory) ?? [];
-    return historyRaw.map((entry) => TransferHistorySession.fromJson(jsonDecode(entry))).toList();
+    final historyRaw = _prefs.getStringList(_transferHistory) ?? const [];
+    final (sessions, dropped) = _decodeEntries<TransferHistorySession>(
+      historyRaw,
+      (json) => TransferHistorySession.fromJson(json as Map<String, dynamic>),
+    );
+    if (dropped) {
+      // Heal the store so the corruption does not resurface on every start.
+      unawaited(setTransferHistory(sessions));
+    }
+    return sessions;
   }
 
   Future<void> setTransferHistory(List<TransferHistorySession> sessions) async {
@@ -281,11 +326,25 @@ class PersistenceService {
 
   Map<String, DateTime> getDeviceLastSeen() {
     final raw = _prefs.getString(_deviceLastSeen);
-    if (raw == null) {
+    final decoded = _decodeOrNull<Map<String, dynamic>>(raw, (json) => Map<String, dynamic>.from(json as Map));
+    if (decoded == null) {
+      if (raw != null) {
+        unawaited(setDeviceLastSeen({}));
+      }
       return {};
     }
-    final decoded = jsonDecode(raw) as Map<String, dynamic>;
-    return decoded.map((fingerprint, value) => MapEntry(fingerprint, DateTime.parse(value as String)));
+
+    final entries = <String, DateTime>{};
+    decoded.forEach((fingerprint, value) {
+      final time = value is String ? DateTime.tryParse(value) : null;
+      if (time != null) {
+        entries[fingerprint] = time;
+      }
+    });
+    if (entries.length != decoded.length) {
+      unawaited(setDeviceLastSeen(entries));
+    }
+    return entries;
   }
 
   Future<void> setDeviceLastSeen(Map<String, DateTime> entries) async {
@@ -293,8 +352,12 @@ class PersistenceService {
   }
 
   List<FavoriteDevice> getFavorites() {
-    final favoritesRaw = _prefs.getStringList(_favorites) ?? [];
-    return favoritesRaw.map((entry) => FavoriteDevice.fromJson(jsonDecode(entry))).toList();
+    final favoritesRaw = _prefs.getStringList(_favorites) ?? const [];
+    final (favorites, dropped) = _decodeEntries<FavoriteDevice>(favoritesRaw, (json) => FavoriteDevice.fromJson(json as Map<String, dynamic>));
+    if (dropped) {
+      unawaited(setFavorites(favorites));
+    }
+    return favorites;
   }
 
   Future<void> setFavorites(List<FavoriteDevice> entries) async {

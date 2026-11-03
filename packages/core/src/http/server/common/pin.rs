@@ -116,7 +116,10 @@ mod tests {
         let err = check_pin(Some("1234"), pin_attempts, &pin("0000"), ip())
             .await
             .unwrap_err();
-        assert!(matches!(err, AppError::Message(StatusCode::UNAUTHORIZED, _)));
+        assert!(matches!(
+            err,
+            AppError::Message(StatusCode::UNAUTHORIZED, _)
+        ));
     }
 
     #[tokio::test]
@@ -130,7 +133,10 @@ mod tests {
         let err = check_pin(Some("1234"), &pin_attempts, &pin("1234"), ip())
             .await
             .unwrap_err();
-        assert!(matches!(err, AppError::Message(StatusCode::TOO_MANY_REQUESTS, _)));
+        assert!(matches!(
+            err,
+            AppError::Message(StatusCode::TOO_MANY_REQUESTS, _)
+        ));
     }
 
     #[tokio::test]
@@ -140,18 +146,14 @@ mod tests {
         for _ in 0..MAX_PIN_ATTEMPTS {
             fail(&pin_attempts).await;
         }
-        assert!(
-            check_pin(Some("1234"), &pin_attempts, &pin("1234"), ip())
-                .await
-                .is_err()
-        );
+        assert!(check_pin(Some("1234"), &pin_attempts, &pin("1234"), ip())
+            .await
+            .is_err());
 
         tokio::time::sleep(Duration::from_millis(60)).await;
-        assert!(
-            check_pin(Some("1234"), &pin_attempts, &pin("1234"), ip())
-                .await
-                .is_ok()
-        );
+        assert!(check_pin(Some("1234"), &pin_attempts, &pin("1234"), ip())
+            .await
+            .is_ok());
     }
 
     #[tokio::test]
@@ -163,11 +165,9 @@ mod tests {
             fail(&pin_attempts).await;
         }
 
-        assert!(
-            check_pin(Some("1234"), &pin_attempts, &pin("1234"), other)
-                .await
-                .is_ok()
-        );
+        assert!(check_pin(Some("1234"), &pin_attempts, &pin("1234"), other)
+            .await
+            .is_ok());
     }
 
     #[tokio::test]
@@ -176,20 +176,16 @@ mod tests {
 
         fail(&pin_attempts).await;
         fail(&pin_attempts).await;
-        assert!(
-            check_pin(Some("1234"), &pin_attempts, &pin("1234"), ip())
-                .await
-                .is_ok()
-        );
+        assert!(check_pin(Some("1234"), &pin_attempts, &pin("1234"), ip())
+            .await
+            .is_ok());
 
         // The two earlier attempts are forgotten, so two more are allowed.
         fail(&pin_attempts).await;
         fail(&pin_attempts).await;
-        assert!(
-            check_pin(Some("1234"), &pin_attempts, &pin("1234"), ip())
-                .await
-                .is_ok()
-        );
+        assert!(check_pin(Some("1234"), &pin_attempts, &pin("1234"), ip())
+            .await
+            .is_ok());
     }
 
     #[tokio::test]
@@ -200,13 +196,14 @@ mod tests {
             let err = check_pin(Some("1234"), &pin_attempts, &HashMap::new(), ip())
                 .await
                 .unwrap_err();
-            assert!(matches!(err, AppError::Message(StatusCode::UNAUTHORIZED, _)));
+            assert!(matches!(
+                err,
+                AppError::Message(StatusCode::UNAUTHORIZED, _)
+            ));
         }
 
-        assert!(
-            check_pin(Some("1234"), &pin_attempts, &pin("1234"), ip())
-                .await
-                .is_ok()
-        );
+        assert!(check_pin(Some("1234"), &pin_attempts, &pin("1234"), ip())
+            .await
+            .is_ok());
     }
 }

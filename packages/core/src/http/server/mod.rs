@@ -326,7 +326,16 @@ const ACCEPT_FAILURE_LIMIT: u32 = 100;
 /// connection limits forever.
 const TCP_KEEPALIVE: socket2::TcpKeepalive = socket2::TcpKeepalive::new()
     .with_time(std::time::Duration::from_secs(60))
-    .with_interval(std::time::Duration::from_secs(10));
+    .with_interval(std::time::Duration::from_secs(10))
+    // Explicit, so the cleanup does not depend on the OS default (9 probes on
+    // Linux): a vanished peer is gone after at most 60s + 3 * 10s.
+    .with_retries(3);
+
+/// How long a client may take to complete the TLS handshake and send request
+/// headers. Without it a connection that stays open but never sends anything
+/// keeps its slot until the peer's TCP stack gives up (keep-alive only helps
+/// with peers that are gone, not with ones that stay silent).
+const HANDSHAKE_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(10);
 
 /// Whether the failed accept concerned only the connection being accepted, so
 /// the next one can be attempted right away.
@@ -476,40 +485,50 @@ async fn serve_connection(
     tls_acceptor: Option<tokio_rustls::TlsAcceptor>,
     app_state: AppState,
 ) {
-    let res = match tls_acceptor {
-        Some(tls_acceptor) => {
-            let tls_stream = match tls_acceptor.accept(tcp_stream).await {
-                Ok(tls_stream) => tls_stream,
-                Err(err) => {
-                    tracing::warn!("TLS handshake error: {err:#}");
-                    return;
-                }
-            };
+    let res =
+        match tls_acceptor {
+            Some(tls_acceptor) => {
+                let tls_stream =
+                    match tokio::time::timeout(HANDSHAKE_TIMEOUT, tls_acceptor.accept(tcp_stream))
+                        .await
+                    {
+                        Ok(Ok(tls_stream)) => tls_stream,
+                        Ok(Err(err)) => {
+                            tracing::warn!("TLS handshake error: {err:#}");
+                            return;
+                        }
+                        Err(_) => {
+                            // The slot is freed by dropping the stream; the peer never
+                            // completed the handshake within [HANDSHAKE_TIMEOUT].
+                            tracing::debug!("TLS handshake timed out");
+                            return;
+                        }
+                    };
 
-            let client_info = {
-                let (_, server_connection) = tls_stream.get_ref();
-                RequestClientInfo {
+                let client_info = {
+                    let (_, server_connection) = tls_stream.get_ref();
+                    RequestClientInfo {
+                        ip: PeerIp::from_remote_addr(&remote_addr),
+                        // No certificate when client auth is optional (web pages served)
+                        // and the client (e.g. a browser) did not present one.
+                        cert: server_connection
+                            .deref()
+                            .deref()
+                            .peer_certificates()
+                            .and_then(|certs| certs.first().map(|cert| cert.to_vec())),
+                    }
+                };
+
+                serve_http(tls_stream, client_info, app_state).await
+            }
+            None => {
+                let client_info = RequestClientInfo {
                     ip: PeerIp::from_remote_addr(&remote_addr),
-                    // No certificate when client auth is optional (web pages served)
-                    // and the client (e.g. a browser) did not present one.
-                    cert: server_connection
-                        .deref()
-                        .deref()
-                        .peer_certificates()
-                        .and_then(|certs| certs.first().map(|cert| cert.to_vec())),
-                }
-            };
-
-            serve_http(tls_stream, client_info, app_state).await
-        }
-        None => {
-            let client_info = RequestClientInfo {
-                ip: PeerIp::from_remote_addr(&remote_addr),
-                cert: None,
-            };
-            serve_http(tcp_stream, client_info, app_state).await
-        }
-    };
+                    cert: None,
+                };
+                serve_http(tcp_stream, client_info, app_state).await
+            }
+        };
 
     if let Err(err) = res {
         tracing::warn!("Failed to serve connection: {err:#}");
@@ -527,6 +546,10 @@ where
     I: AsyncRead + AsyncWrite + Unpin + Send + 'static,
 {
     hyper::server::conn::http1::Builder::new()
+        // Same budget as the TLS handshake: a client that opens the connection
+        // but never sends a request line would hold its slot otherwise.
+        .header_read_timeout(HANDSHAKE_TIMEOUT)
+        .timer(hyper_util::rt::TokioTimer::new())
         .serve_connection(
             TokioIo::new(io),
             hyper::service::service_fn(move |mut req: Request<Incoming>| {

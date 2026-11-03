@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/transfer_history_session.dart';
-import 'package:localsend_app/util/system_date_time_formatter.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_dialog.dart';
-import 'package:localsend_isolates/util/file_size_helper.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/persistence/transfer_history_session.dart';
+import 'package:sonar/util/system_date_time_formatter.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_dialog.dart';
+import 'package:sonar_isolates/util/file_size_helper.dart';
 
 class FileInfoDialog extends StatelessWidget {
   final TransferHistoryFile file;

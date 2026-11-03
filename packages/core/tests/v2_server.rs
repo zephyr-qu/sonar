@@ -4,9 +4,11 @@ use bytes::Bytes;
 use localsend::crypto::hash::sha256_hex;
 use localsend::http::client::{ClientError, LsHttpClientV2};
 use localsend::http::dto::{PrepareUploadRequestDto, RegisterDto};
+use localsend::http::server::common::collect_to_json::MAX_JSON_BODY_SIZE;
 use localsend::http::server::common::save::FileUploadTarget;
 use localsend::http::server::v2::{
     ChecksumSummaryV2, PrepareUploadDecisionV2, ServerEventV2, SessionEndReasonV2,
+    MAX_FILES_PER_SESSION, MAX_FILE_SIZE,
 };
 use localsend::http::server::web::WebConfig;
 use localsend::http::server::{start_with_port, ServerConfigV2};
@@ -306,6 +308,116 @@ async fn test_register_over_ipv6() {
         .await
         .unwrap();
     assert_eq!(response.body.alias, "Test Server");
+}
+
+/// A body beyond the limit is refused instead of being buffered, so an
+/// unauthenticated peer cannot exhaust the server's memory.
+#[tokio::test]
+async fn test_register_rejects_oversized_body() {
+    let server = start_test_server(None, true, None).await;
+
+    let response = reqwest::Client::new()
+        .post(format!(
+            "http://127.0.0.1:{}/api/localsend/v2/register",
+            server.port
+        ))
+        .body(vec![b'x'; MAX_JSON_BODY_SIZE as usize + 1])
+        .send()
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), reqwest::StatusCode::PAYLOAD_TOO_LARGE);
+}
+
+/// The limit also holds for a body sent without `Content-Length`, where it can
+/// only be noticed while reading the frames.
+#[tokio::test]
+async fn test_register_rejects_oversized_chunked_body() {
+    let server = start_test_server(None, true, None).await;
+
+    let body = reqwest::Body::wrap_stream(futures_util::stream::once(async move {
+        Ok::<_, std::io::Error>(Bytes::from(vec![b'x'; MAX_JSON_BODY_SIZE as usize + 1]))
+    }));
+
+    let response = reqwest::Client::new()
+        .post(format!(
+            "http://127.0.0.1:{}/api/localsend/v2/register",
+            server.port
+        ))
+        .body(body)
+        .send()
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), reqwest::StatusCode::PAYLOAD_TOO_LARGE);
+}
+
+/// Exactly at the limit the size check must not fire: the body is then rejected
+/// for its content, not for its length.
+#[tokio::test]
+async fn test_register_accepts_body_at_the_limit() {
+    let server = start_test_server(None, true, None).await;
+
+    let response = reqwest::Client::new()
+        .post(format!(
+            "http://127.0.0.1:{}/api/localsend/v2/register",
+            server.port
+        ))
+        .body(vec![b'x'; MAX_JSON_BODY_SIZE as usize])
+        .send()
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), reqwest::StatusCode::BAD_REQUEST);
+}
+
+/// A manifest with an absurd number of files is refused before it is buffered
+/// as a session.
+#[tokio::test]
+async fn test_prepare_upload_rejects_too_many_files() {
+    let server = start_test_server(None, true, None).await;
+    let client = LsHttpClientV2::try_new_without_cert().unwrap();
+
+    let files: Vec<FileDto> = (0..=MAX_FILES_PER_SESSION)
+        .map(|index| file_dto(&format!("file-{index}"), "file.bin", 1))
+        .collect();
+
+    let result = client
+        .prepare_upload(
+            ProtocolType::Http,
+            "127.0.0.1",
+            server.port,
+            None,
+            prepare_upload_request(&files),
+            None,
+            CancellationToken::new(),
+        )
+        .await;
+
+    assert_status(result, 400);
+}
+
+/// A size that the app cannot represent (Dart `int`) is refused.
+#[tokio::test]
+async fn test_prepare_upload_rejects_invalid_file_size() {
+    let server = start_test_server(None, true, None).await;
+    let client = LsHttpClientV2::try_new_without_cert().unwrap();
+
+    let file = file_dto("file-a", "huge.bin", MAX_FILE_SIZE + 1);
+
+    let result = client
+        .prepare_upload(
+            ProtocolType::Http,
+            "127.0.0.1",
+            server.port,
+            None,
+            prepare_upload_request(&[file]),
+            None,
+            CancellationToken::new(),
+        )
+        .await;
+
+    assert_status(result, 400);
 }
 
 #[tokio::test]
@@ -1545,4 +1657,36 @@ async fn test_pin_too_many_attempts() {
         )
         .await;
     assert_status(result, 429);
+}
+
+/// The PIN is checked before the JSON body is read, so the 401 is written while
+/// the sender may still be writing a large body. Closing the connection with an
+/// unread body resets it, and the sender then sees a network error instead of
+/// the 401 that makes it ask for the PIN.
+#[tokio::test]
+async fn test_pin_answer_survives_large_body() {
+    let server = start_test_server(Some("123456".to_string()), true, None).await;
+    let client = LsHttpClientV2::try_new_without_cert().unwrap();
+
+    let files: Vec<FileDto> = (0..400)
+        .map(|i| {
+            let mut file = file_dto(&format!("file-{i}"), &format!("{i}.bin"), 5);
+            // 10 KiB per file, so the JSON body is around 4 MiB.
+            file.preview = Some("A".repeat(10_000));
+            file
+        })
+        .collect();
+
+    let result = client
+        .prepare_upload(
+            ProtocolType::Http,
+            "127.0.0.1",
+            server.port,
+            None,
+            prepare_upload_request(&files),
+            None,
+            CancellationToken::new(),
+        )
+        .await;
+    assert_status(result, 401);
 }

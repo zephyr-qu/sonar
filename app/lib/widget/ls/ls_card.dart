@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
+import 'package:sonar/config/design_tokens.dart';
 
 /// The card surface of the redesign: `bg2`, 1px hairline, radius 16, no shadow.
 class LsCard extends StatelessWidget {

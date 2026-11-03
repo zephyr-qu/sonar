@@ -4,29 +4,29 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/color_mode.dart';
-import 'package:localsend_app/model/persistence/favorite_device.dart';
-import 'package:localsend_app/model/persistence/nearby_layout.dart';
-import 'package:localsend_app/model/persistence/quick_save_mode.dart';
-import 'package:localsend_app/model/persistence/transfer_history_session.dart';
-import 'package:localsend_app/provider/window_dimensions_provider.dart';
-import 'package:localsend_app/util/alias_generator.dart';
-import 'package:localsend_app/util/native/autostart_helper.dart';
-import 'package:localsend_app/util/native/context_menu_helper.dart';
-import 'package:localsend_app/util/native/platform_check.dart';
-import 'package:localsend_app/util/security_helper.dart';
-import 'package:localsend_app/util/shared_preferences/shared_preferences_file.dart';
-import 'package:localsend_app/util/shared_preferences/shared_preferences_portable.dart';
-import 'package:localsend_app/util/ui/animations_status.dart';
-import 'package:localsend_isolates/constants.dart';
-import 'package:localsend_isolates/model/device.dart';
-import 'package:localsend_isolates/model/file_type.dart';
-import 'package:localsend_isolates/model/stored_security_context.dart';
 import 'package:logging/logging.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/persistence/color_mode.dart';
+import 'package:sonar/model/persistence/favorite_device.dart';
+import 'package:sonar/model/persistence/nearby_layout.dart';
+import 'package:sonar/model/persistence/quick_save_mode.dart';
+import 'package:sonar/model/persistence/transfer_history_session.dart';
+import 'package:sonar/provider/window_dimensions_provider.dart';
+import 'package:sonar/util/alias_generator.dart';
+import 'package:sonar/util/native/autostart_helper.dart';
+import 'package:sonar/util/native/context_menu_helper.dart';
+import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar/util/security_helper.dart';
+import 'package:sonar/util/shared_preferences/shared_preferences_file.dart';
+import 'package:sonar/util/shared_preferences/shared_preferences_portable.dart';
+import 'package:sonar/util/ui/animations_status.dart';
+import 'package:sonar_isolates/constants.dart';
+import 'package:sonar_isolates/model/device.dart';
+import 'package:sonar_isolates/model/file_type.dart';
+import 'package:sonar_isolates/model/stored_security_context.dart';
 import 'package:uuid/uuid.dart';
 
 part 'persistence_provider_migrations.dart';
@@ -35,7 +35,7 @@ final _logger = Logger('PersistenceService');
 
 String get _windowsFile {
   final appData = Platform.environment['APPDATA'];
-  return '$appData\\LocalSend\\settings.json';
+  return '$appData\\Sonar\\settings.json';
 }
 
 String get _windowsLegacyFile {

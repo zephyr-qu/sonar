@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/favorite_device.dart';
-import 'package:localsend_app/pages/device_details_page.dart';
-import 'package:localsend_app/pages/tabs/nearby/file_grid.dart';
-import 'package:localsend_app/pages/tabs/nearby/nearby_filter_chips.dart';
-import 'package:localsend_app/pages/tabs/nearby/nearby_ui.dart';
-import 'package:localsend_app/pages/tabs/nearby_tab_vm.dart';
-import 'package:localsend_app/util/device_type_ext.dart';
-import 'package:localsend_app/util/favorites.dart';
-import 'package:localsend_app/util/ui/snackbar.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_chip.dart';
-import 'package:localsend_app/widget/ls/ls_header.dart';
-import 'package:localsend_app/widget/ls/ls_search_field.dart';
-import 'package:localsend_app/widget/ls/ls_section_label.dart';
-import 'package:localsend_app/widget/ls/ls_tile.dart';
-import 'package:localsend_isolates/model/device.dart';
-import 'package:localsend_isolates/util/file_size_helper.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/persistence/favorite_device.dart';
+import 'package:sonar/pages/device_details_page.dart';
+import 'package:sonar/pages/tabs/nearby/file_grid.dart';
+import 'package:sonar/pages/tabs/nearby/nearby_filter_chips.dart';
+import 'package:sonar/pages/tabs/nearby/nearby_ui.dart';
+import 'package:sonar/pages/tabs/nearby_tab_vm.dart';
+import 'package:sonar/util/device_type_ext.dart';
+import 'package:sonar/util/favorites.dart';
+import 'package:sonar/util/ui/snackbar.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_chip.dart';
+import 'package:sonar/widget/ls/ls_header.dart';
+import 'package:sonar/widget/ls/ls_search_field.dart';
+import 'package:sonar/widget/ls/ls_section_label.dart';
+import 'package:sonar/widget/ls/ls_tile.dart';
+import 'package:sonar_isolates/model/device.dart';
+import 'package:sonar_isolates/util/file_size_helper.dart';
 
 /// The stacked layout: pending files, search, filters, the device grid and the collapsible file tray.
 class NearbyGridView {
@@ -49,6 +49,10 @@ class NearbyGridView {
     final files = vm.selectedFiles;
     final onlineCount = vm.devices.length;
     final totalCount = onlineCount + offlineFavoriteCount(vm);
+
+    // Favorites that are online get a section of their own, so the remaining online devices need a
+    // label that does not read like the "Online" filter chip sitting right above them.
+    final splitFavorites = favoritesSection.isNotEmpty;
 
     return [
       _miniRadar(context, onlineCount: onlineCount, totalCount: totalCount),
@@ -84,12 +88,18 @@ class NearbyGridView {
           ],
         ),
       ),
-      if (favoritesSection.isNotEmpty) ...[
+      if (splitFavorites) ...[
         LsSectionLabel(label: t.nearbyTab.favorites, count: '${favoritesSection.length}', padding: const EdgeInsets.only(bottom: 8)),
         _deviceGrid(context, favoritesSection),
       ],
       if (_ui.filter != NearbyFilter.favorites) ...[
-        LsSectionLabel(label: t.nearbyTab.onlineSection, count: '${onlineSection.length}', padding: const EdgeInsets.only(top: 14, bottom: 8)),
+        LsSectionLabel(
+          label: splitFavorites ? t.nearbyTab.onlineSectionOthers : t.nearbyTab.onlineSection,
+          count: '${onlineSection.length}',
+          // The chip row already leaves 10px below it; only a section that follows another one
+          // needs the extra lead-in. Otherwise switching filters visibly moves the hairline.
+          padding: EdgeInsets.only(top: splitFavorites ? 14 : 0, bottom: 8),
+        ),
         if (onlineSection.isEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 2),
@@ -190,12 +200,12 @@ class NearbyGridView {
       // Measured on the register request that confirmed the device.
       if (device.rttMs != null) '${device.rttMs} ms',
       if (device.deviceModel != null) device.deviceModel!,
-    ].join(' · ');
+    ].join('  ');
 
     return LsDeviceTile(
       glyph: Icon(device.deviceType.icon),
       name: device.alias,
-      meta: info.isEmpty ? (device.ip ?? '') : '$info · ${device.ip ?? ''}',
+      meta: info.isEmpty ? (device.ip ?? '') : '$info  ${device.ip ?? ''}',
       selected: _ui.picked.contains(device.fingerprint),
       favorite: favorite,
       multi: _multiActive && !desktop,
@@ -295,7 +305,7 @@ class NearbyGridView {
                 Icon(LucideIcons.plus, size: 16, color: colors.accent),
                 const SizedBox(width: 6),
                 Text(
-                  '${t.nearbyTab.addFile} · ${t.nearbyTab.filesEmpty}',
+                  t.nearbyTab.addFile,
                   style: tokens.bodySm,
                 ),
               ],
@@ -369,8 +379,6 @@ class NearbyGridView {
                   style: tokens.eyebrow.copyWith(color: colors.muted),
                 ),
               ),
-              LsChip.text(t.nearbyTab.linkReceive, onTap: () async => vm.onOpenLink(context)),
-              const SizedBox(width: 6),
               LsChip.text(t.nearbyTab.clear, onTap: () async => vm.onClearFiles(context)),
               const SizedBox(width: 6),
               LsChip.text(t.nearbyTab.collapse, onTap: () => _actions.onFilesOpenChanged(false)),

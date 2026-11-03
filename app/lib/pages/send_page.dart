@@ -1,30 +1,30 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/state/send/send_session_state.dart';
-import 'package:localsend_app/pages/verify_page.dart';
-import 'package:localsend_app/provider/device_info_provider.dart';
-import 'package:localsend_app/provider/favorites_provider.dart';
-import 'package:localsend_app/provider/file_transfer_provider.dart';
-import 'package:localsend_app/provider/network/send_provider.dart';
-import 'package:localsend_app/util/device_type_ext.dart';
-import 'package:localsend_app/util/favorites.dart';
-import 'package:localsend_app/util/native/taskbar_helper.dart';
-import 'package:localsend_app/widget/animations/initial_fade_transition.dart';
-import 'package:localsend_app/widget/animations/initial_slide_transition.dart';
-import 'package:localsend_app/widget/dialogs/error_dialog.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_card.dart';
-import 'package:localsend_app/widget/ls/ls_header.dart';
-import 'package:localsend_app/widget/ls/ls_progress_bar.dart';
-import 'package:localsend_isolates/model/device.dart';
-import 'package:localsend_isolates/model/session_status.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/addons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/state/send/send_session_state.dart';
+import 'package:sonar/pages/verify_page.dart';
+import 'package:sonar/provider/device_info_provider.dart';
+import 'package:sonar/provider/favorites_provider.dart';
+import 'package:sonar/provider/file_transfer_provider.dart';
+import 'package:sonar/provider/network/send_provider.dart';
+import 'package:sonar/util/device_type_ext.dart';
+import 'package:sonar/util/favorites.dart';
+import 'package:sonar/util/native/taskbar_helper.dart';
+import 'package:sonar/widget/animations/initial_fade_transition.dart';
+import 'package:sonar/widget/animations/initial_slide_transition.dart';
+import 'package:sonar/widget/dialogs/error_dialog.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_card.dart';
+import 'package:sonar/widget/ls/ls_header.dart';
+import 'package:sonar/widget/ls/ls_progress_bar.dart';
+import 'package:sonar_isolates/model/device.dart';
+import 'package:sonar_isolates/model/session_status.dart';
 
 /// Sending status of one session: the two devices, the handshake state and the
 /// cancel/close action.
@@ -92,6 +92,12 @@ class _SendPageState extends State<SendPage> with Refena {
     }
 
     setState(() {
+      // The bytes are already moving: leaving this page must not abort the
+      // transfer, which lives on in the Transfers tab (and in the tray on
+      // desktop). Stopping it is an explicit action on the progress page.
+      if (sendState.status == SessionStatus.sending) {
+        return;
+      }
       _myDevice = myDevice;
       _targetDevice = sendState.target;
     });
@@ -108,6 +114,17 @@ class _SendPageState extends State<SendPage> with Refena {
         if (prevStatus != nextStatus) {
           // ignore: discarded_futures
           TaskbarHelper.visualizeStatus(nextStatus);
+
+          // The transfer runs in the background from here on (Transfers tab,
+          // mini bar, tray): this page only waited for the answer and has
+          // nothing left to show, so it steps aside instead of blocking.
+          if (nextStatus == SessionStatus.sending) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) {
+                unawaited(Navigator.maybePop(context));
+              }
+            });
+          }
         }
       },
     );
@@ -143,7 +160,7 @@ class _SendPageState extends State<SendPage> with Refena {
                   LsSubHeader(
                     title: t.transferTab.sending(device: targetAlias),
                     subtitle: Text(
-                      '${targetDevice.ip}:${targetDevice.port} · ${targetDevice.deviceModel ?? targetDevice.deviceType.name}',
+                      '${targetDevice.ip}:${targetDevice.port}  ${targetDevice.deviceModel ?? targetDevice.deviceType.name}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: tokens.mono,
@@ -358,7 +375,7 @@ class _SendDeviceCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  label ?? '${device.deviceModel ?? device.deviceType.name} · ${device.ip}',
+                  label ?? '${device.deviceModel ?? device.deviceType.name}  ${device.ip}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: tokens.mono,

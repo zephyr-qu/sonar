@@ -1,43 +1,50 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:localsend_app/model/cross_file.dart';
-import 'package:localsend_app/model/persistence/transfer_history_session.dart';
-import 'package:localsend_app/model/state/send/send_session_state.dart';
-import 'package:localsend_app/model/state/send/sending_file.dart';
-import 'package:localsend_app/pages/home_page.dart';
-import 'package:localsend_app/pages/home_page_controller.dart';
-import 'package:localsend_app/pages/progress_page.dart';
-import 'package:localsend_app/pages/send_page.dart';
-import 'package:localsend_app/provider/device_info_provider.dart';
-import 'package:localsend_app/provider/file_transfer_provider.dart';
-import 'package:localsend_app/provider/http_provider.dart';
-import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
-import 'package:localsend_app/provider/settings_provider.dart';
-import 'package:localsend_app/provider/transfer_history_provider.dart';
-import 'package:localsend_app/widget/dialogs/pin_dialog.dart';
-import 'package:localsend_isolates/isolate.dart';
-import 'package:localsend_isolates/model/device.dart';
-import 'package:localsend_isolates/model/dto/file_dto.dart';
-import 'package:localsend_isolates/model/file_status.dart';
-import 'package:localsend_isolates/model/file_type.dart';
-import 'package:localsend_isolates/model/session_status.dart';
-import 'package:localsend_isolates/rust/api/cancel.dart' as rust_cancel;
-import 'package:localsend_isolates/rust/api/http.dart' as rust_http;
-import 'package:localsend_isolates/rust/api/model.dart' as rust_model;
-import 'package:localsend_isolates/util/file_hash.dart';
-import 'package:localsend_isolates/util/rust.dart';
-import 'package:localsend_isolates/util/sleep.dart';
-import 'package:localsend_isolates/util/transfer_notification.dart';
 import 'package:logging/logging.dart';
 import 'package:refena_flutter/addons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/cross_file.dart';
+import 'package:sonar/model/persistence/transfer_history_session.dart';
+import 'package:sonar/model/state/send/send_session_state.dart';
+import 'package:sonar/model/state/send/sending_file.dart';
+import 'package:sonar/pages/home_page.dart';
+import 'package:sonar/pages/home_page_controller.dart';
+import 'package:sonar/pages/send_page.dart';
+import 'package:sonar/provider/device_info_provider.dart';
+import 'package:sonar/provider/file_transfer_provider.dart';
+import 'package:sonar/provider/http_provider.dart';
+import 'package:sonar/provider/selection/selected_sending_files_provider.dart';
+import 'package:sonar/provider/settings_provider.dart';
+import 'package:sonar/provider/transfer_history_provider.dart';
+import 'package:sonar/widget/dialogs/pin_dialog.dart';
+import 'package:sonar_isolates/isolate.dart';
+import 'package:sonar_isolates/model/device.dart';
+import 'package:sonar_isolates/model/dto/file_dto.dart';
+import 'package:sonar_isolates/model/file_status.dart';
+import 'package:sonar_isolates/model/file_type.dart';
+import 'package:sonar_isolates/model/session_status.dart';
+import 'package:sonar_isolates/rust/api/cancel.dart' as rust_cancel;
+import 'package:sonar_isolates/rust/api/http.dart' as rust_http;
+import 'package:sonar_isolates/rust/api/model.dart' as rust_model;
+import 'package:sonar_isolates/util/file_hash.dart';
+import 'package:sonar_isolates/util/rust.dart';
+import 'package:sonar_isolates/util/sleep.dart';
+import 'package:sonar_isolates/util/transfer_notification.dart';
 import 'package:uri_content/uri_content.dart';
 import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
 final _logger = Logger('Send');
+
+/// How long the sender waits for the receiver to answer the prepare-upload
+/// request. The receiver only answers after its user accepted, so this must be
+/// generous — it is a safety net for a peer that never answers at all (app
+/// killed, device locked, half-open connection), not a UI timer.
+const _prepareUploadTimeout = Duration(seconds: 60);
 
 /// This provider manages sending files to other devices.
 ///
@@ -259,17 +266,31 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
       do {
         invalidPin = false;
         try {
-          response = await client.prepareUpload(
-            protocol: target.getProtocolType(),
-            ip: target.ip!,
-            port: target.port,
-            payload: requestDto,
-            // The peer is already verified during the TLS handshake by the
-            // fingerprint the client is pinned to.
-            publicKey: null,
-            pin: pin,
-            cancelToken: prepareUploadCancelToken,
+          response = await client
+              .prepareUpload(
+                protocol: target.getProtocolType(),
+                ip: target.ip!,
+                port: target.port,
+                payload: requestDto,
+                // The peer is already verified during the TLS handshake by the
+                // fingerprint the client is pinned to.
+                publicKey: null,
+                pin: pin,
+                cancelToken: prepareUploadCancelToken,
+              )
+              .timeout(_prepareUploadTimeout);
+        } on TimeoutException {
+          // Abort the request on the Rust side too, so the receiver does not keep
+          // a pending session for a sender that already gave up.
+          prepareUploadCancelToken.cancel();
+          state = state.updateSession(
+            sessionId: sessionId,
+            state: (s) => s?.copyWith(
+              status: SessionStatus.finishedWithErrors,
+              errorMessage: t.sendPage.noResponse,
+            ),
           );
+          return;
         } on rust_http.RsHttpClientError_StatusCode catch (e) {
           switch (e.status) {
             case 401:
@@ -413,24 +434,6 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
       statuses: {for (final file in sendingFiles.values) file.file.id: file.token != null ? FileStatus.queue : FileStatus.skipped},
     );
 
-    if (state[sessionId]?.background == false) {
-      // A single-target send opens the progress page directly (no app bar) and
-      // closes the session when it is dismissed.
-      unawaited(
-        // ignore: use_build_context_synchronously
-        Routerino.context.pushAndRemoveUntil(
-          removeUntil: HomePage,
-          transition: RouterinoTransition.fade(),
-          // immediately is not possible: https://github.com/flutter/flutter/issues/121910
-          builder: () => ProgressPage(
-            showAppBar: false,
-            closeSessionOnClose: true,
-            sessionId: sessionId,
-          ),
-        ),
-      );
-    }
-
     state = state.updateSession(
       sessionId: sessionId,
       state: (s) => s?.copyWith(
@@ -504,42 +507,80 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
     // The transfer is over, the process no longer needs to be kept alive for it.
     TransferNotification.stop(sessionId);
 
-    if (state[sessionId]!.status != SessionStatus.sending) {
-      _logger.info('Transfer was canceled.');
-    } else {
-      final hasError = ref.read(fileTransferProvider).getStatuses(sessionId).any((status) => status == FileStatus.failed);
-      if (!hasError) {
-        unawaited(_recordHistory(sessionState));
-      }
-      if (!hasError && sessionState.background == true) {
-        // close session because everything is fine and it is in background
-        closeSession(sessionId);
-        _logger.info('Transfer finished and session removed.');
+    if (sessionState.status != SessionStatus.sending) {
+      if (sessionState.status == SessionStatus.finishedWithErrors) {
+        // A request that never got an answer fails before the files reach the
+        // upload loop, so the status is already set here. It is as much a
+        // failed transfer as one whose files came back with errors.
+        unawaited(_recordHistory(sessionState, failed: true));
+        _parkFailedSession(sessionId);
       } else {
-        // keep session alive when there are errors or currently in foreground
-        state = state.updateSession(
-          sessionId: sessionId,
-          state: (s) => s?.copyWith(
-            status: hasError ? SessionStatus.finishedWithErrors : SessionStatus.finished,
-            endTime: DateTime.now().millisecondsSinceEpoch,
-          ),
-        );
-
-        if (hasError) {
-          _logger.info('Transfer finished with errors.');
-        } else {
-          _logger.info('Transfer finished successfully.');
-        }
+        _logger.info('Transfer was canceled.');
       }
+      return;
+    }
+
+    final hasError = ref.read(fileTransferProvider).getStatuses(sessionId).any((status) => status == FileStatus.failed);
+    unawaited(_recordHistory(sessionState, failed: hasError));
+
+    if (!hasError && sessionState.background == true) {
+      // close session because everything is fine and it is in background
+      closeSession(sessionId);
+      _logger.info('Transfer finished and session removed.');
+      return;
+    }
+
+    // keep session alive when there are errors or currently in foreground
+    state = state.updateSession(
+      sessionId: sessionId,
+      state: (s) => s?.copyWith(
+        status: hasError ? SessionStatus.finishedWithErrors : SessionStatus.finished,
+        endTime: DateTime.now().millisecondsSinceEpoch,
+      ),
+    );
+
+    if (hasError) {
+      _logger.info('Transfer finished with errors.');
+      _parkFailedSession(sessionId);
+    } else {
+      _logger.info('Transfer finished successfully.');
     }
   }
 
-  /// Records the delivered files of a successfully finished session, so the
-  /// "Transfers" history can show sent and received transfers side by side.
-  Future<void> _recordHistory(SendSessionState sessionState) async {
+  /// How long a failed background transfer keeps its row in the tray.
+  ///
+  /// The failure is in the history by then, so the row only has to be noticed,
+  /// not to stay: a request that times out leaves nothing else behind.
+  static const _failedRowTime = Duration(seconds: 10);
+
+  /// Closes a failed session once its row has had [_failedRowTime] to be seen.
+  ///
+  /// Only background sessions: a foreground one has a page showing the error,
+  /// and closing it would pull that page away from the user.
+  void _parkFailedSession(String sessionId) {
+    if (state[sessionId]?.background != true) {
+      return;
+    }
+    unawaited(
+      Future<void>.delayed(_failedRowTime, () {
+        // A user who closed (or retried) it already made the decision.
+        if (state[sessionId]?.status == SessionStatus.finishedWithErrors) {
+          closeSession(sessionId);
+        }
+      }),
+    );
+  }
+
+  /// Records a finished session, so the "Transfers" history can show sent and
+  /// received transfers side by side.
+  ///
+  /// A failed session is recorded too, and then with every file it tried to
+  /// send: the delivered ones alone would hide what the failure was about, and
+  /// the send state carrying the error is cleared by its close button.
+  Future<void> _recordHistory(SendSessionState sessionState, {required bool failed}) async {
     final files = [
       for (final file in sessionState.files.values)
-        if (file.token != null)
+        if (failed || file.token != null)
           TransferHistoryFile(
             id: '${sessionState.sessionId}-${file.file.id}',
             fileName: file.file.fileName,
@@ -564,6 +605,10 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
               direction: TransferHistoryDirection.send,
               timestamp: DateTime.fromMillisecondsSinceEpoch(sessionState.startTime ?? DateTime.now().millisecondsSinceEpoch, isUtc: true),
               files: files,
+              failed: failed,
+              // Per-file errors stay on the file; this one is the reason the
+              // whole request never got going (no answer, wrong PIN, ...).
+              errorMessage: failed ? sessionState.errorMessage : null,
             ),
           ),
         );

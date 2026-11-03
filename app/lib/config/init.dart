@@ -6,53 +6,53 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
-import 'package:localsend_app/config/refena.dart';
-import 'package:localsend_app/config/theme.dart';
-import 'package:localsend_app/pages/home_page.dart';
-import 'package:localsend_app/pages/home_page_controller.dart';
-import 'package:localsend_app/pages/whats_new_page.dart';
-import 'package:localsend_app/provider/animation_provider.dart';
-import 'package:localsend_app/provider/app_arguments_provider.dart';
-import 'package:localsend_app/provider/device_info_provider.dart';
-import 'package:localsend_app/provider/network/nearby_devices_provider.dart';
-import 'package:localsend_app/provider/network/server/server_provider.dart';
-import 'package:localsend_app/provider/network/webrtc/signaling_provider.dart';
-import 'package:localsend_app/provider/persistence_provider.dart';
-// [FOSS_REMOVE_START]
-import 'package:localsend_app/provider/purchase_provider.dart';
-// [FOSS_REMOVE_END]
-import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
-import 'package:localsend_app/provider/settings_provider.dart';
-import 'package:localsend_app/provider/tv_provider.dart';
-import 'package:localsend_app/provider/version_provider.dart';
-import 'package:localsend_app/provider/window_dimensions_provider.dart';
-import 'package:localsend_app/util/i18n.dart';
-import 'package:localsend_app/util/native/autostart_helper.dart';
-import 'package:localsend_app/util/native/cache_helper.dart';
-import 'package:localsend_app/util/native/channel/android_channel.dart';
-import 'package:localsend_app/util/native/context_menu_helper.dart';
-import 'package:localsend_app/util/native/cross_file_converters.dart';
-import 'package:localsend_app/util/native/device_info_helper.dart';
-import 'package:localsend_app/util/native/macos_channel.dart';
-import 'package:localsend_app/util/native/platform_check.dart';
-import 'package:localsend_app/util/native/tray_helper.dart';
-import 'package:localsend_app/util/notification_strings.dart';
-import 'package:localsend_app/util/ui/dynamic_colors.dart';
-import 'package:localsend_app/util/ui/snackbar.dart';
-import 'package:localsend_app/widget/dialogs/local_network_dialog.dart';
-import 'package:localsend_isolates/isolate.dart';
-import 'package:localsend_isolates/model/dto/file_dto.dart';
-import 'package:localsend_isolates/model/dto/multicast_dto.dart';
-import 'package:localsend_isolates/rust/api/logging.dart' as rust_logging;
-import 'package:localsend_isolates/util/logger.dart';
-import 'package:localsend_isolates/util/rust_init.dart';
-import 'package:localsend_isolates/util/show_instance.dart';
-import 'package:localsend_isolates/util/transfer_notification.dart';
 import 'package:logging/logging.dart';
 import 'package:refena_flutter/addons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
 import 'package:share_handler/share_handler.dart';
+import 'package:sonar/config/refena.dart';
+import 'package:sonar/config/theme.dart';
+import 'package:sonar/pages/home_page.dart';
+import 'package:sonar/pages/home_page_controller.dart';
+import 'package:sonar/pages/whats_new_page.dart';
+import 'package:sonar/provider/animation_provider.dart';
+import 'package:sonar/provider/app_arguments_provider.dart';
+import 'package:sonar/provider/device_info_provider.dart';
+import 'package:sonar/provider/network/nearby_devices_provider.dart';
+import 'package:sonar/provider/network/server/server_provider.dart';
+import 'package:sonar/provider/network/webrtc/signaling_provider.dart';
+import 'package:sonar/provider/persistence_provider.dart';
+// [FOSS_REMOVE_START]
+import 'package:sonar/provider/purchase_provider.dart';
+// [FOSS_REMOVE_END]
+import 'package:sonar/provider/selection/selected_sending_files_provider.dart';
+import 'package:sonar/provider/settings_provider.dart';
+import 'package:sonar/provider/tv_provider.dart';
+import 'package:sonar/provider/version_provider.dart';
+import 'package:sonar/provider/window_dimensions_provider.dart';
+import 'package:sonar/util/i18n.dart';
+import 'package:sonar/util/native/autostart_helper.dart';
+import 'package:sonar/util/native/cache_helper.dart';
+import 'package:sonar/util/native/channel/android_channel.dart';
+import 'package:sonar/util/native/context_menu_helper.dart';
+import 'package:sonar/util/native/cross_file_converters.dart';
+import 'package:sonar/util/native/device_info_helper.dart';
+import 'package:sonar/util/native/macos_channel.dart';
+import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar/util/native/tray_helper.dart';
+import 'package:sonar/util/notification_strings.dart';
+import 'package:sonar/util/ui/dynamic_colors.dart';
+import 'package:sonar/util/ui/snackbar.dart';
+import 'package:sonar/widget/dialogs/local_network_dialog.dart';
+import 'package:sonar_isolates/isolate.dart';
+import 'package:sonar_isolates/model/dto/file_dto.dart';
+import 'package:sonar_isolates/model/dto/multicast_dto.dart';
+import 'package:sonar_isolates/rust/api/logging.dart' as rust_logging;
+import 'package:sonar_isolates/util/logger.dart';
+import 'package:sonar_isolates/util/rust_init.dart';
+import 'package:sonar_isolates/util/show_instance.dart';
+import 'package:sonar_isolates/util/transfer_notification.dart';
 import 'package:window_manager/window_manager.dart';
 
 final _logger = Logger('Init');
@@ -325,8 +325,11 @@ Future<void> postInit(BuildContext context, Ref ref, bool appStart) async {
 
   // [FOSS_REMOVE_START]
   if (checkPlatformSupportPayment()) {
-    // ignore: unawaited_futures
-    ref.redux(purchaseProvider).dispatchAsync(InitPurchaseStream());
+    // Defer the billing connection until after the first frame: binding to the Play Billing
+    // service should not compete with the startup work on the main thread.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(ref.redux(purchaseProvider).dispatchAsync(InitPurchaseStream()));
+    });
   }
   // [FOSS_REMOVE_END]
 }

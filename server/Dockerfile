@@ -6,7 +6,7 @@ WORKDIR /app
 
 COPY Cargo.toml Cargo.lock ./
 COPY packages/core ./packages/core
-COPY packages/localsend_isolates/rust ./packages/localsend_isolates/rust
+COPY packages/sonar_isolates/rust ./packages/sonar_isolates/rust
 COPY server ./server
 COPY cli ./cli
 

@@ -1,5 +1,5 @@
-import 'package:localsend_isolates/model/device.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar_isolates/model/device.dart';
 
 /// This provider stores the last devices that the user sent a file to.
 /// It stores only the last 5 devices that were selected by be [AddressInputDialog].

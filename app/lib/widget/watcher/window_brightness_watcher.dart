@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:localsend_app/util/native/platform_check.dart';
 import 'package:logging/logging.dart';
+import 'package:sonar/util/native/platform_check.dart';
 import 'package:window_manager/window_manager.dart';
 
 final _logger = Logger('WindowBrightnessWatcher');

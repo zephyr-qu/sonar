@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_isolates/model/file_type.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:sonar_isolates/model/file_type.dart';
 
 extension FileTypeExt on FileType {
   IconData get icon {

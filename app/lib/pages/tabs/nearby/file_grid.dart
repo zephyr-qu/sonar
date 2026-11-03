@@ -1,15 +1,15 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/cross_file.dart';
-import 'package:localsend_app/pages/selected_files_page.dart';
-import 'package:localsend_app/pages/tabs/nearby_tab_vm.dart';
-import 'package:localsend_app/widget/file_thumbnail.dart';
-import 'package:localsend_app/widget/ls/ls_tile.dart';
-import 'package:localsend_isolates/util/file_size_helper.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/cross_file.dart';
+import 'package:sonar/pages/selected_files_page.dart';
+import 'package:sonar/pages/tabs/nearby_tab_vm.dart';
+import 'package:sonar/widget/file_thumbnail.dart';
+import 'package:sonar/widget/ls/ls_tile.dart';
+import 'package:sonar_isolates/util/file_size_helper.dart';
 
 /// The pending-files tray, shared by the grid and the radar layouts.
 ///

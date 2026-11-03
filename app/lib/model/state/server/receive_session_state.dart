@@ -1,8 +1,8 @@
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:localsend_app/model/state/server/receiving_file.dart';
-import 'package:localsend_isolates/model/device.dart';
-import 'package:localsend_isolates/model/file_type.dart';
-import 'package:localsend_isolates/model/session_status.dart';
+import 'package:sonar/model/state/server/receiving_file.dart';
+import 'package:sonar_isolates/model/device.dart';
+import 'package:sonar_isolates/model/file_type.dart';
+import 'package:sonar_isolates/model/session_status.dart';
 
 part 'receive_session_state.mapper.dart';
 
@@ -36,6 +36,11 @@ class ReceiveSessionState with ReceiveSessionStateMappable implements SessionSta
   final String cacheDirectory;
   final bool saveToGallery;
 
+  /// Whether the request was accepted without asking (quick save or receive via link).
+  ///
+  /// Such a request opens no page of its own, so the Transfers tab marks it instead.
+  final bool autoAccepted;
+
   /// On Android, we need to manually create missing directories.
   /// To improve performance, we cache the created directories so we don't need to check them again.
   /// WARNING: This list is modified in-place!
@@ -66,6 +71,7 @@ class ReceiveSessionState with ReceiveSessionStateMappable implements SessionSta
     required this.destinationDirectory,
     required this.cacheDirectory,
     required this.saveToGallery,
+    this.autoAccepted = false,
     required this.createdDirectories,
     this.checksumVerified = 0,
     this.checksumUnchecked = 0,

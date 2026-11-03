@@ -41,7 +41,7 @@ class TranslationsSrCyrl extends TranslationsSr with BaseTranslations<AppLocale,
 
   // Translations
   @override
-  String get appName => 'LocalSend';
+  String get appName => 'Sonar';
   @override
   late final _Translations$general$sr_Cyrl general = _Translations$general$sr_Cyrl._(_root);
   @override
@@ -278,7 +278,7 @@ class _Translations$networkInterfacesPage$sr_Cyrl extends Translations$networkIn
   String get title => 'Мрежни интерфејси';
   @override
   String get info =>
-      'Подразумевано, LocalSend користи све доступне мрежне интерфејсе. Овде можете изузети нежељене мреже. Морате рестартовати сервер да би се примениле промене.';
+      'Подразумевано, Sonar користи све доступне мрежне интерфејсе. Овде можете изузети нежељене мреже. Морате рестартовати сервер да би се примениле промене.';
   @override
   String get preview => 'Преглед';
   @override
@@ -403,7 +403,7 @@ class _Translations$receiveOptionsPage$sr_Cyrl extends Translations$receiveOptio
   @override
   String get destination => _root.settingsTab.receive.destination;
   @override
-  String get appDirectory => '(LocalSend фолдер)';
+  String get appDirectory => '(Sonar фолдер)';
   @override
   String get saveToGallery => _root.settingsTab.receive.saveToGallery;
   @override
@@ -482,7 +482,7 @@ class _Translations$webSharePage$sr_Cyrl extends Translations$webSharePage$sr {
   @override
   String pinHint({required Object pin}) => 'PIN је ${pin}“„';
   @override
-  String get encryptionHint => 'LocalSend користи самопотписани сертификат. Морате га прихватити у свом прегледачу.';
+  String get encryptionHint => 'Sonar користи самопотписани сертификат. Морате га прихватити у свом прегледачу.';
   @override
   String pendingRequests({required Object n}) => 'Захтеви на чекању: ${n}';
 }
@@ -506,10 +506,10 @@ class _Translations$aboutPage$sr_Cyrl extends Translations$aboutPage$sr {
 
   // Translations
   @override
-  String get title => 'О LocalSend-у';
+  String get title => 'О Sonar-у';
   @override
   List<String> get description => [
-    'LocalSend је бесплатна апликација отвореног кода која вам омогућава да безбедно делите фајлове и поруке са уређајима у близини преко ваше локалне мреже, без потребе за интернет везом.',
+    'Sonar је бесплатна апликација отвореног кода која вам омогућава да безбедно делите фајлове и поруке са уређајима у близини преко ваше локалне мреже, без потребе за интернет везом.',
     'Ова апликације је доступна за Android, iOS, macOS, Windows i Linux. Можете пронаћи све опције за преузимање на званичној почетној страници.',
   ];
   @override
@@ -532,7 +532,7 @@ class _Translations$donationPage$sr_Cyrl extends Translations$donationPage$sr {
   @override
   String get title => 'Донација';
   @override
-  String get info => 'LocalSend је бесплатан, отвореног кода и без икаквих огласа. Ако вам се свиђа апликација, можете подржати развој донацијом.';
+  String get info => 'Sonar је бесплатан, отвореног кода и без икаквих огласа. Ако вам се свиђа апликација, можете подржати развој донацијом.';
   @override
   String donate({required Object amount}) => 'Донирај ${amount}';
   @override
@@ -733,7 +733,7 @@ class _Translations$tray$sr_Cyrl extends Translations$tray$sr {
   @override
   String get open => _root.general.open;
   @override
-  String get close => 'Напусти LocalSend';
+  String get close => 'Напусти Sonar';
   @override
   String get closeWindows => 'Изађи';
 }
@@ -941,7 +941,7 @@ class _Translations$settingsTab$general$sr_Cyrl extends Translations$settingsTab
   @override
   String get launchMinimized => 'Аутоматско покретање: Покретање скривено';
   @override
-  String get showInContextMenu => 'Прикажи LocalSend у контекстуалном менију';
+  String get showInContextMenu => 'Прикажи Sonar у контекстуалном менију';
   @override
   String get animations => 'Анимације';
 }
@@ -1045,7 +1045,7 @@ class _Translations$settingsTab$other$sr_Cyrl extends Translations$settingsTab$o
   @override
   String get title => 'Остало';
   @override
-  String get support => 'Подржите LocalSend';
+  String get support => 'Подржите Sonar';
   @override
   String get donate => 'Донирај';
   @override
@@ -1401,7 +1401,7 @@ class _Translations$dialogs$localNetworkUnauthorized$sr_Cyrl extends Translation
   @override
   String get title => _root.dialogs.noPermission.title;
   @override
-  String get description => 'LocalSend не може да пронађе друге уређаје без дозволе за скенирање локалне мреже. Дајте ову дозволу у подешавањима.';
+  String get description => 'Sonar не може да пронађе друге уређаје без дозволе за скенирање локалне мреже. Дајте ову дозволу у подешавањима.';
   @override
   String get gotoSettings => 'Подешавања';
 }

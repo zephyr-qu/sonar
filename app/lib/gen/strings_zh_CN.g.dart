@@ -40,7 +40,7 @@ class TranslationsZhCn extends Translations with BaseTranslations<AppLocale, Tra
 
   // Translations
   @override
-  String get appName => 'LocalSend';
+  String get appName => 'Sonar';
   @override
   late final Translations$general$zh_CN general = Translations$general$zh_CN.internal(_root);
   @override
@@ -284,7 +284,7 @@ class Translations$networkInterfacesPage$zh_CN extends Translations$networkInter
   @override
   String get title => '网络接口';
   @override
-  String get info => '默认情况下，LocalSend 使用所有可用的网络接口。您可以在此处排除不需要的网络接口。您需要重新启动服务器以应用更改。';
+  String get info => '默认情况下，Sonar 使用所有可用的网络接口。您可以在此处排除不需要的网络接口。您需要重新启动服务器以应用更改。';
   @override
   String get preview => '预览';
   @override
@@ -354,6 +354,8 @@ class Translations$deviceDetailsPage$zh_CN extends Translations$deviceDetailsPag
   @override
   String get favorite => '收藏';
   @override
+  String get unfavorite => '取消收藏';
+  @override
   String get verify => '验证';
   @override
   late final Translations$deviceDetailsPage$info$zh_CN info = Translations$deviceDetailsPage$info$zh_CN.internal(_root);
@@ -411,7 +413,7 @@ class Translations$receiveOptionsPage$zh_CN extends Translations$receiveOptionsP
   @override
   String get destination => _root.settingsTab.receive.destination;
   @override
-  String get appDirectory => '(LocalSend 文件夹)';
+  String get appDirectory => '(Sonar 文件夹)';
   @override
   String get saveToGallery => _root.settingsTab.receive.saveToGallery;
   @override
@@ -429,6 +431,8 @@ class Translations$sendPage$zh_CN extends Translations$sendPage$en {
   String calculatingChecksum({required Object curr, required Object n}) => '正在计算校验和（${curr} / ${n}）';
   @override
   String get waiting => '等待响应中……';
+  @override
+  String get noResponse => '对方没有响应。请确认对方应用仍在运行且网络可达。';
   @override
   String get rejected => '对方拒绝了请求。';
   @override
@@ -490,7 +494,7 @@ class Translations$webSharePage$zh_CN extends Translations$webSharePage$en {
   @override
   String pinHint({required Object pin}) => 'PIN 为 “${pin}”';
   @override
-  String get encryptionHint => 'LocalSend 使用自签名证书。您需要在浏览器中允许它。';
+  String get encryptionHint => 'Sonar 使用自签名证书。您需要在浏览器中允许它。';
   @override
   String pendingRequests({required Object n}) => '待处理请求：${n}';
   @override
@@ -518,14 +522,16 @@ class Translations$aboutPage$zh_CN extends Translations$aboutPage$en {
 
   // Translations
   @override
-  String get title => '关于 LocalSend';
+  String get title => '关于 Sonar';
   @override
   List<String> get description => [
-    'LocalSend 是一款免费的开源应用程序，可让您通过本地网络与附近的设备安全地分享文件和信息，而无需互联网连接。',
+    'Sonar 是一款免费的开源应用程序，可让您通过本地网络与附近的设备安全地分享文件和信息，而无需互联网连接。',
     '本程序可在 Android、iOS、macOS、Windows 和 Linux 上使用。您可以在官方主页找到所有下载选项。',
   ];
   @override
   String get author => '作者';
+  @override
+  String get originalAuthor => '原作者';
   @override
   String get contributors => '贡献者';
   @override
@@ -544,7 +550,7 @@ class Translations$donationPage$zh_CN extends Translations$donationPage$en {
   @override
   String get title => '捐赠';
   @override
-  String get info => 'LocalSend 免费、开源、无广告。如果您喜欢这款应用程序，可以捐款支持开发。';
+  String get info => 'Sonar 免费、开源、无广告。如果您喜欢这款应用程序，可以捐款支持开发。';
   @override
   String donate({required Object amount}) => '捐款 ${amount}';
   @override
@@ -743,7 +749,7 @@ class Translations$tray$zh_CN extends Translations$tray$en {
   @override
   String get open => _root.general.open;
   @override
-  String get close => '退出 LocalSend';
+  String get close => '退出 Sonar';
   @override
   String get closeWindows => '退出';
 }
@@ -856,9 +862,9 @@ class Translations$nearbyTab$zh_CN extends Translations$nearbyTab$en {
   @override
   String get show => '对本网络可见';
   @override
-  String online({required Object online, required Object total}) => '${online} 台在线 · 共 ${total} 台';
+  String online({required Object online, required Object total}) => '${online} 台在线  共 ${total} 台';
   @override
-  String onlineSuffix({required Object total}) => '台在线 · 共 ${total} 台';
+  String onlineSuffix({required Object total}) => '台在线  共 ${total} 台';
   @override
   String get scan => '重新扫描';
   @override
@@ -884,7 +890,11 @@ class Translations$nearbyTab$zh_CN extends Translations$nearbyTab$en {
   @override
   String get send => '发送';
   @override
-  String pending({required Object files, required Object size}) => '待发送 · ${files} · ${size}';
+  String requesting({required Object device}) => '正在请求 ${device} 接受…';
+  @override
+  String requestingMany({required Object n}) => '正在请求 ${n} 台设备接受…';
+  @override
+  String pending({required Object files, required Object size}) => '待发送 ${files} · ${size}';
   @override
   String get addFile => '添加文件';
   @override
@@ -898,6 +908,8 @@ class Translations$nearbyTab$zh_CN extends Translations$nearbyTab$en {
   @override
   String get onlineSection => '在线';
   @override
+  String get onlineSectionOthers => '其他在线';
+  @override
   String get offlineSection => '离线';
   @override
   String get offline => '离线';
@@ -908,7 +920,7 @@ class Translations$nearbyTab$zh_CN extends Translations$nearbyTab$en {
   @override
   String get noMatch => '没有匹配的设备';
   @override
-  String get noDevices => '还没有发现设备。请确认另一台设备在同一网络中。';
+  String get noDevices => '没有发现设备，请确认两台设备在同一网络。';
   @override
   String radarHidden({required Object shown, required Object total}) => '显示 ${shown}/${total}';
   @override
@@ -918,21 +930,23 @@ class Translations$nearbyTab$zh_CN extends Translations$nearbyTab$en {
   @override
   String get visibleToast => '已对本网络可见';
   @override
-  String get hiddenToast => '已隐藏 · 仅可通过链接接收';
+  String get hiddenToast => '已隐藏  仅可通过链接接收';
   @override
   String get filesEmpty => '未选择文件';
   @override
-  String get tray => '托盘';
+  String get tray => '待发送';
   @override
   String get inProgress => '进行中';
   @override
+  String moreFailures({required Object n}) => '还有 ${n} 条失败';
+  @override
   String get receivePolicy => '接收策略';
   @override
-  String get securitySettings => '加密与 PIN 设置';
+  String get securitySettings => '加密与 PIN';
   @override
   String get dropHere => '拖放文件到这里';
   @override
-  String get dropHint => '或点击选择文件 / 文件夹';
+  String get dropHint => '或点击选择文件或文件夹';
   @override
   String desktopLede({required Object online}) => '${online} 台在线';
   @override
@@ -957,13 +971,15 @@ class Translations$transferTab$zh_CN extends Translations$transferTab$en {
   @override
   String inProgress({required Object n}) => '${n} 个进行中';
   @override
-  String historyCount({required Object n}) => '历史 ${n} 条';
-  @override
   String get noActive => '没有进行中的传输';
   @override
-  String get noActiveHint => '在附近页选择设备开始，或接受传入的请求。';
+  String get noActiveHint => '在附近选择设备，或接收传入的请求。';
+  @override
+  String get autoReceive => '自动接收';
   @override
   String get recent => '最近的传输';
+  @override
+  String get failed => '发送失败';
   @override
   String sending({required Object device}) => '正在发送到 ${device}';
   @override
@@ -985,19 +1001,17 @@ class Translations$transferTab$zh_CN extends Translations$transferTab$en {
   @override
   String remaining({required Object time}) => '剩余 ${time}';
   @override
-  String speed({required Object speed}) => '${speed} MB/s';
+  String speed({required Object speed}) => '${speed}/s';
   @override
   String items({required Object n}) => '${n} 项';
   @override
   String get noHistory => '还没有传输记录';
   @override
-  String historySummary({required Object files, required Object sessions}) => '历史 ${files} 项 · ${sessions} 次';
-  @override
   String get today => '今天';
   @override
   String get yesterday => '昨天';
   @override
-  String searchInSession({required Object n}) => '在这 ${n} 项里搜索';
+  String searchInSession({required Object n}) => '在 ${n} 项中搜索';
   @override
   String allItems({required Object n}) => '全部 ${n}';
   @override
@@ -1005,7 +1019,7 @@ class Translations$transferTab$zh_CN extends Translations$transferTab$en {
   @override
   String get typeVideo => '视频';
   @override
-  String get typePdf => '文档';
+  String get typePdf => 'PDF';
   @override
   String get typeText => '文本';
   @override
@@ -1013,13 +1027,13 @@ class Translations$transferTab$zh_CN extends Translations$transferTab$en {
   @override
   String get typeOther => '其他';
   @override
-  String sortBy({required Object mode}) => '排序 · ${mode}';
-  @override
   String get sortDate => '日期 ↓';
   @override
   String get sortName => '名称 ↑';
   @override
   String get sortSize => '大小 ↓';
+  @override
+  String get sort => '排序';
   @override
   String get gridView => '网格';
   @override
@@ -1030,8 +1044,6 @@ class Translations$transferTab$zh_CN extends Translations$transferTab$en {
   String get received => '收到';
   @override
   String get sent => '发出';
-  @override
-  String get historyHint => '按日期倒序，最新的在最上面 · 点一行进入这次传输的页面';
 }
 
 // Path: settingsPage
@@ -1042,17 +1054,13 @@ class Translations$settingsPage$zh_CN extends Translations$settingsPage$en {
 
   // Translations
   @override
-  String search({required Object count}) => '搜索设置项（共 ${count} 项）';
-  @override
   String noResults({required Object query}) => '没有匹配“${query}”的设置';
   @override
   String items({required Object n}) => '${n} 项';
   @override
-  String groups({required Object n}) => '${n} 组';
-  @override
   String get visibleToNetwork => '对本网络可见';
   @override
-  String get nearbyLayout => '附近页布局';
+  String get nearbyLayout => '附近布局';
   @override
   String get nearbyLayoutGrid => '网格';
   @override
@@ -1085,8 +1093,6 @@ class Translations$settingsPage$zh_CN extends Translations$settingsPage$en {
   String results({required Object n}) => '${n} 个结果';
   @override
   String get searchHint => '搜索设置项';
-  @override
-  String totalItems({required Object n}) => '共 ${n} 项';
 }
 
 // Path: receiveRequestPage
@@ -1099,9 +1105,9 @@ class Translations$receiveRequestPage$zh_CN extends Translations$receiveRequestP
   @override
   String get title => '传入请求';
   @override
-  String get policyQuickSave => '快速保存 · 自动接受';
+  String get policyQuickSave => '已开启自动保存';
   @override
-  String get policyQuickSaveFavorites => '收藏设备自动接受';
+  String get policyQuickSaveFavorites => '收藏的设备自动接收';
   @override
   String get policyAsk => '每个请求都询问';
   @override
@@ -1125,21 +1131,15 @@ class Translations$receiveRequestPage$zh_CN extends Translations$receiveRequestP
   @override
   String get fingerprint => '设备指纹';
   @override
-  String get fingerprintDesc => 'SHA-256 · 应与上次会话一致';
+  String get fingerprintDesc => '应与上次会话一致';
   @override
   String get channel => '通道';
   @override
-  String get channelTls => 'v2 HTTP · 双向 TLS';
+  String get channelTls => 'HTTPS';
   @override
-  String get channelPlain => 'v2 HTTP · 未加密';
+  String get channelPlain => 'HTTP';
   @override
-  String get sameNetwork => '同一本地网络';
-  @override
-  String acceptFiles({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(
-    n,
-    one: '接收 ${n} 项',
-    other: '接收 ${n} 项',
-  );
+  String get accept => '接收';
   @override
   String get reject => _root.general.decline;
 }
@@ -1362,7 +1362,7 @@ class Translations$settingsTab$other$zh_CN extends Translations$settingsTab$othe
   @override
   String get title => '其他';
   @override
-  String get support => '支持 LocalSend';
+  String get support => '支持 Sonar';
   @override
   String get donate => '捐赠';
   @override
@@ -1447,7 +1447,7 @@ class Translations$deviceDetailsPage$info$zh_CN extends Translations$deviceDetai
   @override
   String protocol({required Object version}) => '协议 v${version}';
   @override
-  String get latency => '往返时延';
+  String get latency => '时延';
 }
 
 // Path: deviceDetailsPage.logs
@@ -1555,11 +1555,17 @@ class Translations$dialogs$addressInput$zh_CN extends Translations$dialogs$addre
   @override
   String get title => '输入地址';
   @override
-  String get hashtag => '标签';
+  String get hashtag => '主机号';
   @override
   String get ip => 'IP 地址';
   @override
   String get recentlyUsed => '最近使用： ';
+  @override
+  String get invalidIp => '请输入有效的 IPv4 或 IPv6 地址。';
+  @override
+  String get invalidHashtag => '请输入 1-254 之间的数字。';
+  @override
+  String get hashtagHint => '只填最后一段，如 123';
 }
 
 // Path: dialogs.cancelSession
@@ -1722,7 +1728,7 @@ class Translations$dialogs$localNetworkUnauthorized$zh_CN extends Translations$d
   @override
   String get title => _root.dialogs.noPermission.title;
   @override
-  String get description => 'LocalSend 在没有扫描本地网络的权限的情况下无法找到其他设备。请在设置中授予此权限。';
+  String get description => 'Sonar 在没有扫描本地网络的权限的情况下无法找到其他设备。请在设置中授予此权限。';
   @override
   String get gotoSettings => '设置';
 }
@@ -1848,6 +1854,8 @@ class Translations$dialogs$pin$zh_CN extends Translations$dialogs$pin$en {
   // Translations
   @override
   String get title => '输入 PIN';
+  @override
+  String hint({required Object maxLength}) => '仅限字母和数字，最多 ${maxLength} 位';
 }
 
 // Path: dialogs.zoom

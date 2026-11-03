@@ -1,9 +1,9 @@
-import 'package:localsend_app/provider/file_transfer_provider.dart';
-import 'package:localsend_app/provider/local_ip_provider.dart';
-import 'package:localsend_app/provider/logging/discovery_logs_provider.dart';
 import 'package:logging/logging.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:refena_inspector_client/refena_inspector_client.dart';
+import 'package:sonar/provider/file_transfer_provider.dart';
+import 'package:sonar/provider/local_ip_provider.dart';
+import 'package:sonar/provider/logging/discovery_logs_provider.dart';
 
 final _logger = Logger('Refena');
 

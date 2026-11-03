@@ -1,5 +1,5 @@
 {
-  "appName": "LocalSend",
+  "appName": "Sonar",
   "general": {
     "accept": "Akceptuj",
     "accepted": "Zaakceptowane",
@@ -101,7 +101,7 @@
       "minimizeToTray": "Zminimalizuj do menu ukrytych ikon przy zamykaniu",
       "launchAtStartup": "Autostart po zalogowaniu",
       "launchMinimized": "Autostart: start ukryty",
-      "showInContextMenu": "Pokaż LocalSend w menu kontekstowym",
+      "showInContextMenu": "Pokaż Sonar w menu kontekstowym",
       "animations": "Animacje"
     },
     "receive": {
@@ -144,7 +144,7 @@
     },
     "other": {
       "title": "Inne",
-      "support": "Wesprzyj LocalSend",
+      "support": "Wesprzyj Sonar",
       "donate": "Przekaż darowiznę",
       "privacyPolicy": "Polityka prywatności",
       "termsOfUse": "Warunki korzystania"
@@ -171,7 +171,7 @@
   },
   "networkInterfacesPage": {
     "title": "Interfejsy sieciowe",
-    "info": "Domyślnie LocalSend używa wszystkich dostępnych interfejsów sieciowych. Możesz tutaj wykluczyć niechciane sieci. Musisz ponownie uruchomić serwer, aby zastosować zmiany.",
+    "info": "Domyślnie Sonar używa wszystkich dostępnych interfejsów sieciowych. Możesz tutaj wykluczyć niechciane sieci. Musisz ponownie uruchomić serwer, aby zastosować zmiany.",
     "preview": "Podgląd",
     "whitelist": "Biała lista",
     "blacklist": "Czarna lista"
@@ -232,7 +232,7 @@
   "receiveOptionsPage": {
     "title": "Opcje",
     "destination": "@:settingsTab.receive.destination",
-    "appDirectory": "(Folder LocalSend)",
+    "appDirectory": "(Folder Sonar)",
     "saveToGallery": "@:settingsTab.receive.saveToGallery",
     "saveToGalleryOff": "Wyłączono automatycznie, ponieważ istnieją katalogi."
   },
@@ -284,16 +284,16 @@
     "autoAccept": "Automatycznie akceptuj żądania",
     "requirePin": "Wymagaj kodu PIN",
     "pinHint": "Kod PIN to „{pin}”",
-    "encryptionHint": "LocalSend używa samopodpisanego certyfikatu. Musisz go zaakceptować w przeglądarce.",
+    "encryptionHint": "Sonar używa samopodpisanego certyfikatu. Musisz go zaakceptować w przeglądarce.",
     "pendingRequests": "Oczekujące żądania: {n}"
   },
   "webReceivePage": {
     "title": "Odbierz przez link"
   },
   "aboutPage": {
-    "title": "O LocalSend",
+    "title": "O Sonar",
     "description": [
-      "LocalSend jest darmową, otwartoźródłową aplikacją, która pozwala na bezpieczne udostępnianie plików i wiadomości urządzeniom w pobliżu poprzez Twoją sieć lokalną, bez konieczności połączenia z internetem.",
+      "Sonar jest darmową, otwartoźródłową aplikacją, która pozwala na bezpieczne udostępnianie plików i wiadomości urządzeniom w pobliżu poprzez Twoją sieć lokalną, bez konieczności połączenia z internetem.",
       "Ta aplikacja jest dostępna na systemach Android, iOS, macOS, Windows i Linux. Możesz znaleźć wszystkie opcje pobierania na oficjalnej stronie głównej."
     ],
     "author": "Autor",
@@ -303,7 +303,7 @@
   },
   "donationPage": {
     "title": "Przekaż darowiznę",
-    "info": "LocalSend jest darmową, otwartoźródłową aplikacją bez żadnych reklam. Jeśli podoba Ci się aplikacja, możesz wesprzeć jej rozwój darowizną.",
+    "info": "Sonar jest darmową, otwartoźródłową aplikacją bez żadnych reklam. Jeśli podoba Ci się aplikacja, możesz wesprzeć jej rozwój darowizną.",
     "donate": "Przekaż {amount}",
     "thanks": "Bardzo Ci dziękuję!",
     "restore": "Przywróć zakup"
@@ -391,7 +391,7 @@
     },
     "localNetworkUnauthorized": {
       "title": "@:dialogs.noPermission.title",
-      "description": "LocalSend nie może znaleźć innych urządzeń bez uprawnienia do skanowania sieci lokalnej. Udziel tego uprawnienia w ustawieniach.",
+      "description": "Sonar nie może znaleźć innych urządzeń bez uprawnienia do skanowania sieci lokalnej. Udziel tego uprawnienia w ustawieniach.",
       "gotoSettings": "Ustawienia"
     },
     "messageInput": {
@@ -445,7 +445,7 @@
   "tray": {
     "@info": "Wytyczne Apple są bardzo surowe, jeśli chodzi o „zamknięte” sformułowanie.",
     "open": "@:general.open",
-    "close": "Zakończ LocalSend",
+    "close": "Zakończ Sonar",
     "closeWindows": "Zamknij"
   },
   "web": {

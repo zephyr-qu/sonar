@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:localsend_app/provider/favorites_provider.dart';
-import 'package:localsend_app/provider/local_ip_provider.dart';
-import 'package:localsend_app/provider/network/nearby_devices_provider.dart';
-import 'package:localsend_app/provider/settings_provider.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/provider/favorites_provider.dart';
+import 'package:sonar/provider/local_ip_provider.dart';
+import 'package:sonar/provider/network/nearby_devices_provider.dart';
+import 'package:sonar/provider/settings_provider.dart';
 
 /// Discovers devices in stages, cheapest first: multicast announcement and
 /// favorite probes right away, http-based discovery on the subnets only when

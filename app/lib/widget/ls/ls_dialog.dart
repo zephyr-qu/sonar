@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
 
 /// Dialog shell of the redesign: `bg2` surface, hairline border, radius 16,
 /// optional mono eyebrow, 16px title and a trailing row of [LsButton]s.
@@ -24,6 +27,10 @@ class LsDialog extends StatelessWidget {
   /// Extra width for dialogs holding lists or tables.
   final CrossAxisAlignment contentAlignment;
 
+  /// When set, an X button is rendered in the top-right corner and the
+  /// dialog dismisses through it instead of a trailing "close" action.
+  final VoidCallback? onClose;
+
   const LsDialog({
     this.eyebrow,
     this.title,
@@ -31,6 +38,7 @@ class LsDialog extends StatelessWidget {
     this.actions = const [],
     this.maxWidth = 420,
     this.contentAlignment = CrossAxisAlignment.start,
+    this.onClose,
     super.key,
   });
 
@@ -60,7 +68,21 @@ class LsDialog extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 6),
                   child: Text(eyebrow!.toUpperCase(), style: tokens.eyebrow),
                 ),
-              if (title != null) DefaultTextStyle.merge(style: tokens.title, child: title!),
+              if (title != null || onClose != null)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if (title != null)
+                      Expanded(
+                        child: DefaultTextStyle.merge(style: tokens.title, child: title!),
+                      ),
+                    if (onClose != null)
+                      Padding(
+                        padding: EdgeInsets.only(left: title != null ? 8 : 0),
+                        child: LsIconButton(icon: LucideIcons.x, tooltip: t.general.close, onPressed: onClose),
+                      ),
+                  ],
+                ),
               if (content != null)
                 Flexible(
                   child: Padding(

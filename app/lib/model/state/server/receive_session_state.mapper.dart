@@ -71,6 +71,13 @@ class ReceiveSessionStateMapper extends ClassMapperBase<ReceiveSessionState> {
     'saveToGallery',
     _$saveToGallery,
   );
+  static bool _$autoAccepted(ReceiveSessionState v) => v.autoAccepted;
+  static const Field<ReceiveSessionState, bool> _f$autoAccepted = Field(
+    'autoAccepted',
+    _$autoAccepted,
+    opt: true,
+    def: false,
+  );
   static Set<String> _$createdDirectories(ReceiveSessionState v) =>
       v.createdDirectories;
   static const Field<ReceiveSessionState, Set<String>> _f$createdDirectories =
@@ -102,6 +109,7 @@ class ReceiveSessionStateMapper extends ClassMapperBase<ReceiveSessionState> {
     #destinationDirectory: _f$destinationDirectory,
     #cacheDirectory: _f$cacheDirectory,
     #saveToGallery: _f$saveToGallery,
+    #autoAccepted: _f$autoAccepted,
     #createdDirectories: _f$createdDirectories,
     #checksumVerified: _f$checksumVerified,
     #checksumUnchecked: _f$checksumUnchecked,
@@ -119,6 +127,7 @@ class ReceiveSessionStateMapper extends ClassMapperBase<ReceiveSessionState> {
       destinationDirectory: data.dec(_f$destinationDirectory),
       cacheDirectory: data.dec(_f$cacheDirectory),
       saveToGallery: data.dec(_f$saveToGallery),
+      autoAccepted: data.dec(_f$autoAccepted),
       createdDirectories: data.dec(_f$createdDirectories),
       checksumVerified: data.dec(_f$checksumVerified),
       checksumUnchecked: data.dec(_f$checksumUnchecked),
@@ -214,6 +223,7 @@ abstract class ReceiveSessionStateCopyWith<
     String? destinationDirectory,
     String? cacheDirectory,
     bool? saveToGallery,
+    bool? autoAccepted,
     Set<String>? createdDirectories,
     int? checksumVerified,
     int? checksumUnchecked,
@@ -258,6 +268,7 @@ class _ReceiveSessionStateCopyWithImpl<$R, $Out>
     String? destinationDirectory,
     String? cacheDirectory,
     bool? saveToGallery,
+    bool? autoAccepted,
     Set<String>? createdDirectories,
     int? checksumVerified,
     int? checksumUnchecked,
@@ -274,6 +285,7 @@ class _ReceiveSessionStateCopyWithImpl<$R, $Out>
         #destinationDirectory: destinationDirectory,
       if (cacheDirectory != null) #cacheDirectory: cacheDirectory,
       if (saveToGallery != null) #saveToGallery: saveToGallery,
+      if (autoAccepted != null) #autoAccepted: autoAccepted,
       if (createdDirectories != null) #createdDirectories: createdDirectories,
       if (checksumVerified != null) #checksumVerified: checksumVerified,
       if (checksumUnchecked != null) #checksumUnchecked: checksumUnchecked,
@@ -294,6 +306,7 @@ class _ReceiveSessionStateCopyWithImpl<$R, $Out>
     ),
     cacheDirectory: data.get(#cacheDirectory, or: $value.cacheDirectory),
     saveToGallery: data.get(#saveToGallery, or: $value.saveToGallery),
+    autoAccepted: data.get(#autoAccepted, or: $value.autoAccepted),
     createdDirectories: data.get(
       #createdDirectories,
       or: $value.createdDirectories,

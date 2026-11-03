@@ -2,19 +2,20 @@ import 'dart:io';
 
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/config/init.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/pages/home_page_controller.dart';
-import 'package:localsend_app/pages/settings_page.dart';
-import 'package:localsend_app/pages/tabs/nearby_tab.dart';
-import 'package:localsend_app/pages/tabs/transfer_tab.dart';
-import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
-import 'package:localsend_app/util/native/cross_file_converters.dart';
-import 'package:localsend_app/widget/ls/ls_scaffold.dart';
-import 'package:localsend_app/widget/responsive_builder.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/config/init.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/pages/home_page_controller.dart';
+import 'package:sonar/pages/settings_page.dart';
+import 'package:sonar/pages/tabs/nearby_tab.dart';
+import 'package:sonar/pages/tabs/transfer_tab.dart';
+import 'package:sonar/provider/selection/selected_sending_files_provider.dart';
+import 'package:sonar/util/native/cross_file_converters.dart';
+import 'package:sonar/widget/ls/ls_scaffold.dart';
+import 'package:sonar/widget/responsive_builder.dart';
+import 'package:sonar/widget/transfer_mini_bar.dart';
 
 enum HomeTab {
   nearby(LucideIcons.radar),
@@ -192,10 +193,18 @@ class _HomePageState extends State<HomePage> with Refena {
             ),
             bottomNavigationBar: sizingInformation.isDesktop
                 ? null
-                : LsTabBar(
-                    items: tabItems,
-                    index: vm.currentTab.index,
-                    onTap: (index) => vm.changeTab(tabs[index]),
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // The Transfers tab shows the transfers themselves, so the
+                      // strip only exists while the user is looking elsewhere.
+                      if (vm.currentTab != HomeTab.transfer) const TransferMiniBar(),
+                      LsTabBar(
+                        items: tabItems,
+                        index: vm.currentTab.index,
+                        onTap: (index) => vm.changeTab(tabs[index]),
+                      ),
+                    ],
                   ),
           );
         },

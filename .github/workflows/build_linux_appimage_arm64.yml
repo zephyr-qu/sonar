@@ -41,12 +41,12 @@ jobs:
           $HOME/flutter/bin/flutter --version
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
 
       - name: Check rust-toolchain.toml
-        working-directory: packages/localsend_isolates
+        working-directory: packages/sonar_isolates
         run: rustup show
 
       - name: Dependencies

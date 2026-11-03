@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/favorite_device.dart';
-import 'package:localsend_app/pages/tabs/nearby_tab_vm.dart';
-import 'package:localsend_app/provider/device_last_seen_provider.dart';
-import 'package:localsend_app/util/ui/relative_time.dart';
-import 'package:localsend_isolates/model/device.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/persistence/favorite_device.dart';
+import 'package:sonar/pages/tabs/nearby_tab_vm.dart';
+import 'package:sonar/provider/device_last_seen_provider.dart';
+import 'package:sonar/util/ui/relative_time.dart';
+import 'package:sonar_isolates/model/device.dart';
 
 /// Which subset of the nearby devices the tab is showing.
 enum NearbyFilter { all, online, favorites }
@@ -63,7 +63,7 @@ String offlineLabel(BuildContext context, FavoriteDevice favorite) {
   if (lastSeen == null) {
     return t.nearbyTab.offline;
   }
-  return '${t.nearbyTab.offline} · ${relativeAgo(lastSeen)}';
+  return '${t.nearbyTab.offline}  ${relativeAgo(lastSeen)}';
 }
 
 /// Favorites that are saved but not currently discovered.
@@ -85,6 +85,9 @@ class NearbyActions {
   final void Function(NearbyFilter filter) onFilterChanged;
   final void Function(bool open) onFilesOpenChanged;
   final void Function({String? preselect}) onToggleMulti;
+
+  /// Shares a link: mobile pushes the share page, desktop opens the in-window panel.
+  final Future<void> Function(BuildContext context) onOpenLink;
   final Future<void> Function(Device device) onDeviceTap;
   final Future<void> Function(Device device) onDeviceLongPress;
   final Future<void> Function(Device device) onToggleFavorite;
@@ -99,6 +102,7 @@ class NearbyActions {
     required this.onFilterChanged,
     required this.onFilesOpenChanged,
     required this.onToggleMulti,
+    required this.onOpenLink,
     required this.onDeviceTap,
     required this.onDeviceLongPress,
     required this.onToggleFavorite,

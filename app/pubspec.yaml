@@ -1,4 +1,4 @@
-name: localsend_app
+name: sonar
 description: An open source cross-platform alternative to AirDrop
 homepage: https://localsend.org/
 publish_to: "none"
@@ -34,8 +34,6 @@ dependencies:
   in_app_purchase: 3.3.0 # [FOSS_REMOVE]
   intl: ^0.20.2 # allow newer versions, so it can compile with newer Flutter versions
   local_hero: 0.3.0
-  localsend_isolates:
-    path: ../packages/localsend_isolates
   logging: 1.3.0
   lucide_icons: ^0.257.0
   meta: ^1.17.0 # allow newer versions, so it can compile with newer Flutter versions
@@ -60,6 +58,8 @@ dependencies:
   shared_preferences_platform_interface: any
   slang: 4.19.0
   slang_flutter: 4.19.0
+  sonar_isolates:
+    path: ../packages/sonar_isolates
   system_date_time_format: ^1.4.0
   system_settings_2: 3.0.2
   tray_manager: 0.5.3

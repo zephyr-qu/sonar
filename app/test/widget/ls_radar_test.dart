@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:localsend_app/config/theme.dart';
-import 'package:localsend_app/model/persistence/color_mode.dart';
-import 'package:localsend_app/util/radar_layout.dart';
-import 'package:localsend_app/widget/ls/ls_radar.dart';
+import 'package:sonar/config/theme.dart';
+import 'package:sonar/model/persistence/color_mode.dart';
+import 'package:sonar/util/radar_layout.dart';
+import 'package:sonar/widget/ls/ls_radar.dart';
 
 /// The radar now sizes every bubble from `layoutRadarSlots`; render the busiest case
 /// (six online devices plus the offline favorite) and check it lays out cleanly.

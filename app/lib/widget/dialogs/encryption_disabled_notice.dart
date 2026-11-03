@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/util/native/platform_check.dart';
-import 'package:localsend_app/widget/dialogs/custom_bottom_sheet.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_dialog.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar/widget/dialogs/custom_bottom_sheet.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_dialog.dart';
 
 class EncryptionDisabledNotice extends StatelessWidget {
   const EncryptionDisabledNotice({super.key});

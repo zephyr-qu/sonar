@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/util/platform_strings.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_dialog.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/util/platform_strings.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_dialog.dart';
 
 class NotAvailableOnPlatformDialog extends StatelessWidget {
   final List<TargetPlatform> platforms;

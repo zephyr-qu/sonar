@@ -1,6 +1,6 @@
 use crate::http::dto::{InfoResponseDto, PrepareDownloadResponseDto};
 use crate::http::server::common::error::AppError;
-use crate::http::server::common::pin::check_pin;
+use crate::http::server::common::pin::{check_pin, PinAttempts};
 use crate::http::server::common::query::parse_query;
 use crate::http::server::common::response::{full_body, BoxedBody, JsonResponse};
 use crate::http::server::PeerIp;
@@ -10,12 +10,9 @@ use crate::model::transfer::{FileContent, FileDto};
 use http_body_util::{BodyExt, StreamBody};
 use hyper::body::{Frame, Incoming};
 use hyper::{http, Request, Response, StatusCode};
-use lru::LruCache;
 use percent_encoding::{utf8_percent_encode, AsciiSet, NON_ALPHANUMERIC};
 use serde::Serialize;
 use std::collections::HashMap;
-use std::net::IpAddr;
-use std::num::NonZeroUsize;
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot, Mutex};
 use tokio_stream::StreamExt;
@@ -198,8 +195,8 @@ pub(crate) struct WebDownloadState {
     /// Download sessions, keyed by session ID (the client's IP address).
     pub(crate) sessions: Mutex<HashMap<String, WebDownloadSession>>,
 
-    /// Maps client IPs to the number of failed PIN attempts.
-    pub(crate) pin_attempts: Mutex<LruCache<IpAddr, u32>>,
+    /// Failed PIN attempts of the clients, see [`PinAttempts`].
+    pub(crate) pin_attempts: PinAttempts,
 }
 
 impl WebDownloadState {
@@ -209,7 +206,7 @@ impl WebDownloadState {
             pin: config.pin,
             event_tx: config.event_tx,
             sessions: Mutex::new(HashMap::new()),
-            pin_attempts: Mutex::new(LruCache::new(NonZeroUsize::new(200).unwrap())),
+            pin_attempts: PinAttempts::new(),
         }
     }
 }

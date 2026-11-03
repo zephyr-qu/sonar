@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/widget/ls/ls_dashed.dart';
-import 'package:localsend_app/widget/ls/ls_progress_bar.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/widget/ls/ls_dashed.dart';
+import 'package:sonar/widget/ls/ls_progress_bar.dart';
 
 /// One cell of the pending-file grid: square thumbnail, kind glyph, name and a remove button.
 class LsFileTile extends StatelessWidget {
@@ -331,13 +331,15 @@ class LsDeviceTile extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(10, 8, 26, 8),
                   child: Row(
                     children: [
+                      // Fills the 62px tile minus its 8px vertical padding, so the device
+                      // glyph reads as the tile's subject instead of a 30px chip.
                       Container(
-                        width: 30,
-                        height: 30,
+                        width: 46,
+                        height: 46,
                         alignment: Alignment.center,
-                        decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(8)),
+                        decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(10)),
                         child: IconTheme(
-                          data: IconThemeData(size: 16, color: selected ? colors.accentInk : colors.fg),
+                          data: IconThemeData(size: 22, color: selected ? colors.accentInk : colors.fg),
                           child: glyph,
                         ),
                       ),
@@ -398,12 +400,16 @@ class LsDeviceTile extends StatelessWidget {
   }
 }
 
-/// The device card of the desktop grid (glyph + star, title, mono meta lines).
+/// The device card of the desktop grid: glyph + actions, alias, one mono meta line.
+///
+/// Compact on purpose. The first version's 136px tile fit only four rows on a
+/// typical desktop window, and the address line it carried is the first thing the
+/// details page lists anyway, so the card keeps just what a device is picked by:
+/// its alias, transport and latency.
 class LsDeviceCard extends StatefulWidget {
   final Widget glyph;
   final String name;
   final String meta;
-  final String? metaSecondary;
   final bool selected;
   final bool offline;
   final bool favorite;
@@ -416,7 +422,6 @@ class LsDeviceCard extends StatefulWidget {
     required this.glyph,
     required this.name,
     required this.meta,
-    this.metaSecondary,
     this.selected = false,
     this.offline = false,
     this.favorite = false,
@@ -476,7 +481,7 @@ class _LsDeviceCardState extends State<LsDeviceCard> {
               child: Opacity(
                 opacity: widget.offline ? 0.6 : 1,
                 child: Padding(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -487,19 +492,19 @@ class _LsDeviceCardState extends State<LsDeviceCard> {
                             clipBehavior: Clip.none,
                             children: [
                               Container(
-                                width: 34,
-                                height: 34,
+                                width: 28,
+                                height: 28,
                                 alignment: Alignment.center,
-                                decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(10)),
+                                decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(9)),
                                 child: IconTheme(
-                                  data: IconThemeData(size: 18, color: widget.selected ? colors.accentInk : colors.fg),
+                                  data: IconThemeData(size: 15, color: widget.selected ? colors.accentInk : colors.fg),
                                   child: widget.glyph,
                                 ),
                               ),
                               if (widget.selected)
                                 Positioned(
-                                  right: -4,
-                                  bottom: -4,
+                                  left: -4,
+                                  top: -4,
                                   child: Container(
                                     width: 15,
                                     height: 15,
@@ -515,20 +520,24 @@ class _LsDeviceCardState extends State<LsDeviceCard> {
                             ],
                           ),
                           const Spacer(),
+                          if (widget.onDetails != null) _DetailsButton(onTap: widget.onDetails!, highlighted: _hover),
                           if (widget.onFavorite != null)
-                            LsFavoriteStar(favorite: widget.favorite, onTap: widget.onFavorite!, size: 30, iconSize: 16, hitSize: 34),
+                            LsFavoriteStar(favorite: widget.favorite, onTap: widget.onFavorite!, size: 26, iconSize: 14, hitSize: 30),
                         ],
                       ),
-                      const SizedBox(height: 10),
-                      Text(
-                        widget.name,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: tokens.subtitle,
+                      const SizedBox(height: 8),
+                      // One line: a two-line alias is what pushed the old tile past its
+                      // 136px cell, and the grid is now half that tall. The tooltip and
+                      // the details page keep the full name reachable.
+                      Tooltip(
+                        message: widget.name,
+                        waitDuration: const Duration(milliseconds: 500),
+                        child: Text(widget.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: tokens.subtitle),
                       ),
-                      const SizedBox(height: 6),
-                      Text(widget.meta, style: tokens.monoSm),
-                      if (widget.metaSecondary != null) Text(widget.metaSecondary!, style: tokens.monoSm),
+                      const SizedBox(height: 3),
+                      // Transport and latency only: the address, the port and the
+                      // fingerprint all live on the details page.
+                      Text(widget.meta, maxLines: 1, overflow: TextOverflow.ellipsis, style: tokens.monoSm),
                     ],
                   ),
                 ),
@@ -543,10 +552,10 @@ class _LsDeviceCardState extends State<LsDeviceCard> {
 
 /// The favorite toggle of a device tile / card.
 ///
-/// Lucide has no filled star, so the state is carried by the glyph plate: a
-/// favorite sits on an [`LsColors.accentSoft`] disc with the accent star, a
-/// non-favorite is a bare faint star. Both branches used to draw the identical
-/// glyph, which left the color as the only difference.
+/// Lucide ships outline glyphs only, so the filled state comes from the Material
+/// star: a favorite is a solid star on an [`LsColors.accentSoft`] disc, a
+/// non-favorite a bare faint outline. The disc alone left the color as the only
+/// difference, which is why the glyph now changes shape as well.
 ///
 /// Public because the desktop nearby tab reuses it: an offline favorite is not a device,
 /// so it never reaches the details page and its row has no other remove affordance.
@@ -583,7 +592,17 @@ class LsFavoriteStar extends StatelessWidget {
                 height: size,
                 alignment: Alignment.center,
                 decoration: favorite ? BoxDecoration(color: colors.accentSoft, shape: BoxShape.circle) : null,
-                child: Icon(LucideIcons.star, size: iconSize, color: favorite ? colors.accent : colors.faint),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 150),
+                  child: Icon(
+                    favorite ? Icons.star_rounded : LucideIcons.star,
+                    key: ValueKey(favorite),
+                    size: iconSize,
+                    // A filled lime star on the pale lime disc is unreadable in light
+                    // mode; accentInk is the accent that survives on a light surface.
+                    color: favorite ? colors.accentInk : colors.faint,
+                  ),
+                ),
               ),
             ),
           ),
@@ -593,12 +612,16 @@ class LsFavoriteStar extends StatelessWidget {
   }
 }
 
-/// The "device details" button of a tile. The glyph stays 13px; the 28px box is
+/// The "device details" button of a tile / card. The glyph stays 13px; the 28px box is
 /// the tap target, because a 20px corner button is not reachable with a finger.
+///
+/// [highlighted] is for surfaces that already track hover themselves (the desktop card):
+/// the glyph then lifts from faint to fg, the same transition [LsIconButton] uses.
 class _DetailsButton extends StatelessWidget {
   final VoidCallback onTap;
+  final bool highlighted;
 
-  const _DetailsButton({required this.onTap});
+  const _DetailsButton({required this.onTap, this.highlighted = false});
 
   @override
   Widget build(BuildContext context) {
@@ -615,7 +638,11 @@ class _DetailsButton extends StatelessWidget {
           child: SizedBox(
             width: 28,
             height: 28,
-            child: Icon(LucideIcons.info, size: 13, color: colors.faint),
+            child: TweenAnimationBuilder<Color?>(
+              duration: const Duration(milliseconds: 150),
+              tween: ColorTween(end: highlighted ? colors.fg : colors.faint),
+              builder: (context, animated, child) => Icon(LucideIcons.info, size: 13, color: animated),
+            ),
           ),
         ),
       ),

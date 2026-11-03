@@ -1,23 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/theme.dart';
-import 'package:localsend_app/model/persistence/color_mode.dart';
-import 'package:localsend_app/model/state/server/server_state.dart';
-import 'package:localsend_app/model/state/settings_state.dart';
-import 'package:localsend_app/pages/language_page.dart';
-import 'package:localsend_app/pages/tabs/settings_tab_vm.dart';
-import 'package:localsend_app/provider/device_info_provider.dart';
-import 'package:localsend_app/provider/local_ip_provider.dart';
-import 'package:localsend_app/provider/network/server/server_provider.dart';
-import 'package:localsend_app/provider/settings_provider.dart';
-import 'package:localsend_app/util/native/autostart_helper.dart';
-import 'package:localsend_app/util/native/context_menu_helper.dart';
-import 'package:localsend_app/util/ui/dynamic_colors.dart';
-import 'package:localsend_app/util/ui/snackbar.dart';
-import 'package:localsend_isolates/isolate.dart';
-import 'package:localsend_isolates/model/device_info_result.dart';
-import 'package:localsend_isolates/util/sleep.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/theme.dart';
+import 'package:sonar/model/state/server/server_state.dart';
+import 'package:sonar/model/state/settings_state.dart';
+import 'package:sonar/pages/language_page.dart';
+import 'package:sonar/pages/tabs/settings_tab_vm.dart';
+import 'package:sonar/provider/device_info_provider.dart';
+import 'package:sonar/provider/local_ip_provider.dart';
+import 'package:sonar/provider/network/server/server_provider.dart';
+import 'package:sonar/provider/settings_provider.dart';
+import 'package:sonar/util/native/autostart_helper.dart';
+import 'package:sonar/util/native/context_menu_helper.dart';
+import 'package:sonar/util/ui/snackbar.dart';
+import 'package:sonar_isolates/isolate.dart';
+import 'package:sonar_isolates/model/device_info_result.dart';
+import 'package:sonar_isolates/util/sleep.dart';
 
 final settingsTabControllerProvider = ReduxProvider<SettingsTabController, SettingsTabVm>((ref) {
   final settings = ref.notifier(settingsProvider);
@@ -25,7 +23,6 @@ final settingsTabControllerProvider = ReduxProvider<SettingsTabController, Setti
   final isolateController = ref.notifier(parentIsolateProvider);
   final localIpService = ref.notifier(localIpProvider);
   final initialDeviceInfo = ref.read(deviceInfoProvider);
-  final supportsDynamicColors = ref.read(dynamicColorsProvider) != null;
 
   return SettingsTabController(
     settingsService: settings,
@@ -33,7 +30,6 @@ final settingsTabControllerProvider = ReduxProvider<SettingsTabController, Setti
     isolateController: isolateController,
     localIpService: localIpService,
     initialDeviceInfo: initialDeviceInfo,
-    supportsDynamicColors: supportsDynamicColors,
   );
 });
 
@@ -43,7 +39,6 @@ class SettingsTabController extends ReduxNotifier<SettingsTabVm> {
   final IsolateController _isolateController;
   final LocalIpService _localIpService;
   final DeviceInfoResult _initialDeviceInfo;
-  final bool _supportsDynamicColors;
 
   /// The settings the running server was started with. The server only reads
   /// them once, so a difference to the current settings shows what still needs
@@ -56,13 +51,11 @@ class SettingsTabController extends ReduxNotifier<SettingsTabVm> {
     required IsolateController isolateController,
     required LocalIpService localIpService,
     required DeviceInfoResult initialDeviceInfo,
-    required bool supportsDynamicColors,
   }) : _settingsService = settingsService,
        _serverService = serverNotifier,
        _isolateController = isolateController,
        _localIpService = localIpService,
        _initialDeviceInfo = initialDeviceInfo,
-       _supportsDynamicColors = supportsDynamicColors,
        _appliedSettings = settingsService.state;
 
   @override
@@ -77,7 +70,6 @@ class SettingsTabController extends ReduxNotifier<SettingsTabVm> {
       serverState: _serverService.state,
       deviceInfo: _initialDeviceInfo,
       pendingRestart: _pendingRestart(server: _serverService.state, settings: _settingsService.state),
-      colorModes: _supportsDynamicColors ? ColorMode.values : ColorMode.values.where((e) => e != ColorMode.system).toList(),
       autoStart: false,
       autoStartLaunchHidden: false,
       showInContextMenu: false,
@@ -86,13 +78,6 @@ class SettingsTabController extends ReduxNotifier<SettingsTabVm> {
         await sleepAsync(500); // workaround: brightness takes some time to be updated
         if (context.mounted) {
           await updateSystemOverlayStyle(context);
-        }
-      },
-      onChangeColorMode: (context, colorMode) async {
-        await _settingsService.setColorMode(colorMode);
-        if (colorMode == ColorMode.oled) {
-          await _settingsService.setTheme(ThemeMode.dark);
-          await updateSystemOverlayStyleWithBrightness(Brightness.dark);
         }
       },
       onTapLanguage: (context) async {
@@ -227,6 +212,11 @@ class _SettingsTabWatchAction extends WatchAction<SettingsTabController, Setting
             prevServer.https != serverState.https)) {
       // A new server started from the current settings.
       notifier._appliedSettings = settings;
+    }
+    // The alias can also change outside this page (the device name in the window
+    // header), so the field follows it instead of showing a stale name.
+    if (state.settings.alias != settings.alias) {
+      state.aliasController.text = settings.alias;
     }
 
     return state.copyWith(

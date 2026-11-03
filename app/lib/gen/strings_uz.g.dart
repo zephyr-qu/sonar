@@ -40,7 +40,7 @@ class TranslationsUz extends Translations with BaseTranslations<AppLocale, Trans
 
   // Translations
   @override
-  String get appName => 'LocalSend';
+  String get appName => 'Sonar';
   @override
   late final _Translations$general$uz general = _Translations$general$uz._(_root);
   @override
@@ -275,7 +275,7 @@ class _Translations$networkInterfacesPage$uz extends Translations$networkInterfa
   String get title => 'Tarmoq interfeyslari';
   @override
   String get info =>
-      'Standart holatda LocalSend barcha mavjud tarmoq interfeyslaridan foydalanadi. Bu yerda keraksiz tarmoqlarni chiqarib tashlashingiz mumkin. Oʻzgarishlarni qoʻllash uchun serverni qayta ishga tushirishingiz kerak.';
+      'Standart holatda Sonar barcha mavjud tarmoq interfeyslaridan foydalanadi. Bu yerda keraksiz tarmoqlarni chiqarib tashlashingiz mumkin. Oʻzgarishlarni qoʻllash uchun serverni qayta ishga tushirishingiz kerak.';
   @override
   String get preview => 'Oldindan koʻrish';
   @override
@@ -400,7 +400,7 @@ class _Translations$receiveOptionsPage$uz extends Translations$receiveOptionsPag
   @override
   String get destination => _root.settingsTab.receive.destination;
   @override
-  String get appDirectory => '(LocalSend papkasi)';
+  String get appDirectory => '(Sonar papkasi)';
   @override
   String get saveToGallery => _root.settingsTab.receive.saveToGallery;
   @override
@@ -479,7 +479,7 @@ class _Translations$webSharePage$uz extends Translations$webSharePage$en {
   @override
   String pinHint({required Object pin}) => 'PIN "${pin}"';
   @override
-  String get encryptionHint => 'LocalSend oʻz-oʻzini imzolagan sertifikatdan foydalanadi. Uni brauzeringizda qabul qilishingiz kerak.';
+  String get encryptionHint => 'Sonar oʻz-oʻzini imzolagan sertifikatdan foydalanadi. Uni brauzeringizda qabul qilishingiz kerak.';
   @override
   String pendingRequests({required Object n}) => 'Kutilayotgan soʻrovlar: ${n}';
 }
@@ -503,10 +503,10 @@ class _Translations$aboutPage$uz extends Translations$aboutPage$en {
 
   // Translations
   @override
-  String get title => 'LocalSend haqida';
+  String get title => 'Sonar haqida';
   @override
   List<String> get description => [
-    'LocalSend — bu bepul, ochiq manbali ilova boʻlib, u internet ulanishisiz mahalliy tarmoq orqali yaqin atrofdagi qurilmalar bilan fayllar va xabarlarni xavfsiz ulashish imkonini beradi.',
+    'Sonar — bu bepul, ochiq manbali ilova boʻlib, u internet ulanishisiz mahalliy tarmoq orqali yaqin atrofdagi qurilmalar bilan fayllar va xabarlarni xavfsiz ulashish imkonini beradi.',
     'Ushbu ilova Android, iOS, macOS, Windows va Linuxda mavjud. Barcha yuklab olish variantlarini rasmiy sahifada topishingiz mumkin.',
   ];
   @override
@@ -530,7 +530,7 @@ class _Translations$donationPage$uz extends Translations$donationPage$en {
   String get title => 'Xayriya';
   @override
   String get info =>
-      'LocalSend bepul, ochiq manbali va reklamasiz. Agar ilova sizga yoqqan boʻlsa, xayriya bilan rivojlanishni qoʻllab-quvvatlashingiz mumkin.';
+      'Sonar bepul, ochiq manbali va reklamasiz. Agar ilova sizga yoqqan boʻlsa, xayriya bilan rivojlanishni qoʻllab-quvvatlashingiz mumkin.';
   @override
   String donate({required Object amount}) => '${amount} xayriya qilish';
   @override
@@ -644,7 +644,7 @@ class _Translations$tray$uz extends Translations$tray$en {
   @override
   String get open => _root.general.open;
   @override
-  String get close => 'LocalSenddan chiqish';
+  String get close => 'Sonardan chiqish';
   @override
   String get closeWindows => 'Chiqish';
 }
@@ -851,7 +851,7 @@ class _Translations$settingsTab$general$uz extends Translations$settingsTab$gene
   @override
   String get launchMinimized => 'Avtomatik ishga tushirish: yashirin holda boshlash';
   @override
-  String get showInContextMenu => 'LocalSendni kontekst menyusida koʻrsatish';
+  String get showInContextMenu => 'Sonarni kontekst menyusida koʻrsatish';
   @override
   String get animations => 'Animatsiyalar';
 }
@@ -953,7 +953,7 @@ class _Translations$settingsTab$other$uz extends Translations$settingsTab$other$
   @override
   String get title => 'Boshqa';
   @override
-  String get support => 'LocalSendni qoʻllab-quvvatlash';
+  String get support => 'Sonarni qoʻllab-quvvatlash';
   @override
   String get donate => 'Xayriya';
   @override
@@ -1310,7 +1310,7 @@ class _Translations$dialogs$localNetworkUnauthorized$uz extends Translations$dia
   String get title => _root.dialogs.noPermission.title;
   @override
   String get description =>
-      'LocalSend mahalliy tarmoqni skanerlash ruxsatisiz boshqa qurilmalarni topa olmaydi. Iltimos, ushbu ruxsatni sozlamalarda bering.';
+      'Sonar mahalliy tarmoqni skanerlash ruxsatisiz boshqa qurilmalarni topa olmaydi. Iltimos, ushbu ruxsatni sozlamalarda bering.';
   @override
   String get gotoSettings => 'Sozlamalar';
 }

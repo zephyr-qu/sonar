@@ -277,7 +277,7 @@ class _Translations$networkInterfacesPage$bn extends Translations$networkInterfa
   String get title => 'নেটওয়ার্ক ইন্টারফেস';
   @override
   String get info =>
-      'LocalSend সব অ্যাভেলেবেল নেটওয়ার্ক ইন্টারফেস ব্যবহার করে। আপনি এখানে অপ্রয়োজনীয় নেটওয়ার্ক বাদ দিতে পারেন। কোন পরিবর্তন আনলে সার্ভারটি পুনরায় চালু করতে হবে।';
+      'Sonar সব অ্যাভেলেবেল নেটওয়ার্ক ইন্টারফেস ব্যবহার করে। আপনি এখানে অপ্রয়োজনীয় নেটওয়ার্ক বাদ দিতে পারেন। কোন পরিবর্তন আনলে সার্ভারটি পুনরায় চালু করতে হবে।';
   @override
   String get preview => 'প্রিভিউ';
   @override
@@ -481,7 +481,7 @@ class _Translations$webSharePage$bn extends Translations$webSharePage$en {
   @override
   String pinHint({required Object pin}) => 'পিনটি "${pin}"';
   @override
-  String get encryptionHint => 'LocalSend একটি সেল্ফ-সাইন্ড সার্টিফিকেট ব্যবহার করে। আপনাকে ব্রাউজারে এটি একসেপ্ট করতে হবে।';
+  String get encryptionHint => 'Sonar একটি সেল্ফ-সাইন্ড সার্টিফিকেট ব্যবহার করে। আপনাকে ব্রাউজারে এটি একসেপ্ট করতে হবে।';
   @override
   String pendingRequests({required Object n}) => 'রিকুয়েস্ট অপেক্ষারত: ${n}';
 }
@@ -505,10 +505,10 @@ class _Translations$aboutPage$bn extends Translations$aboutPage$en {
 
   // Translations
   @override
-  String get title => 'LocalSend সম্পর্কে';
+  String get title => 'Sonar সম্পর্কে';
   @override
   List<String> get description => [
-    'LocalSend হল একটি ফ্রী, ওপেন সোর্স অ্যাপ যা ইন্টারনেট ছাড়াই আপনার লোকাল নেটওয়ার্কের ডিভাইসগুলির সাথে ফাইল এবং মেসেজ নিরাপদে শেয়ার করতে দেয়৷',
+    'Sonar হল একটি ফ্রী, ওপেন সোর্স অ্যাপ যা ইন্টারনেট ছাড়াই আপনার লোকাল নেটওয়ার্কের ডিভাইসগুলির সাথে ফাইল এবং মেসেজ নিরাপদে শেয়ার করতে দেয়৷',
     'এই অ্যাপটি Android, iOS, macOS, Windows এবং Linux-এ অ্যাভেলেবেল। আপনি অফিসিয়াল হোমপেজে সব ডাউনলোড অপশন খুঁজে পাবেন।',
   ];
   @override
@@ -532,7 +532,7 @@ class _Translations$donationPage$bn extends Translations$donationPage$en {
   String get title => 'ডোনেট';
   @override
   String get info =>
-      'LocalSend ফ্রী, ওপেন সোর্স এবং কোনো অ্যাড ছাড়াই। আপনি যদি অ্যাপটি পছন্দ করেন তবে আপনি একটি ডোনেশন দিয়ে ডেভেলপমেন্টকে সাপোর্ট করতে পারেন।';
+      'Sonar ফ্রী, ওপেন সোর্স এবং কোনো অ্যাড ছাড়াই। আপনি যদি অ্যাপটি পছন্দ করেন তবে আপনি একটি ডোনেশন দিয়ে ডেভেলপমেন্টকে সাপোর্ট করতে পারেন।';
   @override
   String donate({required Object amount}) => 'ডোনেট ${amount}';
   @override
@@ -729,7 +729,7 @@ class _Translations$tray$bn extends Translations$tray$en {
   @override
   String get open => _root.general.open;
   @override
-  String get close => 'LocalSend থেকে বের হোন';
+  String get close => 'Sonar থেকে বের হোন';
   @override
   String get closeWindows => 'সব উইন্ডো বন্ধ করুন';
 }
@@ -936,7 +936,7 @@ class _Translations$settingsTab$general$bn extends Translations$settingsTab$gene
   @override
   String get launchMinimized => 'অটোস্টার্ট: হিডেন রেখে শুরু করুন';
   @override
-  String get showInContextMenu => 'কনটেক্সট মেনুতে LocalSend দেখান';
+  String get showInContextMenu => 'কনটেক্সট মেনুতে Sonar দেখান';
   @override
   String get animations => 'অ্যানিমেশন';
 }
@@ -1393,7 +1393,7 @@ class _Translations$dialogs$localNetworkUnauthorized$bn extends Translations$dia
   @override
   String get title => _root.dialogs.noPermission.title;
   @override
-  String get description => 'লোকাল নেটওয়ার্ক স্ক্যান করার পারমিশন ছাড়া LocalSend অন্য ডিভাইস খুঁজে পায় না। অনুগ্রহ করে সেটিংসে এই পারমিশনটি দিন।';
+  String get description => 'লোকাল নেটওয়ার্ক স্ক্যান করার পারমিশন ছাড়া Sonar অন্য ডিভাইস খুঁজে পায় না। অনুগ্রহ করে সেটিংসে এই পারমিশনটি দিন।';
   @override
   String get gotoSettings => 'সেটিংস';
 }

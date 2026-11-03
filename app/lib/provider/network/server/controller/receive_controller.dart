@@ -1,44 +1,45 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:localsend_app/model/persistence/transfer_history_session.dart';
-import 'package:localsend_app/model/state/server/receive_session_state.dart';
-import 'package:localsend_app/model/state/server/receiving_file.dart';
-import 'package:localsend_app/pages/home_page.dart';
-import 'package:localsend_app/pages/home_page_controller.dart';
-import 'package:localsend_app/pages/progress_page.dart';
-import 'package:localsend_app/pages/receive_page.dart';
-import 'package:localsend_app/provider/device_info_provider.dart';
-import 'package:localsend_app/provider/favorites_provider.dart';
-import 'package:localsend_app/provider/file_transfer_provider.dart';
-import 'package:localsend_app/provider/http_provider.dart';
-import 'package:localsend_app/provider/logging/discovery_logs_provider.dart';
-import 'package:localsend_app/provider/network/send_provider.dart';
-import 'package:localsend_app/provider/network/server/server_provider.dart';
-import 'package:localsend_app/provider/network/server/server_utils.dart';
-import 'package:localsend_app/provider/security_provider.dart';
-import 'package:localsend_app/provider/selection/selected_receiving_files_provider.dart';
-import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
-import 'package:localsend_app/provider/settings_provider.dart';
-import 'package:localsend_app/provider/transfer_history_provider.dart';
-import 'package:localsend_app/util/native/directories.dart';
-import 'package:localsend_app/util/native/platform_check.dart';
-import 'package:localsend_app/util/native/tray_helper.dart';
-import 'package:localsend_app/widget/dialogs/open_file_dialog.dart';
-import 'package:localsend_isolates/isolate.dart';
-import 'package:localsend_isolates/model/device.dart';
-import 'package:localsend_isolates/model/file_status.dart';
-import 'package:localsend_isolates/model/file_type.dart';
-import 'package:localsend_isolates/model/session_status.dart';
-import 'package:localsend_isolates/rust/api/server.dart' show SessionEndReasonV2;
-import 'package:localsend_isolates/util/rust.dart';
-import 'package:localsend_isolates/util/transfer_notification.dart';
 import 'package:logging/logging.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:refena_flutter/addons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/model/persistence/transfer_history_session.dart';
+import 'package:sonar/model/state/server/receive_session_state.dart';
+import 'package:sonar/model/state/server/receiving_file.dart';
+import 'package:sonar/pages/home_page.dart';
+import 'package:sonar/pages/home_page_controller.dart';
+import 'package:sonar/pages/receive_page.dart';
+import 'package:sonar/provider/device_info_provider.dart';
+import 'package:sonar/provider/favorites_provider.dart';
+import 'package:sonar/provider/file_transfer_provider.dart';
+import 'package:sonar/provider/http_provider.dart';
+import 'package:sonar/provider/logging/discovery_logs_provider.dart';
+import 'package:sonar/provider/network/send_provider.dart';
+import 'package:sonar/provider/network/server/server_provider.dart';
+import 'package:sonar/provider/network/server/server_utils.dart';
+import 'package:sonar/provider/security_provider.dart';
+import 'package:sonar/provider/selection/selected_receiving_files_provider.dart';
+import 'package:sonar/provider/selection/selected_sending_files_provider.dart';
+import 'package:sonar/provider/settings_provider.dart';
+import 'package:sonar/provider/transfer_history_provider.dart';
+import 'package:sonar/util/native/directories.dart';
+import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar/util/native/tray_helper.dart';
+import 'package:sonar/widget/dialogs/open_file_dialog.dart';
+import 'package:sonar_isolates/isolate.dart';
+import 'package:sonar_isolates/model/device.dart';
+import 'package:sonar_isolates/model/file_status.dart';
+import 'package:sonar_isolates/model/file_type.dart';
+import 'package:sonar_isolates/model/session_status.dart';
+import 'package:sonar_isolates/rust/api/server.dart' show SessionEndReasonV2;
+import 'package:sonar_isolates/util/rust.dart';
+import 'package:sonar_isolates/util/transfer_notification.dart';
 import 'package:uuid/uuid.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -141,17 +142,10 @@ class ReceiveController {
     }
 
     if (quickSave) {
-      // Push before accepting: the permission request in [acceptFileRequest] may block for a while.
-      // ignore: use_build_context_synchronously, unawaited_futures
-      Routerino.context.pushImmediately(
-        () => ProgressPage(
-          showAppBar: false,
-          closeSessionOnClose: true,
-          sessionId: sessionId,
-        ),
-      );
-
-      // accept all files
+      // Recorded so that the Transfers tab can mark the session: no page of its own opens for it.
+      server.setState((oldState) => oldState?.copyWith(session: oldState.session?.copyWith(autoAccepted: true)));
+      // Nothing is pushed on purpose: an auto-accepted request must not take the window away from
+      // whatever the user is doing. The Transfers tab shows the session and its progress instead.
       await acceptFileRequest({
         for (final f in files.values) f.id: f.fileName,
       });
@@ -215,19 +209,15 @@ class ReceiveController {
 
           final selectedFiles = ref.read(selectedReceivingFilesProvider);
 
-          // Push before accepting: the permission request in [acceptFileRequest] may block for a while.
-          unawaited(
-            Routerino.context.pushAndRemoveUntilImmediately(
-              removeUntil: ReceivePage,
-              builder: () => ProgressPage(
-                showAppBar: false,
-                closeSessionOnClose: true,
-                sessionId: sessionId,
-              ),
-            ),
-          );
+          // The request is answered, so the dialog has done its job. The transfer
+          // runs in the background from here (Transfers tab, and on mobile the
+          // strip above the tab bar): nothing replaces the shell.
+          // The notifier is captured before popping: the pop disposes the
+          // dialog's view model, whose `ref` must not be used afterwards.
+          final serverNotifier = ref.notifier(serverProvider);
+          Routerino.context.global.dispatch(NavigateAction.popUntilRoot());
 
-          await ref.notifier(serverProvider).acceptFileRequest(selectedFiles);
+          await serverNotifier.acceptFileRequest(selectedFiles);
         },
         onDecline: () {
           ref.notifier(serverProvider).declineFileRequest();
@@ -241,7 +231,7 @@ class ReceiveController {
     server.ref.notifier(selectedReceivingFilesProvider).setFiles(files.values.toList());
 
     // ignore: use_build_context_synchronously, unawaited_futures
-    Routerino.context.push(() => ReceivePage(receiveProvider));
+    unawaited(showReceiveRequestDialog(receiveProvider));
   }
 
   /// An accepted file started being uploaded.
@@ -425,9 +415,7 @@ class ReceiveController {
           closeSession();
           _logger.info('Closing session');
 
-          // ignore: use_build_context_synchronously, discarded_futures
-          Routerino.context.pushRootImmediately(() => const HomePage(initialTab: HomeTab.nearby, appStart: false));
-
+          // Stay where the user is: the completion arrives without a page change.
           // open the dialog to open file instantly
           if (filePath != null && filePath.isNotEmpty) {
             // ignore: discarded_futures
@@ -468,27 +456,14 @@ class ReceiveController {
         }
         break;
       case SessionEndReasonV2.cancelled:
-        _cancelBySender(server);
+        _cancelBySender();
     }
   }
 
   /// Records the finished session as one history entry, so the transfer tab can
   /// list it as a single row.
   Future<void> _recordHistory(ReceiveSessionState session) async {
-    final files = [
-      for (final file in session.files.values)
-        if (file.path != null)
-          TransferHistoryFile(
-            id: file.file.id,
-            fileName: file.desiredName ?? file.file.fileName,
-            fileType: file.file.fileType,
-            fileSize: file.file.size,
-            path: file.path,
-            savedToGallery: file.savedToGallery,
-            isMessage: false,
-            modified: TransferHistoryFile.parseModified(file.file.metadata),
-          ),
-    ];
+    final files = buildHistoryFiles(session.files.values);
     if (files.isEmpty) {
       return;
     }
@@ -515,7 +490,7 @@ class ReceiveController {
       return;
     }
 
-    _cancelBySender(server);
+    _cancelBySender();
   }
 
   /// A remote device cancels a transfer this application is currently
@@ -726,6 +701,36 @@ class ReceiveController {
     closeSession();
   }
 
+  /// A remote device cancelled a transfer, either before the user answered or
+  /// while it was uploading.
+  void _cancelBySender() {
+    final receiveSession = server.getStateOrNull()?.session;
+    if (receiveSession == null) {
+      return;
+    }
+
+    TransferNotification.stop(receiveSession.sessionId);
+
+    if (receiveSession.status == SessionStatus.waiting) {
+      // Cancelled during accept/decline: pop just in case the user is in
+      // [ReceiveOptionsPage]. Nothing shows this session afterwards, so it must
+      // be dropped — a session left behind here made the next send open as a
+      // receive progress page.
+      Routerino.context.popUntilRoot();
+      closeSession();
+      return;
+    }
+
+    server.setState(
+      (oldState) => oldState?.copyWith(
+        session: oldState.session?.copyWith(
+          status: SessionStatus.canceledBySender,
+          endTime: DateTime.now().millisecondsSinceEpoch,
+        ),
+      ),
+    );
+  }
+
   void closeSession() {
     final sessionId = server.getStateOrNull()?.session?.sessionId;
     if (sessionId == null) {
@@ -743,28 +748,27 @@ class ReceiveController {
   }
 }
 
-void _cancelBySender(ServerUtils server) {
-  final receiveSession = server.getStateOrNull()?.session;
-  if (receiveSession == null) {
-    return;
-  }
-
-  TransferNotification.stop(receiveSession.sessionId);
-
-  if (receiveSession.status == SessionStatus.waiting) {
-    // received cancel during accept/decline
-    // pop just in case if user is in [ReceiveOptionsPage]
-    Routerino.context.popUntil(ReceivePage);
-  }
-
-  server.setState(
-    (oldState) => oldState?.copyWith(
-      session: oldState.session?.copyWith(
-        status: SessionStatus.canceledBySender,
-        endTime: DateTime.now().millisecondsSinceEpoch,
-      ),
-    ),
-  );
+/// Maps the files of a finished receive session to their history entries.
+///
+/// A file saved to the gallery has no path (the OS owns it afterwards), but it
+/// is still part of the transfer, so it has to appear in the history. Failed
+/// files have neither a path nor a gallery flag and are left out.
+@visibleForTesting
+List<TransferHistoryFile> buildHistoryFiles(Iterable<ReceivingFile> files) {
+  return [
+    for (final file in files)
+      if (file.path != null || file.savedToGallery)
+        TransferHistoryFile(
+          id: file.file.id,
+          fileName: file.desiredName ?? file.file.fileName,
+          fileType: file.file.fileType,
+          fileSize: file.file.size,
+          path: file.path,
+          savedToGallery: file.savedToGallery,
+          isMessage: false,
+          modified: TransferHistoryFile.parseModified(file.file.metadata),
+        ),
+  ];
 }
 
 extension on ReceiveSessionState {

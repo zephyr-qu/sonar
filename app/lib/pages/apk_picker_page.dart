@@ -1,22 +1,22 @@
 import 'package:device_apps/device_apps.dart';
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/provider/apk_provider.dart';
-import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
-import 'package:localsend_app/util/native/cross_file_converters.dart';
-import 'package:localsend_app/util/ui/nav_bar_padding.dart';
-import 'package:localsend_app/widget/file_thumbnail.dart';
-import 'package:localsend_app/widget/ls/ls_card.dart';
-import 'package:localsend_app/widget/ls/ls_header.dart';
-import 'package:localsend_app/widget/ls/ls_switch.dart';
-import 'package:localsend_app/widget/responsive_list_view.dart';
-import 'package:localsend_app/widget/sliver/sliver_pinned_header.dart';
-import 'package:localsend_isolates/model/file_type.dart';
-import 'package:localsend_isolates/util/file_size_helper.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/provider/apk_provider.dart';
+import 'package:sonar/provider/selection/selected_sending_files_provider.dart';
+import 'package:sonar/util/native/cross_file_converters.dart';
+import 'package:sonar/util/ui/nav_bar_padding.dart';
+import 'package:sonar/widget/file_thumbnail.dart';
+import 'package:sonar/widget/ls/ls_card.dart';
+import 'package:sonar/widget/ls/ls_header.dart';
+import 'package:sonar/widget/ls/ls_switch.dart';
+import 'package:sonar/widget/responsive_list_view.dart';
+import 'package:sonar/widget/sliver/sliver_pinned_header.dart';
+import 'package:sonar_isolates/model/file_type.dart';
+import 'package:sonar_isolates/util/file_size_helper.dart';
 
 class ApkPickerPage extends StatefulWidget {
   const ApkPickerPage({super.key});
@@ -221,7 +221,7 @@ class _ApkPickerPageState extends State<ApkPickerPage> with Refena {
                                               builder: (context, ref) {
                                                 final appSize = ref.watch(apkSizeProvider(app.apkFilePath));
                                                 final appSizeString = appSize.maybeWhen(
-                                                  data: (size) => '${size.asReadableFileSize} · ',
+                                                  data: (size) => '${size.asReadableFileSize}  ',
                                                   orElse: () => '',
                                                 );
                                                 return Column(

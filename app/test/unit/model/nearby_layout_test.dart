@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:localsend_app/model/persistence/color_mode.dart';
-import 'package:localsend_app/model/persistence/nearby_layout.dart';
-import 'package:localsend_app/model/state/settings_state.dart';
-import 'package:localsend_app/provider/persistence_provider.dart';
+import 'package:sonar/model/persistence/color_mode.dart';
+import 'package:sonar/model/persistence/nearby_layout.dart';
+import 'package:sonar/model/state/settings_state.dart';
+import 'package:sonar/provider/persistence_provider.dart';
 
 SettingsState _state() {
   return const SettingsState(

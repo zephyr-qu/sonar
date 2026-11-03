@@ -1,17 +1,18 @@
+import 'dart:async';
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:localsend_app/model/persistence/favorite_device.dart';
-import 'package:localsend_app/model/state/server/receive_session_state.dart';
-import 'package:localsend_app/model/state/settings_state.dart';
-import 'package:localsend_app/pages/receive_page.dart';
-import 'package:localsend_app/provider/network/webrtc/signaling_provider.dart';
-import 'package:localsend_app/provider/selection/selected_receiving_files_provider.dart';
-import 'package:localsend_isolates/model/dto/file_dto.dart' as dart_model;
-import 'package:localsend_isolates/model/session_status.dart';
-import 'package:localsend_isolates/model/stored_security_context.dart';
-import 'package:localsend_isolates/rust/api/model.dart';
-import 'package:localsend_isolates/rust/api/webrtc.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/model/persistence/favorite_device.dart';
+import 'package:sonar/model/state/server/receive_session_state.dart';
+import 'package:sonar/model/state/settings_state.dart';
+import 'package:sonar/pages/receive_page.dart';
+import 'package:sonar/provider/network/webrtc/signaling_provider.dart';
+import 'package:sonar/provider/selection/selected_receiving_files_provider.dart';
+import 'package:sonar_isolates/model/dto/file_dto.dart' as dart_model;
+import 'package:sonar_isolates/model/session_status.dart';
+import 'package:sonar_isolates/model/stored_security_context.dart';
+import 'package:sonar_isolates/rust/api/model.dart';
+import 'package:sonar_isolates/rust/api/webrtc.dart';
 
 part 'webrtc_receiver.mapper.dart';
 
@@ -130,7 +131,7 @@ class _AcceptOfferAction extends AsyncReduxAction<WebRTCReceiveService, WebRTCRe
     Routerino.context.notifier(selectedReceivingFilesProvider).setFiles(convertedFiles);
 
     // ignore: unawaited_futures, use_build_context_synchronously
-    Routerino.context.push(() => ReceivePage(vm));
+    unawaited(showReceiveRequestDialog(vm));
 
     return state.copyWith(
       controller: controller,

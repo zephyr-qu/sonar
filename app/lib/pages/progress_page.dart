@@ -2,49 +2,49 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/state/server/receive_session_state.dart';
-import 'package:localsend_app/pages/web_share_page.dart';
-import 'package:localsend_app/provider/file_transfer_provider.dart';
-import 'package:localsend_app/provider/network/send_provider.dart';
-import 'package:localsend_app/provider/network/server/server_provider.dart';
-import 'package:localsend_app/provider/settings_provider.dart';
-import 'package:localsend_app/util/device_type_ext.dart';
-import 'package:localsend_app/util/native/open_folder.dart';
-import 'package:localsend_app/util/native/platform_check.dart';
-import 'package:localsend_app/util/native/taskbar_helper.dart';
-import 'package:localsend_app/util/notification_strings.dart';
-import 'package:localsend_app/widget/dialogs/cancel_session_dialog.dart';
-import 'package:localsend_app/widget/dialogs/error_dialog.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_card.dart';
-import 'package:localsend_app/widget/ls/ls_chip.dart';
-import 'package:localsend_app/widget/ls/ls_header.dart';
-import 'package:localsend_app/widget/ls/ls_progress_bar.dart';
-import 'package:localsend_app/widget/ls/ls_section_label.dart';
-import 'package:localsend_app/widget/ls/ls_tile.dart';
-import 'package:localsend_isolates/model/dto/file_dto.dart';
-import 'package:localsend_isolates/model/file_status.dart';
-import 'package:localsend_isolates/model/session_status.dart';
-import 'package:localsend_isolates/util/file_size_helper.dart';
-import 'package:localsend_isolates/util/file_speed_helper.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/addons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
-import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/state/server/receive_session_state.dart';
+import 'package:sonar/pages/web_share_page.dart';
+import 'package:sonar/provider/file_transfer_provider.dart';
+import 'package:sonar/provider/network/send_provider.dart';
+import 'package:sonar/provider/network/server/server_provider.dart';
+import 'package:sonar/provider/settings_provider.dart';
+import 'package:sonar/util/device_type_ext.dart';
+import 'package:sonar/util/native/open_folder.dart';
+import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar/util/native/taskbar_helper.dart';
+import 'package:sonar/util/notification_strings.dart';
+import 'package:sonar/widget/dialogs/cancel_session_dialog.dart';
+import 'package:sonar/widget/dialogs/error_dialog.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_card.dart';
+import 'package:sonar/widget/ls/ls_chip.dart';
+import 'package:sonar/widget/ls/ls_header.dart';
+import 'package:sonar/widget/ls/ls_progress_bar.dart';
+import 'package:sonar/widget/ls/ls_section_label.dart';
+import 'package:sonar/widget/ls/ls_tile.dart';
+import 'package:sonar_isolates/model/dto/file_dto.dart';
+import 'package:sonar_isolates/model/file_status.dart';
+import 'package:sonar_isolates/model/session_status.dart';
+import 'package:sonar_isolates/util/file_size_helper.dart';
+import 'package:sonar_isolates/util/file_speed_helper.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+/// Full view of one transfer: per-file progress and the transfer controls.
+///
+/// A transfer never owns the window. Leaving this page keeps it running in the
+/// background — it stays in the Transfers tab (desktop: also in the tray, mobile:
+/// in the strip above the tab bar) — so back and close only dismiss the page.
+/// Stopping the transfer is an explicit action, see [_exit] with `closeSession`.
 class ProgressPage extends StatefulWidget {
-  final bool showAppBar;
-  final bool closeSessionOnClose;
   final String sessionId;
 
-  const ProgressPage({
-    required this.showAppBar,
-    required this.closeSessionOnClose,
-    required this.sessionId,
-  });
+  /// Opens the progress page for a single transfer session.
+  const ProgressPage({required this.sessionId});
 
   @override
   State<ProgressPage> createState() => _ProgressPageState();
@@ -63,6 +63,11 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
   /// On Android the foreground service keeps the process and the connection alive,
   /// so there is no reason to also keep the screen on.
   bool get _useWakelock => checkPlatformIsNot([TargetPlatform.android]);
+
+  /// The server session is this page's session only when the ids match.
+  /// A session left over from an earlier request must not turn a send page into
+  /// a receive page, and must not be cancelled or closed by it either.
+  ReceiveSessionState? _ownReceiveSession(ReceiveSessionState? session) => session?.sessionId == widget.sessionId ? session : null;
 
   @override
   void initState() {
@@ -109,7 +114,7 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
       }
 
       setState(() {
-        final receiveSession = ref.read(serverProvider)?.session;
+        final receiveSession = _ownReceiveSession(ref.read(serverProvider)?.session);
         if (receiveSession != null) {
           _files = receiveSession.files.values.map((f) => f.file).toList();
         } else {
@@ -132,7 +137,7 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
   }
 
   void _exit({required bool closeSession}) async {
-    final receiveSession = ref.read(serverProvider.select((s) => s?.session));
+    final receiveSession = _ownReceiveSession(ref.read(serverProvider.select((s) => s?.session)));
     final sendSession = ref.read(sendProvider)[widget.sessionId];
     final SessionStatus? status = receiveSession?.status ?? sendSession?.status;
     final keepSession = !closeSession && (status == SessionStatus.sending || status == SessionStatus.finishedWithErrors);
@@ -149,11 +154,11 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
 
   Future<bool> _askCancelConfirmation(SessionStatus status) async {
     final bool result = switch (status == SessionStatus.sending) {
-      true => (await context.pushBottomSheet(() => const CancelSessionDialog())) == true,
+      true => await CancelSessionDialog.open(context),
       false => true,
     };
     if (result) {
-      final receiveSession = ref.read(serverProvider)?.session;
+      final receiveSession = _ownReceiveSession(ref.read(serverProvider)?.session);
       final sendState = ref.read(sendProvider)[widget.sessionId];
 
       if (receiveSession != null) {
@@ -194,7 +199,7 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
 
     // No select: comparing the selected session runs the dart_mappable deep equality
     // over the whole files map on every state change.
-    final receiveSession = ref.watch(serverProvider)?.session;
+    final receiveSession = _ownReceiveSession(ref.watch(serverProvider)?.session);
     final sendSession = ref.watch(sendProvider)[widget.sessionId];
 
     final SessionState? commonSessionState = receiveSession ?? sendSession;
@@ -237,7 +242,7 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
     final meta = [
       t.transferTab.items(n: _files.length),
       totalSize.asReadableFileSize,
-    ].join(' · ');
+    ].join('  ');
 
     // Only the receiving side can report verification: the protocol has no ack
     // telling the sender whether the receiver checked the checksums.
@@ -321,7 +326,7 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
               meta: [
                 file.size.asReadableFileSize,
                 if (fileStatus != FileStatus.sending) statusLabel,
-              ].join(' · '),
+              ].join('  '),
               progress: switch (fileStatus) {
                 FileStatus.sending => transfer.progress.clamp(0.0, 1.0),
                 FileStatus.finished => 1.0,
@@ -342,7 +347,7 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
           // Because the user cannot pop this page, we can safely assume that all sessions are closed if they should be.
           return;
         }
-        _exit(closeSession: widget.closeSessionOnClose);
+        _exit(closeSession: false);
       },
       canPop: false,
       child: Scaffold(
@@ -374,7 +379,7 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
                         ),
                       )
                     : null,
-                onBack: () => _exit(closeSession: widget.closeSessionOnClose),
+                onBack: () => _exit(closeSession: false),
               ),
               Expanded(
                 child: ListView(
@@ -422,7 +427,7 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
                                           meta,
                                           if (isSending && snapshot.speedInBytes != null)
                                             t.transferTab.speed(speed: snapshot.speedInBytes!.asReadableFileSize),
-                                        ].join(' · '),
+                                        ].join('  '),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: tokens.mono,

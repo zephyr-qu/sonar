@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
+import 'package:sonar/config/design_tokens.dart';
 
 /// Segmented control of the redesign (30px items inside a `bg2` track).
 ///

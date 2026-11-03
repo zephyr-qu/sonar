@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/util/native/platform_check.dart';
-import 'package:localsend_app/widget/dialogs/custom_bottom_sheet.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_dialog.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar/util/ui/snackbar.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_dialog.dart';
 
-class QuickSaveFromFavoritesNotice extends StatelessWidget {
-  const QuickSaveFromFavoritesNotice({super.key});
+class QuickSaveFromFavoritesNotice {
+  const QuickSaveFromFavoritesNotice._();
 
   static Future<void> open(BuildContext context) async {
     if (checkPlatformIsDesktop()) {
@@ -25,21 +25,8 @@ class QuickSaveFromFavoritesNotice extends StatelessWidget {
         ),
       );
     } else {
-      await context.pushBottomSheet(() => const QuickSaveFromFavoritesNotice());
+      // Mobile: a light snackbar instead of a bottom sheet, so toggling quick save does not interrupt the user.
+      context.showSnackBar(t.dialogs.quickSaveFromFavoritesNotice.content.join('\n'));
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomBottomSheet(
-      title: t.dialogs.quickSaveFromFavoritesNotice.title,
-      description: t.dialogs.quickSaveFromFavoritesNotice.content.join('\n'),
-      child: Center(
-        child: LsButton(
-          label: t.general.close,
-          onPressed: () => context.popUntilRoot(),
-        ),
-      ),
-    );
   }
 }

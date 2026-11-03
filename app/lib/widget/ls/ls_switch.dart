@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:localsend_app/config/design_tokens.dart';
+import 'package:sonar/config/design_tokens.dart';
 
 /// The capsule switch of the design language: 40×24 track, 18px thumb, accent
 /// when on — one step smaller than the Material switch so it sits lightly on a

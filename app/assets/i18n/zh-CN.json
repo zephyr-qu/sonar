@@ -1,5 +1,5 @@
 {
-  "appName": "LocalSend",
+  "appName": "Sonar",
   "general": {
     "accept": "接受",
     "accepted": "已接受",
@@ -146,7 +146,7 @@
     },
     "other": {
       "title": "其他",
-      "support": "支持 LocalSend",
+      "support": "支持 Sonar",
       "donate": "捐赠",
       "privacyPolicy": "隐私政策",
       "termsOfUse": "使用条款"
@@ -173,7 +173,7 @@
   },
   "networkInterfacesPage": {
     "title": "网络接口",
-    "info": "默认情况下，LocalSend 使用所有可用的网络接口。您可以在此处排除不需要的网络接口。您需要重新启动服务器以应用更改。",
+    "info": "默认情况下，Sonar 使用所有可用的网络接口。您可以在此处排除不需要的网络接口。您需要重新启动服务器以应用更改。",
     "preview": "预览",
     "whitelist": "白名单",
     "blacklist": "黑名单"
@@ -203,6 +203,7 @@
   "deviceDetailsPage": {
     "title": "设备详情",
     "favorite": "收藏",
+    "unfavorite": "取消收藏",
     "verify": "验证",
     "info": {
       "title": "信息",
@@ -210,7 +211,7 @@
       "address": "地址",
       "version": "版本",
       "protocol": "协议 v{version}",
-      "latency": "往返时延"
+      "latency": "时延"
     },
     "logs": {
       "title": "日志",
@@ -237,13 +238,14 @@
   "receiveOptionsPage": {
     "title": "设置",
     "destination": "@:settingsTab.receive.destination",
-    "appDirectory": "(LocalSend 文件夹)",
+    "appDirectory": "(Sonar 文件夹)",
     "saveToGallery": "@:settingsTab.receive.saveToGallery",
     "saveToGalleryOff": "由于分享内容中存在文件夹，已自动关闭。"
   },
   "sendPage": {
     "calculatingChecksum": "正在计算校验和（{curr} / {n}）",
     "waiting": "等待响应中……",
+    "noResponse": "对方没有响应。请确认对方应用仍在运行且网络可达。",
     "rejected": "对方拒绝了请求。",
     "tooManyAttempts": "@:web.tooManyAttempts",
     "busy": "对方正在处理另一个请求。"
@@ -289,7 +291,7 @@
     "autoAccept": "自动接受请求",
     "requirePin": "启用 PIN",
     "pinHint": "PIN 为 “{pin}”",
-    "encryptionHint": "LocalSend 使用自签名证书。您需要在浏览器中允许它。",
+    "encryptionHint": "Sonar 使用自签名证书。您需要在浏览器中允许它。",
     "pendingRequests": "待处理请求：{n}",
     "copyLink": "复制链接",
     "expiresHint": "所有文件下载完成后链接自动失效"
@@ -298,19 +300,20 @@
     "title": "通过链接接收"
   },
   "aboutPage": {
-    "title": "关于 LocalSend",
+    "title": "关于 Sonar",
     "description": [
-      "LocalSend 是一款免费的开源应用程序，可让您通过本地网络与附近的设备安全地分享文件和信息，而无需互联网连接。",
+      "Sonar 是一款免费的开源应用程序，可让您通过本地网络与附近的设备安全地分享文件和信息，而无需互联网连接。",
       "本程序可在 Android、iOS、macOS、Windows 和 Linux 上使用。您可以在官方主页找到所有下载选项。"
     ],
     "author": "作者",
+    "originalAuthor": "原作者",
     "contributors": "贡献者",
     "packagers": "打包者",
     "translators": "翻译者"
   },
   "donationPage": {
     "title": "捐赠",
-    "info": "LocalSend 免费、开源、无广告。如果您喜欢这款应用程序，可以捐款支持开发。",
+    "info": "Sonar 免费、开源、无广告。如果您喜欢这款应用程序，可以捐款支持开发。",
     "donate": "捐款 {amount}",
     "thanks": "非常感谢您的支持！",
     "restore": "恢复购买"
@@ -413,9 +416,12 @@
     },
     "addressInput": {
       "title": "输入地址",
-      "hashtag": "标签",
+      "hashtag": "主机号",
       "ip": "IP 地址",
-      "recentlyUsed": "最近使用： "
+      "recentlyUsed": "最近使用： ",
+      "invalidIp": "请输入有效的 IPv4 或 IPv6 地址。",
+      "invalidHashtag": "请输入 1-254 之间的数字。",
+      "hashtagHint": "只填最后一段，如 123"
     },
     "cancelSession": {
       "title": "取消文件传输",
@@ -469,7 +475,7 @@
     },
     "localNetworkUnauthorized": {
       "title": "@:dialogs.noPermission.title",
-      "description": "LocalSend 在没有扫描本地网络的权限的情况下无法找到其他设备。请在设置中授予此权限。",
+      "description": "Sonar 在没有扫描本地网络的权限的情况下无法找到其他设备。请在设置中授予此权限。",
       "gotoSettings": "设置"
     },
     "messageInput": {
@@ -510,7 +516,8 @@
       ]
     },
     "pin": {
-      "title": "输入 PIN"
+      "title": "输入 PIN",
+      "hint": "仅限字母和数字，最多 {maxLength} 位"
     },
     "zoom": {
       "title": "URL"
@@ -523,7 +530,7 @@
   "tray": {
     "@info": "Apple Guidelines are very strict about the \"close\" wording.",
     "open": "@:general.open",
-    "close": "退出 LocalSend",
+    "close": "退出 Sonar",
     "closeWindows": "退出"
   },
   "web": {
@@ -573,8 +580,8 @@
     "hidden": "隐藏",
     "hide": "对本网络隐藏",
     "show": "对本网络可见",
-    "online": "{online} 台在线 · 共 {total} 台",
-    "onlineSuffix": "台在线 · 共 {total} 台",
+    "online": "{online} 台在线  共 {total} 台",
+    "onlineSuffix": "台在线  共 {total} 台",
     "scan": "重新扫描",
     "linkReceive": "通过链接接收",
     "manualIp": "手动 IP",
@@ -587,31 +594,35 @@
     "selected": "已选 {n} 台",
     "selectTarget": "选择目标设备",
     "send": "发送",
-    "pending": "待发送 · {files} · {size}",
+    "requesting": "正在请求 {device} 接受…",
+    "requestingMany": "正在请求 {n} 台设备接受…",
+    "pending": "待发送 {files} · {size}",
     "addFile": "添加文件",
     "expand": "展开",
     "collapse": "收起",
     "clear": "清除",
     "favorites": "收藏",
     "onlineSection": "在线",
+    "onlineSectionOthers": "其他在线",
     "offlineSection": "离线",
     "offline": "离线",
     "offlineHint": "此设备当前离线",
     "noOnlineMatch": "没有匹配的在线设备",
     "noMatch": "没有匹配的设备",
-    "noDevices": "还没有发现设备。请确认另一台设备在同一网络中。",
+    "noDevices": "没有发现设备，请确认两台设备在同一网络。",
     "radarHidden": "显示 {shown}/{total}",
     "favorited": "已加入收藏",
     "unfavorited": "已取消收藏",
     "visibleToast": "已对本网络可见",
-    "hiddenToast": "已隐藏 · 仅可通过链接接收",
+    "hiddenToast": "已隐藏  仅可通过链接接收",
     "filesEmpty": "未选择文件",
-    "tray": "托盘",
+    "tray": "待发送",
     "inProgress": "进行中",
+    "moreFailures": "还有 {n} 条失败",
     "receivePolicy": "接收策略",
-    "securitySettings": "加密与 PIN 设置",
+    "securitySettings": "加密与 PIN",
     "dropHere": "拖放文件到这里",
-    "dropHint": "或点击选择文件 / 文件夹",
+    "dropHint": "或点击选择文件或文件夹",
     "desktopLede": "{online} 台在线",
     "justNow": "刚刚",
     "minutesAgo": "{n} 分钟前",
@@ -621,10 +632,11 @@
   "transferTab": {
     "title": "传输",
     "inProgress": "{n} 个进行中",
-    "historyCount": "历史 {n} 条",
     "noActive": "没有进行中的传输",
-    "noActiveHint": "在附近页选择设备开始，或接受传入的请求。",
+    "noActiveHint": "在附近选择设备，或接收传入的请求。",
+    "autoReceive": "自动接收",
     "recent": "最近的传输",
+    "failed": "发送失败",
     "sending": "正在发送到 {device}",
     "receiving": "正在接收自 {device}",
     "sentTo": "已发送到 {device}",
@@ -635,38 +647,34 @@
     "verified": "校验通过",
     "verifiedCount": "已校验 {verified}/{total}",
     "remaining": "剩余 {time}",
-    "speed": "{speed} MB/s",
+    "speed": "{speed}/s",
     "items": "{n} 项",
     "noHistory": "还没有传输记录",
-    "historySummary": "历史 {files} 项 · {sessions} 次",
     "today": "今天",
     "yesterday": "昨天",
-    "searchInSession": "在这 {n} 项里搜索",
+    "searchInSession": "在 {n} 项中搜索",
     "allItems": "全部 {n}",
     "typeImage": "图片",
     "typeVideo": "视频",
-    "typePdf": "文档",
+    "typePdf": "PDF",
     "typeText": "文本",
     "typeApk": "应用",
     "typeOther": "其他",
-    "sortBy": "排序 · {mode}",
     "sortDate": "日期 ↓",
     "sortName": "名称 ↑",
     "sortSize": "大小 ↓",
+    "sort": "排序",
     "gridView": "网格",
     "listView": "列表",
     "noResults": "没有匹配的文件",
     "received": "收到",
-    "sent": "发出",
-    "historyHint": "按日期倒序，最新的在最上面 · 点一行进入这次传输的页面"
+    "sent": "发出"
   },
   "settingsPage": {
-    "search": "搜索设置项（共 {count} 项）",
     "noResults": "没有匹配“{query}”的设置",
     "items": "{n} 项",
-    "groups": "{n} 组",
     "visibleToNetwork": "对本网络可见",
-    "nearbyLayout": "附近页布局",
+    "nearbyLayout": "附近布局",
     "nearbyLayoutGrid": "网格",
     "nearbyLayoutRadar": "雷达",
     "debug": "调试与日志",
@@ -682,13 +690,12 @@
     "groupDesktopSection": "桌面与窗口",
     "checksums": "校验和",
     "results": "{n} 个结果",
-    "searchHint": "搜索设置项",
-    "totalItems": "共 {n} 项"
+    "searchHint": "搜索设置项"
   },
   "receiveRequestPage": {
     "title": "传入请求",
-    "policyQuickSave": "快速保存 · 自动接受",
-    "policyQuickSaveFavorites": "收藏设备自动接受",
+    "policyQuickSave": "已开启自动保存",
+    "policyQuickSaveFavorites": "收藏的设备自动接收",
     "policyAsk": "每个请求都询问",
     "secure": "已加密",
     "plain": "未加密",
@@ -701,15 +708,11 @@
     "change": "更改",
     "connection": "连接",
     "fingerprint": "设备指纹",
-    "fingerprintDesc": "SHA-256 · 应与上次会话一致",
+    "fingerprintDesc": "应与上次会话一致",
     "channel": "通道",
-    "channelTls": "v2 HTTP · 双向 TLS",
-    "channelPlain": "v2 HTTP · 未加密",
-    "sameNetwork": "同一本地网络",
-    "acceptFiles": {
-      "one": "接收 {n} 项",
-      "other": "接收 {n} 项"
-    },
+    "channelTls": "HTTPS",
+    "channelPlain": "HTTP",
+    "accept": "接收",
     "reject": "@:general.decline"
   }
 }

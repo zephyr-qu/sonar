@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/pages/receive_page.dart';
-import 'package:localsend_app/provider/network/server/server_provider.dart';
-import 'package:localsend_app/provider/selection/selected_receiving_files_provider.dart';
-import 'package:localsend_app/util/file_type_ext.dart';
-import 'package:localsend_app/util/native/pick_directory_path.dart';
-import 'package:localsend_app/util/native/platform_check.dart';
-import 'package:localsend_app/widget/dialogs/file_name_input_dialog.dart';
-import 'package:localsend_app/widget/dialogs/quick_actions_dialog.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_card.dart';
-import 'package:localsend_app/widget/ls/ls_chip.dart';
-import 'package:localsend_app/widget/ls/ls_header.dart';
-import 'package:localsend_app/widget/ls/ls_section_label.dart';
-import 'package:localsend_app/widget/ls/ls_switch.dart';
-import 'package:localsend_app/widget/ls/ls_tile.dart';
-import 'package:localsend_isolates/model/dto/file_dto.dart';
-import 'package:localsend_isolates/util/file_size_helper.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/pages/receive_page.dart';
+import 'package:sonar/provider/network/server/server_provider.dart';
+import 'package:sonar/provider/selection/selected_receiving_files_provider.dart';
+import 'package:sonar/util/file_type_ext.dart';
+import 'package:sonar/util/native/pick_directory_path.dart';
+import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar/widget/dialogs/file_name_input_dialog.dart';
+import 'package:sonar/widget/dialogs/quick_actions_dialog.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_card.dart';
+import 'package:sonar/widget/ls/ls_chip.dart';
+import 'package:sonar/widget/ls/ls_header.dart';
+import 'package:sonar/widget/ls/ls_section_label.dart';
+import 'package:sonar/widget/ls/ls_switch.dart';
+import 'package:sonar/widget/ls/ls_tile.dart';
+import 'package:sonar_isolates/model/dto/file_dto.dart';
+import 'package:sonar_isolates/util/file_size_helper.dart';
 
 class ReceiveOptionsPage extends StatelessWidget {
   final ReceivePageVm vm;
@@ -43,7 +43,6 @@ class ReceiveOptionsPage extends StatelessWidget {
           children: [
             LsSubHeader(
               title: t.receiveOptionsPage.title,
-              subtitle: Text(destination, maxLines: 1, overflow: TextOverflow.ellipsis, style: tokens.monoSm),
               onBack: () => Navigator.of(context).maybePop(),
               actions: [
                 LsChip.text(
@@ -180,7 +179,7 @@ class _ReceiveFileRow extends StatelessWidget {
       kind: _kindOf(file.fileName),
       leadingIcon: file.fileType.icon,
       name: desiredName ?? file.fileName,
-      meta: '$status · ${file.size.asReadableFileSize}',
+      meta: '$status  ${file.size.asReadableFileSize}',
       showDivider: showDivider,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

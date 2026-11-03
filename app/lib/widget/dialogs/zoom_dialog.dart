@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/theme.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/state/send/web/web_download_state.dart';
-import 'package:localsend_app/provider/network/server/server_provider.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_dialog.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/theme.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/state/send/web/web_download_state.dart';
+import 'package:sonar/provider/network/server/server_provider.dart';
+import 'package:sonar/widget/ls/ls_dialog.dart';
 
 class ZoomDialog extends StatelessWidget {
   final String label;
@@ -79,12 +78,7 @@ class ZoomDialog extends StatelessWidget {
             ),
         ],
       ),
-      actions: [
-        LsButton(
-          label: t.general.close,
-          onPressed: () => context.pop(),
-        ),
-      ],
+      onClose: () => context.pop(),
     );
   }
 }

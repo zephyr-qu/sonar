@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:localsend_app/util/native/macos_channel.dart';
 import 'package:logging/logging.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:sonar/util/native/macos_channel.dart';
 import 'package:win32_registry/win32_registry.dart';
 
 const startHiddenFlag = '--hidden';
@@ -107,7 +107,7 @@ Future<bool> isAutoStartHidden() async {
   }
 }
 
-const _windowsRegistryKeyValue = 'LocalSend';
+const _windowsRegistryKeyValue = 'Sonar';
 
 RegistryKey _getWindowsRegistryKey() {
   return Registry.openPath(

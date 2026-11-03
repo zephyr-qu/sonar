@@ -40,7 +40,7 @@ class TranslationsMs extends Translations with BaseTranslations<AppLocale, Trans
 
   // Translations
   @override
-  String get appName => 'LocalSend';
+  String get appName => 'Sonar';
   @override
   late final _Translations$general$ms general = _Translations$general$ms._(_root);
   @override
@@ -277,7 +277,7 @@ class _Translations$networkInterfacesPage$ms extends Translations$networkInterfa
   String get title => 'Antara Muka Rangkaian';
   @override
   String get info =>
-      'Secara lalai, LocalSend menggunakan semua antara muka rangkaian tersedia. Anda boleh memulaukan rangkaian yang tidak diingini. Anda perlu mula semula pelayan untuk mengenakan perubahan.';
+      'Secara lalai, Sonar menggunakan semua antara muka rangkaian tersedia. Anda boleh memulaukan rangkaian yang tidak diingini. Anda perlu mula semula pelayan untuk mengenakan perubahan.';
   @override
   String get preview => 'Pratonton';
   @override
@@ -402,7 +402,7 @@ class _Translations$receiveOptionsPage$ms extends Translations$receiveOptionsPag
   @override
   String get destination => _root.settingsTab.receive.destination;
   @override
-  String get appDirectory => '(folder LocalSend)';
+  String get appDirectory => '(folder Sonar)';
   @override
   String get saveToGallery => _root.settingsTab.receive.saveToGallery;
   @override
@@ -481,7 +481,7 @@ class _Translations$webSharePage$ms extends Translations$webSharePage$en {
   @override
   String pinHint({required Object pin}) => 'PIN ialah "${pin}"';
   @override
-  String get encryptionHint => 'LocalSend menggunakan sijil yang ditandatangani sendiri. Anda perlu menerimanya di pelayar anda.';
+  String get encryptionHint => 'Sonar menggunakan sijil yang ditandatangani sendiri. Anda perlu menerimanya di pelayar anda.';
   @override
   String pendingRequests({required Object n}) => 'Permintaan yang masih belum selesai: ${n}';
 }
@@ -505,10 +505,10 @@ class _Translations$aboutPage$ms extends Translations$aboutPage$en {
 
   // Translations
   @override
-  String get title => 'Tentang LocalSend';
+  String get title => 'Tentang Sonar';
   @override
   List<String> get description => [
-    'LocalSend adalah aplikasi percuma dan sumber terbuka yang membolehkan anda berkongsi fail dan mesej secara selamat dan terjamin dengan peranti berdekatan yang berada dalam rangkaian tempatan anda tanpa memerlukan sebarang sambungan internet.',
+    'Sonar adalah aplikasi percuma dan sumber terbuka yang membolehkan anda berkongsi fail dan mesej secara selamat dan terjamin dengan peranti berdekatan yang berada dalam rangkaian tempatan anda tanpa memerlukan sebarang sambungan internet.',
     'Aplikasi ini tersedia di Android, iOS, macOS, Windows dan Linux. Anda boleh mencari semua pilihan untuk memuat turun di laman web rasmi.',
   ];
   @override
@@ -532,7 +532,7 @@ class _Translations$donationPage$ms extends Translations$donationPage$en {
   String get title => 'Derma';
   @override
   String get info =>
-      'LocalSend adalah percuma, sumber terbuka dan tanpa iklan. Jika anda menyukai aplikasi ini, anda boleh menyokong pembangunannya dengan derma.';
+      'Sonar adalah percuma, sumber terbuka dan tanpa iklan. Jika anda menyukai aplikasi ini, anda boleh menyokong pembangunannya dengan derma.';
   @override
   String donate({required Object amount}) => 'Derma ${amount}';
   @override
@@ -726,7 +726,7 @@ class _Translations$tray$ms extends Translations$tray$en {
   @override
   String get open => _root.general.open;
   @override
-  String get close => 'Keluar LocalSend';
+  String get close => 'Keluar Sonar';
   @override
   String get closeWindows => 'Keluar';
 }
@@ -933,7 +933,7 @@ class _Translations$settingsTab$general$ms extends Translations$settingsTab$gene
   @override
   String get launchMinimized => 'Mula automatik: Mula tersembunyi';
   @override
-  String get showInContextMenu => 'Tunjukkan LocalSend dalam menu konteks';
+  String get showInContextMenu => 'Tunjukkan Sonar dalam menu konteks';
   @override
   String get animations => 'Animasi';
 }
@@ -1035,7 +1035,7 @@ class _Translations$settingsTab$other$ms extends Translations$settingsTab$other$
   @override
   String get title => 'Lain-lain';
   @override
-  String get support => 'Sokong LocalSend';
+  String get support => 'Sokong Sonar';
   @override
   String get donate => 'Derma';
   @override
@@ -1392,7 +1392,7 @@ class _Translations$dialogs$localNetworkUnauthorized$ms extends Translations$dia
   String get title => _root.dialogs.noPermission.title;
   @override
   String get description =>
-      'LocalSend tidak dapat mencari peranti lain tanpa mempunyai kebenaran untuk mengimbas rangkaian tempatan. Sila berikan kebenaran ini dalam tetapan.';
+      'Sonar tidak dapat mencari peranti lain tanpa mempunyai kebenaran untuk mengimbas rangkaian tempatan. Sila berikan kebenaran ini dalam tetapan.';
   @override
   String get gotoSettings => 'Tetapan';
 }

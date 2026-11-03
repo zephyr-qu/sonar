@@ -1,9 +1,9 @@
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:flutter/material.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/color_mode.dart';
-import 'package:localsend_app/model/persistence/nearby_layout.dart';
-import 'package:localsend_isolates/model/device.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/persistence/color_mode.dart';
+import 'package:sonar/model/persistence/nearby_layout.dart';
+import 'package:sonar_isolates/model/device.dart';
 
 part 'settings_state.mapper.dart';
 

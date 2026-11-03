@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/provider/local_ip_provider.dart';
-import 'package:localsend_app/provider/network/server/server_provider.dart';
-import 'package:localsend_app/provider/settings_provider.dart';
-import 'package:localsend_app/util/ui/snackbar.dart';
-import 'package:localsend_app/widget/ls/ls_chip.dart';
-import 'package:localsend_app/widget/ls/ls_header.dart';
-import 'package:localsend_app/widget/ls/ls_switch.dart';
-import 'package:localsend_isolates/constants.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/provider/local_ip_provider.dart';
+import 'package:sonar/provider/network/server/server_provider.dart';
+import 'package:sonar/provider/settings_provider.dart';
+import 'package:sonar/util/ui/snackbar.dart';
+import 'package:sonar/widget/dialogs/device_name_dialog.dart';
+import 'package:sonar/widget/ls/ls_chip.dart';
+import 'package:sonar/widget/ls/ls_header.dart';
+import 'package:sonar/widget/ls/ls_switch.dart';
+import 'package:sonar_isolates/constants.dart';
 
 /// The window header of the desktop shell: device mark, alias, status line and
 /// trailing chips/actions.
@@ -20,11 +21,19 @@ class LsDesktopHeader extends StatelessWidget {
   final Widget? subtitle;
   final List<Widget> actions;
 
+  /// Makes the title block act as an edit affordance for the value it shows.
+  final VoidCallback? onTitleTap;
+
+  /// Tooltip of the tappable title block, e.g. the name of the setting it edits.
+  final String? titleTooltip;
+
   const LsDesktopHeader({
     required this.mark,
     required this.title,
     this.subtitle,
     this.actions = const [],
+    this.onTitleTap,
+    this.titleTooltip,
   });
 
   @override
@@ -51,21 +60,12 @@ class LsDesktopHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: tokens.subtitle,
-              ),
-              if (subtitle != null) ...[
-                const SizedBox(height: 2),
-                subtitle!,
-              ],
-            ],
+          LsHeaderTitle(
+            title: title,
+            subtitle: subtitle,
+            style: tokens.subtitle,
+            tooltip: titleTooltip,
+            onTap: onTitleTap,
           ),
           const Spacer(),
           ...actions,
@@ -94,6 +94,8 @@ class LsDesktopDeviceHeader extends StatelessWidget {
     return LsDesktopHeader(
       mark: const Icon(LucideIcons.radar),
       title: settings.alias,
+      titleTooltip: t.settingsTab.network.alias,
+      onTitleTap: () => showDeviceNameDialog(context),
       subtitle: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

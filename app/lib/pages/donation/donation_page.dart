@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/state/purchase_state.dart';
-import 'package:localsend_app/pages/donation/donation_page_vm.dart';
-// [FOSS_REMOVE_START]
-import 'package:localsend_app/provider/purchase_provider.dart';
-// [FOSS_REMOVE_END]
-import 'package:localsend_app/widget/ls/ls_scaffold.dart';
-import 'package:localsend_app/widget/responsive_list_view.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:routerino/routerino.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/state/purchase_state.dart';
+import 'package:sonar/pages/donation/donation_page_vm.dart';
+// [FOSS_REMOVE_START]
+import 'package:sonar/provider/purchase_provider.dart';
+// [FOSS_REMOVE_END]
+import 'package:sonar/util/ui/snackbar.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_dialog.dart';
+import 'package:sonar/widget/ls/ls_scaffold.dart';
+import 'package:sonar/widget/responsive_list_view.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DonationPage extends StatelessWidget {
@@ -73,26 +77,57 @@ class _StoreDonation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ...PurchaseItem.values.map((item) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: FilledButton.icon(
-              onPressed: vm.purchased.contains(item) ? null : () => vm.purchase(item),
-              icon: const Icon(LucideIcons.heart),
-              label: Text(t.donationPage.donate(amount: vm.prices[item] ?? '...')),
-            ),
-          );
-        }),
-        const SizedBox(height: 20),
-        TextButton.icon(
-          onPressed: vm.restore,
-          icon: const Icon(LucideIcons.rotateCcw),
-          label: Text(t.donationPage.restore),
-        ),
-      ],
+    // Purchased tiers are dropped instead of being rendered as disabled buttons,
+    // so the amount picker only ever offers what can still be bought.
+    final availableItems = PurchaseItem.values.where((item) => !vm.purchased.contains(item)).toList();
+    return FilledButton.icon(
+      onPressed: availableItems.isEmpty ? null : () => _pickAmount(context, availableItems),
+      icon: const Icon(LucideIcons.heart),
+      label: Text(t.donationPage.title),
     );
+  }
+
+  Future<void> _pickAmount(BuildContext context, List<PurchaseItem> items) async {
+    final selected = await showDialog<PurchaseItem>(
+      context: context,
+      builder: (context) => LsDialog(
+        title: Text(t.donationPage.title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final item in items)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: LsButton(
+                  label: t.donationPage.donate(amount: vm.prices[item] ?? item.amount),
+                  icon: LucideIcons.heart,
+                  variant: LsButtonVariant.plain,
+                  expand: true,
+                  onPressed: () => context.pop(item),
+                ),
+              ),
+          ],
+        ),
+        actions: [
+          LsButton(
+            label: t.general.cancel,
+            variant: LsButtonVariant.ghost,
+            onPressed: () => context.pop(),
+          ),
+        ],
+      ),
+    );
+    if (selected == null) {
+      return;
+    }
+    try {
+      await vm.purchase(selected);
+    } catch (_) {
+      // The store can reject the purchase (e.g. the product is not configured for this build).
+      if (context.mounted) {
+        context.showSnackBar(t.general.error);
+      }
+    }
   }
 }
 
@@ -101,24 +136,14 @@ class _LinkDonation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      alignment: WrapAlignment.center,
-      children: [
-        TextButton.icon(
-          onPressed: () async {
-            await launchUrl(Uri.parse('https://github.com/sponsors/Tienisto'), mode: LaunchMode.externalApplication);
-          },
-          icon: const Icon(LucideIcons.externalLink),
-          label: const Text('Github'),
-        ),
-        TextButton.icon(
-          onPressed: () async {
-            await launchUrl(Uri.parse('https://ko-fi.com/tienisto'), mode: LaunchMode.externalApplication);
-          },
-          icon: const Icon(LucideIcons.externalLink),
-          label: const Text('Ko-fi'),
-        ),
-      ],
+    return Center(
+      child: TextButton.icon(
+        onPressed: () async {
+          await launchUrl(Uri.parse('https://github.com/sponsors/Tienisto'), mode: LaunchMode.externalApplication);
+        },
+        icon: const Icon(LucideIcons.externalLink),
+        label: const Text('Github'),
+      ),
     );
   }
 }

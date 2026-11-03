@@ -2,13 +2,13 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
-import 'package:localsend_isolates/model/device.dart';
-import 'package:localsend_isolates/model/device_info_result.dart';
 import 'package:logging/logging.dart';
 // ignore: implementation_imports
 import 'package:slang/src/builder/model/enums.dart';
 // ignore: implementation_imports
 import 'package:slang/src/builder/utils/string_extensions.dart';
+import 'package:sonar_isolates/model/device.dart';
+import 'package:sonar_isolates/model/device_info_result.dart';
 
 final _logger = Logger('DeviceInfoHelper');
 

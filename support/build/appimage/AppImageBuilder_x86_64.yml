@@ -7,11 +7,11 @@ script:
 AppDir:
   path: AppDir
   app_info:
-    id: org.localsend.localsend_app
-    name: LocalSend
+    id: com.zephyr.sonar
+    name: Sonar
     icon: localsend
     version: 1.18.2
-    exec: localsend_app
+    exec: sonar
     exec_args: $@
   apt:
     arch:

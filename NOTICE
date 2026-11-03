@@ -1,0 +1,18 @@
+Sonar
+Copyright 2026 Zephyr
+
+Sonar is a fork of LocalSend (https://localsend.org).
+
+This product includes software developed by Tien Do Nam and the
+LocalSend project, licensed under the Apache License, Version 2.0.
+
+Original work: Copyright Tien Do Nam and the LocalSend contributors.
+Modifications and UI redesign: Copyright 2026 Zephyr.
+
+The Apache License, Version 2.0 applies to this work as a whole. See the
+LICENSE file for the full license text.
+
+"LocalSend" is a product name of the LocalSend project. The Apache License
+2.0 does not grant permission to use its trade names, trademarks, service
+marks, or product names (Section 6). This fork is distributed under the
+name "Sonar".

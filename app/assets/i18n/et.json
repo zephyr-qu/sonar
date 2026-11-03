@@ -1,5 +1,5 @@
 {
-  "appName": "LocalSend",
+  "appName": "Sonar",
   "general": {
     "accept": "Nõustu",
     "accepted": "Nõustusid",
@@ -101,7 +101,7 @@
       "minimizeToTray": "Sulgemisel aseta rakendus süsteemisalve",
       "launchAtStartup": "Sisselogimisel käivita automaatselt",
       "launchMinimized": "Automaatsel käivitamisel: käivita peidetuna",
-      "showInContextMenu": "Näita LocalSendi kontekstimenüüs",
+      "showInContextMenu": "Näita Sonari kontekstimenüüs",
       "animations": "Animatsioonid"
     },
     "receive": {
@@ -144,7 +144,7 @@
     },
     "other": {
       "title": "Muu teave",
-      "support": "Toeta LocalSendi",
+      "support": "Toeta Sonari",
       "donate": "Toeta rahaliselt",
       "privacyPolicy": "Andmekaitsepõhimõtted",
       "termsOfUse": "Kasutustingimused"
@@ -171,7 +171,7 @@
   },
   "networkInterfacesPage": {
     "title": "Võrguliidesed",
-    "info": "Vaikimisi kasutab LocalSend kõiki võrguliideseid. Kui sul on vaja, siis saad mittesoovitud võrgud siinkohal välistada ning muudatuste jõustumine eeldab serverikomponendi uuesti käivitamist.",
+    "info": "Vaikimisi kasutab Sonar kõiki võrguliideseid. Kui sul on vaja, siis saad mittesoovitud võrgud siinkohal välistada ning muudatuste jõustumine eeldab serverikomponendi uuesti käivitamist.",
     "preview": "Eelvaade",
     "whitelist": "Lubatud loend",
     "blacklist": "Keelatud loend"
@@ -232,7 +232,7 @@
   "receiveOptionsPage": {
     "title": "Eelistused",
     "destination": "@:settingsTab.receive.destination",
-    "appDirectory": "(LocalSendi kaust)",
+    "appDirectory": "(Sonari kaust)",
     "saveToGallery": "@:settingsTab.receive.saveToGallery",
     "saveToGalleryOff": "Pole kasutusel, kuna saadetavate hulgas leidub kaustu."
   },
@@ -284,16 +284,16 @@
     "autoAccept": "Nõustu päringutega automaatselt",
     "requirePin": "Küsi PIN-koodi",
     "pinHint": "PIN-kood on „{pin}“",
-    "encryptionHint": "LocalSend kasutab enda poolt allkirjastatud sertifikaate. Ühenduse toimimiseks palun nõustu nendega veebibrauseris.",
+    "encryptionHint": "Sonar kasutab enda poolt allkirjastatud sertifikaate. Ühenduse toimimiseks palun nõustu nendega veebibrauseris.",
     "pendingRequests": "Ootel päringuid: {n}"
   },
   "webReceivePage": {
     "title": "Võta vastu lingi kaudu"
   },
   "aboutPage": {
-    "title": "Rakenduse teave: LocalSend",
+    "title": "Rakenduse teave: Sonar",
     "description": [
-      "LocalSend põhineb avatud lähtekoodil, on kõikide jaoks vaba ning tasuta kasutatav. Rakenduse eesmärgiks on võimaldada failide ja tekstide jagamist kohtvõrgus asuvate arvutite vahel nii, et välist internetiühendust pole vaja kasutada.",
+      "Sonar põhineb avatud lähtekoodil, on kõikide jaoks vaba ning tasuta kasutatav. Rakenduse eesmärgiks on võimaldada failide ja tekstide jagamist kohtvõrgus asuvate arvutite vahel nii, et välist internetiühendust pole vaja kasutada.",
       "See rakendus on saadaval Androidi, iOSi, macOSi, Windowsi ja Linuxi jaoks. Kõik allalaaditavad paigaldusfailid leiad meie ametlikust veebisaidist."
     ],
     "author": "Autor",
@@ -303,7 +303,7 @@
   },
   "donationPage": {
     "title": "Toeta meid rahaliselt",
-    "info": "LocalSend põhineb avatud lähtekoodil, on kõikide jaoks vaba ning tasuta kasutatav, ega sisalda reklaame. Kui sulle see rakendus meeldib, siis palun toeta meie arendust.",
+    "info": "Sonar põhineb avatud lähtekoodil, on kõikide jaoks vaba ning tasuta kasutatav, ega sisalda reklaame. Kui sulle see rakendus meeldib, siis palun toeta meie arendust.",
     "donate": "Anneta {amount}",
     "thanks": "Suur tänu!",
     "restore": "Taasta ost"
@@ -391,7 +391,7 @@
     },
     "localNetworkUnauthorized": {
       "title": "@:dialogs.noPermission.title",
-      "description": "Ilma kohtvõrgu skaneerimise õiguseta ei suuda LocalSend leida teisi seadmeid. Palun luba süsteemi seadistustest vajalikud õigused.",
+      "description": "Ilma kohtvõrgu skaneerimise õiguseta ei suuda Sonar leida teisi seadmeid. Palun luba süsteemi seadistustest vajalikud õigused.",
       "gotoSettings": "Seadistused"
     },
     "messageInput": {
@@ -445,7 +445,7 @@
   "tray": {
     "@info": "Apple'i kasutajaliidese juhendid on väga ranged sõna „Sulge“ kasutamise osas.",
     "open": "@:general.open",
-    "close": "Sulge LocalSend",
+    "close": "Sulge Sonar",
     "closeWindows": "Välju"
   },
   "web": {

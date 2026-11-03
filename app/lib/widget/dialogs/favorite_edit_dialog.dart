@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/theme.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/favorite_device.dart';
-import 'package:localsend_app/provider/device_info_provider.dart';
-import 'package:localsend_app/provider/favorites_provider.dart';
-import 'package:localsend_app/provider/http_provider.dart';
-import 'package:localsend_app/provider/settings_provider.dart';
-import 'package:localsend_app/widget/dialogs/error_dialog.dart';
-import 'package:localsend_app/widget/dialogs/favorite_delete_dialog.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_dialog.dart';
-import 'package:localsend_isolates/model/device.dart';
-import 'package:localsend_isolates/rust/api/model.dart';
-import 'package:localsend_isolates/util/rust.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/theme.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/persistence/favorite_device.dart';
+import 'package:sonar/provider/device_info_provider.dart';
+import 'package:sonar/provider/favorites_provider.dart';
+import 'package:sonar/provider/http_provider.dart';
+import 'package:sonar/provider/settings_provider.dart';
+import 'package:sonar/widget/dialogs/error_dialog.dart';
+import 'package:sonar/widget/dialogs/favorite_delete_dialog.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_dialog.dart';
+import 'package:sonar_isolates/model/device.dart';
+import 'package:sonar_isolates/rust/api/model.dart';
+import 'package:sonar_isolates/util/rust.dart';
 
 /// A dialog to add or edit a favorite device.
 class FavoriteEditDialog extends StatefulWidget {

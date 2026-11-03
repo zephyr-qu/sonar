@@ -2,33 +2,32 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/pages/receive_options_page.dart';
-import 'package:localsend_app/pages/verify_page.dart';
-import 'package:localsend_app/pages/web_share_page.dart';
-import 'package:localsend_app/provider/favorites_provider.dart';
-import 'package:localsend_app/provider/selection/selected_receiving_files_provider.dart';
-import 'package:localsend_app/provider/settings_provider.dart';
-import 'package:localsend_app/util/device_type_ext.dart';
-import 'package:localsend_app/util/favorites.dart';
-import 'package:localsend_app/util/native/platform_check.dart';
-import 'package:localsend_app/util/native/taskbar_helper.dart';
-import 'package:localsend_app/util/ui/snackbar.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_card.dart';
-import 'package:localsend_app/widget/ls/ls_chip.dart';
-import 'package:localsend_app/widget/ls/ls_header.dart';
-import 'package:localsend_app/widget/ls/ls_section_label.dart';
-import 'package:localsend_app/widget/ls/ls_tile.dart';
-import 'package:localsend_isolates/model/device.dart';
-import 'package:localsend_isolates/model/dto/file_dto.dart';
-import 'package:localsend_isolates/model/session_status.dart';
-import 'package:localsend_isolates/util/file_size_helper.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/addons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/pages/receive_options_page.dart';
+import 'package:sonar/pages/verify_page.dart';
+import 'package:sonar/pages/web_share_page.dart';
+import 'package:sonar/provider/favorites_provider.dart';
+import 'package:sonar/provider/selection/selected_receiving_files_provider.dart';
+import 'package:sonar/provider/settings_provider.dart';
+import 'package:sonar/util/device_type_ext.dart';
+import 'package:sonar/util/favorites.dart';
+import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar/util/native/taskbar_helper.dart';
+import 'package:sonar/util/ui/snackbar.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_card.dart';
+import 'package:sonar/widget/ls/ls_chip.dart';
+import 'package:sonar/widget/ls/ls_dialog.dart';
+import 'package:sonar/widget/ls/ls_tile.dart';
+import 'package:sonar_isolates/model/device.dart';
+import 'package:sonar_isolates/model/dto/file_dto.dart';
+import 'package:sonar_isolates/model/session_status.dart';
+import 'package:sonar_isolates/util/file_size_helper.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ReceivePageVm {
@@ -56,16 +55,39 @@ class ReceivePageVm {
   }) : isLink = message != null && !message.trim().contains(RegExp(r'\s')) && (Uri.tryParse(message.trim())?.isAbsolute ?? false);
 }
 
-class ReceivePage extends StatefulWidget {
-  final ViewProvider<ReceivePageVm> vm;
-
-  const ReceivePage(this.vm);
-
-  @override
-  State<ReceivePage> createState() => _ReceivePageState();
+/// Shows an incoming request (or message) as a modal dialog over the shell.
+///
+/// A request is an interruption that asks for one decision, not a screen to
+/// navigate to. Pushing a full-window page covered the rail, the window header
+/// and the visibility switch, so the user could no longer see that this device
+/// is still reachable — and the accept/reject row sat at the bottom of a
+/// scrollable 600px column, far below the summary it belongs to.
+Future<void> showReceiveRequestDialog(ViewProvider<ReceivePageVm> vm) {
+  final navigator = Routerino.navigatorKey.currentState;
+  if (navigator == null) {
+    return Future<void>.value();
+  }
+  return navigator.push<void>(
+    DialogRoute<void>(
+      context: navigator.context,
+      // A request is answered by accept or reject, never by clicking beside the
+      // dialog: an accidental outside click must not decline a transfer.
+      barrierDismissible: false,
+      builder: (_) => ReceiveRequestDialog(vm),
+    ),
+  );
 }
 
-class _ReceivePageState extends State<ReceivePage> with Refena {
+class ReceiveRequestDialog extends StatefulWidget {
+  final ViewProvider<ReceivePageVm> vm;
+
+  const ReceiveRequestDialog(this.vm);
+
+  @override
+  State<ReceiveRequestDialog> createState() => _ReceiveRequestDialogState();
+}
+
+class _ReceiveRequestDialogState extends State<ReceiveRequestDialog> with Refena {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch(
@@ -79,11 +101,19 @@ class _ReceivePageState extends State<ReceivePage> with Refena {
     );
 
     if (vm.status == null && vm.message == null) {
-      return const Scaffold(body: SizedBox());
+      // The session ended while the dialog was open (it was closed elsewhere, or
+      // the state was cleared): an empty dialog would just hang over the shell.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
+        final navigator = Navigator.of(context);
+        if (navigator.canPop()) {
+          navigator.pop();
+        }
+      });
+      return const SizedBox.shrink();
     }
-
-    final senderFavoriteEntry = ref.watch(favoritesProvider.select((state) => state.findDevice(vm.sender)));
-    final settings = ref.watch(settingsProvider);
 
     return ViewModelBuilder(
       provider: (ref) => widget.vm,
@@ -91,80 +121,312 @@ class _ReceivePageState extends State<ReceivePage> with Refena {
         ref.dispose(widget.vm);
         unawaited(TaskbarHelper.clearProgressBar());
       },
-      builder: (context, vm) {
-        final tokens = context.ls;
-        final alias = senderFavoriteEntry?.alias ?? vm.sender.alias;
-        final smallUi = vm.message != null && MediaQuery.sizeOf(context).height < 600;
-
-        return PopScope(
-          onPopInvokedWithResult: (didPop, result) {
-            if (didPop) {
-              vm.onDecline();
-            }
-          },
-          canPop: true,
-          child: Scaffold(
-            body: SafeArea(
-              child: Column(
-                children: [
-                  LsSubHeader(
-                    title: vm.message != null ? (vm.isLink ? t.receivePage.subTitleLink : t.receivePage.subTitleMessage) : t.receiveRequestPage.title,
-                    // Sender identity in the header, receive policy in the footer hint
-                    // (prototype: "快速保存：…" lives above the action bar).
-                    subtitle: Text(
-                      [if (vm.showSenderInfo) alias, if (vm.showSenderInfo) _channelLabel(vm)].join(' · '),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: tokens.monoSm,
-                    ),
-                    onBack: () => Navigator.of(context).maybePop(),
-                    actions: [
-                      LsChip.text(
-                        vm.sender.https ? t.receiveRequestPage.secure : t.receiveRequestPage.plain,
-                        accent: vm.sender.https,
-                      ),
-                    ],
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 600),
-                        child: ListView(
-                          padding: EdgeInsets.fromLTRB(tokens.pad, 0, tokens.pad, 16),
-                          children: vm.message != null
-                              ? _messageContent(context, vm: vm, alias: alias, smallUi: smallUi)
-                              : _requestContent(context, vm: vm, alias: alias),
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (vm.message == null)
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(tokens.pad, 0, tokens.pad, 8),
-                      child: Text(
-                        _policyText(
-                          quickSave: settings.quickSave,
-                          quickSaveFromFavorites: settings.quickSaveFromFavorites,
-                          isFavorite: senderFavoriteEntry != null,
-                        ),
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: tokens.monoSm.copyWith(color: tokens.colors.faint),
-                      ),
-                    ),
-                  _Actions(vm),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+      builder: (context, _) => _dialog(context, vm),
     );
   }
 
-  String _channelLabel(ReceivePageVm vm) {
-    return vm.sender.https ? t.receiveRequestPage.channelTls : t.receiveRequestPage.channelPlain;
+  Widget _dialog(BuildContext context, ReceivePageVm vm) {
+    final senderFavoriteEntry = ref.watch(favoritesProvider.select((state) => state.findDevice(vm.sender)));
+    final alias = senderFavoriteEntry?.alias ?? vm.sender.alias;
+    final isMessage = vm.message != null;
+    final canceled = vm.status == SessionStatus.canceledBySender;
+
+    final title = isMessage ? (vm.isLink ? t.receivePage.subTitleLink : t.receivePage.subTitleMessage) : t.receiveRequestPage.title;
+
+    final List<Widget> actions;
+    if (isMessage || canceled) {
+      actions = [
+        LsButton(
+          label: t.general.close,
+          icon: LucideIcons.x,
+          variant: LsButtonVariant.ghost,
+          onPressed: () => _dismiss(context, vm),
+        ),
+      ];
+    } else {
+      final selectedFiles = context.watch(selectedReceivingFilesProvider);
+      actions = [
+        LsButton(
+          label: t.receiveRequestPage.reject,
+          variant: LsButtonVariant.ghost,
+          onPressed: () => _dismiss(context, vm),
+        ),
+        LsButton(
+          label: t.receiveRequestPage.accept,
+          icon: LucideIcons.download,
+          onPressed: selectedFiles.isEmpty ? null : () => vm.onAccept(),
+        ),
+      ];
+    }
+
+    return PopScope(
+      // Back must go through [_dismiss]: popping the dialog silently would leave
+      // the session pending with no route back to it.
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          _dismiss(context, vm);
+        }
+      },
+      child: Focus(
+        autofocus: true,
+        onKeyEvent: (node, event) => _onKeyEvent(context, node, event, vm),
+        child: LsDialog(
+          title: Text(title),
+          maxWidth: 460,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: isMessage
+                ? _messageContent(context, vm: vm, alias: alias)
+                : _requestContent(context, vm: vm, alias: alias, isFavorite: senderFavoriteEntry != null),
+          ),
+          actions: actions,
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _requestContent(BuildContext context, {required ReceivePageVm vm, required String alias, required bool isFavorite}) {
+    final tokens = context.ls;
+    final colors = tokens.colors;
+    final settings = context.watch(settingsProvider);
+    final totalSize = vm.files.fold<int>(0, (sum, file) => sum + file.size);
+    final destination = context.watch(settingsProvider.select((state) => state.destination)) ?? t.settingsTab.receive.downloads;
+
+    return [
+      _senderBlock(context, vm, alias),
+      const SizedBox(height: 12),
+      Wrap(
+        spacing: 6,
+        runSpacing: 6,
+        children: [
+          LsChip.text(t.receiveRequestPage.filesCount(n: vm.files.length)),
+          LsChip.text(totalSize.asReadableFileSize),
+          LsChip.text(
+            vm.sender.https ? t.receiveRequestPage.secure : t.receiveRequestPage.plain,
+            accent: vm.sender.https,
+          ),
+        ],
+      ),
+      const SizedBox(height: 12),
+      _fileList(context, vm),
+      const SizedBox(height: 12),
+      _destinationRow(context, vm, destination),
+      const SizedBox(height: 10),
+      Text(
+        _policyText(quickSave: settings.quickSave, quickSaveFromFavorites: settings.quickSaveFromFavorites, isFavorite: isFavorite),
+        style: tokens.monoSm.copyWith(color: colors.faint),
+      ),
+    ];
+  }
+
+  List<Widget> _messageContent(BuildContext context, {required ReceivePageVm vm, required String alias}) {
+    return [
+      _senderBlock(context, vm, alias),
+      const SizedBox(height: 12),
+      LsCard(
+        padding: const EdgeInsets.all(12),
+        // Long messages scroll inside the card instead of stretching the dialog.
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 180),
+          child: SingleChildScrollView(child: SelectableText(vm.message!)),
+        ),
+      ),
+      const SizedBox(height: 10),
+      Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          LsButton(
+            label: t.general.copy,
+            icon: LucideIcons.copy,
+            variant: LsButtonVariant.ghost,
+            compact: true,
+            onPressed: () {
+              unawaited(Clipboard.setData(ClipboardData(text: vm.message!)));
+              if (checkPlatformIsDesktop()) {
+                context.showSnackBar(t.general.copiedToClipboard);
+              }
+              vm.onAccept();
+              context.global.dispatch(NavigateAction.popUntil<WebSharePage>());
+            },
+          ),
+          if (vm.isLink)
+            LsButton(
+              label: t.general.open,
+              icon: LucideIcons.externalLink,
+              compact: true,
+              onPressed: () {
+                // ignore: discarded_futures
+                launchUrl(Uri.parse(vm.message!), mode: LaunchMode.externalApplication);
+                vm.onAccept();
+                context.global.dispatch(NavigateAction.popUntil<WebSharePage>());
+              },
+            ),
+        ],
+      ),
+    ];
+  }
+
+  /// Sender identity: alias, device model + address and the certificate
+  /// fingerprint in one block.
+  ///
+  /// The fingerprint used to live in a separate "connection" card together with
+  /// the channel, while the header repeated the same channel as a chip; that is
+  /// three rows of a dialog saying one thing.
+  Widget _senderBlock(BuildContext context, ReceivePageVm vm, String alias) {
+    final tokens = context.ls;
+    final colors = tokens.colors;
+    final meta = [
+      if (vm.sender.deviceModel != null) vm.sender.deviceModel!,
+      if (vm.sender.ip != null) vm.sender.ip!,
+    ].join('  ');
+    final fingerprint = vm.sender.fingerprint;
+
+    return Row(
+      children: [
+        Container(
+          width: 44,
+          height: 44,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(tokens.radiusSm)),
+          child: Icon(vm.sender.deviceType.icon, size: 20, color: colors.fg),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(alias, maxLines: 1, overflow: TextOverflow.ellipsis, style: tokens.subtitle),
+              if (meta.isNotEmpty) ...[
+                const SizedBox(height: 3),
+                Text(meta, maxLines: 1, overflow: TextOverflow.ellipsis, style: tokens.monoSm),
+              ],
+              if (fingerprint.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Tooltip(
+                  message: '${t.receiveRequestPage.fingerprint}: ${t.receiveRequestPage.fingerprintDesc}',
+                  child: Text(
+                    _shortFingerprint(fingerprint),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: tokens.monoSm.copyWith(color: colors.faint),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+
+        // Verification belongs to the identity it checks: on the sender row,
+        // next to the fingerprint it compares, not below the destination where
+        // it read as a step of the accept/reject decision.
+        if (vm.showSenderInfo) ...[
+          const SizedBox(width: 8),
+          LsButton(
+            label: t.verifyPage.title,
+            icon: LucideIcons.badgeCheck,
+            variant: LsButtonVariant.ghost,
+            compact: true,
+            // Without https there is no peer certificate to compare.
+            onPressed: !vm.sender.https
+                ? null
+                : () async => context.push(
+                    () => VerifyPage(
+                      fingerprint: CombinedFingerprint.load(context, vm.sender.fingerprint),
+                    ),
+                  ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  /// The file list keeps its own scroll area so a request with hundreds of files
+  /// cannot grow the dialog past the window; the action row stays in the footer.
+  Widget _fileList(BuildContext context, ReceivePageVm vm) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxHeight: 240),
+      child: SingleChildScrollView(
+        child: LsCard(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+          child: Column(
+            children: [
+              for (final file in vm.files) LsFileRow(kind: _kindOf(file), name: file.fileName, meta: file.size.asReadableFileSize),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _destinationRow(BuildContext context, ReceivePageVm vm, String destination) {
+    final tokens = context.ls;
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(t.receiveRequestPage.saveTo, style: tokens.label),
+              const SizedBox(height: 2),
+              Text(destination, maxLines: 1, overflow: TextOverflow.ellipsis, style: tokens.body),
+            ],
+          ),
+        ),
+        const SizedBox(width: 8),
+        // The single entry to the receive options: the page used to offer
+        // "change" next to the destination and a second button further down.
+        LsButton(
+          label: t.receiveRequestPage.change,
+          variant: LsButtonVariant.ghost,
+          compact: true,
+          onPressed: () async => context.push(() => ReceiveOptionsPage(vm)),
+        ),
+      ],
+    );
+  }
+
+  /// Closes the dialog and applies the decision matching what is on screen.
+  void _dismiss(BuildContext context, ReceivePageVm vm) {
+    if (vm.message != null) {
+      vm.onAccept();
+    } else if (vm.status == SessionStatus.canceledBySender) {
+      vm.onClose();
+    } else {
+      vm.onDecline();
+    }
+    context.global.dispatch(NavigateAction.popUntil<WebSharePage>());
+  }
+
+  KeyEventResult _onKeyEvent(BuildContext context, FocusNode node, KeyEvent event, ReceivePageVm vm) {
+    final keyboard = HardwareKeyboard.instance;
+    if (event is! KeyDownEvent || keyboard.isControlPressed || keyboard.isShiftPressed || keyboard.isAltPressed || keyboard.isMetaPressed) {
+      return KeyEventResult.ignored;
+    }
+    switch (event.logicalKey) {
+      case LogicalKeyboardKey.escape:
+        _dismiss(context, vm);
+        return KeyEventResult.handled;
+      // Only while no button is focused, so that Enter still activates the focused button.
+      case LogicalKeyboardKey.enter || LogicalKeyboardKey.numpadEnter when node.hasPrimaryFocus:
+        if (vm.message != null || vm.status == SessionStatus.canceledBySender) {
+          return KeyEventResult.ignored;
+        }
+        if (context.read(selectedReceivingFilesProvider).isNotEmpty) {
+          vm.onAccept();
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+    }
+    return KeyEventResult.ignored;
+  }
+
+  String _shortFingerprint(String fingerprint) {
+    return fingerprint.length > 12 ? '${fingerprint.substring(0, 6)}…${fingerprint.substring(fingerprint.length - 4)}' : fingerprint;
   }
 
   /// Mirrors the receive policy line of the redesign header.
@@ -185,335 +447,5 @@ class _ReceivePageState extends State<ReceivePage> with Refena {
     }
     final kind = file.fileName.substring(dot + 1).toUpperCase();
     return kind.length > 4 ? kind.substring(0, 4) : kind;
-  }
-
-  Widget _senderBlock(BuildContext context, ReceivePageVm vm, String alias) {
-    final tokens = context.ls;
-    final colors = tokens.colors;
-    final meta = [
-      if (vm.sender.deviceModel != null) vm.sender.deviceModel!,
-      if (vm.sender.ip != null) vm.sender.ip!,
-      _channelLabel(vm),
-    ].join(' · ');
-
-    return Row(
-      children: [
-        Container(
-          width: 44,
-          height: 44,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(tokens.radiusSm)),
-          child: Icon(vm.sender.deviceType.icon, size: 20, color: colors.fg),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(alias, maxLines: 1, overflow: TextOverflow.ellipsis, style: tokens.subtitle),
-              const SizedBox(height: 3),
-              Text(meta, maxLines: 1, overflow: TextOverflow.ellipsis, style: tokens.monoSm),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  List<Widget> _requestContent(BuildContext context, {required ReceivePageVm vm, required String alias}) {
-    final tokens = context.ls;
-    final colors = tokens.colors;
-    final totalSize = vm.files.fold<int>(0, (sum, file) => sum + file.size);
-    final fingerprint = vm.sender.fingerprint;
-    final fingerprintShort = fingerprint.length > 12
-        ? '${fingerprint.substring(0, 6)}…${fingerprint.substring(fingerprint.length - 4)}'
-        : fingerprint;
-    final destination = context.watch(settingsProvider.select((state) => state.destination)) ?? t.settingsTab.receive.downloads;
-
-    return [
-      const SizedBox(height: 6),
-      _senderBlock(context, vm, alias),
-      const SizedBox(height: 14),
-      Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          LsChip.text(t.receiveRequestPage.filesCount(n: vm.files.length)),
-          LsChip.text(totalSize.asReadableFileSize),
-          if (vm.sender.version.isNotEmpty) LsChip.text(t.receiveRequestPage.protocol(version: vm.sender.version)),
-        ],
-      ),
-      const SizedBox(height: 12),
-      LsCard(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-        child: Column(
-          children: [
-            for (final file in vm.files) LsFileRow(kind: _kindOf(file), name: file.fileName, meta: file.size.asReadableFileSize),
-          ],
-        ),
-      ),
-      const SizedBox(height: 14),
-      Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(t.receiveRequestPage.saveTo, style: tokens.body),
-                const SizedBox(height: 2),
-                Text(destination, maxLines: 1, overflow: TextOverflow.ellipsis, style: tokens.bodySm),
-              ],
-            ),
-          ),
-          LsButton(
-            label: t.receiveRequestPage.change,
-            variant: LsButtonVariant.ghost,
-            onPressed: () async => context.push(() => ReceiveOptionsPage(vm)),
-          ),
-        ],
-      ),
-      LsSectionLabel(label: t.receiveRequestPage.connection, padding: const EdgeInsets.only(top: 6, bottom: 8)),
-      LsCard(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-        child: Column(
-          children: [
-            _kvRow(
-              context,
-              label: t.receiveRequestPage.fingerprint,
-              description: t.receiveRequestPage.fingerprintDesc,
-              value: fingerprintShort,
-            ),
-            Divider(color: colors.line, height: 1),
-            _kvRow(
-              context,
-              label: t.receiveRequestPage.channel,
-              description: t.receiveRequestPage.sameNetwork,
-              value: _channelLabel(vm),
-            ),
-          ],
-        ),
-      ),
-      if (vm.showSenderInfo) ...[
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: [
-            LsButton(
-              label: t.verifyPage.title,
-              icon: LucideIcons.badgeCheck,
-              variant: LsButtonVariant.ghost,
-              onPressed: !vm.sender.https
-                  ? null
-                  : () async => context.push(
-                      () => VerifyPage(
-                        fingerprint: CombinedFingerprint.load(context, vm.sender.fingerprint),
-                      ),
-                    ),
-            ),
-            LsButton(
-              label: t.receiveOptionsPage.title,
-              icon: LucideIcons.slidersHorizontal,
-              variant: LsButtonVariant.ghost,
-              onPressed: () async => context.push(() => ReceiveOptionsPage(vm)),
-            ),
-          ],
-        ),
-      ],
-    ];
-  }
-
-  List<Widget> _messageContent(BuildContext context, {required ReceivePageVm vm, required String alias, required bool smallUi}) {
-    return [
-      const SizedBox(height: 6),
-      _senderBlock(context, vm, alias),
-      const SizedBox(height: 14),
-      LsCard(
-        padding: const EdgeInsets.all(14),
-        child: SizedBox(
-          height: smallUi ? 80 : 120,
-          child: SingleChildScrollView(child: SelectableText(vm.message!)),
-        ),
-      ),
-      const SizedBox(height: 12),
-      Wrap(
-        spacing: 10,
-        runSpacing: 10,
-        children: [
-          if (vm.showSenderInfo)
-            LsButton(
-              label: t.verifyPage.title,
-              icon: LucideIcons.badgeCheck,
-              variant: LsButtonVariant.ghost,
-              onPressed: () async => context.push(
-                () => VerifyPage(
-                  fingerprint: CombinedFingerprint.load(context, vm.sender.fingerprint),
-                ),
-              ),
-            ),
-          LsButton(
-            label: t.general.copy,
-            icon: LucideIcons.copy,
-            variant: LsButtonVariant.ghost,
-            onPressed: () {
-              unawaited(Clipboard.setData(ClipboardData(text: vm.message!)));
-              if (checkPlatformIsDesktop()) {
-                context.showSnackBar(t.general.copiedToClipboard);
-              }
-              vm.onAccept();
-              context.global.dispatch(NavigateAction.popUntil<WebSharePage>());
-            },
-          ),
-          if (vm.isLink)
-            LsButton(
-              label: t.general.open,
-              icon: LucideIcons.externalLink,
-              onPressed: () {
-                // ignore: discarded_futures
-                launchUrl(Uri.parse(vm.message!), mode: LaunchMode.externalApplication);
-                vm.onAccept();
-                context.global.dispatch(NavigateAction.popUntil<WebSharePage>());
-              },
-            ),
-        ],
-      ),
-    ];
-  }
-
-  Widget _kvRow(BuildContext context, {required String label, required String description, required String value}) {
-    final tokens = context.ls;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 9),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(label, style: tokens.body),
-                const SizedBox(height: 2),
-                Text(description, style: tokens.bodySm),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          Text(value, style: tokens.monoSm),
-        ],
-      ),
-    );
-  }
-}
-
-class _Actions extends StatelessWidget {
-  final ReceivePageVm vm;
-
-  const _Actions(this.vm);
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.ls;
-    final selectedFiles = context.watch(selectedReceivingFilesProvider);
-
-    Widget child;
-    if (vm.message != null) {
-      child = Center(
-        child: LsButton(
-          label: t.general.close,
-          icon: LucideIcons.x,
-          variant: LsButtonVariant.ghost,
-          onPressed: () {
-            vm.onAccept();
-            context.global.dispatch(NavigateAction.popUntil<WebSharePage>());
-          },
-        ),
-      );
-    } else if (vm.status == SessionStatus.canceledBySender) {
-      child = Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Text(
-              t.receivePage.canceled,
-              style: TextStyle(color: tokens.colors.danger),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          LsButton(
-            label: t.general.close,
-            icon: LucideIcons.check,
-            variant: LsButtonVariant.ghost,
-            onPressed: () {
-              vm.onClose();
-              context.global.dispatch(NavigateAction.popUntil<WebSharePage>());
-            },
-          ),
-        ],
-      );
-    } else {
-      void decline() {
-        vm.onDecline();
-        context.global.dispatch(NavigateAction.popUntil<WebSharePage>());
-      }
-
-      final onAccept = selectedFiles.isEmpty ? null : vm.onAccept;
-
-      child = Focus(
-        autofocus: true,
-        onKeyEvent: (node, event) {
-          final keyboard = HardwareKeyboard.instance;
-          if (event is! KeyDownEvent || keyboard.isControlPressed || keyboard.isShiftPressed || keyboard.isAltPressed || keyboard.isMetaPressed) {
-            return KeyEventResult.ignored;
-          }
-          switch (event.logicalKey) {
-            case LogicalKeyboardKey.escape:
-              decline();
-              return KeyEventResult.handled;
-            // Only while no button is focused, so that Enter still activates the focused button.
-            case LogicalKeyboardKey.enter || LogicalKeyboardKey.numpadEnter when node.hasPrimaryFocus:
-              onAccept?.call();
-              return KeyEventResult.handled;
-          }
-          return KeyEventResult.ignored;
-        },
-        child: Row(
-          children: [
-            Flexible(
-              flex: 4,
-              child: LsButton(
-                label: t.receiveRequestPage.reject,
-                variant: LsButtonVariant.ghost,
-                expand: true,
-                onPressed: decline,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Flexible(
-              flex: 6,
-              child: LsButton(
-                label: t.receiveRequestPage.acceptFiles(n: vm.files.length),
-                icon: LucideIcons.download,
-                expand: true,
-                onPressed: onAccept,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-      decoration: BoxDecoration(
-        color: tokens.colors.bg,
-        border: Border(
-          top: BorderSide(color: tokens.colors.line, width: tokens.hairlineOf(context)),
-        ),
-      ),
-      child: child,
-    );
   }
 }

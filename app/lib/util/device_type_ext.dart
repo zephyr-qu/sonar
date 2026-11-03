@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_isolates/model/device.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:sonar_isolates/model/device.dart';
 
 extension DeviceTypeExt on DeviceType {
   IconData get icon {

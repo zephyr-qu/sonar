@@ -40,7 +40,7 @@ class TranslationsPtPt extends Translations with BaseTranslations<AppLocale, Tra
 
   // Translations
   @override
-  String get appName => 'LocalSend';
+  String get appName => 'Sonar';
   @override
   late final Translations$general$pt_PT general = Translations$general$pt_PT.internal(_root);
   @override
@@ -277,7 +277,7 @@ class Translations$networkInterfacesPage$pt_PT extends Translations$networkInter
   String get title => 'Interfaces de rede';
   @override
   String get info =>
-      'Por padrão, o LocalSend utiliza todas as interfaces de rede disponíveis. Pode excluir as redes indesejadas aqui. É necessário reiniciar o servidor para aplicar as alterações.';
+      'Por padrão, o Sonar utiliza todas as interfaces de rede disponíveis. Pode excluir as redes indesejadas aqui. É necessário reiniciar o servidor para aplicar as alterações.';
   @override
   String get preview => 'Anterior';
   @override
@@ -402,7 +402,7 @@ class Translations$receiveOptionsPage$pt_PT extends Translations$receiveOptionsP
   @override
   String get destination => _root.settingsTab.receive.destination;
   @override
-  String get appDirectory => '(pasta LocalSend)';
+  String get appDirectory => '(pasta Sonar)';
   @override
   String get saveToGallery => _root.settingsTab.receive.saveToGallery;
   @override
@@ -481,7 +481,7 @@ class Translations$webSharePage$pt_PT extends Translations$webSharePage$en {
   @override
   String pinHint({required Object pin}) => 'O PIN é "${pin}"';
   @override
-  String get encryptionHint => 'O LocalSend utiliza um certificado assinado automaticamente. Precisa de aceitá-lo no navegador.';
+  String get encryptionHint => 'O Sonar utiliza um certificado assinado automaticamente. Precisa de aceitá-lo no navegador.';
   @override
   String pendingRequests({required Object n}) => 'Pedidos pendentes: ${n}';
 }
@@ -505,10 +505,10 @@ class Translations$aboutPage$pt_PT extends Translations$aboutPage$en {
 
   // Translations
   @override
-  String get title => 'Acerca do LocalSend';
+  String get title => 'Acerca do Sonar';
   @override
   List<String> get description => [
-    'O LocalSend é uma aplicação gratuita e de código aberto que permite partilhar ficheiros e mensagens de forma segura com dispositivos próximos através da sua rede local, sem a necessidade de uma ligação à Internet.',
+    'O Sonar é uma aplicação gratuita e de código aberto que permite partilhar ficheiros e mensagens de forma segura com dispositivos próximos através da sua rede local, sem a necessidade de uma ligação à Internet.',
     'Esta aplicação está disponível para Android, iOS, macOS, Windows e Linux. Pode encontrar todas as opções para descarregar na página oficial.',
   ];
   @override
@@ -532,7 +532,7 @@ class Translations$donationPage$pt_PT extends Translations$donationPage$en {
   String get title => 'Doar';
   @override
   String get info =>
-      'O LocalSend é um software gratuito, de código aberto e sem qualquer anúncio. Se gosta da aplicação, considere apoiar o desenvolvimento com um donativo.';
+      'O Sonar é um software gratuito, de código aberto e sem qualquer anúncio. Se gosta da aplicação, considere apoiar o desenvolvimento com um donativo.';
   @override
   String donate({required Object amount}) => 'Doar ${amount}';
   @override
@@ -736,7 +736,7 @@ class Translations$tray$pt_PT extends Translations$tray$en {
   @override
   String get open => _root.general.open;
   @override
-  String get close => 'Fechar o LocalSend';
+  String get close => 'Fechar o Sonar';
   @override
   String get closeWindows => 'Sair';
 }
@@ -944,7 +944,7 @@ class Translations$settingsTab$general$pt_PT extends Translations$settingsTab$ge
   @override
   String get launchMinimized => 'Início automático: Abrir minimizado';
   @override
-  String get showInContextMenu => 'Mostrar LocalSend no menu de contexto';
+  String get showInContextMenu => 'Mostrar Sonar no menu de contexto';
   @override
   String get animations => 'Animações';
 }
@@ -1048,7 +1048,7 @@ class Translations$settingsTab$other$pt_PT extends Translations$settingsTab$othe
   @override
   String get title => 'Outros';
   @override
-  String get support => 'Suporte o LocalSend';
+  String get support => 'Suporte o Sonar';
   @override
   String get donate => 'Doar';
   @override
@@ -1405,7 +1405,7 @@ class Translations$dialogs$localNetworkUnauthorized$pt_PT extends Translations$d
   String get title => _root.dialogs.noPermission.title;
   @override
   String get description =>
-      'O LocalSend não consegue encontrar outros dispositivos sem ter a permissão para analisar a rede local. Conceda esta permissão nas definições.';
+      'O Sonar não consegue encontrar outros dispositivos sem ter a permissão para analisar a rede local. Conceda esta permissão nas definições.';
   @override
   String get gotoSettings => 'Definições';
 }

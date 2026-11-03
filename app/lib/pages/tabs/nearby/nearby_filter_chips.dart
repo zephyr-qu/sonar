@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'package:localsend_app/pages/tabs/nearby/nearby_ui.dart';
-import 'package:localsend_app/widget/ls/ls_chip.dart';
+import 'package:sonar/pages/tabs/nearby/nearby_ui.dart';
+import 'package:sonar/widget/ls/ls_chip.dart';
 
 /// One of the three device-filter chips. Shared so the grid and radar layouts render them identically.
 class NearbyFilterChip extends StatelessWidget {

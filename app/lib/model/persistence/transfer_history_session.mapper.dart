@@ -305,6 +305,19 @@ class TransferHistorySessionMapper
   static List<TransferHistoryFile> _$files(TransferHistorySession v) => v.files;
   static const Field<TransferHistorySession, List<TransferHistoryFile>>
   _f$files = Field('files', _$files);
+  static bool _$failed(TransferHistorySession v) => v.failed;
+  static const Field<TransferHistorySession, bool> _f$failed = Field(
+    'failed',
+    _$failed,
+    opt: true,
+    def: false,
+  );
+  static String? _$errorMessage(TransferHistorySession v) => v.errorMessage;
+  static const Field<TransferHistorySession, String> _f$errorMessage = Field(
+    'errorMessage',
+    _$errorMessage,
+    opt: true,
+  );
 
   @override
   final MappableFields<TransferHistorySession> fields = const {
@@ -313,6 +326,8 @@ class TransferHistorySessionMapper
     #direction: _f$direction,
     #timestamp: _f$timestamp,
     #files: _f$files,
+    #failed: _f$failed,
+    #errorMessage: _f$errorMessage,
   };
 
   static TransferHistorySession _instantiate(DecodingData data) {
@@ -322,6 +337,8 @@ class TransferHistorySessionMapper
       direction: data.dec(_f$direction),
       timestamp: data.dec(_f$timestamp),
       files: data.dec(_f$files),
+      failed: data.dec(_f$failed),
+      errorMessage: data.dec(_f$errorMessage),
     );
   }
 
@@ -407,6 +424,8 @@ abstract class TransferHistorySessionCopyWith<
     TransferHistoryDirection? direction,
     DateTime? timestamp,
     List<TransferHistoryFile>? files,
+    bool? failed,
+    String? errorMessage,
   });
   TransferHistorySessionCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(
     Then<$Out2, $R2> t,
@@ -440,6 +459,8 @@ class _TransferHistorySessionCopyWithImpl<$R, $Out>
     TransferHistoryDirection? direction,
     DateTime? timestamp,
     List<TransferHistoryFile>? files,
+    bool? failed,
+    Object? errorMessage = $none,
   }) => $apply(
     FieldCopyWithData({
       if (id != null) #id: id,
@@ -447,6 +468,8 @@ class _TransferHistorySessionCopyWithImpl<$R, $Out>
       if (direction != null) #direction: direction,
       if (timestamp != null) #timestamp: timestamp,
       if (files != null) #files: files,
+      if (failed != null) #failed: failed,
+      if (errorMessage != $none) #errorMessage: errorMessage,
     }),
   );
   @override
@@ -456,6 +479,8 @@ class _TransferHistorySessionCopyWithImpl<$R, $Out>
     direction: data.get(#direction, or: $value.direction),
     timestamp: data.get(#timestamp, or: $value.timestamp),
     files: data.get(#files, or: $value.files),
+    failed: data.get(#failed, or: $value.failed),
+    errorMessage: data.get(#errorMessage, or: $value.errorMessage),
   );
 
   @override

@@ -1,4 +1,6 @@
-# LocalSend
+# Sonar
+
+> Sonar is a personal fork of [LocalSend](https://localsend.org), rebranded. It stays protocol-compatible with LocalSend devices.
 
 [![CI status][ci-badge]][ci-workflow]
 [![Translations][translate-badge]][translate-link]
@@ -20,7 +22,7 @@
 [github]: https://github.com/localsend/localsend
 [codeberg]: https://codeberg.org/localsend/localsend
 
-LocalSend is a free, open-source app that allows you to securely share files and messages with nearby devices over your local network without needing an internet connection.
+Sonar is a free, open-source app that allows you to securely share files and messages with nearby devices over your local network without needing an internet connection.
 
 - [About](#about)
 - [Sponsors](#sponsors)
@@ -135,7 +137,7 @@ The app will use this file to store settings instead of the default location.
 
 (Updated in v1.15.0)
 
-To start the app hidden (only in tray), use the `--hidden` flag (example: `localsend_app.exe --hidden`).
+To start the app hidden (only in tray), use the `--hidden` flag (example: `sonar.exe --hidden`).
 
 On v1.14.0 and earlier, the app starts hidden if `autostart` flag is set, and the hidden setting is enabled.
 
@@ -316,3 +318,10 @@ Instructions in [localsend/snap/README.md](https://github.com/localsend/snap/blo
 <a href="https://github.com/localsend/localsend/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=localsend/localsend"  alt="Localsend Contributors"/>
 </a>
+
+## License & attribution
+
+Sonar is a fork of [LocalSend](https://localsend.org) and is distributed under the [Apache License 2.0](LICENSE).
+Original work © Tien Do Nam and the [LocalSend contributors](https://github.com/localsend/localsend/graphs/contributors);
+UI redesign and modifications © 2026 [Zephyr](https://github.com/zephyr-qu).
+See [NOTICE](NOTICE) for the full attribution, and note that the Apache License does not grant trademark rights (§6) — this fork ships as "Sonar".

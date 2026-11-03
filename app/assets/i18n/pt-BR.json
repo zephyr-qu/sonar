@@ -1,5 +1,5 @@
 {
-  "appName": "LocalSend",
+  "appName": "Sonar",
   "general": {
     "accept": "Aceitar",
     "accepted": "Aceito",
@@ -101,7 +101,7 @@
       "minimizeToTray": "Minimizar para a bandeja ao fechar",
       "launchAtStartup": "Abrir junto com o usuário",
       "launchMinimized": "Início automático: Abrir minimizado",
-      "showInContextMenu": "Mostrar LocalSend no menu de contexto",
+      "showInContextMenu": "Mostrar Sonar no menu de contexto",
       "animations": "Animações"
     },
     "receive": {
@@ -144,7 +144,7 @@
     },
     "other": {
       "title": "Outras",
-      "support": "Apoiar o LocalSend",
+      "support": "Apoiar o Sonar",
       "donate": "Doar",
       "privacyPolicy": "Política de privacidade",
       "termsOfUse": "Termos de uso"
@@ -171,7 +171,7 @@
   },
   "networkInterfacesPage": {
     "title": "Interfaces de rede",
-    "info": "Por padrão, o LocalSend utiliza todas as interfaces de rede disponíveis. Você pode excluir as redes indesejadas aqui. É necessário reiniciar o servidor para aplicar as alterações.",
+    "info": "Por padrão, o Sonar utiliza todas as interfaces de rede disponíveis. Você pode excluir as redes indesejadas aqui. É necessário reiniciar o servidor para aplicar as alterações.",
     "preview": "Pré-visualização",
     "whitelist": "Lista de permissão",
     "blacklist": "Lista de bloqueio"
@@ -232,7 +232,7 @@
   "receiveOptionsPage": {
     "title": "Opções",
     "destination": "@:settingsTab.receive.destination",
-    "appDirectory": "(pasta do LocalSend)",
+    "appDirectory": "(pasta do Sonar)",
     "saveToGallery": "@:settingsTab.receive.saveToGallery",
     "saveToGalleryOff": "Desativada automaticamente pois há pastas."
   },
@@ -284,16 +284,16 @@
     "autoAccept": "Aceitar solicitações automaticamente",
     "requirePin": "Solicitar PIN",
     "pinHint": "O PIN é \"{pin}\"",
-    "encryptionHint": "O LocalSend utiliza um certificado autoassinado. Você precisa aceitá-lo no seu navegador.",
+    "encryptionHint": "O Sonar utiliza um certificado autoassinado. Você precisa aceitá-lo no seu navegador.",
     "pendingRequests": "Solicitações pendentes: {n}"
   },
   "webReceivePage": {
     "title": "Receber via link"
   },
   "aboutPage": {
-    "title": "Sobre o LocalSend",
+    "title": "Sobre o Sonar",
     "description": [
-      "O LocalSend é um aplicativo gratuito, de código aberto, que permite compartilhar arquivos e mensagens com dispositivos próximos através da sua rede local, sem a necessidade de uma conexão à internet.",
+      "O Sonar é um aplicativo gratuito, de código aberto, que permite compartilhar arquivos e mensagens com dispositivos próximos através da sua rede local, sem a necessidade de uma conexão à internet.",
       "Este aplicativo está disponível para Android, iOS, macOS, Windows e Linux. Você pode encontrar todas as opções de download na página oficial."
     ],
     "author": "Autor",
@@ -303,7 +303,7 @@
   },
   "donationPage": {
     "title": "Doe",
-    "info": "O LocalSend é gratuito, de código aberto e não tem anúncios. Se tu curte o app, então pense em apoiar o desenvolvimento com uma doação.",
+    "info": "O Sonar é gratuito, de código aberto e não tem anúncios. Se tu curte o app, então pense em apoiar o desenvolvimento com uma doação.",
     "donate": "Doar {amount}",
     "thanks": "Muito obrigado!",
     "restore": "Restaurar compra"
@@ -451,7 +451,7 @@
     },
     "localNetworkUnauthorized": {
       "title": "@:dialogs.noPermission.title",
-      "description": "O LocalSend não consegue encontrar outros dispositivos sem ter a permissão para escanear a rede local. Conceda esta permissão nas configurações.",
+      "description": "O Sonar não consegue encontrar outros dispositivos sem ter a permissão para escanear a rede local. Conceda esta permissão nas configurações.",
       "gotoSettings": "Configurações"
     },
     "messageInput": {
@@ -505,7 +505,7 @@
   "tray": {
     "@info": "As diretrizes da Apple são extremamente restritas sobre a nomenclatura do \"fechar\".",
     "open": "@:general.open",
-    "close": "Sair do LocalSend",
+    "close": "Sair do Sonar",
     "closeWindows": "Sair"
   },
   "web": {

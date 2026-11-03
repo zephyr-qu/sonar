@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/widget/ls/ls_header.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/widget/ls/ls_header.dart';
 
 class LsTabItem {
   final IconData icon;

@@ -1,5 +1,5 @@
-import 'package:localsend_app/provider/persistence_provider.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/provider/persistence_provider.dart';
 
 /// How many fingerprints are kept; old entries are dropped first.
 const _maxEntries = 50;

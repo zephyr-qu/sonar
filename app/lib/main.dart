@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:localsend_app/config/font_licenses.dart';
-import 'package:localsend_app/config/init.dart';
-import 'package:localsend_app/config/init_error.dart';
-import 'package:localsend_app/config/theme.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/color_mode.dart';
-import 'package:localsend_app/pages/home_page.dart';
-import 'package:localsend_app/provider/local_ip_provider.dart';
-import 'package:localsend_app/provider/network/server/server_provider.dart';
-import 'package:localsend_app/provider/settings_provider.dart';
-import 'package:localsend_app/util/native/platform_check.dart';
-import 'package:localsend_app/util/ui/dynamic_colors.dart';
-import 'package:localsend_app/widget/watcher/life_cycle_watcher.dart';
-import 'package:localsend_app/widget/watcher/shortcut_watcher.dart';
-import 'package:localsend_app/widget/watcher/tray_watcher.dart';
-import 'package:localsend_app/widget/watcher/window_brightness_watcher.dart';
-import 'package:localsend_app/widget/watcher/window_watcher.dart';
-import 'package:localsend_isolates/isolate.dart';
 import 'package:refena_flutter/addons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/font_licenses.dart';
+import 'package:sonar/config/init.dart';
+import 'package:sonar/config/init_error.dart';
+import 'package:sonar/config/theme.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/persistence/color_mode.dart';
+import 'package:sonar/pages/home_page.dart';
+import 'package:sonar/provider/local_ip_provider.dart';
+import 'package:sonar/provider/network/server/server_provider.dart';
+import 'package:sonar/provider/settings_provider.dart';
+import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar/util/ui/dynamic_colors.dart';
+import 'package:sonar/widget/watcher/life_cycle_watcher.dart';
+import 'package:sonar/widget/watcher/shortcut_watcher.dart';
+import 'package:sonar/widget/watcher/tray_watcher.dart';
+import 'package:sonar/widget/watcher/window_brightness_watcher.dart';
+import 'package:sonar/widget/watcher/window_watcher.dart';
+import 'package:sonar_isolates/isolate.dart';
 import 'package:system_date_time_format/system_date_time_format.dart';
 
 Future<void> main(List<String> args) async {
@@ -42,15 +42,15 @@ Future<void> main(List<String> args) async {
       container: container,
       child: SDTFScope(
         child: TranslationProvider(
-          child: const LocalSendApp(),
+          child: const SonarApp(),
         ),
       ),
     ),
   );
 }
 
-class LocalSendApp extends StatelessWidget {
-  const LocalSendApp();
+class SonarApp extends StatelessWidget {
+  const SonarApp();
 
   @override
   Widget build(BuildContext context) {

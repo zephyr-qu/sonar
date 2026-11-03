@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
+import 'package:sonar/config/design_tokens.dart';
 
 /// Bottom sheet of the redesign: grabber, `bg2` surface, radius 22 and a
 /// left-aligned 16/700 title with optional muted description.

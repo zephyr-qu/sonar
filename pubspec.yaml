@@ -1,4 +1,4 @@
-name: _localsend_workspace
+name: _sonar_workspace
 publish_to: none
 
 environment:
@@ -6,5 +6,5 @@ environment:
 
 workspace:
   - app
-  - packages/localsend_isolates
+  - packages/sonar_isolates
   - packages/typed_isolates

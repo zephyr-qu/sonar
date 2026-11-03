@@ -1,39 +1,37 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/color_mode.dart';
-import 'package:localsend_app/model/persistence/nearby_layout.dart';
-import 'package:localsend_app/model/state/settings_state.dart';
-import 'package:localsend_app/pages/debug/debug_page.dart';
-import 'package:localsend_app/pages/settings/network_interfaces_page.dart';
-import 'package:localsend_app/pages/tabs/settings_tab_vm.dart';
-import 'package:localsend_app/provider/network/server/server_provider.dart';
-import 'package:localsend_app/provider/settings_provider.dart';
-import 'package:localsend_app/util/alias_generator.dart';
-import 'package:localsend_app/util/device_type_ext.dart';
-import 'package:localsend_app/util/i18n.dart';
-import 'package:localsend_app/util/native/device_info_helper.dart';
-import 'package:localsend_app/util/native/macos_channel.dart';
-import 'package:localsend_app/util/native/pick_directory_path.dart';
-import 'package:localsend_app/util/native/platform_check.dart';
-import 'package:localsend_app/widget/custom_dropdown_button.dart';
-import 'package:localsend_app/widget/dialogs/encryption_disabled_notice.dart';
-import 'package:localsend_app/widget/dialogs/pin_dialog.dart';
-import 'package:localsend_app/widget/dialogs/quick_save_from_favorites_notice.dart';
-import 'package:localsend_app/widget/dialogs/quick_save_notice.dart';
-import 'package:localsend_app/widget/dialogs/text_field_tv.dart';
-import 'package:localsend_app/widget/dialogs/text_field_with_actions.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_chip.dart';
-import 'package:localsend_app/widget/ls/ls_segmented.dart';
-import 'package:localsend_app/widget/ls/ls_state_tag.dart';
-import 'package:localsend_app/widget/ls/ls_switch.dart';
-import 'package:localsend_isolates/constants.dart';
-import 'package:localsend_isolates/model/device.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/persistence/color_mode.dart';
+import 'package:sonar/model/persistence/nearby_layout.dart';
+import 'package:sonar/model/state/settings_state.dart';
+import 'package:sonar/pages/debug/debug_page.dart';
+import 'package:sonar/pages/settings/network_interfaces_page.dart';
+import 'package:sonar/pages/tabs/settings_tab_vm.dart';
+import 'package:sonar/provider/network/server/server_provider.dart';
+import 'package:sonar/provider/settings_provider.dart';
+import 'package:sonar/util/device_type_ext.dart';
+import 'package:sonar/util/i18n.dart';
+import 'package:sonar/util/native/macos_channel.dart';
+import 'package:sonar/util/native/pick_directory_path.dart';
+import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar/widget/dialogs/device_name_dialog.dart';
+import 'package:sonar/widget/dialogs/encryption_disabled_notice.dart';
+import 'package:sonar/widget/dialogs/pin_dialog.dart';
+import 'package:sonar/widget/dialogs/quick_save_from_favorites_notice.dart';
+import 'package:sonar/widget/dialogs/quick_save_notice.dart';
+import 'package:sonar/widget/dialogs/text_field_tv.dart';
+import 'package:sonar/widget/dialogs/text_field_with_actions.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_chip.dart';
+import 'package:sonar/widget/ls/ls_segmented.dart';
+import 'package:sonar/widget/ls/ls_state_tag.dart';
+import 'package:sonar/widget/ls/ls_switch.dart';
+import 'package:sonar_isolates/constants.dart';
+import 'package:sonar_isolates/model/device.dart';
 
 /// The categories of the settings. One category is one screen (or the right
 /// pane on desktop), which keeps every page short enough to scan.
@@ -144,40 +142,16 @@ SettingsSection _deviceSection() => SettingsSection(
       SettingsRow(
         id: 'device.alias',
         label: t.settingsTab.network.alias,
-        kind: SettingsRowKind.stacked,
+        kind: SettingsRowKind.trailing,
+        value: vm.settings.alias,
         child: TextFieldWithActions(
           name: t.settingsTab.network.alias,
           controller: vm.aliasController,
           onClosed: (value) async {
             await ref.notifier(settingsProvider).setAlias(value);
           },
-          actions: [
-            Tooltip(
-              message: t.settingsTab.network.generateRandomAlias,
-              child: IconButton(
-                onPressed: () async {
-                  final newAlias = generateRandomAlias();
-                  vm.aliasController.text = newAlias;
-                  await ref.notifier(settingsProvider).setAlias(newAlias);
-                },
-                icon: const Icon(LucideIcons.dices),
-              ),
-            ),
-            Tooltip(
-              message: t.settingsTab.network.useSystemName,
-              child: IconButton(
-                onPressed: () async {
-                  final newAlias = await getDeviceName();
-                  if (newAlias == null) {
-                    return;
-                  }
-                  vm.aliasController.text = newAlias;
-                  await ref.notifier(settingsProvider).setAlias(newAlias);
-                },
-                icon: const Icon(LucideIcons.monitor),
-              ),
-            ),
-          ],
+          validator: validateDeviceName,
+          actions: [DeviceNameActions(controller: vm.aliasController)],
         ),
       ),
       ..._restartHint(context, vm, ServerSetting.alias),
@@ -494,30 +468,6 @@ SettingsSection _appearanceSection() => SettingsSection(
         ),
       ),
       SettingsRow(
-        id: 'appearance.color',
-        label: t.settingsTab.general.color,
-        kind: SettingsRowKind.stacked,
-        value: vm.settings.colorMode == ColorMode.custom ? t.settingsPage.accentColor : vm.settings.colorMode.humanName,
-        child: CustomDropdownButton<ColorMode>(
-          // Custom colors are picked with the accent swatches below, so they are
-          // not an option here. While that mode is active the dropdown shows the
-          // "accent color" hint instead of a (missing) selected item.
-          value: vm.settings.colorMode == ColorMode.custom ? null : vm.settings.colorMode,
-          hint: Text(t.settingsPage.accentColor, overflow: TextOverflow.ellipsis),
-          items: [
-            for (final colorMode in vm.colorModes.where((mode) => mode != ColorMode.custom))
-              DropdownMenuItem(
-                value: colorMode,
-                alignment: Alignment.center,
-                child: Text(colorMode.humanName, overflow: TextOverflow.ellipsis),
-              ),
-          ],
-          onChanged: (colorMode) async {
-            vm.onChangeColorMode(context, colorMode);
-          },
-        ),
-      ),
-      SettingsRow(
         id: 'appearance.accent',
         label: t.settingsPage.accentColor,
         kind: SettingsRowKind.stacked,
@@ -574,7 +524,7 @@ SettingsSection _appearanceSection() => SettingsSection(
       ),
     ];
   },
-  tags: (context, vm) => const [],
+  tags: (context, vm) => [SettingsTag(label: t.settingsTab.general.animations, on: vm.settings.enableAnimations)],
 );
 
 // ------------------------------------------------------------------ network
@@ -824,18 +774,6 @@ String _themeLabel(ThemeMode theme) {
     ThemeMode.light => t.settingsTab.general.brightnessOptions.light,
     ThemeMode.dark => t.settingsTab.general.brightnessOptions.dark,
   };
-}
-
-extension on ColorMode {
-  String get humanName {
-    return switch (this) {
-      ColorMode.system => t.settingsTab.general.colorOptions.system,
-      ColorMode.localsend => t.appName,
-      ColorMode.oled => t.settingsTab.general.colorOptions.oled,
-      ColorMode.yaru => 'Yaru',
-      ColorMode.custom => t.settingsTab.general.colorOptions.custom,
-    };
-  }
 }
 
 /// The five preset accents of the redesign; picking one switches the app to

@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:localsend_app/config/theme.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/color_mode.dart';
-import 'package:localsend_app/model/persistence/nearby_layout.dart';
-import 'package:localsend_app/model/state/server/server_state.dart';
-import 'package:localsend_app/model/state/settings_state.dart';
-import 'package:localsend_app/pages/settings/settings_sections.dart';
-import 'package:localsend_app/pages/tabs/settings_tab_vm.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_isolates/model/device.dart';
-import 'package:localsend_isolates/model/device_info_result.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/config/theme.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/persistence/color_mode.dart';
+import 'package:sonar/model/persistence/nearby_layout.dart';
+import 'package:sonar/model/state/server/server_state.dart';
+import 'package:sonar/model/state/settings_state.dart';
+import 'package:sonar/pages/settings/settings_sections.dart';
+import 'package:sonar/pages/tabs/settings_tab_vm.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar_isolates/model/device.dart';
+import 'package:sonar_isolates/model/device_info_result.dart';
 
 /// The setting row each restart hint belongs to.
 const _settingRows = {
@@ -96,6 +96,29 @@ void main() {
       expect(row.matches('multicast'), isFalse);
     });
   });
+  group('device name row', () {
+    testWidgets('the device name is a trailing value instead of a stacked field', (tester) async {
+      final rows = await _renderRows(tester, pendingRestart: const {});
+      final row = rows.firstWhere((row) => row.id == 'device.alias');
+
+      expect(row.kind, SettingsRowKind.trailing);
+      expect(row.value, 'Test device', reason: 'the name stays searchable');
+    });
+
+    testWidgets('the label keeps the left, the name takes the right', (tester) async {
+      final rows = await _renderRows(tester, pendingRestart: const {});
+      final row = rows.firstWhere((row) => row.id == 'device.alias');
+
+      await tester.pumpWidget(_host(children: [SettingsRowTile(row: row)]));
+      await tester.pumpAndSettle();
+
+      final label = tester.getRect(find.text(t.settingsTab.network.alias));
+      final name = tester.getRect(find.text('Test device'));
+
+      expect(name.left, greaterThan(label.right), reason: 'the name is the trailing value');
+      expect((name.center.dy - label.center.dy).abs(), lessThan(4), reason: 'label and name share one row');
+    });
+  });
 }
 
 /// Rows of every section, built from a fake view model without mounting a page.
@@ -142,15 +165,10 @@ SettingsTabVm _vm(Set<ServerSetting> pendingRestart, void Function(BuildContext 
     settings: _settings(),
     serverState: const ServerState(alias: 'Test device', port: 53317, https: true, session: null, web: null),
     deviceInfo: DeviceInfoResult(deviceType: DeviceType.desktop, deviceModel: 'Model', androidSdkInt: null),
-    colorModes: [
-      for (final mode in ColorMode.values)
-        if (mode != ColorMode.custom) mode,
-    ],
     autoStart: false,
     autoStartLaunchHidden: false,
     showInContextMenu: false,
     onChangeTheme: (context, mode) {},
-    onChangeColorMode: (context, mode) {},
     onTapLanguage: (context) {},
     onToggleAutoStart: (context) {},
     onToggleAutoStartLaunchHidden: (context) {},

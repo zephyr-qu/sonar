@@ -2,17 +2,17 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:localsend_app/pages/debug/discovery_debug_page.dart';
-import 'package:localsend_app/pages/debug/http_logs_page.dart';
-import 'package:localsend_app/pages/debug/security_debug_page.dart';
-import 'package:localsend_app/provider/app_arguments_provider.dart';
-import 'package:localsend_app/provider/persistence_provider.dart';
-import 'package:localsend_app/util/shared_preferences/shared_preferences_file.dart';
-import 'package:localsend_app/widget/debug_entry.dart';
-import 'package:localsend_app/widget/ls/ls_scaffold.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
+import 'package:sonar/pages/debug/discovery_debug_page.dart';
+import 'package:sonar/pages/debug/http_logs_page.dart';
+import 'package:sonar/pages/debug/security_debug_page.dart';
+import 'package:sonar/provider/app_arguments_provider.dart';
+import 'package:sonar/provider/persistence_provider.dart';
+import 'package:sonar/util/shared_preferences/shared_preferences_file.dart';
+import 'package:sonar/widget/debug_entry.dart';
+import 'package:sonar/widget/ls/ls_scaffold.dart';
 
 class DebugPage extends StatelessWidget {
   const DebugPage({super.key});

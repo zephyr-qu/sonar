@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:sonar/config/design_tokens.dart';
 
 /// 36px search field of the redesign.
 class LsSearchField extends StatelessWidget {

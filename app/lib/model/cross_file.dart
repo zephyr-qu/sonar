@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:localsend_isolates/model/file_type.dart';
+import 'package:sonar_isolates/model/file_type.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 part 'cross_file.mapper.dart';

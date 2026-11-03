@@ -1,23 +1,23 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/cross_file.dart';
-import 'package:localsend_app/model/state/server/server_state.dart';
-import 'package:localsend_app/model/state/server/web_share_state.dart';
-import 'package:localsend_app/provider/network/server/controller/receive_controller.dart';
-import 'package:localsend_app/provider/network/server/controller/send_controller.dart';
-import 'package:localsend_app/provider/network/server/server_utils.dart';
-import 'package:localsend_app/provider/settings_provider.dart';
-import 'package:localsend_app/util/alias_generator.dart';
-import 'package:localsend_app/util/native/web_pages_loader.dart';
-import 'package:localsend_isolates/constants.dart';
-import 'package:localsend_isolates/isolate.dart';
-import 'package:localsend_isolates/model/dto/multicast_dto.dart';
-import 'package:localsend_isolates/rust/api/server.dart' show WebI18n, WebMode, WebParams;
-import 'package:localsend_isolates/util/rust.dart';
 import 'package:logging/logging.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/cross_file.dart';
+import 'package:sonar/model/state/server/server_state.dart';
+import 'package:sonar/model/state/server/web_share_state.dart';
+import 'package:sonar/provider/network/server/controller/receive_controller.dart';
+import 'package:sonar/provider/network/server/controller/send_controller.dart';
+import 'package:sonar/provider/network/server/server_utils.dart';
+import 'package:sonar/provider/settings_provider.dart';
+import 'package:sonar/util/alias_generator.dart';
+import 'package:sonar/util/native/web_pages_loader.dart';
+import 'package:sonar_isolates/constants.dart';
+import 'package:sonar_isolates/isolate.dart';
+import 'package:sonar_isolates/model/dto/multicast_dto.dart';
+import 'package:sonar_isolates/rust/api/server.dart' show WebI18n, WebMode, WebParams;
+import 'package:sonar_isolates/util/rust.dart';
 
 final _logger = Logger('Server');
 

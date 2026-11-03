@@ -1,5 +1,5 @@
 {
-  "appName": "LocalSend",
+  "appName": "Sonar",
   "general": {
     "accept": "Acceptér",
     "accepted": "Accepteret",
@@ -101,7 +101,7 @@
       "minimizeToTray": "Minimer til systembakken/menulinjen ved lukning",
       "launchAtStartup": "Autostart efter login",
       "launchMinimized": "Autostart: Start skjult",
-      "showInContextMenu": "Vis LocalSend i kontekstmenu",
+      "showInContextMenu": "Vis Sonar i kontekstmenu",
       "animations": "Animationer"
     },
     "receive": {
@@ -144,7 +144,7 @@
     },
     "other": {
       "title": "Andet",
-      "support": "Støt LocalSend",
+      "support": "Støt Sonar",
       "donate": "Donér",
       "privacyPolicy": "Privatlivspolitik",
       "termsOfUse": "Brugsbetingelser"
@@ -171,7 +171,7 @@
   },
   "networkInterfacesPage": {
     "title": "Netværksgrænseflader",
-    "info": "Som standard bruger LocalSend alle tilgængelige netværksgrænseflader. Du kan ekskludere uønskede netværk her. Du skal genstarte serveren for at anvende ændringerne.",
+    "info": "Som standard bruger Sonar alle tilgængelige netværksgrænseflader. Du kan ekskludere uønskede netværk her. Du skal genstarte serveren for at anvende ændringerne.",
     "preview": "Forhåndsvisning",
     "whitelist": "Hvidliste",
     "blacklist": "Sortliste"
@@ -232,7 +232,7 @@
   "receiveOptionsPage": {
     "title": "Muligheder",
     "destination": "@:settingsTab.receive.destination",
-    "appDirectory": "(LocalSend mappe)",
+    "appDirectory": "(Sonar mappe)",
     "saveToGallery": "@:settingsTab.receive.saveToGallery",
     "saveToGalleryOff": "Slået fra automatisk, fordi der er mapper."
   },
@@ -284,16 +284,16 @@
     "autoAccept": "Accepter automatisk anmodninger",
     "requirePin": "Kræv PIN-kode",
     "pinHint": "PIN-koden er \"{pin}\"",
-    "encryptionHint": "LocalSend bruger et selvsigneret certifikat. Du skal acceptere det i din browser.",
+    "encryptionHint": "Sonar bruger et selvsigneret certifikat. Du skal acceptere det i din browser.",
     "pendingRequests": "Afventende forespørgsler: {n}"
   },
   "webReceivePage": {
     "title": "Modtag via link"
   },
   "aboutPage": {
-    "title": "Om LocalSend",
+    "title": "Om Sonar",
     "description": [
-      "LocalSend er en gratis, open source-app, der lader dig dele filer og beskeder sikkert med enheder i nærheden over dit lokale netværk uden behov for en internetforbindelse.",
+      "Sonar er en gratis, open source-app, der lader dig dele filer og beskeder sikkert med enheder i nærheden over dit lokale netværk uden behov for en internetforbindelse.",
       "Appen er tilgængelig på Android, iOS, macOS, Windows og Linux. Du finder alle downloadmuligheder på den officielle hjemmeside."
     ],
     "author": "Skaber",
@@ -303,7 +303,7 @@
   },
   "donationPage": {
     "title": "Donér",
-    "info": "LocalSend er gratis, open source og uden annoncer. Hvis du kan lide appen, kan du støtte udviklingen med en donation.",
+    "info": "Sonar er gratis, open source og uden annoncer. Hvis du kan lide appen, kan du støtte udviklingen med en donation.",
     "donate": "Donér {amount}",
     "thanks": "Tusind tak for din støtte!",
     "restore": "Gendan køb"
@@ -391,7 +391,7 @@
     },
     "localNetworkUnauthorized": {
       "title": "@:dialogs.noPermission.title",
-      "description": "LocalSend kan ikke finde andre enheder uden tilladelse til at scanne det lokale netværk. Giv venligst tilladelse i systemindstillingerne.",
+      "description": "Sonar kan ikke finde andre enheder uden tilladelse til at scanne det lokale netværk. Giv venligst tilladelse i systemindstillingerne.",
       "gotoSettings": "Indstillinger"
     },
     "messageInput": {
@@ -445,7 +445,7 @@
   "tray": {
     "@info": "Apples retningslinjer er meget strenge angående ordet \"luk\".",
     "open": "@:general.open",
-    "close": "Afslut LocalSend",
+    "close": "Afslut Sonar",
     "closeWindows": "Luk"
   },
   "web": {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
+import 'package:sonar/config/design_tokens.dart';
 
 /// Pill-shaped meta label of the redesign (24px tall, monospace 10).
 class LsChip extends StatelessWidget {

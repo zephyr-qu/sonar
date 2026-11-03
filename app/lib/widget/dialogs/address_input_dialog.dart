@@ -3,22 +3,24 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/theme.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/provider/device_info_provider.dart';
-import 'package:localsend_app/provider/http_provider.dart';
-import 'package:localsend_app/provider/last_devices.provider.dart';
-import 'package:localsend_app/provider/local_ip_provider.dart';
-import 'package:localsend_app/provider/settings_provider.dart';
-import 'package:localsend_app/widget/dialogs/error_dialog.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_dialog.dart';
-import 'package:localsend_isolates/model/device.dart';
-import 'package:localsend_isolates/rust/api/model.dart';
-import 'package:localsend_isolates/util/rust.dart';
+import 'package:flutter/services.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/theme.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/provider/device_info_provider.dart';
+import 'package:sonar/provider/http_provider.dart';
+import 'package:sonar/provider/last_devices.provider.dart';
+import 'package:sonar/provider/local_ip_provider.dart';
+import 'package:sonar/provider/settings_provider.dart';
+import 'package:sonar/util/ip_address.dart';
+import 'package:sonar/widget/dialogs/error_dialog.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_dialog.dart';
+import 'package:sonar_isolates/model/device.dart';
+import 'package:sonar_isolates/rust/api/model.dart';
+import 'package:sonar_isolates/util/rust.dart';
 
 enum _InputMode {
   hashtag,
@@ -48,10 +50,21 @@ class _AddressInputDialogState extends State<AddressInputDialog> with Refena {
   String _input = '';
   bool _fetching = false;
   String? _error;
+  String? _inputError;
 
   Future<void> _submit(List<String> localIps, int port, [String? candidate]) async {
     final List<String> candidates;
     final String input = _input.trim();
+    if (candidate == null) {
+      final error = switch (_mode) {
+        _InputMode.hashtag => isValidIpv4HostPart(input) ? null : t.dialogs.addressInput.invalidHashtag,
+        _InputMode.ip => isValidIpAddress(input) ? null : t.dialogs.addressInput.invalidIp,
+      };
+      if (error != null) {
+        setState(() => _inputError = error);
+        return;
+      }
+    }
     if (candidate != null) {
       candidates = [candidate];
     } else if (_mode == _InputMode.ip) {
@@ -123,6 +136,7 @@ class _AddressInputDialogState extends State<AddressInputDialog> with Refena {
   @override
   Widget build(BuildContext context) {
     final localIps = (ref.watch(localIpProvider.select((info) => info.localIps))).uniqueIpPrefix;
+    final hostPart = _input.isEmpty ? 'x' : _input;
     final settings = ref.watch(settingsProvider);
     final lastDevices = ref.watch(lastDevicesProvider);
 
@@ -140,6 +154,8 @@ class _AddressInputDialogState extends State<AddressInputDialog> with Refena {
                   _selected[i] = i == index;
                 }
                 _mode = _InputMode.values[index];
+                _input = '';
+                _inputError = null;
               });
             },
             borderRadius: BorderRadius.circular(10),
@@ -158,23 +174,28 @@ class _AddressInputDialogState extends State<AddressInputDialog> with Refena {
             autofocus: true,
             enabled: !_fetching,
             keyboardType: _mode == _InputMode.hashtag ? TextInputType.number : TextInputType.text,
+            inputFormatters: _mode == _InputMode.hashtag ? [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(3)] : null,
             decoration: InputDecoration(
               prefixText: _mode == _InputMode.hashtag ? '# ' : 'IP: ',
+              errorText: _inputError,
             ),
             onChanged: (s) {
-              setState(() => _input = s);
+              setState(() {
+                _input = s;
+                _inputError = null;
+              });
             },
             onFieldSubmitted: (s) async => _submit(localIps, settings.port),
           ),
           const SizedBox(height: 10),
           if (_mode == _InputMode.hashtag) ...[
             Text(
-              '${t.general.example}: 123',
+              t.dialogs.addressInput.hashtagHint,
               style: const TextStyle(color: Colors.grey),
             ),
             if (localIps.length <= 1)
               Text(
-                '${t.dialogs.addressInput.ip}: ${localIps.firstOrNull?.ipPrefix ?? '192.168.2'}.$_input',
+                '${t.dialogs.addressInput.ip}: ${localIps.firstOrNull?.ipPrefix ?? '192.168.2'}.$hostPart',
                 style: const TextStyle(color: Colors.grey),
               )
             else ...[
@@ -184,7 +205,7 @@ class _AddressInputDialogState extends State<AddressInputDialog> with Refena {
               ),
               for (final ip in localIps)
                 Text(
-                  '- ${ip.ipPrefix}.$_input',
+                  '- ${ip.ipPrefix}.$hostPart',
                   style: const TextStyle(color: Colors.grey),
                 ),
             ],

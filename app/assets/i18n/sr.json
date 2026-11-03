@@ -1,5 +1,5 @@
 {
-  "appName": "LocalSend",
+  "appName": "Sonar",
   "general": {
     "accept": "Prihvati",
     "accepted": "Prihvaćeno",
@@ -101,7 +101,7 @@
       "minimizeToTray": "Minimiziraj na sistemsku traku/traku menija prilikom zatvaranja",
       "launchAtStartup": "Automatski pokreni nakon prijave",
       "launchMinimized": "Automatsko pokretanje: Pokretanje skriveno",
-      "showInContextMenu": "Prikaži LocalSend u kontekstualnom meniju",
+      "showInContextMenu": "Prikaži Sonar u kontekstualnom meniju",
       "animations": "Animacije"
     },
     "receive": {
@@ -144,7 +144,7 @@
     },
     "other": {
       "title": "Ostalo",
-      "support": "Podržite LocalSend",
+      "support": "Podržite Sonar",
       "donate": "Doniraj",
       "privacyPolicy": "Politika privatnosti",
       "termsOfUse": "Uslovi korišćenja"
@@ -171,7 +171,7 @@
   },
   "networkInterfacesPage": {
     "title": "Mrežni interfejsi",
-    "info": "Podrazumevano, LocalSend koristi sve dostupne mrežne interfejse. Ovde možete izuzeti neželjene mreže. Morate restartovati server da bi se primenile promene.",
+    "info": "Podrazumevano, Sonar koristi sve dostupne mrežne interfejse. Ovde možete izuzeti neželjene mreže. Morate restartovati server da bi se primenile promene.",
     "preview": "Pregled",
     "whitelist": "Bela lista",
     "blacklist": "Crna lista"
@@ -232,7 +232,7 @@
   "receiveOptionsPage": {
     "title": "Opcije",
     "destination": "@:settingsTab.receive.destination",
-    "appDirectory": "(LocalSend folder)",
+    "appDirectory": "(Sonar folder)",
     "saveToGallery": "@:settingsTab.receive.saveToGallery",
     "saveToGalleryOff": "Automatski isključeno jer postoje folderi."
   },
@@ -284,16 +284,16 @@
     "autoAccept": "Automatski prihvati zahteve",
     "requirePin": "Zahtevaj PIN",
     "pinHint": "PIN je „{pin}“",
-    "encryptionHint": "LocalSend koristi samopotpisani sertifikat. Morate ga prihvatiti u svom pregledaču.",
+    "encryptionHint": "Sonar koristi samopotpisani sertifikat. Morate ga prihvatiti u svom pregledaču.",
     "pendingRequests": "Zahtevi na čekanju: {n}"
   },
   "webReceivePage": {
     "title": "Primi putem linka"
   },
   "aboutPage": {
-    "title": "O LocalSend-u",
+    "title": "O Sonar-u",
     "description": [
-      "LocalSend je besplatna aplikacija otvorenog koda koja vam omogućava da bezbedno delite fajlove i poruke sa uređajima u blizini preko vaše lokalne mreže, bez potrebe za internet vezom.",
+      "Sonar je besplatna aplikacija otvorenog koda koja vam omogućava da bezbedno delite fajlove i poruke sa uređajima u blizini preko vaše lokalne mreže, bez potrebe za internet vezom.",
       "Ova aplikacije je dostupna za Android, iOS, macOS, Windows i Linux. Možete pronaći sve opcije za preuzimanje na zvaničnoj početnoj stranici."
     ],
     "author": "Autor",
@@ -303,7 +303,7 @@
   },
   "donationPage": {
     "title": "Donacija",
-    "info": "LocalSend je besplatan, otvorenog koda i bez ikakvih oglasa. Ako vam se sviđa aplikacija, možete podržati razvoj donacijom.",
+    "info": "Sonar je besplatan, otvorenog koda i bez ikakvih oglasa. Ako vam se sviđa aplikacija, možete podržati razvoj donacijom.",
     "donate": "Doniraj {amount}",
     "thanks": "Hvala vam puno!",
     "restore": "Vrati kupovinu"
@@ -461,7 +461,7 @@
     },
     "localNetworkUnauthorized": {
       "title": "@:dialogs.noPermission.title",
-      "description": "LocalSend ne može da pronađe druge uređaje bez dozvole za skeniranje lokalne mreže. Dajte ovu dozvolu u podešavanjima.",
+      "description": "Sonar ne može da pronađe druge uređaje bez dozvole za skeniranje lokalne mreže. Dajte ovu dozvolu u podešavanjima.",
       "gotoSettings": "Podešavanja"
     },
     "messageInput": {
@@ -515,7 +515,7 @@
   "tray": {
     "@info": "Apple smernice su veoma stroge u vezi sa „sličnim“ formulacijama.",
     "open": "@:general.open",
-    "close": "Napusti LocalSend",
+    "close": "Napusti Sonar",
     "closeWindows": "Izađi"
   },
   "web": {

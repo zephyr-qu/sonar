@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/color_mode.dart';
-import 'package:localsend_app/provider/device_info_provider.dart';
-import 'package:localsend_app/util/native/platform_check.dart';
-import 'package:localsend_app/util/ui/dynamic_colors.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/persistence/color_mode.dart';
+import 'package:sonar/provider/device_info_provider.dart';
+import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar/util/ui/dynamic_colors.dart';
 import 'package:yaru/yaru.dart' as yaru;
 
 /// Display / body face of the redesign (Latin). CJK glyphs use [_fontFamilyFallback].
@@ -336,7 +336,7 @@ String? _platformFontFamily() {
 
 LsTokens _tokensFor(ColorScheme scheme, Brightness brightness) {
   final base = LsColors.forBrightness(brightness);
-  final palette = base.withAccent(scheme.primary, scheme.onPrimary);
+  final palette = base.withAccent(scheme.primary, scheme.onPrimary, brightness);
   // Follow the resolved scheme surfaces so OLED stays pure black instead of
   // falling back to the brand background, and custom/dynamic schemes keep
   // their own container tints.
@@ -448,9 +448,12 @@ ColorScheme _determineColorScheme(ColorMode mode, Color customColor, Brightness 
       onTertiary = dynamicScheme?.onTertiary ?? onPrimary;
       break;
     case ColorMode.custom:
+      // The swatches and the color dialog show the exact color the user picked, so the
+      // accent must keep it: `fromSeed` would move it onto M3's tonal palette (tone 40
+      // in light mode, tone 80 in dark), which is what made the accent look "wrong".
       final seeded = ColorScheme.fromSeed(seedColor: customColor, brightness: brightness);
-      primary = seeded.primary;
-      onPrimary = seeded.onPrimary;
+      primary = customColor;
+      onPrimary = LsColors.onAccentFor(customColor);
       primaryContainer = seeded.primaryContainer;
       onPrimaryContainer = seeded.onPrimaryContainer;
       tertiary = seeded.tertiary;

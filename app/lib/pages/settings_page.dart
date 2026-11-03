@@ -1,25 +1,25 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/pages/about/about_page.dart';
-import 'package:localsend_app/pages/changelog_page.dart';
-import 'package:localsend_app/pages/donation/donation_page.dart';
-import 'package:localsend_app/pages/settings/settings_section_page.dart';
-import 'package:localsend_app/pages/settings/settings_sections.dart';
-import 'package:localsend_app/pages/tabs/settings_tab_controller.dart';
-import 'package:localsend_app/pages/tabs/settings_tab_vm.dart';
-import 'package:localsend_app/provider/version_provider.dart';
-import 'package:localsend_app/util/native/platform_check.dart';
-import 'package:localsend_app/widget/desktop_scaffold.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_header.dart';
-import 'package:localsend_app/widget/ls/ls_search_field.dart';
-import 'package:localsend_app/widget/ls/ls_state_tag.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/pages/about/about_page.dart';
+import 'package:sonar/pages/changelog_page.dart';
+import 'package:sonar/pages/donation/donation_page.dart';
+import 'package:sonar/pages/settings/settings_section_page.dart';
+import 'package:sonar/pages/settings/settings_sections.dart';
+import 'package:sonar/pages/tabs/settings_tab_controller.dart';
+import 'package:sonar/pages/tabs/settings_tab_vm.dart';
+import 'package:sonar/provider/version_provider.dart';
+import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar/widget/desktop_scaffold.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_header.dart';
+import 'package:sonar/widget/ls/ls_search_field.dart';
+import 'package:sonar/widget/ls/ls_state_tag.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// The settings area: a five/six-row index on mobile (each row opens a short
@@ -85,7 +85,6 @@ class _SettingsViewState extends State<_SettingsView> {
     _rowsCache.clear();
     _searchCache = null;
     _searchCacheQuery = null;
-    final totalRows = sections.fold<int>(0, (sum, section) => sum + _rowsOf(context, section).length);
 
     if (widget.desktop) {
       return Column(
@@ -95,7 +94,7 @@ class _SettingsViewState extends State<_SettingsView> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _desktopSidebar(context, sections: sections, totalRows: totalRows, query: query),
+                _desktopSidebar(context, sections: sections, query: query),
                 Expanded(
                   child: _desktopContent(context, sections: sections, query: query),
                 ),
@@ -123,17 +122,16 @@ class _SettingsViewState extends State<_SettingsView> {
                 onChanged: (_) => setState(() {}),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 2, 16, 6),
-              child: Text(
-                query.isEmpty
-                    ? t.settingsPage.totalItems(n: totalRows)
-                    : t.settingsPage.results(
-                        n: _search(context, sections: sections, query: query).length,
-                      ),
-                style: context.ls.eyebrow,
+            if (query.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 2, 16, 6),
+                child: Text(
+                  t.settingsPage.results(
+                    n: _search(context, sections: sections, query: query).length,
+                  ),
+                  style: context.ls.eyebrow,
+                ),
               ),
-            ),
             Expanded(
               child: query.isEmpty ? _mobileIndex(context, sections: sections) : _searchResults(context, sections: sections, query: query),
             ),
@@ -290,7 +288,7 @@ class _SettingsViewState extends State<_SettingsView> {
 
   // ----------------------------------------------------------------- desktop
 
-  Widget _desktopSidebar(BuildContext context, {required List<SettingsSection> sections, required int totalRows, required String query}) {
+  Widget _desktopSidebar(BuildContext context, {required List<SettingsSection> sections, required String query}) {
     final tokens = context.ls;
     final colors = tokens.colors;
     return Container(
@@ -304,15 +302,6 @@ class _SettingsViewState extends State<_SettingsView> {
         padding: const EdgeInsets.fromLTRB(22, 18, 22, 22),
         children: [
           Text(t.settingsTab.title, style: tokens.display.copyWith(fontSize: 26)),
-          const SizedBox(height: 6),
-          Text(
-            query.isEmpty
-                ? t.settingsPage.totalItems(n: totalRows)
-                : t.settingsPage.results(
-                    n: _search(context, sections: sections, query: query).length,
-                  ),
-            style: tokens.mono.copyWith(fontSize: 10, color: colors.faint),
-          ),
           const SizedBox(height: 14),
           LsSearchField(
             controller: _query,
@@ -538,7 +527,13 @@ class _SettingsViewState extends State<_SettingsView> {
         ),
         const SizedBox(height: 2),
         Text(
-          '© ${DateTime.now().year} Tien Do Nam',
+          '© ${DateTime.now().year} Zephyr',
+          textAlign: TextAlign.center,
+          style: tokens.mono.copyWith(fontSize: 9.5, color: colors.faint),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          'Based on LocalSend © Tien Do Nam',
           textAlign: TextAlign.center,
           style: tokens.mono.copyWith(fontSize: 9.5, color: colors.faint),
         ),

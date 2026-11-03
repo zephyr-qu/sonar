@@ -1,5 +1,5 @@
 {
-  "appName": "LocalSend",
+  "appName": "Sonar",
   "general": {
     "accept": "Accept",
     "accepted": "Accepted",
@@ -139,6 +139,9 @@
       "discoveryTimeout": "Discovery Timeout",
       "useSystemName": "Use system name",
       "generateRandomAlias": "Generate random alias",
+      "aliasInvalid": "The device name cannot be empty.",
+      "aliasTooLong": "The device name cannot be longer than {maxLength} characters.",
+      "aliasInvalidCharacters": "The device name cannot contain control characters.",
       "portWarning": "You might not be detected by other devices because you are using a custom port. (default: {defaultPort})",
       "encryption": "Encryption",
       "multicastGroup": "Multicast address",
@@ -146,7 +149,7 @@
     },
     "other": {
       "title": "Other",
-      "support": "Support LocalSend",
+      "support": "Support Sonar",
       "donate": "Donate",
       "privacyPolicy": "Privacy Policy",
       "termsOfUse": "Terms of Use"
@@ -158,8 +161,8 @@
     "hidden": "Hidden",
     "hide": "Hide from this network",
     "show": "Be visible to this network",
-    "online": "{online} online · {total} discovered",
-    "onlineSuffix": "online · {total} discovered",
+    "online": "{online} online  {total} discovered",
+    "onlineSuffix": "online  {total} discovered",
     "scan": "Scan again",
     "linkReceive": "Receive via link",
     "manualIp": "Manual IP",
@@ -172,31 +175,35 @@
     "selected": "{n} selected",
     "selectTarget": "Choose target devices",
     "send": "Send",
-    "pending": "To send · {files} · {size}",
+    "requesting": "Requesting {device}…",
+    "requestingMany": "Requesting {n} devices…",
+    "pending": "To send {files} · {size}",
     "addFile": "Add file",
     "expand": "Expand",
     "collapse": "Collapse",
     "clear": "Clear",
     "favorites": "Favorites",
     "onlineSection": "Online",
+    "onlineSectionOthers": "Other online",
     "offlineSection": "Offline",
     "offline": "Offline",
     "offlineHint": "This device is offline",
     "noOnlineMatch": "No matching online devices",
     "noMatch": "No matching devices",
-    "noDevices": "No devices found yet. Make sure the other device is on the same network.",
+    "noDevices": "No devices found yet. Check that both devices are on the same network.",
     "radarHidden": "{shown} of {total} shown",
     "favorited": "Added to favorites",
     "unfavorited": "Removed from favorites",
     "visibleToast": "Visible to this network",
-    "hiddenToast": "Hidden · only link reception works",
+    "hiddenToast": "Hidden  link reception only",
     "filesEmpty": "No files selected",
-    "tray": "Tray",
+    "tray": "Files to send",
     "inProgress": "In progress",
+    "moreFailures": "{n} more failed",
     "receivePolicy": "Receive policy",
     "securitySettings": "Encryption & PIN",
     "dropHere": "Drop files here",
-    "dropHint": "or click to choose files / folders",
+    "dropHint": "or click to choose a file or folder",
     "desktopLede": "{online} online",
     "justNow": "just now",
     "minutesAgo": "{n} min ago",
@@ -206,10 +213,11 @@
   "transferTab": {
     "title": "Transfers",
     "inProgress": "{n} active",
-    "historyCount": "{n} in history",
     "noActive": "NO ACTIVE TRANSFER",
-    "noActiveHint": "Pick a device in Nearby to start, or accept an incoming request.",
+    "noActiveHint": "Pick a device in Nearby, or accept an incoming request.",
+    "autoReceive": "Auto receive",
     "recent": "Recent transfers",
+    "failed": "Failed",
     "sending": "Sending to {device}",
     "receiving": "Receiving from {device}",
     "sentTo": "Sent to {device}",
@@ -220,36 +228,32 @@
     "verified": "Verified",
     "verifiedCount": "Verified {verified}/{total}",
     "remaining": "{time} left",
-    "speed": "{speed} MB/s",
+    "speed": "{speed}/s",
     "items": "{n} items",
     "noHistory": "No transfers yet",
-    "historySummary": "History: {files} files · {sessions} transfers",
     "today": "Today",
     "yesterday": "Yesterday",
-    "searchInSession": "Search these {n} files",
+    "searchInSession": "Search {n} files",
     "allItems": "All {n}",
     "typeImage": "Images",
     "typeVideo": "Videos",
-    "typePdf": "PDFs",
+    "typePdf": "PDF",
     "typeText": "Text",
     "typeApk": "Apps",
     "typeOther": "Other",
-    "sortBy": "Sort · {mode}",
     "sortDate": "Date ↓",
     "sortName": "Name ↑",
     "sortSize": "Size ↓",
+    "sort": "Sort",
     "gridView": "Grid",
     "listView": "List",
     "noResults": "No matching files",
     "received": "Received",
-    "sent": "Sent",
-    "historyHint": "Newest first · tap a row to open that transfer"
+    "sent": "Sent"
   },
   "settingsPage": {
-    "search": "Search {count} settings",
     "noResults": "No settings match \"{query}\"",
     "items": "{n} items",
-    "groups": "{n} groups",
     "visibleToNetwork": "Visible to this network",
     "nearbyLayout": "Nearby layout",
     "nearbyLayoutGrid": "Grid",
@@ -267,12 +271,11 @@
     "groupDesktopSection": "Desktop & window",
     "checksums": "Checksums",
     "results": "{n} results",
-    "searchHint": "Search settings",
-    "totalItems": "{n} settings"
+    "searchHint": "Search settings"
   },
   "receiveRequestPage": {
     "title": "Incoming request",
-    "policyQuickSave": "Quick save · accept automatically",
+    "policyQuickSave": "Quick Save is on",
     "policyQuickSaveFavorites": "Favorites are accepted automatically",
     "policyAsk": "Ask for every request",
     "secure": "Encrypted",
@@ -286,15 +289,11 @@
     "change": "Change",
     "connection": "Connection",
     "fingerprint": "Device fingerprint",
-    "fingerprintDesc": "SHA-256 · should match the previous session",
+    "fingerprintDesc": "Should match the previous session",
     "channel": "Channel",
-    "channelTls": "v2 HTTP · mutual TLS",
-    "channelPlain": "v2 HTTP · no encryption",
-    "sameNetwork": "Same local network",
-    "acceptFiles": {
-      "one": "Receive {n} item",
-      "other": "Receive {n} items"
-    },
+    "channelTls": "HTTPS",
+    "channelPlain": "HTTP",
+    "accept": "Receive",
     "reject": "@:general.decline"
   },
   "troubleshootPage": {
@@ -318,7 +317,7 @@
   },
   "networkInterfacesPage": {
     "title": "Network Interfaces",
-    "info": "By default, LocalSend uses all available network interfaces. You can exclude unwanted networks here. You need to restart the server to apply the changes.",
+    "info": "By default, Sonar uses all available network interfaces. You can exclude unwanted networks here. You need to restart the server to apply the changes.",
     "preview": "Preview",
     "whitelist": "Whitelist",
     "blacklist": "Blacklist"
@@ -348,6 +347,7 @@
   "deviceDetailsPage": {
     "title": "Device Details",
     "favorite": "Favorite",
+    "unfavorite": "Remove from favorites",
     "verify": "Verify",
     "info": {
       "title": "Info",
@@ -382,13 +382,14 @@
   "receiveOptionsPage": {
     "title": "Options",
     "destination": "@:settingsTab.receive.destination",
-    "appDirectory": "(LocalSend folder)",
+    "appDirectory": "(Sonar folder)",
     "saveToGallery": "@:settingsTab.receive.saveToGallery",
     "saveToGalleryOff": "Turned off automatically because there are folders."
   },
   "sendPage": {
     "calculatingChecksum": "Calculating checksum ({curr} / {n})",
     "waiting": "Waiting for response…",
+    "noResponse": "The other device did not respond. Is the app still running and reachable?",
     "rejected": "The recipient has rejected the request.",
     "tooManyAttempts": "@:web.tooManyAttempts",
     "busy": "The recipient is busy with another request."
@@ -434,7 +435,7 @@
     "autoAccept": "Automatically accept requests",
     "requirePin": "Require PIN",
     "pinHint": "The PIN is \"{pin}\"",
-    "encryptionHint": "LocalSend uses a self-signed certificate. You need to accept it in your browser.",
+    "encryptionHint": "Sonar uses a self-signed certificate. You need to accept it in your browser.",
     "pendingRequests": "Pending requests: {n}",
     "copyLink": "Copy link",
     "expiresHint": "The link stops working once every file has been downloaded"
@@ -443,19 +444,20 @@
     "title": "Receive via link"
   },
   "aboutPage": {
-    "title": "About LocalSend",
+    "title": "About Sonar",
     "description": [
-      "LocalSend is a free, open-source app that allows you to securely share files and messages with nearby devices over your local network without needing an internet connection.",
+      "Sonar is a free, open-source app that allows you to securely share files and messages with nearby devices over your local network without needing an internet connection.",
       "This app is available on Android, iOS, macOS, Windows and Linux. You can find all download options on the official homepage."
     ],
     "author": "Author",
+    "originalAuthor": "Original author",
     "contributors": "Contributors",
     "packagers": "Packagers",
     "translators": "Translators"
   },
   "donationPage": {
     "title": "Donate",
-    "info": "LocalSend is free, open-source and without any ads. If you like the app, you can support the development with a donation.",
+    "info": "Sonar is free, open-source and without any ads. If you like the app, you can support the development with a donation.",
     "donate": "Donate {amount}",
     "thanks": "Thank you very much!",
     "restore": "Restore purchase"
@@ -561,7 +563,10 @@
       "title": "Enter address",
       "hashtag": "Hashtag",
       "ip": "IP Address",
-      "recentlyUsed": "Recently used: "
+      "recentlyUsed": "Recently used: ",
+      "invalidIp": "Enter a valid IPv4 or IPv6 address.",
+      "invalidHashtag": "Enter a number between 1 and 254.",
+      "hashtagHint": "Last part only, e.g. 123"
     },
     "cancelSession": {
       "title": "Cancel files transfer",
@@ -615,7 +620,7 @@
     },
     "localNetworkUnauthorized": {
       "title": "@:dialogs.noPermission.title",
-      "description": "LocalSend can't find other devices without having the permission to scan the local network. Please grant this permission in the settings.",
+      "description": "Sonar can't find other devices without having the permission to scan the local network. Please grant this permission in the settings.",
       "gotoSettings": "Settings"
     },
     "messageInput": {
@@ -656,7 +661,8 @@
       ]
     },
     "pin": {
-      "title": "Enter PIN"
+      "title": "Enter PIN",
+      "hint": "Letters and digits only, up to {maxLength} characters"
     },
     "zoom": {
       "title": "URL"
@@ -669,7 +675,7 @@
   "tray": {
     "@info": "Apple Guidelines are very strict about the \"close\" wording.",
     "open": "@:general.open",
-    "close": "Quit LocalSend",
+    "close": "Quit Sonar",
     "closeWindows": "Exit"
   },
   "web": {

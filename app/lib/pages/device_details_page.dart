@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/favorite_device.dart';
-import 'package:localsend_app/pages/verify_page.dart';
-import 'package:localsend_app/provider/favorites_provider.dart';
-import 'package:localsend_app/util/device_type_ext.dart';
-import 'package:localsend_app/util/favorites.dart';
-import 'package:localsend_app/util/system_date_time_formatter.dart';
-import 'package:localsend_app/util/ui/snackbar.dart';
-import 'package:localsend_app/widget/dialogs/favorite_delete_dialog.dart';
-import 'package:localsend_app/widget/dialogs/favorite_edit_dialog.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_card.dart';
-import 'package:localsend_app/widget/ls/ls_header.dart';
-import 'package:localsend_app/widget/ls/ls_section_label.dart';
-import 'package:localsend_isolates/isolate.dart';
-import 'package:localsend_isolates/model/device.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/persistence/favorite_device.dart';
+import 'package:sonar/pages/verify_page.dart';
+import 'package:sonar/provider/favorites_provider.dart';
+import 'package:sonar/util/device_type_ext.dart';
+import 'package:sonar/util/favorites.dart';
+import 'package:sonar/util/system_date_time_formatter.dart';
+import 'package:sonar/util/ui/snackbar.dart';
+import 'package:sonar/widget/dialogs/favorite_delete_dialog.dart';
+import 'package:sonar/widget/dialogs/favorite_edit_dialog.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_card.dart';
+import 'package:sonar/widget/ls/ls_header.dart';
+import 'package:sonar/widget/ls/ls_section_label.dart';
+import 'package:sonar_isolates/isolate.dart';
+import 'package:sonar_isolates/model/device.dart';
 
 /// Shows the general information of a discovered device and
 /// the log of its retained discovery confirmations.
@@ -75,7 +75,7 @@ class _DeviceDetailsPageState extends State<DeviceDetailsPage> with Refena {
     final meta = [
       if (device.deviceModel != null) device.deviceModel!,
       if (device.ip != null) '${device.ip}:${device.port}',
-    ].join(' · ');
+    ].join('  ');
 
     return Scaffold(
       body: SafeArea(
@@ -83,12 +83,14 @@ class _DeviceDetailsPageState extends State<DeviceDetailsPage> with Refena {
           children: [
             LsSubHeader(
               title: t.deviceDetailsPage.title,
-              subtitle: Text(
-                meta.isEmpty ? device.alias : meta,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: tokens.mono,
-              ),
+              actions: [
+                LsIconButton(
+                  icon: favoriteEntry != null ? LucideIcons.heartOff : LucideIcons.heart,
+                  tooltip: favoriteEntry != null ? t.deviceDetailsPage.unfavorite : t.deviceDetailsPage.favorite,
+                  active: favoriteEntry != null,
+                  onPressed: () async => _toggleFavorite(favoriteEntry),
+                ),
+              ],
               onBack: () => Navigator.of(context).maybePop(),
             ),
             Expanded(
@@ -122,34 +124,14 @@ class _DeviceDetailsPageState extends State<DeviceDetailsPage> with Refena {
                               ),
                             ),
                             LsIconButton(
-                              icon: favoriteEntry != null ? LucideIcons.heart : LucideIcons.heart,
-                              tooltip: t.deviceDetailsPage.favorite,
-                              active: favoriteEntry != null,
-                              onPressed: () async => _toggleFavorite(favoriteEntry),
+                              icon: LucideIcons.badgeCheck,
+                              tooltip: t.deviceDetailsPage.verify,
+                              onPressed: () async => context.push(
+                                () => VerifyPage(fingerprint: CombinedFingerprint.load(context, device.fingerprint)),
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: [
-                          LsButton(
-                            label: favoriteEntry != null ? t.deviceDetailsPage.favorite : t.deviceDetailsPage.favorite,
-                            icon: favoriteEntry != null ? LucideIcons.heart : LucideIcons.heart,
-                            variant: LsButtonVariant.ghost,
-                            onPressed: () async => _toggleFavorite(favoriteEntry),
-                          ),
-                          LsButton(
-                            label: t.deviceDetailsPage.verify,
-                            icon: LucideIcons.badgeCheck,
-                            variant: LsButtonVariant.ghost,
-                            onPressed: () async => context.push(
-                              () => VerifyPage(fingerprint: CombinedFingerprint.load(context, device.fingerprint)),
-                            ),
-                          ),
-                        ],
                       ),
                       LsSectionLabel(label: t.deviceDetailsPage.info.title),
                       LsCard(
@@ -163,10 +145,8 @@ class _DeviceDetailsPageState extends State<DeviceDetailsPage> with Refena {
                               Divider(color: colors.line, height: 1),
                               _kvRow(context, t.deviceDetailsPage.info.address, '${device.ip}:${device.port}'),
                             ],
-                            if (device.rttMs != null) ...[
-                              Divider(color: colors.line, height: 1),
-                              _kvRow(context, t.deviceDetailsPage.info.latency, '${device.rttMs} ms'),
-                            ],
+                            Divider(color: colors.line, height: 1),
+                            _kvRow(context, t.deviceDetailsPage.info.latency, device.rttMs == null ? '—' : '${device.rttMs} ms'),
                           ],
                         ),
                       ),
@@ -175,7 +155,7 @@ class _DeviceDetailsPageState extends State<DeviceDetailsPage> with Refena {
                         children: [
                           Expanded(
                             child: Text(
-                              _logs.isEmpty ? t.deviceDetailsPage.logs.empty : t.deviceDetailsPage.logs.title,
+                              _logs.isEmpty ? t.deviceDetailsPage.logs.empty : '',
                               style: tokens.bodySm,
                             ),
                           ),
@@ -212,7 +192,7 @@ class _DeviceDetailsPageState extends State<DeviceDetailsPage> with Refena {
     final tokens = context.ls;
     final colors = tokens.colors;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 9),
+      padding: const EdgeInsets.fromLTRB(0, 9, 10, 9),
       child: Row(
         children: [
           Expanded(

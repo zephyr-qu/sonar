@@ -2,26 +2,27 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/transfer_history_session.dart';
-import 'package:localsend_app/provider/transfer_history_provider.dart';
-import 'package:localsend_app/util/native/open_file.dart';
-import 'package:localsend_app/util/native/open_folder.dart';
-import 'package:localsend_app/util/system_date_time_formatter.dart';
-import 'package:localsend_app/widget/dialogs/file_info_dialog.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_chip.dart';
-import 'package:localsend_app/widget/ls/ls_header.dart';
-import 'package:localsend_app/widget/ls/ls_hover.dart';
-import 'package:localsend_app/widget/ls/ls_search_field.dart';
-import 'package:localsend_app/widget/ls/ls_segmented.dart';
-import 'package:localsend_isolates/model/file_type.dart';
-import 'package:localsend_isolates/util/file_size_helper.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:path/path.dart' as path;
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/persistence/transfer_history_session.dart';
+import 'package:sonar/provider/transfer_history_provider.dart';
+import 'package:sonar/util/native/open_file.dart';
+import 'package:sonar/util/native/open_folder.dart';
+import 'package:sonar/util/system_date_time_formatter.dart';
+import 'package:sonar/widget/dialogs/file_info_dialog.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_chip.dart';
+import 'package:sonar/widget/ls/ls_header.dart';
+import 'package:sonar/widget/ls/ls_hover.dart';
+import 'package:sonar/widget/ls/ls_search_field.dart';
+import 'package:sonar/widget/ls/ls_segmented.dart';
+import 'package:sonar/widget/responsive_builder.dart';
+import 'package:sonar_isolates/model/file_type.dart';
+import 'package:sonar_isolates/util/file_size_helper.dart';
 
 enum _SortMode {
   date,
@@ -190,34 +191,36 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
     final totalSize = _files.fold<int>(0, (sum, file) => sum + file.fileSize);
     // The page is pushed over the whole window, so the content column follows the
     // window instead of staying a phone-width strip on a wide desktop window.
-    final wide = MediaQuery.sizeOf(context).width >= 900;
+    final width = MediaQuery.sizeOf(context).width;
+    final wide = width >= 900;
 
     return _DetailScaffold(
       title: _session.isSend ? t.transferTab.sentTo(device: _session.peerAlias) : t.transferTab.receivedFrom(device: _session.peerAlias),
       subtitle: Text(
         [
           SystemDateTimeFormatter.dateTime(context, _session.timestamp.toLocal()),
-          t.transferTab.items(n: _files.length),
           totalSize.asReadableFileSize,
-        ].join(' · '),
+          // The size is everything a delivered session has to say; a failed one
+          // also has to say that it failed, and why.
+          if (_session.failed) t.transferTab.failed,
+          if (_session.errorMessage != null) _session.errorMessage!,
+        ].join('  '),
         style: tokens.mono,
       ),
       maxWidth: wide ? 1120 : 760,
+      // The direction and gallery state sit next to the title instead of in a
+      // chip row of their own: the row repeated the title and the item count.
+      actions: [
+        const SizedBox(width: 10),
+        if (_session.savedToGallery) ...[
+          LsChip.text(t.progressPage.savedToGallery, accent: true),
+          const SizedBox(width: 6),
+        ],
+        LsChip.text(_session.isSend ? t.transferTab.sent : t.transferTab.received),
+      ],
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(tokens.pad, 2, tokens.pad, 10),
-            child: Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                if (_session.savedToGallery) LsChip.text(t.progressPage.savedToGallery, accent: true),
-                LsChip.text(_session.isSend ? t.transferTab.sent : t.transferTab.received),
-                LsChip.text(t.transferTab.items(n: _files.length)),
-              ],
-            ),
-          ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: tokens.pad),
             child: LsSearchField(
@@ -298,16 +301,22 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
     final tokens = context.ls;
     return LayoutBuilder(
       builder: (context, constraints) {
-        // A phone keeps the prototype's four columns; a wide window fits more tiles
-        // instead of stretching every tile to the same oversized square.
-        final columns = (constraints.maxWidth / 120).floor().clamp(4, 8);
+        // A phone keeps the prototype's four columns; a wider window adds columns
+        // instead of stretching the tiles, so a square stays around 104px rather
+        // than growing to ~130px on a maximized desktop window.
+        final columns = (constraints.maxWidth / 104).floor().clamp(4, 12);
+        const spacing = 5.0;
+        final cellWidth = (constraints.maxWidth - tokens.pad * 2 - spacing * (columns - 1)) / columns;
         return GridView.builder(
           padding: EdgeInsets.fromLTRB(tokens.pad, 2, tokens.pad, 12),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: columns,
             mainAxisSpacing: 10,
-            crossAxisSpacing: 5,
-            childAspectRatio: 1 / 1.24,
+            crossAxisSpacing: spacing,
+            // The caption gets a fixed pixel band instead of a share of the tile height: a percentage
+            // stretch (`childAspectRatio: 1 / 1.24`) leaves fewer pixels for the two-line name than the
+            // text needs on phone columns, and the name then paints outside its cell.
+            mainAxisExtent: cellWidth + _gridCaptionHeight,
           ),
           itemCount: files.length,
           itemBuilder: (context, index) {
@@ -321,6 +330,10 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
 
   Widget _buildFooter(BuildContext context, List<TransferHistoryFile> files) {
     final tokens = context.ls;
+    // A phone has no room for the 44px standalone button next to the sort chip
+    // and the view switch, so the action drops into their 30px band and the
+    // (already duplicated) file counter of the header gives way.
+    final mobile = SizingInformation(MediaQuery.sizeOf(context).width).isMobile;
     return Padding(
       padding: EdgeInsets.fromLTRB(tokens.pad, 10, tokens.pad, 10),
       child: Row(
@@ -329,14 +342,17 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
             label: t.transferTab.openFolder,
             icon: LucideIcons.folder,
             variant: LsButtonVariant.ghost,
+            compact: mobile,
             onPressed: _session.hasLocalPath ? _openFolder : null,
           ),
           const Spacer(),
-          Text('${files.length} / ${_files.length}', style: tokens.monoSm),
-          const SizedBox(width: 8),
+          if (!mobile) ...[
+            Text('${files.length} / ${_files.length}', style: tokens.monoSm),
+            const SizedBox(width: 8),
+          ],
           LsChip.text(
-            t.transferTab.sortBy(mode: _sort.label),
-            tooltip: t.transferTab.sortBy(mode: _sort.label),
+            _sort.label,
+            tooltip: t.transferTab.sort,
             onTap: () => setState(() => _sort = _sort.next),
           ),
           const SizedBox(width: 8),
@@ -371,6 +387,7 @@ class _DetailScaffold extends StatelessWidget {
   final double maxWidth;
   final Widget body;
   final Widget footer;
+  final List<Widget> actions;
 
   const _DetailScaffold({
     required this.title,
@@ -378,6 +395,7 @@ class _DetailScaffold extends StatelessWidget {
     required this.maxWidth,
     required this.body,
     required this.footer,
+    this.actions = const [],
   });
 
   @override
@@ -410,6 +428,7 @@ class _DetailScaffold extends StatelessWidget {
                       child: LsSubHeader(
                         title: title,
                         subtitle: subtitle,
+                        actions: actions,
                         onBack: () => Navigator.maybePop(context),
                       ),
                     ),
@@ -560,12 +579,16 @@ class _DetailFileCell extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          file.fileName,
-          maxLines: 2,
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.ellipsis,
-          style: tokens.label.copyWith(height: 1.3, fontSize: 9),
+        // [Flexible] bounds the caption to the band the grid reserved for it, so a text scale or a
+        // longer name ellipsizes instead of overflowing the cell.
+        Flexible(
+          child: Text(
+            file.fileName,
+            maxLines: 2,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            style: tokens.label.copyWith(height: _gridCaptionLineHeight, fontSize: _gridCaptionFontSize),
+          ),
         ),
       ],
     );
@@ -632,6 +655,13 @@ String _shortDate(DateTime? value) {
 /// The design remembers the chosen view when the page is opened again, which a
 /// state field per page cannot do.
 bool _rememberGrid = false;
+
+/// The two-line caption under a grid tile: 9px on a 1.3 line box, with the 4px gap above it.
+/// The grid reserves exactly [_gridCaptionHeight] as a fixed band, so the name always has room
+/// to render its two lines and ellipsizes beyond that instead of painting past the cell.
+const double _gridCaptionFontSize = 9;
+const double _gridCaptionLineHeight = 1.3;
+const double _gridCaptionHeight = 4 + 2 * _gridCaptionFontSize * _gridCaptionLineHeight;
 
 /// Hue, saturation, lightness of both gradient stops and their opacity, per
 /// photo tint. The design cycles through six of them so a grid of images does

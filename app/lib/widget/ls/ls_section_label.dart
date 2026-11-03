@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
+import 'package:sonar/config/design_tokens.dart';
 
 /// Section label: uppercase eyebrow, optional count, then a hairline that fills the row.
 class LsSectionLabel extends StatelessWidget {

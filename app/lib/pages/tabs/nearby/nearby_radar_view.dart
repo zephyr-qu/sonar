@@ -1,21 +1,23 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/favorite_device.dart';
-import 'package:localsend_app/pages/tabs/nearby/file_grid.dart';
-import 'package:localsend_app/pages/tabs/nearby/nearby_filter_chips.dart';
-import 'package:localsend_app/pages/tabs/nearby/nearby_ui.dart';
-import 'package:localsend_app/pages/tabs/nearby_tab_vm.dart';
-import 'package:localsend_app/util/device_type_ext.dart';
-import 'package:localsend_app/util/radar_layout.dart';
-import 'package:localsend_app/util/ui/snackbar.dart';
-import 'package:localsend_app/widget/ls/ls_chip.dart';
-import 'package:localsend_app/widget/ls/ls_radar.dart';
-import 'package:localsend_isolates/model/device.dart';
-import 'package:localsend_isolates/util/file_size_helper.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/persistence/favorite_device.dart';
+import 'package:sonar/pages/device_details_page.dart';
+import 'package:sonar/pages/tabs/nearby/file_grid.dart';
+import 'package:sonar/pages/tabs/nearby/nearby_filter_chips.dart';
+import 'package:sonar/pages/tabs/nearby/nearby_ui.dart';
+import 'package:sonar/pages/tabs/nearby_tab_vm.dart';
+import 'package:sonar/util/device_type_ext.dart';
+import 'package:sonar/util/radar_layout.dart';
+import 'package:sonar/util/ui/snackbar.dart';
+import 'package:sonar/widget/ls/ls_chip.dart';
+import 'package:sonar/widget/ls/ls_radar.dart';
+import 'package:sonar_isolates/model/device.dart';
+import 'package:sonar_isolates/util/file_size_helper.dart';
 
 /// Diameter of the radar center bubble. The radar layout's file tray must not
 /// grow past it, otherwise the pending files out-shout "me".
@@ -122,6 +124,12 @@ class NearbyRadarView {
                   // Same as the device grid: long press enters multi-select and
                   // preselects this device.
                   onLongPress: () async => _actions.onDeviceLongPress(radarOnline[i]),
+
+                  // The bubble owns tap (send) and long press (multi-select), so the label
+                  // is the only surface left for the details page. Inside multi-select it
+                  // toggles the pick instead, exactly like the bubble.
+                  onLabelTap: () async =>
+                      _multiActive ? _actions.onDeviceTap(radarOnline[i]) : context.push(() => DeviceDetailsPage(device: radarOnline[i])),
                 ),
               if (radarOffline != null)
                 LsRadarPeer(
@@ -132,7 +140,7 @@ class NearbyRadarView {
                   size: slots.last.size,
                   offline: true,
                   labelAbove: true,
-                  tooltip: '${radarOffline.alias} · ${t.nearbyTab.offline}',
+                  tooltip: '${radarOffline.alias}  ${t.nearbyTab.offline}',
                   onTap: () => context.showSnackBar(t.nearbyTab.offlineHint),
                 ),
             ],

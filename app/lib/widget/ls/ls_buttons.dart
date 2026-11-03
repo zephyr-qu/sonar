@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/widget/ls/ls_hover.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/widget/ls/ls_hover.dart';
 
 enum LsButtonVariant {
   /// Accent fill with dark ink.
@@ -21,6 +21,10 @@ class LsButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final LsButtonVariant variant;
   final bool expand;
+  final bool compact;
+
+  /// Shows a spinner in place of the icon and ignores taps while the action runs.
+  final bool loading;
 
   const LsButton({
     super.key,
@@ -29,6 +33,8 @@ class LsButton extends StatelessWidget {
     this.onPressed,
     this.variant = LsButtonVariant.primary,
     this.expand = false,
+    this.compact = false,
+    this.loading = false,
   });
 
   @override
@@ -41,34 +47,50 @@ class LsButton extends StatelessWidget {
       LsButtonVariant.ghost => (Colors.transparent, colors.bg2, colors.fg),
       LsButtonVariant.plain => (colors.bg3, colors.lineStrong, colors.fg),
     };
-    final enabled = onPressed != null;
+    final enabled = onPressed != null && !loading;
+    // 44px is the standalone action size; a footer that also holds chips and a
+    // segmented control keeps the button in their 30px band instead.
+    final height = compact ? 30.0 : 44.0;
+    final horizontalPadding = compact ? 11.0 : 16.0;
+    final iconSize = compact ? 13.0 : 15.0;
+    final iconGap = compact ? 5.0 : 7.0;
+    final labelStyle = compact
+        ? tokens.label.copyWith(color: foreground, fontWeight: FontWeight.w600)
+        : tokens.buttonLabel.copyWith(color: foreground);
 
     return Opacity(
-      opacity: enabled ? 1 : 0.4,
+      opacity: enabled || loading ? 1 : 0.4,
       child: LsHover(
         color: background,
         hoverColor: hoverBackground,
         borderRadius: tokens.tileRadius,
         borderColor: variant == LsButtonVariant.ghost ? colors.lineStrong : null,
-        onTap: onPressed,
+        onTap: enabled ? onPressed : null,
         builder: (context, hovered) => SizedBox(
-          height: 44,
+          height: height,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
             child: Row(
               mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (icon != null) ...[
-                  Icon(icon, size: 15, color: foreground),
-                  const SizedBox(width: 7),
+                if (loading) ...[
+                  SizedBox(
+                    width: iconSize,
+                    height: iconSize,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: foreground),
+                  ),
+                  SizedBox(width: iconGap),
+                ] else if (icon != null) ...[
+                  Icon(icon, size: iconSize, color: foreground),
+                  SizedBox(width: iconGap),
                 ],
                 Flexible(
                   child: Text(
                     label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: tokens.buttonLabel.copyWith(color: foreground),
+                    style: labelStyle,
                   ),
                 ),
               ],

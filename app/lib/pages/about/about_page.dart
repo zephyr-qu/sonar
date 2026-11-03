@@ -1,19 +1,17 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/pages/debug/debug_page.dart';
-import 'package:localsend_app/util/i18n.dart';
-import 'package:localsend_app/widget/local_send_logo.dart';
-import 'package:localsend_app/widget/ls/ls_scaffold.dart';
-import 'package:localsend_app/widget/responsive_list_view.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/pages/debug/debug_page.dart';
+import 'package:sonar/util/i18n.dart';
+import 'package:sonar/widget/ls/ls_scaffold.dart';
+import 'package:sonar/widget/responsive_list_view.dart';
+import 'package:sonar/widget/sonar_logo.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 part 'contributors.dart';
-
 part 'packagers.dart';
-
 part 'translators.dart';
 
 final _translatorWithGithubRegex = RegExp(r'(.+) \(@([\w\-_]+)\)');
@@ -30,10 +28,15 @@ class AboutPage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 15),
         children: [
           const SizedBox(height: 20),
-          const LocalSendLogo(withText: true),
+          const SonarLogo(withText: true),
           Text(
-            '© ${DateTime.now().year} Tien Do Nam',
+            '© ${DateTime.now().year} Zephyr',
             textAlign: TextAlign.center,
+          ),
+          Text(
+            'Based on LocalSend © Tien Do Nam',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 10),
           Center(
@@ -48,6 +51,14 @@ class AboutPage extends StatelessWidget {
           Text(t.aboutPage.description.join('\n\n')),
           const SizedBox(height: 20),
           Text(t.aboutPage.author, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text.rich(
+            _buildContributor(
+              label: 'Zephyr (@zephyr-qu)',
+              primaryColor: primaryColor,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(t.aboutPage.originalAuthor, style: const TextStyle(fontWeight: FontWeight.bold)),
           Text.rich(
             _buildContributor(
               label: 'Tien Do Nam (@Tienisto)',
@@ -136,21 +147,15 @@ class AboutPage extends StatelessWidget {
             children: [
               TextButton(
                 onPressed: () async {
-                  await launchUrl(Uri.parse('https://localsend.org'));
-                },
-                child: const Text('Homepage'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  await launchUrl(Uri.parse('https://github.com/localsend/localsend'), mode: LaunchMode.externalApplication);
+                  await launchUrl(Uri.parse('https://github.com/zephyr-qu/sonar'), mode: LaunchMode.externalApplication);
                 },
                 child: const Text('Source Code (Github)'),
               ),
               TextButton(
                 onPressed: () async {
-                  await launchUrl(Uri.parse('https://codeberg.org/localsend/localsend'), mode: LaunchMode.externalApplication);
+                  await launchUrl(Uri.parse('https://localsend.org'), mode: LaunchMode.externalApplication);
                 },
-                child: const Text('Source Code (Codeberg)'),
+                child: const Text('LocalSend (upstream)'),
               ),
               TextButton(
                 onPressed: () async {

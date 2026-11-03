@@ -2,7 +2,7 @@ use crate::http::dto::{
     InfoResponseDto, PrepareUploadRequestDto, PrepareUploadResponseDto, RegisterDto,
     RegisterResponseDto,
 };
-use crate::http::server::common::collect_to_json::CollectToJson;
+use crate::http::server::common::collect_to_json::{drain_body, CollectToJson};
 use crate::http::server::common::error::AppError;
 use crate::http::server::common::pin::check_pin;
 use crate::http::server::common::query::parse_query;
@@ -255,21 +255,35 @@ pub(crate) async fn prepare_upload(
     let v2 = require_v2(&state)?;
     let query = parse_query(req.uri().query());
 
-    check_pin(
+    let body = req.into_body();
+
+    if let Err(err) = check_pin(
         v2.pin.as_deref(),
         &v2.pin_attempts,
         &query,
         client_info.ip.ip,
     )
-    .await?;
+    .await
+    {
+        // The body is still unread here; dropping the request without it would
+        // reset the connection and hide the 401 from the sender, which would
+        // then never ask for the PIN.
+        drain_body(body).await;
+        return Err(err);
+    }
 
-    let payload = req
-        .into_body()
-        .collect_to_json::<PrepareUploadRequestDto>()
-        .await?;
+    let payload = body.collect_to_json::<PrepareUploadRequestDto>().await?;
 
     if payload.files.is_empty() {
         return Err(AppError::BadRequest("No files provided".to_string()));
+    }
+
+    if payload.files.len() > MAX_FILES_PER_SESSION {
+        return Err(AppError::BadRequest("Too many files".to_string()));
+    }
+
+    if payload.files.values().any(|file| file.size > MAX_FILE_SIZE) {
+        return Err(AppError::BadRequest("Invalid file size".to_string()));
     }
 
     let session_id = Uuid::new_v4().to_string();
@@ -685,6 +699,20 @@ impl Drop for UploadGuard {
 /// sender may retry a file after a checksum mismatch.
 /// Senders must not retry more often than this (see the upload isolate).
 const MAX_UPLOAD_ATTEMPTS: u8 = 3;
+
+/// Upper bound for the number of files one session may offer.
+///
+/// The manifest is buffered by the server (as the prepare event) and again as
+/// the session, with a token per file, so an unbounded list is a cheap memory
+/// amplification for any peer that can reach the server.
+pub const MAX_FILES_PER_SESSION: usize = 10_000;
+
+/// Upper bound for the size a single file may announce (1 TiB).
+///
+/// The value is only a claim that the transfer has to honour anyway, but it is
+/// carried as a signed value by the app (Dart `int`), so a peer must not be able
+/// to push it past that range.
+pub const MAX_FILE_SIZE: u64 = 1 << 40;
 
 /// Sets the final status of a file and ends the session once all files are done.
 ///

@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:localsend_app/model/persistence/favorite_device.dart';
-import 'package:localsend_app/model/state/nearby_devices_state.dart';
-import 'package:localsend_app/provider/device_last_seen_provider.dart';
-import 'package:localsend_app/provider/favorites_provider.dart';
-import 'package:localsend_app/provider/logging/discovery_logs_provider.dart';
-import 'package:localsend_isolates/isolate.dart';
-import 'package:localsend_isolates/model/device.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/model/persistence/favorite_device.dart';
+import 'package:sonar/model/state/nearby_devices_state.dart';
+import 'package:sonar/provider/device_last_seen_provider.dart';
+import 'package:sonar/provider/favorites_provider.dart';
+import 'package:sonar/provider/logging/discovery_logs_provider.dart';
+import 'package:sonar_isolates/isolate.dart';
+import 'package:sonar_isolates/model/device.dart';
 
 /// This provider is responsible for:
 /// - Scanning the network for other LocalSend instances

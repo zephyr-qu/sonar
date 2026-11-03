@@ -1,6 +1,6 @@
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:localsend_isolates/model/dto/file_dto.dart';
-import 'package:localsend_isolates/model/file_type.dart';
+import 'package:sonar_isolates/model/dto/file_dto.dart';
+import 'package:sonar_isolates/model/file_type.dart';
 
 part 'transfer_history_session.mapper.dart';
 
@@ -65,12 +65,25 @@ class TransferHistorySession with TransferHistorySessionMappable {
 
   final List<TransferHistoryFile> files;
 
+  /// Whether the session ended with an error.
+  ///
+  /// A failed session is recorded as well: the send state that shows the error
+  /// is cleared by the close button, so without this entry the failure would
+  /// leave no trace at all.
+  final bool failed;
+
+  /// Why the session failed, in the language the failure happened in. Null
+  /// when the reason is per file instead of per session.
+  final String? errorMessage;
+
   const TransferHistorySession({
     required this.id,
     required this.peerAlias,
     required this.direction,
     required this.timestamp,
     required this.files,
+    this.failed = false,
+    this.errorMessage,
   });
 
   bool get isSend => direction == TransferHistoryDirection.send;

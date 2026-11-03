@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:localsend_app/widget/ls/ls_tile.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:sonar/widget/ls/ls_tile.dart';
 
 Widget _host(Widget child) {
   return MaterialApp(
@@ -24,7 +24,7 @@ void main() {
         LsDeviceTile(
           glyph: const Icon(Icons.smartphone),
           name: 'Pixel 8',
-          meta: 'HTTP · 192.168.1.31',
+          meta: 'HTTP  192.168.1.31',
           onTap: () => taps++,
           onLongPress: () => longPresses++,
           onFavorite: () => favorites++,
@@ -104,7 +104,7 @@ void main() {
               itemBuilder: (context, index) => LsDeviceTile(
                 glyph: const Icon(Icons.smartphone),
                 name: 'Kai 的 iPhone 15 Pro Max',
-                meta: 'HTTP · 12 ms · iPhone 15 Pro · 192.168.100.200',
+                meta: 'HTTP  12 ms  iPhone 15 Pro  192.168.100.200',
                 onTap: () {},
               ),
             ),
@@ -115,5 +115,23 @@ void main() {
 
     // Overflow of the two-line name inside the 62 px cell would surface here.
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('favorite tile swaps the outline star for a filled one', (tester) async {
+    await tester.pumpWidget(
+      _host(
+        LsDeviceTile(
+          glyph: const Icon(Icons.smartphone),
+          name: 'Pixel 8',
+          meta: 'HTTP',
+          favorite: true,
+          onFavorite: () {},
+        ),
+      ),
+    );
+
+    // Lucide has no filled star, so the favorite state comes from the Material glyph.
+    expect(find.byIcon(Icons.star_rounded), findsOneWidget);
+    expect(find.byIcon(LucideIcons.star), findsNothing);
   });
 }

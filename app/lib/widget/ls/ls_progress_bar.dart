@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
+import 'package:sonar/config/design_tokens.dart';
 
 /// 4px accent progress bar of the redesign.
 class LsProgressBar extends StatelessWidget {
-  final double value;
+  /// `null` renders an indeterminate bar, e.g. while a request is in flight.
+  final double? value;
   final double height;
   final Color? color;
 
@@ -20,7 +21,7 @@ class LsProgressBar extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(999),
       child: LinearProgressIndicator(
-        value: value.clamp(0.0, 1.0),
+        value: value?.clamp(0.0, 1.0),
         minHeight: height,
         backgroundColor: colors.line,
         color: color ?? colors.accent,

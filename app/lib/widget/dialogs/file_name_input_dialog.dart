@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/theme.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_dialog.dart';
-import 'package:localsend_isolates/rust/api/filename.dart';
-import 'package:localsend_isolates/util/file_path_helper.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/theme.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_dialog.dart';
+import 'package:sonar_isolates/rust/api/filename.dart';
+import 'package:sonar_isolates/util/file_path_helper.dart';
 
 class FileNameInputDialog extends StatefulWidget {
   final String originalName;

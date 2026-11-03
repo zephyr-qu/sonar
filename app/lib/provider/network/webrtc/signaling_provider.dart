@@ -2,19 +2,19 @@ import 'dart:async';
 
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:localsend_app/provider/device_info_provider.dart';
-import 'package:localsend_app/provider/favorites_provider.dart';
-import 'package:localsend_app/provider/network/nearby_devices_provider.dart';
-import 'package:localsend_app/provider/network/webrtc/webrtc_receiver.dart';
-import 'package:localsend_app/provider/persistence_provider.dart';
-import 'package:localsend_app/provider/security_provider.dart';
-import 'package:localsend_app/provider/settings_provider.dart';
-import 'package:localsend_isolates/constants.dart';
-import 'package:localsend_isolates/model/device.dart';
-import 'package:localsend_isolates/rust/api/crypto.dart' as crypto;
-import 'package:localsend_isolates/rust/api/model.dart' as rust;
-import 'package:localsend_isolates/rust/api/webrtc.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/provider/device_info_provider.dart';
+import 'package:sonar/provider/favorites_provider.dart';
+import 'package:sonar/provider/network/nearby_devices_provider.dart';
+import 'package:sonar/provider/network/webrtc/webrtc_receiver.dart';
+import 'package:sonar/provider/persistence_provider.dart';
+import 'package:sonar/provider/security_provider.dart';
+import 'package:sonar/provider/settings_provider.dart';
+import 'package:sonar_isolates/constants.dart';
+import 'package:sonar_isolates/model/device.dart';
+import 'package:sonar_isolates/rust/api/crypto.dart' as crypto;
+import 'package:sonar_isolates/rust/api/model.dart' as rust;
+import 'package:sonar_isolates/rust/api/webrtc.dart';
 
 part 'signaling_provider.mapper.dart';
 

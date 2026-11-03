@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/widget/dialogs/custom_bottom_sheet.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/widget/dialogs/custom_bottom_sheet.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
 import 'package:system_settings_2/system_settings_2.dart';
 
 class LocalNetworkDialog extends StatelessWidget {

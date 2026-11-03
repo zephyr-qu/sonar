@@ -1,4 +1,4 @@
-import 'package:localsend_app/gen/strings.g.dart';
+import 'package:sonar/gen/strings.g.dart';
 
 /// Human readable "5 分钟前" for a past [time], used for devices that are not
 /// currently reachable. [now] exists for tests.

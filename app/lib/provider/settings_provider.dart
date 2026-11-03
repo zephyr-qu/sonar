@@ -1,17 +1,31 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/color_mode.dart';
-import 'package:localsend_app/model/persistence/nearby_layout.dart';
-import 'package:localsend_app/model/persistence/quick_save_mode.dart';
-import 'package:localsend_app/model/state/settings_state.dart';
-import 'package:localsend_app/provider/persistence_provider.dart';
-import 'package:localsend_app/provider/window_dimensions_provider.dart';
-import 'package:localsend_app/util/native/platform_check.dart';
-import 'package:localsend_isolates/isolate.dart';
-import 'package:localsend_isolates/model/device.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/persistence/color_mode.dart';
+import 'package:sonar/model/persistence/nearby_layout.dart';
+import 'package:sonar/model/persistence/quick_save_mode.dart';
+import 'package:sonar/model/state/settings_state.dart';
+import 'package:sonar/provider/persistence_provider.dart';
+import 'package:sonar/provider/window_dimensions_provider.dart';
+import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar_isolates/isolate.dart';
+import 'package:sonar_isolates/model/device.dart';
 import 'package:window_manager/window_manager.dart';
+
+/// The range a TCP port can bind.
+///
+/// The port field parses any number, and an unusable one would only surface
+/// later as a server that fails to start, with the value already persisted.
+const minPort = 1;
+const maxPort = 65535;
+
+/// Bounds for the discovery timeout in milliseconds.
+///
+/// Below the lower bound the scan gives up before a peer can answer, above the
+/// upper one it outlives the patience of the user waiting for the result.
+const minDiscoveryTimeout = 100;
+const maxDiscoveryTimeout = 60 * 1000;
 
 final _listEq = const ListEquality().equals;
 
@@ -123,9 +137,10 @@ class SettingsService extends PureNotifier<SettingsState> {
   }
 
   Future<void> setPort(int port) async {
-    await _persistence.setPort(port);
+    final value = port.clamp(minPort, maxPort);
+    await _persistence.setPort(value);
     state = state.copyWith(
-      port: port,
+      port: value,
     );
   }
 
@@ -144,9 +159,10 @@ class SettingsService extends PureNotifier<SettingsState> {
   }
 
   Future<void> setDiscoveryTimeout(int timeout) async {
-    await _persistence.setDiscoveryTimeout(timeout);
+    final value = timeout.clamp(minDiscoveryTimeout, maxDiscoveryTimeout);
+    await _persistence.setDiscoveryTimeout(value);
     state = state.copyWith(
-      discoveryTimeout: timeout,
+      discoveryTimeout: value,
     );
   }
 

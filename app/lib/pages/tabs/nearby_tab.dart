@@ -1,29 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/favorite_device.dart';
-import 'package:localsend_app/model/persistence/nearby_layout.dart';
-import 'package:localsend_app/pages/home_page.dart';
-import 'package:localsend_app/pages/home_page_controller.dart';
-import 'package:localsend_app/pages/settings_page.dart';
-import 'package:localsend_app/pages/tabs/nearby/nearby_desktop_view.dart';
-import 'package:localsend_app/pages/tabs/nearby/nearby_grid_view.dart';
-import 'package:localsend_app/pages/tabs/nearby/nearby_radar_view.dart';
-import 'package:localsend_app/pages/tabs/nearby/nearby_ui.dart';
-import 'package:localsend_app/pages/tabs/nearby_tab_vm.dart';
-import 'package:localsend_app/provider/animation_provider.dart';
-import 'package:localsend_app/provider/settings_provider.dart';
-import 'package:localsend_app/util/favorites.dart';
-import 'package:localsend_app/util/ui/snackbar.dart';
-import 'package:localsend_app/widget/desktop_scaffold.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_header.dart';
-import 'package:localsend_isolates/model/device.dart';
-import 'package:localsend_isolates/util/file_size_helper.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/cross_file.dart';
+import 'package:sonar/model/persistence/favorite_device.dart';
+import 'package:sonar/model/persistence/nearby_layout.dart';
+import 'package:sonar/pages/home_page.dart';
+import 'package:sonar/pages/home_page_controller.dart';
+import 'package:sonar/pages/settings_page.dart';
+import 'package:sonar/pages/tabs/nearby/nearby_desktop_view.dart';
+import 'package:sonar/pages/tabs/nearby/nearby_grid_view.dart';
+import 'package:sonar/pages/tabs/nearby/nearby_radar_view.dart';
+import 'package:sonar/pages/tabs/nearby/nearby_ui.dart';
+import 'package:sonar/pages/tabs/nearby_tab_vm.dart';
+import 'package:sonar/pages/web_share_page.dart';
+import 'package:sonar/provider/animation_provider.dart';
+import 'package:sonar/provider/selection/selected_sending_files_provider.dart';
+import 'package:sonar/provider/settings_provider.dart';
+import 'package:sonar/util/favorites.dart';
+import 'package:sonar/util/ui/snackbar.dart';
+import 'package:sonar/widget/desktop_scaffold.dart';
+import 'package:sonar/widget/dialogs/device_name_dialog.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_header.dart';
+import 'package:sonar_isolates/model/device.dart';
+import 'package:sonar_isolates/util/file_size_helper.dart';
 
 /// The "Nearby" tab of the redesign: signal header, pending files, device grid
 /// or radar layout depending on the persisted [NearbyLayout].
@@ -62,6 +66,10 @@ class _NearbyViewState extends State<_NearbyView> {
   /// Ephemeral view state of this page. Replaced through [NearbyUi.copyWith], never mutated in place.
   NearbyUi _ui = const NearbyUi.initial();
 
+  /// Non-null while the desktop share panel replaces the device grid.
+  /// `_webShareFiles == null` inside an open panel means "receive via link".
+  List<CrossFile>? _webShareFiles;
+  bool _webShareOpen = false;
   @override
   void dispose() {
     _query.dispose();
@@ -85,6 +93,7 @@ class _NearbyViewState extends State<_NearbyView> {
     onDeviceLongPress: _onDeviceLongPress,
     onToggleFavorite: _onToggleFavorite,
     onPickedCleared: () => setState(() => _ui = _ui.copyWith(picked: const <String>{}, clearMultiOverride: true)),
+    onOpenLink: _onOpenLink,
   );
 
   /// Puts the cursor in the search field. The tabs keep their state (and their focus)
@@ -121,10 +130,9 @@ class _NearbyViewState extends State<_NearbyView> {
       setState(() => _ui = _ui.toggled(device.fingerprint));
       return;
     }
+    // The multi-select bar at the bottom already reports the picked count, so no
+    // snackbar here — it would only duplicate it.
     _toggleMulti(preselect: device.fingerprint);
-    if (mounted) {
-      context.showSnackBar(t.nearbyTab.selected(n: _ui.picked.length));
-    }
   }
 
   Future<void> _onToggleFavorite(Device device) async {
@@ -132,6 +140,20 @@ class _NearbyViewState extends State<_NearbyView> {
     if (mounted) {
       context.showSnackBar(nowFavorite ? t.nearbyTab.favorited : t.nearbyTab.unfavorited);
     }
+  }
+
+  /// Mobile pushes the share page; desktop swaps the grid for the panel so the
+  /// rail and the device header stay reachable while a link is shared.
+  Future<void> _onOpenLink(BuildContext context) async {
+    if (!widget.desktop) {
+      await vm.onOpenLink(context);
+      return;
+    }
+    final files = context.read(selectedSendingFilesProvider);
+    setState(() {
+      _webShareFiles = files.isEmpty ? null : files;
+      _webShareOpen = true;
+    });
   }
 
   @override
@@ -177,13 +199,18 @@ class _NearbyViewState extends State<_NearbyView> {
           children: [
             _desktopHeader(context),
             Expanded(
-              child: LsDesktopLayout(
-                content: ListView(
-                  padding: const EdgeInsets.fromLTRB(22, 18, 22, 26),
-                  children: view.content(context, favoritesSection, onlineSection, offlineSection),
-                ),
-                aside: view.aside(context),
-              ),
+              child: _webShareOpen
+                  ? WebSharePanel(
+                      files: _webShareFiles,
+                      onClosed: () => setState(() => _webShareOpen = false),
+                    )
+                  : LsDesktopLayout(
+                      content: ListView(
+                        padding: const EdgeInsets.fromLTRB(22, 18, 22, 26),
+                        children: view.content(context, favoritesSection, onlineSection, offlineSection),
+                      ),
+                      aside: view.aside(context),
+                    ),
             ),
           ],
         ),
@@ -235,6 +262,8 @@ class _NearbyViewState extends State<_NearbyView> {
     return LsScreenHeader(
       mark: const Icon(LucideIcons.radar),
       title: vm.alias,
+      titleTooltip: t.settingsTab.network.alias,
+      onTitleTap: () => showDeviceNameDialog(context),
       subtitle: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -242,7 +271,7 @@ class _NearbyViewState extends State<_NearbyView> {
           const SizedBox(width: 5),
           Flexible(
             child: Text(
-              '${vm.visible ? t.nearbyTab.visible : t.nearbyTab.hidden} · $ip',
+              '${vm.visible ? t.nearbyTab.visible : t.nearbyTab.hidden}  $ip',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: tokens.mono,
@@ -302,7 +331,7 @@ class _NearbyViewState extends State<_NearbyView> {
                   style: tokens.bodyStrong,
                 ),
                 Text(
-                  '${files.length} · ${totalSize.asReadableFileSize}',
+                  '${files.length}  ${totalSize.asReadableFileSize}',
                   style: tokens.mono,
                 ),
               ],

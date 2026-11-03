@@ -40,7 +40,7 @@ class TranslationsCs extends Translations with BaseTranslations<AppLocale, Trans
 
   // Translations
   @override
-  String get appName => 'LocalSend';
+  String get appName => 'Sonar';
   @override
   late final _Translations$general$cs general = _Translations$general$cs._(_root);
   @override
@@ -275,7 +275,7 @@ class _Translations$networkInterfacesPage$cs extends Translations$networkInterfa
   String get title => 'Síťová rozhraní';
   @override
   String get info =>
-      'Ve výchozím nastavení používá LocalSend všechna dostupná síťová rozhraní. Zde můžete vyloučit nežádoucí sítě. Chcete-li použít změny, musíte restartovat server.';
+      'Ve výchozím nastavení používá Sonar všechna dostupná síťová rozhraní. Zde můžete vyloučit nežádoucí sítě. Chcete-li použít změny, musíte restartovat server.';
   @override
   String get preview => 'Náhled';
   @override
@@ -400,7 +400,7 @@ class _Translations$receiveOptionsPage$cs extends Translations$receiveOptionsPag
   @override
   String get destination => _root.settingsTab.receive.destination;
   @override
-  String get appDirectory => '(LocalSend folder)';
+  String get appDirectory => '(Sonar folder)';
   @override
   String get saveToGallery => _root.settingsTab.receive.saveToGallery;
   @override
@@ -479,7 +479,7 @@ class _Translations$webSharePage$cs extends Translations$webSharePage$en {
   @override
   String pinHint({required Object pin}) => 'PIN je "${pin}"';
   @override
-  String get encryptionHint => 'LocalSend používá self-signed certifikát. Musíte ho přijmout ve vašem prohlížeči.';
+  String get encryptionHint => 'Sonar používá self-signed certifikát. Musíte ho přijmout ve vašem prohlížeči.';
   @override
   String pendingRequests({required Object n}) => 'Čekající žádosti: ${n}';
 }
@@ -503,10 +503,10 @@ class _Translations$aboutPage$cs extends Translations$aboutPage$en {
 
   // Translations
   @override
-  String get title => 'O aplikaci LocalSend';
+  String get title => 'O aplikaci Sonar';
   @override
   List<String> get description => [
-    'LocalSend je bezplatná aplikace s otevřeným zdrojovým kódem, která vám umožňuje bezpečně sdílet soubory a zprávy s okolními zařízeními přes vaši místní síť, aniž byste potřebovali připojení k internetu.',
+    'Sonar je bezplatná aplikace s otevřeným zdrojovým kódem, která vám umožňuje bezpečně sdílet soubory a zprávy s okolními zařízeními přes vaši místní síť, aniž byste potřebovali připojení k internetu.',
     'Tato aplikace je dostupná pro Android, iOS, macOS, Windows a Linux. Všechny možnosti stahování najdete na oficiální domovské stránce.',
   ];
   @override
@@ -529,7 +529,7 @@ class _Translations$donationPage$cs extends Translations$donationPage$en {
   @override
   String get title => 'Darovat';
   @override
-  String get info => 'LocalSend je zdarma, open source a bez reklam. Pokud se vám aplikace líbí, můžete její vývoj podpořit darem.';
+  String get info => 'Sonar je zdarma, open source a bez reklam. Pokud se vám aplikace líbí, můžete její vývoj podpořit darem.';
   @override
   String donate({required Object amount}) => 'Darovat ${amount}';
   @override
@@ -643,7 +643,7 @@ class _Translations$tray$cs extends Translations$tray$en {
   @override
   String get open => _root.general.open;
   @override
-  String get close => 'Ukončit LocalSend';
+  String get close => 'Ukončit Sonar';
   @override
   String get closeWindows => 'Konec';
 }
@@ -850,7 +850,7 @@ class _Translations$settingsTab$general$cs extends Translations$settingsTab$gene
   @override
   String get launchMinimized => 'Automatické spuštění: skrytý start';
   @override
-  String get showInContextMenu => 'Zobrazit LocalSend v kontextové nabídce';
+  String get showInContextMenu => 'Zobrazit Sonar v kontextové nabídce';
   @override
   String get animations => 'Animace';
 }
@@ -952,7 +952,7 @@ class _Translations$settingsTab$other$cs extends Translations$settingsTab$other$
   @override
   String get title => 'Ostatní';
   @override
-  String get support => 'Podpora LocalSend';
+  String get support => 'Podpora Sonar';
   @override
   String get donate => 'Darovat';
   @override
@@ -1307,8 +1307,7 @@ class _Translations$dialogs$localNetworkUnauthorized$cs extends Translations$dia
   @override
   String get title => _root.dialogs.noPermission.title;
   @override
-  String get description =>
-      'LocalSend nemůže najít jiná zařízení, aniž by měl oprávnění skenovat místní síť. Udělte prosím toto oprávnění v nastavení.';
+  String get description => 'Sonar nemůže najít jiná zařízení, aniž by měl oprávnění skenovat místní síť. Udělte prosím toto oprávnění v nastavení.';
   @override
   String get gotoSettings => 'Nastavení';
 }

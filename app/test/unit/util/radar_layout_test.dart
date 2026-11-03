@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:localsend_app/util/radar_layout.dart';
+import 'package:sonar/util/radar_layout.dart';
 
 (double, double) _center(RadarSlot slot) => (
   math.cos(slot.angle * math.pi / 180) * slot.radius,

@@ -1,8 +1,8 @@
+use crate::http::server::common::collect_to_json::CollectToJson;
 use crate::http::server::common::error::AppError;
 use crate::http::server::common::query::parse_query;
 use crate::http::server::common::response::{empty_body, BoxedBody};
 use crate::http::server::AppState;
-use http_body_util::BodyExt;
 use hyper::body::Incoming;
 use hyper::{Request, Response, StatusCode};
 use serde::Deserialize;
@@ -63,7 +63,7 @@ pub(crate) async fn show(
         ));
     }
 
-    let body = req.into_body().collect().await?.to_bytes();
+    let body = req.into_body().collect_json_bytes().await?;
     let payload = if body.is_empty() {
         ShowRequest::default()
     } else {

@@ -1,1 +1,1 @@
-Add-AppxPackage .\localsend_msix_helper.msix -ExternalLocation $(Get-Location)
+Add-AppxPackage .\sonar_msix_helper.msix -ExternalLocation $(Get-Location)

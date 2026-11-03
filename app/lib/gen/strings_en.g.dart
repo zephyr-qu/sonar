@@ -43,8 +43,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
   // Translations
 
-  /// en: 'LocalSend'
-  String get appName => 'LocalSend';
+  /// en: 'Sonar'
+  String get appName => 'Sonar';
 
   late final Translations$general$en general = Translations$general$en.internal(_root);
   late final Translations$receiveTab$en receiveTab = Translations$receiveTab$en.internal(_root);
@@ -287,11 +287,11 @@ class Translations$nearbyTab$en {
   /// en: 'Be visible to this network'
   String get show => 'Be visible to this network';
 
-  /// en: '{online} online · {total} discovered'
-  String online({required Object online, required Object total}) => '${online} online · ${total} discovered';
+  /// en: '{online} online {total} discovered'
+  String online({required Object online, required Object total}) => '${online} online  ${total} discovered';
 
-  /// en: 'online · {total} discovered'
-  String onlineSuffix({required Object total}) => 'online · ${total} discovered';
+  /// en: 'online {total} discovered'
+  String onlineSuffix({required Object total}) => 'online  ${total} discovered';
 
   /// en: 'Scan again'
   String get scan => 'Scan again';
@@ -329,8 +329,14 @@ class Translations$nearbyTab$en {
   /// en: 'Send'
   String get send => 'Send';
 
-  /// en: 'To send · {files} · {size}'
-  String pending({required Object files, required Object size}) => 'To send · ${files} · ${size}';
+  /// en: 'Requesting {device}…'
+  String requesting({required Object device}) => 'Requesting ${device}…';
+
+  /// en: 'Requesting {n} devices…'
+  String requestingMany({required Object n}) => 'Requesting ${n} devices…';
+
+  /// en: 'To send {files} · {size}'
+  String pending({required Object files, required Object size}) => 'To send ${files} · ${size}';
 
   /// en: 'Add file'
   String get addFile => 'Add file';
@@ -350,6 +356,9 @@ class Translations$nearbyTab$en {
   /// en: 'Online'
   String get onlineSection => 'Online';
 
+  /// en: 'Other online'
+  String get onlineSectionOthers => 'Other online';
+
   /// en: 'Offline'
   String get offlineSection => 'Offline';
 
@@ -365,8 +374,8 @@ class Translations$nearbyTab$en {
   /// en: 'No matching devices'
   String get noMatch => 'No matching devices';
 
-  /// en: 'No devices found yet. Make sure the other device is on the same network.'
-  String get noDevices => 'No devices found yet. Make sure the other device is on the same network.';
+  /// en: 'No devices found yet. Check that both devices are on the same network.'
+  String get noDevices => 'No devices found yet. Check that both devices are on the same network.';
 
   /// en: '{shown} of {total} shown'
   String radarHidden({required Object shown, required Object total}) => '${shown} of ${total} shown';
@@ -380,17 +389,20 @@ class Translations$nearbyTab$en {
   /// en: 'Visible to this network'
   String get visibleToast => 'Visible to this network';
 
-  /// en: 'Hidden · only link reception works'
-  String get hiddenToast => 'Hidden · only link reception works';
+  /// en: 'Hidden link reception only'
+  String get hiddenToast => 'Hidden  link reception only';
 
   /// en: 'No files selected'
   String get filesEmpty => 'No files selected';
 
-  /// en: 'Tray'
-  String get tray => 'Tray';
+  /// en: 'Files to send'
+  String get tray => 'Files to send';
 
   /// en: 'In progress'
   String get inProgress => 'In progress';
+
+  /// en: '{n} more failed'
+  String moreFailures({required Object n}) => '${n} more failed';
 
   /// en: 'Receive policy'
   String get receivePolicy => 'Receive policy';
@@ -401,8 +413,8 @@ class Translations$nearbyTab$en {
   /// en: 'Drop files here'
   String get dropHere => 'Drop files here';
 
-  /// en: 'or click to choose files / folders'
-  String get dropHint => 'or click to choose files / folders';
+  /// en: 'or click to choose a file or folder'
+  String get dropHint => 'or click to choose a file or folder';
 
   /// en: '{online} online'
   String desktopLede({required Object online}) => '${online} online';
@@ -434,17 +446,20 @@ class Translations$transferTab$en {
   /// en: '{n} active'
   String inProgress({required Object n}) => '${n} active';
 
-  /// en: '{n} in history'
-  String historyCount({required Object n}) => '${n} in history';
-
   /// en: 'NO ACTIVE TRANSFER'
   String get noActive => 'NO ACTIVE TRANSFER';
 
-  /// en: 'Pick a device in Nearby to start, or accept an incoming request.'
-  String get noActiveHint => 'Pick a device in Nearby to start, or accept an incoming request.';
+  /// en: 'Pick a device in Nearby, or accept an incoming request.'
+  String get noActiveHint => 'Pick a device in Nearby, or accept an incoming request.';
+
+  /// en: 'Auto receive'
+  String get autoReceive => 'Auto receive';
 
   /// en: 'Recent transfers'
   String get recent => 'Recent transfers';
+
+  /// en: 'Failed'
+  String get failed => 'Failed';
 
   /// en: 'Sending to {device}'
   String sending({required Object device}) => 'Sending to ${device}';
@@ -476,8 +491,8 @@ class Translations$transferTab$en {
   /// en: '{time} left'
   String remaining({required Object time}) => '${time} left';
 
-  /// en: '{speed} MB/s'
-  String speed({required Object speed}) => '${speed} MB/s';
+  /// en: '{speed}/s'
+  String speed({required Object speed}) => '${speed}/s';
 
   /// en: '{n} items'
   String items({required Object n}) => '${n} items';
@@ -485,17 +500,14 @@ class Translations$transferTab$en {
   /// en: 'No transfers yet'
   String get noHistory => 'No transfers yet';
 
-  /// en: 'History: {files} files · {sessions} transfers'
-  String historySummary({required Object files, required Object sessions}) => 'History: ${files} files · ${sessions} transfers';
-
   /// en: 'Today'
   String get today => 'Today';
 
   /// en: 'Yesterday'
   String get yesterday => 'Yesterday';
 
-  /// en: 'Search these {n} files'
-  String searchInSession({required Object n}) => 'Search these ${n} files';
+  /// en: 'Search {n} files'
+  String searchInSession({required Object n}) => 'Search ${n} files';
 
   /// en: 'All {n}'
   String allItems({required Object n}) => 'All ${n}';
@@ -506,8 +518,8 @@ class Translations$transferTab$en {
   /// en: 'Videos'
   String get typeVideo => 'Videos';
 
-  /// en: 'PDFs'
-  String get typePdf => 'PDFs';
+  /// en: 'PDF'
+  String get typePdf => 'PDF';
 
   /// en: 'Text'
   String get typeText => 'Text';
@@ -518,9 +530,6 @@ class Translations$transferTab$en {
   /// en: 'Other'
   String get typeOther => 'Other';
 
-  /// en: 'Sort · {mode}'
-  String sortBy({required Object mode}) => 'Sort · ${mode}';
-
   /// en: 'Date ↓'
   String get sortDate => 'Date ↓';
 
@@ -529,6 +538,9 @@ class Translations$transferTab$en {
 
   /// en: 'Size ↓'
   String get sortSize => 'Size ↓';
+
+  /// en: 'Sort'
+  String get sort => 'Sort';
 
   /// en: 'Grid'
   String get gridView => 'Grid';
@@ -544,9 +556,6 @@ class Translations$transferTab$en {
 
   /// en: 'Sent'
   String get sent => 'Sent';
-
-  /// en: 'Newest first · tap a row to open that transfer'
-  String get historyHint => 'Newest first · tap a row to open that transfer';
 }
 
 // Path: settingsPage
@@ -557,17 +566,11 @@ class Translations$settingsPage$en {
 
   // Translations
 
-  /// en: 'Search {count} settings'
-  String search({required Object count}) => 'Search ${count} settings';
-
   /// en: 'No settings match "{query}"'
   String noResults({required Object query}) => 'No settings match "${query}"';
 
   /// en: '{n} items'
   String items({required Object n}) => '${n} items';
-
-  /// en: '{n} groups'
-  String groups({required Object n}) => '${n} groups';
 
   /// en: 'Visible to this network'
   String get visibleToNetwork => 'Visible to this network';
@@ -622,9 +625,6 @@ class Translations$settingsPage$en {
 
   /// en: 'Search settings'
   String get searchHint => 'Search settings';
-
-  /// en: '{n} settings'
-  String totalItems({required Object n}) => '${n} settings';
 }
 
 // Path: receiveRequestPage
@@ -638,8 +638,8 @@ class Translations$receiveRequestPage$en {
   /// en: 'Incoming request'
   String get title => 'Incoming request';
 
-  /// en: 'Quick save · accept automatically'
-  String get policyQuickSave => 'Quick save · accept automatically';
+  /// en: 'Quick Save is on'
+  String get policyQuickSave => 'Quick Save is on';
 
   /// en: 'Favorites are accepted automatically'
   String get policyQuickSaveFavorites => 'Favorites are accepted automatically';
@@ -675,27 +675,20 @@ class Translations$receiveRequestPage$en {
   /// en: 'Device fingerprint'
   String get fingerprint => 'Device fingerprint';
 
-  /// en: 'SHA-256 · should match the previous session'
-  String get fingerprintDesc => 'SHA-256 · should match the previous session';
+  /// en: 'Should match the previous session'
+  String get fingerprintDesc => 'Should match the previous session';
 
   /// en: 'Channel'
   String get channel => 'Channel';
 
-  /// en: 'v2 HTTP · mutual TLS'
-  String get channelTls => 'v2 HTTP · mutual TLS';
+  /// en: 'HTTPS'
+  String get channelTls => 'HTTPS';
 
-  /// en: 'v2 HTTP · no encryption'
-  String get channelPlain => 'v2 HTTP · no encryption';
+  /// en: 'HTTP'
+  String get channelPlain => 'HTTP';
 
-  /// en: 'Same local network'
-  String get sameNetwork => 'Same local network';
-
-  /// en: '(one) {Receive {n} item} (other) {Receive {n} items}'
-  String acceptFiles({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(
-    n,
-    one: 'Receive ${n} item',
-    other: 'Receive ${n} items',
-  );
+  /// en: 'Receive'
+  String get accept => 'Receive';
 
   /// en: 'Decline'
   String get reject => _root.general.decline;
@@ -737,9 +730,9 @@ class Translations$networkInterfacesPage$en {
   /// en: 'Network Interfaces'
   String get title => 'Network Interfaces';
 
-  /// en: 'By default, LocalSend uses all available network interfaces. You can exclude unwanted networks here. You need to restart the server to apply the changes.'
+  /// en: 'By default, Sonar uses all available network interfaces. You can exclude unwanted networks here. You need to restart the server to apply the changes.'
   String get info =>
-      'By default, LocalSend uses all available network interfaces. You can exclude unwanted networks here. You need to restart the server to apply the changes.';
+      'By default, Sonar uses all available network interfaces. You can exclude unwanted networks here. You need to restart the server to apply the changes.';
 
   /// en: 'Preview'
   String get preview => 'Preview';
@@ -824,6 +817,9 @@ class Translations$deviceDetailsPage$en {
   /// en: 'Favorite'
   String get favorite => 'Favorite';
 
+  /// en: 'Remove from favorites'
+  String get unfavorite => 'Remove from favorites';
+
   /// en: 'Verify'
   String get verify => 'Verify';
 
@@ -891,8 +887,8 @@ class Translations$receiveOptionsPage$en {
   /// en: 'Save to folder'
   String get destination => _root.settingsTab.receive.destination;
 
-  /// en: '(LocalSend folder)'
-  String get appDirectory => '(LocalSend folder)';
+  /// en: '(Sonar folder)'
+  String get appDirectory => '(Sonar folder)';
 
   /// en: 'Save media to gallery'
   String get saveToGallery => _root.settingsTab.receive.saveToGallery;
@@ -914,6 +910,9 @@ class Translations$sendPage$en {
 
   /// en: 'Waiting for response…'
   String get waiting => 'Waiting for response…';
+
+  /// en: 'The other device did not respond. Is the app still running and reachable?'
+  String get noResponse => 'The other device did not respond. Is the app still running and reachable?';
 
   /// en: 'The recipient has rejected the request.'
   String get rejected => 'The recipient has rejected the request.';
@@ -991,8 +990,8 @@ class Translations$webSharePage$en {
   /// en: 'The PIN is "{pin}"'
   String pinHint({required Object pin}) => 'The PIN is "${pin}"';
 
-  /// en: 'LocalSend uses a self-signed certificate. You need to accept it in your browser.'
-  String get encryptionHint => 'LocalSend uses a self-signed certificate. You need to accept it in your browser.';
+  /// en: 'Sonar uses a self-signed certificate. You need to accept it in your browser.'
+  String get encryptionHint => 'Sonar uses a self-signed certificate. You need to accept it in your browser.';
 
   /// en: 'Pending requests: {n}'
   String pendingRequests({required Object n}) => 'Pending requests: ${n}';
@@ -1024,16 +1023,19 @@ class Translations$aboutPage$en {
 
   // Translations
 
-  /// en: 'About LocalSend'
-  String get title => 'About LocalSend';
+  /// en: 'About Sonar'
+  String get title => 'About Sonar';
 
   List<String> get description => [
-    'LocalSend is a free, open-source app that allows you to securely share files and messages with nearby devices over your local network without needing an internet connection.',
+    'Sonar is a free, open-source app that allows you to securely share files and messages with nearby devices over your local network without needing an internet connection.',
     'This app is available on Android, iOS, macOS, Windows and Linux. You can find all download options on the official homepage.',
   ];
 
   /// en: 'Author'
   String get author => 'Author';
+
+  /// en: 'Original author'
+  String get originalAuthor => 'Original author';
 
   /// en: 'Contributors'
   String get contributors => 'Contributors';
@@ -1056,8 +1058,8 @@ class Translations$donationPage$en {
   /// en: 'Donate'
   String get title => 'Donate';
 
-  /// en: 'LocalSend is free, open-source and without any ads. If you like the app, you can support the development with a donation.'
-  String get info => 'LocalSend is free, open-source and without any ads. If you like the app, you can support the development with a donation.';
+  /// en: 'Sonar is free, open-source and without any ads. If you like the app, you can support the development with a donation.'
+  String get info => 'Sonar is free, open-source and without any ads. If you like the app, you can support the development with a donation.';
 
   /// en: 'Donate {amount}'
   String donate({required Object amount}) => 'Donate ${amount}';
@@ -1241,8 +1243,8 @@ class Translations$tray$en {
   /// en: 'Open'
   String get open => _root.general.open;
 
-  /// en: 'Quit LocalSend'
-  String get close => 'Quit LocalSend';
+  /// en: 'Quit Sonar'
+  String get close => 'Quit Sonar';
 
   /// en: 'Exit'
   String get closeWindows => 'Exit';
@@ -1626,6 +1628,15 @@ class Translations$settingsTab$network$en {
   /// en: 'Generate random alias'
   String get generateRandomAlias => 'Generate random alias';
 
+  /// en: 'The device name cannot be empty.'
+  String get aliasInvalid => 'The device name cannot be empty.';
+
+  /// en: 'The device name cannot be longer than {maxLength} characters.'
+  String aliasTooLong({required Object maxLength}) => 'The device name cannot be longer than ${maxLength} characters.';
+
+  /// en: 'The device name cannot contain control characters.'
+  String get aliasInvalidCharacters => 'The device name cannot contain control characters.';
+
   /// en: 'You might not be detected by other devices because you are using a custom port. (default: {defaultPort})'
   String portWarning({required Object defaultPort}) =>
       'You might not be detected by other devices because you are using a custom port. (default: ${defaultPort})';
@@ -1652,8 +1663,8 @@ class Translations$settingsTab$other$en {
   /// en: 'Other'
   String get title => 'Other';
 
-  /// en: 'Support LocalSend'
-  String get support => 'Support LocalSend';
+  /// en: 'Support Sonar'
+  String get support => 'Support Sonar';
 
   /// en: 'Donate'
   String get donate => 'Donate';
@@ -1891,6 +1902,15 @@ class Translations$dialogs$addressInput$en {
 
   /// en: 'Recently used: '
   String get recentlyUsed => 'Recently used: ';
+
+  /// en: 'Enter a valid IPv4 or IPv6 address.'
+  String get invalidIp => 'Enter a valid IPv4 or IPv6 address.';
+
+  /// en: 'Enter a number between 1 and 254.'
+  String get invalidHashtag => 'Enter a number between 1 and 254.';
+
+  /// en: 'Last part only, e.g. 123'
+  String get hashtagHint => 'Last part only, e.g. 123';
 }
 
 // Path: dialogs.cancelSession
@@ -2084,9 +2104,9 @@ class Translations$dialogs$localNetworkUnauthorized$en {
   /// en: 'No permission'
   String get title => _root.dialogs.noPermission.title;
 
-  /// en: 'LocalSend can't find other devices without having the permission to scan the local network. Please grant this permission in the settings.'
+  /// en: 'Sonar can't find other devices without having the permission to scan the local network. Please grant this permission in the settings.'
   String get description =>
-      'LocalSend can\'t find other devices without having the permission to scan the local network. Please grant this permission in the settings.';
+      'Sonar can\'t find other devices without having the permission to scan the local network. Please grant this permission in the settings.';
 
   /// en: 'Settings'
   String get gotoSettings => 'Settings';
@@ -2232,6 +2252,9 @@ class Translations$dialogs$pin$en {
 
   /// en: 'Enter PIN'
   String get title => 'Enter PIN';
+
+  /// en: 'Letters and digits only, up to {maxLength} characters'
+  String hint({required Object maxLength}) => 'Letters and digits only, up to ${maxLength} characters';
 }
 
 // Path: dialogs.zoom

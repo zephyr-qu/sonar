@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/assets.gen.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/util/ui/nav_bar_padding.dart';
-import 'package:localsend_app/widget/ls/ls_header.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/assets.gen.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/util/ui/nav_bar_padding.dart';
+import 'package:sonar/widget/ls/ls_header.dart';
 
 class ChangelogPage extends StatelessWidget {
   const ChangelogPage();

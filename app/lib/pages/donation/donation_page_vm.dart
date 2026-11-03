@@ -1,17 +1,16 @@
-import 'package:localsend_app/model/state/purchase_state.dart';
-// [FOSS_REMOVE_START]
-import 'package:localsend_app/provider/purchase_provider.dart';
-// [FOSS_REMOVE_END]
-import 'package:localsend_app/util/native/platform_check.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/model/state/purchase_state.dart';
+// [FOSS_REMOVE_START]
+import 'package:sonar/provider/purchase_provider.dart';
+// [FOSS_REMOVE_END]
+import 'package:sonar/util/native/platform_check.dart';
 
 class DonationPageVm {
   final bool platformSupportPayment;
   final Map<PurchaseItem, String> prices;
   final Set<PurchaseItem> purchased;
   final bool pending;
-  final void Function(PurchaseItem item) purchase;
-  final void Function() restore;
+  final Future<void> Function(PurchaseItem item) purchase;
 
   DonationPageVm({
     required this.platformSupportPayment,
@@ -19,7 +18,6 @@ class DonationPageVm {
     required this.purchased,
     required this.pending,
     required this.purchase,
-    required this.restore,
   });
 }
 
@@ -32,7 +30,6 @@ final donationPageVmProvider = ViewProvider<DonationPageVm>((ref) {
     purchased: state.purchases,
     pending: state.pending,
     purchase: (item) => ref.redux(purchaseProvider).dispatchAsync(PurchaseAction(item)),
-    restore: () => ref.redux(purchaseProvider).dispatchAsync(PurchaseRestoreAction()),
   );
 });
 // [FOSS_REMOVE_END]
@@ -45,7 +42,6 @@ final donationPageNoopVmProvider = ViewProvider<DonationPageVm>((ref) {
     prices: {},
     purchased: {},
     pending: false,
-    purchase: (_) {},
-    restore: () {},
+    purchase: (_) async {},
   );
 });

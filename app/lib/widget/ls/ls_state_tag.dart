@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
+import 'package:sonar/config/design_tokens.dart';
 
 /// A read-only capsule that shows the state of a setting without spelling out
 /// "on"/"off": filled accent when enabled, outlined hairline when disabled.

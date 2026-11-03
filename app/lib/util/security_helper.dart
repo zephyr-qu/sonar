@@ -1,5 +1,5 @@
-import 'package:localsend_isolates/model/stored_security_context.dart';
-import 'package:localsend_isolates/rust/api/crypto.dart' as rust;
+import 'package:sonar_isolates/model/stored_security_context.dart';
+import 'package:sonar_isolates/rust/api/crypto.dart' as rust;
 
 /// Generates a random [StoredSecurityContext].
 Future<StoredSecurityContext> generateSecurityContext() async {

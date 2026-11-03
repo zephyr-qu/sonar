@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:localsend_app/pages/home_page.dart';
-import 'package:localsend_app/pages/home_page_controller.dart';
-import 'package:localsend_app/pages/settings_page.dart';
-import 'package:localsend_app/util/native/file_picker.dart';
-import 'package:localsend_app/util/native/platform_check.dart';
-import 'package:localsend_app/util/native/tray_helper.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/pages/home_page.dart';
+import 'package:sonar/pages/home_page_controller.dart';
+import 'package:sonar/pages/settings_page.dart';
+import 'package:sonar/util/native/file_picker.dart';
+import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar/util/native/tray_helper.dart';
 
 class ShortcutWatcher extends StatelessWidget {
   final Widget child;

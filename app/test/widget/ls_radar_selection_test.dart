@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/config/theme.dart';
-import 'package:localsend_app/model/persistence/color_mode.dart';
-import 'package:localsend_app/widget/ls/ls_radar.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/config/theme.dart';
+import 'package:sonar/model/persistence/color_mode.dart';
+import 'package:sonar/widget/ls/ls_radar.dart';
 
 Widget _host(Widget child) {
   return MaterialApp(
@@ -105,5 +106,63 @@ void main() {
     expect(longPresses, 1);
     // The tooltip is skipped for peers that own the long press gesture.
     expect(find.byType(Tooltip), findsNothing);
+  });
+
+  testWidgets('tapping a radar peer label reports the label tap, not the bubble tap', (tester) async {
+    var taps = 0;
+    var labelTaps = 0;
+    await tester.pumpWidget(
+      _host(
+        LsRadar(
+          size: 320,
+          animate: false,
+          center: const SizedBox(width: 76, height: 76),
+          peers: [
+            LsRadarPeer(
+              child: const Icon(Icons.devices),
+              label: 'Pixel 8',
+              angle: -90,
+              radius: 108,
+              onTap: () => taps++,
+              onLabelTap: () => labelTaps++,
+            ),
+          ],
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Pixel 8'));
+    await tester.pumpAndSettle();
+
+    expect(labelTaps, 1);
+    expect(taps, 0);
+  });
+
+  testWidgets('only a peer that owns a label tap gets the details pill', (tester) async {
+    await tester.pumpWidget(_host(_radar(selected: false)));
+    expect(find.text('Pixel 8'), findsOneWidget);
+    expect(find.byIcon(LucideIcons.info), findsNothing);
+
+    await tester.pumpWidget(
+      _host(
+        LsRadar(
+          size: 320,
+          animate: false,
+          center: const SizedBox(width: 76, height: 76),
+          peers: [
+            LsRadarPeer(
+              child: const Icon(Icons.devices),
+              label: 'Pixel 8',
+              angle: -90,
+              radius: 108,
+              onLabelTap: () {},
+            ),
+          ],
+        ),
+      ),
+    );
+
+    expect(find.text('Pixel 8'), findsOneWidget);
+    expect(find.byIcon(LucideIcons.info), findsOneWidget);
   });
 }

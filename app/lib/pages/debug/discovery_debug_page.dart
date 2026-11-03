@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:localsend_app/provider/logging/discovery_logs_provider.dart';
-import 'package:localsend_app/provider/network/nearby_devices_provider.dart';
-import 'package:localsend_app/util/ui/snackbar.dart';
-import 'package:localsend_app/widget/copyable_text.dart';
-import 'package:localsend_app/widget/ls/ls_scaffold.dart';
-import 'package:localsend_app/widget/responsive_list_view.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/provider/logging/discovery_logs_provider.dart';
+import 'package:sonar/provider/network/nearby_devices_provider.dart';
+import 'package:sonar/util/ui/snackbar.dart';
+import 'package:sonar/widget/copyable_text.dart';
+import 'package:sonar/widget/ls/ls_scaffold.dart';
+import 'package:sonar/widget/responsive_list_view.dart';
 
 final _dateFormat = DateFormat.Hms();
 

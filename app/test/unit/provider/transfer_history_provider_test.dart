@@ -1,8 +1,8 @@
-import 'package:localsend_app/model/persistence/transfer_history_session.dart';
-import 'package:localsend_app/provider/transfer_history_provider.dart';
-import 'package:localsend_isolates/model/file_type.dart';
 import 'package:mockito/mockito.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/model/persistence/transfer_history_session.dart';
+import 'package:sonar/provider/transfer_history_provider.dart';
+import 'package:sonar_isolates/model/file_type.dart';
 import 'package:test/test.dart';
 
 import '../../mocks.mocks.dart';
@@ -42,17 +42,31 @@ void main() {
     verifyNever(persistenceService.setTransferHistory(any));
   });
 
-  test('Should not add the same session twice', () async {
-    final session = _createSession('1');
+  test('Should read a session stored before the outcome was recorded', () {
+    final stored = _createSession('1').toJson()
+      ..remove('failed')
+      ..remove('errorMessage');
+
+    final restored = TransferHistorySession.fromJson(stored);
+
+    expect(restored.failed, isFalse);
+    expect(restored.errorMessage, isNull);
+  });
+
+  test('Should keep one record per session when it finishes twice', () async {
+    final failed = _createSession('1', failed: true, errorMessage: 'No response');
     final service = ReduxNotifier.test(
       redux: TransferHistoryService(persistenceService),
-      initialState: [session],
+      initialState: [failed],
     );
 
-    await service.dispatchAsync(AddTransferHistorySessionAction(_createSession('1')));
+    // A failed send can be retried: the newer outcome replaces the older one
+    // instead of leaving a failed row next to a delivered one.
+    final delivered = _createSession('1');
+    await service.dispatchAsync(AddTransferHistorySessionAction(delivered));
 
-    expect(service.state, [session]);
-    verifyNever(persistenceService.setTransferHistory(any));
+    expect(service.state, [delivered]);
+    verify(persistenceService.setTransferHistory([delivered]));
   });
 
   test('Should keep the newest session first', () async {
@@ -151,6 +165,8 @@ TransferHistorySession _createSession(
   String id, {
   DateTime? timestamp,
   int fileCount = 1,
+  bool failed = false,
+  String? errorMessage,
 }) {
   return TransferHistorySession(
     id: id,
@@ -170,5 +186,7 @@ TransferHistorySession _createSession(
           modified: null,
         ),
     ],
+    failed: failed,
+    errorMessage: errorMessage,
   );
 }

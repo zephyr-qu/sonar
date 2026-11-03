@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/cross_file.dart';
-import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
-import 'package:localsend_app/util/native/open_file.dart';
-import 'package:localsend_app/util/ui/nav_bar_padding.dart';
-import 'package:localsend_app/widget/dialogs/message_input_dialog.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_card.dart';
-import 'package:localsend_app/widget/ls/ls_header.dart';
-import 'package:localsend_app/widget/ls/ls_section_label.dart';
-import 'package:localsend_app/widget/ls/ls_tile.dart';
-import 'package:localsend_isolates/model/file_type.dart';
-import 'package:localsend_isolates/util/file_size_helper.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/cross_file.dart';
+import 'package:sonar/provider/selection/selected_sending_files_provider.dart';
+import 'package:sonar/util/native/open_file.dart';
+import 'package:sonar/util/ui/nav_bar_padding.dart';
+import 'package:sonar/widget/dialogs/message_input_dialog.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_card.dart';
+import 'package:sonar/widget/ls/ls_header.dart';
+import 'package:sonar/widget/ls/ls_section_label.dart';
+import 'package:sonar/widget/ls/ls_tile.dart';
+import 'package:sonar_isolates/model/file_type.dart';
+import 'package:sonar_isolates/util/file_size_helper.dart';
 
 class SelectedFilesPage extends StatelessWidget {
   const SelectedFilesPage();
@@ -33,7 +33,7 @@ class SelectedFilesPage extends StatelessWidget {
             LsSubHeader(
               title: t.selectedFilesPage.title,
               subtitle: Text(
-                '${t.sendTab.selection.files(files: selectedFiles.length)} · ${totalSize.asReadableFileSize}',
+                '${t.sendTab.selection.files(files: selectedFiles.length)}  ${totalSize.asReadableFileSize}',
                 style: context.ls.monoSm,
               ),
               onBack: () => Navigator.of(context).maybePop(),

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/util/ui/relative_time.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/util/ui/relative_time.dart';
 
 void main() {
   setUpAll(() {

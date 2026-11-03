@@ -1,12 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:localsend_app/gen/assets.gen.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/provider/animation_provider.dart';
-import 'package:localsend_app/util/native/platform_check.dart';
 import 'package:logging/logging.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/gen/assets.gen.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/provider/animation_provider.dart';
+import 'package:sonar/util/native/platform_check.dart';
 import 'package:tray_manager/tray_manager.dart' as tm;
 import 'package:window_manager/window_manager.dart';
 
@@ -31,7 +31,7 @@ Future<void> initTray() async {
       String icon;
       if (await File('/.flatpak-info').exists()) {
         // Icon for Flatpak, which must exist in /app/share/icons/hicolor/*x*/apps.
-        icon = 'org.localsend.localsend_app-tray';
+        icon = 'com.zephyr.sonar-tray';
       } else {
         icon = Assets.img.logo32White.path;
       }

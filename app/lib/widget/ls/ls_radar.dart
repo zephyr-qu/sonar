@@ -2,8 +2,9 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/widget/ls/ls_dashed.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/widget/ls/ls_dashed.dart';
 
 /// One device orbiting the radar center.
 class LsRadarPeer {
@@ -28,6 +29,11 @@ class LsRadarPeer {
   /// selection, and two long-press recognizers would fight over it on Android.
   final VoidCallback? onLongPress;
 
+  /// Tapping the label opens the device details. The bubble already owns tap (send)
+  /// and long press (multi-select), so the label is the only surface left without a
+  /// gesture — see [LsRadarPeer.onTap].
+  final VoidCallback? onLabelTap;
+
   const LsRadarPeer({
     required this.child,
     required this.label,
@@ -40,6 +46,7 @@ class LsRadarPeer {
     this.tooltip,
     this.onTap,
     this.onLongPress,
+    this.onLabelTap,
   });
 }
 
@@ -244,30 +251,90 @@ class _Peer extends StatelessWidget {
       return button;
     }
 
-    final label = Text(
-      peer.label,
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      textAlign: TextAlign.center,
-      style: tokens.monoSm.copyWith(fontSize: size >= 52 ? 10 : 9.5),
+    final fontSize = size >= 52 ? 10.0 : 9.5;
+    final label = SizedBox(
+      height: _PeerLabel.height,
+      child: peer.onLabelTap == null
+          ? Center(
+              child: Text(
+                peer.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: tokens.monoSm.copyWith(fontSize: fontSize),
+              ),
+            )
+          : _PeerLabel(text: peer.label, fontSize: fontSize, onTap: peer.onLabelTap!),
     );
+    // The label only ever sits on one side of the bubble, so a box that stacks
+    // [button, gap, label] would put the dot off the orbit point — and, because above and
+    // below differ, by a different amount per peer, which is what used to make the ring
+    // look wobbly. The column is padded symmetrically instead: the bubble is the box's
+    // centre, so the parent's centring lands it exactly on the ring. Padding rather than a
+    // painted offset also keeps the label inside the box, which is what makes it tappable
+    // (a translated child painting outside its box fails the parent's hit test).
+    const gap = 5.0;
+    final pad = gap + _PeerLabel.height;
 
     return SizedBox(
       width: 96,
-      height: size + 26,
+      height: size + 2 * pad,
       child: Column(
-        mainAxisAlignment: peer.labelAbove ? MainAxisAlignment.start : MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: peer.labelAbove
-            ? [
-                label,
-                const SizedBox(height: 6),
-                button,
-              ]
-            : [
-                button,
-                const SizedBox(height: 4),
-                label,
-              ],
+            ? [label, const SizedBox(height: gap), button, SizedBox(height: pad)]
+            : [SizedBox(height: pad), button, const SizedBox(height: gap), label],
+      ),
+    );
+  }
+}
+
+/// The name pill of a radar peer — the radar's way into the device details.
+///
+/// The bubble already owns tap (send) and long press (multi-select), so the label is the
+/// only surface without a gesture. It is drawn as a filled capsule carrying the same
+/// `info` glyph the device tile uses for "details": a bare 9.5 px alias reads as a caption,
+/// not as a target.
+class _PeerLabel extends StatelessWidget {
+  /// Pill height; `_Peer` pads its column by exactly this much on both sides of the
+  /// bubble, so the two numbers cannot drift apart and the bubble stays on the ring.
+  static const double height = 20;
+
+  final String text;
+  final double fontSize;
+  final VoidCallback onTap;
+
+  const _PeerLabel({required this.text, required this.fontSize, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.ls;
+    final colors = tokens.colors;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 7),
+          decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(999)),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(LucideIcons.info, size: fontSize, color: colors.muted),
+              const SizedBox(width: 3),
+              Flexible(
+                child: Text(
+                  text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: tokens.monoSm.copyWith(fontSize: fontSize, color: colors.muted),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

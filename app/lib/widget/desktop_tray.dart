@@ -1,33 +1,36 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/cross_file.dart';
-import 'package:localsend_app/model/state/send/send_session_state.dart';
-import 'package:localsend_app/pages/home_page.dart';
-import 'package:localsend_app/pages/home_page_controller.dart';
-import 'package:localsend_app/pages/selected_files_page.dart';
-import 'package:localsend_app/pages/tabs/nearby_tab_vm.dart';
-import 'package:localsend_app/provider/file_transfer_provider.dart';
-import 'package:localsend_app/provider/network/send_provider.dart';
-import 'package:localsend_app/provider/network/server/server_provider.dart';
-import 'package:localsend_app/provider/settings_provider.dart';
-import 'package:localsend_app/util/native/macos_channel.dart';
-import 'package:localsend_app/util/native/pick_directory_path.dart';
-import 'package:localsend_app/util/native/platform_check.dart';
-import 'package:localsend_app/util/ui/snackbar.dart';
-import 'package:localsend_app/widget/dialogs/quick_save_notice.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_progress_bar.dart';
-import 'package:localsend_app/widget/ls/ls_section_label.dart';
-import 'package:localsend_app/widget/ls/ls_switch.dart';
-import 'package:localsend_app/widget/ls/ls_tile.dart';
-import 'package:localsend_isolates/model/device.dart';
-import 'package:localsend_isolates/model/session_status.dart';
-import 'package:localsend_isolates/util/file_size_helper.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/cross_file.dart';
+import 'package:sonar/model/state/send/send_session_state.dart';
+import 'package:sonar/pages/home_page.dart';
+import 'package:sonar/pages/home_page_controller.dart';
+import 'package:sonar/pages/progress_page.dart';
+import 'package:sonar/pages/selected_files_page.dart';
+import 'package:sonar/pages/tabs/nearby_tab_vm.dart';
+import 'package:sonar/provider/file_transfer_provider.dart';
+import 'package:sonar/provider/network/send_provider.dart';
+import 'package:sonar/provider/network/server/server_provider.dart';
+import 'package:sonar/provider/settings_provider.dart';
+import 'package:sonar/util/native/macos_channel.dart';
+import 'package:sonar/util/native/pick_directory_path.dart';
+import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar/util/ui/snackbar.dart';
+import 'package:sonar/widget/dialogs/encryption_disabled_notice.dart';
+import 'package:sonar/widget/dialogs/pin_dialog.dart';
+import 'package:sonar/widget/dialogs/quick_save_notice.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_progress_bar.dart';
+import 'package:sonar/widget/ls/ls_section_label.dart';
+import 'package:sonar/widget/ls/ls_switch.dart';
+import 'package:sonar/widget/ls/ls_tile.dart';
+import 'package:sonar_isolates/model/device.dart';
+import 'package:sonar_isolates/model/session_status.dart';
+import 'package:sonar_isolates/util/file_size_helper.dart';
 
 /// How many files the tray lists before it hands the rest over to
 /// [SelectedFilesPage].
@@ -66,16 +69,28 @@ class LsDesktopTray extends StatelessWidget {
     final settings = context.watch(settingsProvider);
     final files = vm.selectedFiles;
     final totalSize = files.fold<int>(0, (sum, file) => sum + file.size);
-    final sendSessions = context
-        .watch(sendProvider)
-        .values
-        .where((session) => session.status == SessionStatus.waiting || session.status == SessionStatus.sending)
-        .toList();
-    final receiveSession = context.watch(serverProvider)?.session;
+    final sessions = context.watch(sendProvider).values.toList();
+    // Running sessions are all listed. A failed one stays in the state until it
+    // is closed — a request that never got an answer would otherwise just
+    // disappear — but the sidebar cannot hold one row per attempt: each retry
+    // pushed the receive policy further down. The newest failure stands for the
+    // rest, and the Transfers tab lists every one of them with its own close
+    // button.
+    final runningSessions = sessions.where((session) => session.status == SessionStatus.waiting || session.status == SessionStatus.sending).toList();
+    final failedSessions = sessions.where((session) => session.status == SessionStatus.finishedWithErrors).toList()
+      ..sort((a, b) => _finishedAt(b).compareTo(_finishedAt(a)));
+    final latestFailure = failedSessions.isEmpty ? null : failedSessions.first;
+    final hiddenFailures = failedSessions.length - (latestFailure == null ? 0 : 1);
+    final runningTargets = runningSessions.map((session) => session.target.fingerprint).toSet();
+    // A session only reports back once the receiver answered, so the button keeps
+    // its spinner while anything of the selection is still in flight.
+    final sending = picked.any((device) => runningTargets.contains(device.fingerprint));
+    final serverState = context.watch(serverProvider);
+    final receiveSession = serverState?.session;
     final activeReceive = receiveSession != null && (receiveSession.status == SessionStatus.waiting || receiveSession.status == SessionStatus.sending)
         ? receiveSession
         : null;
-    final activeCount = sendSessions.length + (activeReceive != null ? 1 : 0);
+    final activeCount = runningSessions.length + (latestFailure == null ? 0 : 1) + (activeReceive != null ? 1 : 0);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -117,6 +132,7 @@ class LsDesktopTray extends StatelessWidget {
               label: t.nearbyTab.send,
               icon: LucideIcons.send,
               expand: true,
+              loading: sending,
               // Enabled without a target on purpose: the tap is how the hint
               // "pick a target device" reaches the user, instead of a caption
               // that sits under the button forever.
@@ -125,6 +141,18 @@ class LsDesktopTray extends StatelessWidget {
                   context.showSnackBar(t.nearbyTab.selectTarget);
                   return;
                 }
+                // Nothing moves until the receiver answered, so the click itself
+                // acknowledges what is happening. The checksums are calculated
+                // before the request goes out: the send page shows that, but a
+                // background session has no page, so it says so here instead.
+                final hashing = settings.createChecksums && files.isNotEmpty;
+                context.showSnackBar(
+                  hashing
+                      ? t.sendPage.calculatingChecksum(curr: 0, n: files.length)
+                      : picked.length == 1
+                      ? t.nearbyTab.requesting(device: picked.first.alias)
+                      : t.nearbyTab.requestingMany(n: picked.length),
+                );
                 final started = await onSend!(picked);
                 if (started) {
                   onSent?.call();
@@ -137,45 +165,35 @@ class LsDesktopTray extends StatelessWidget {
         if (activeCount == 0)
           Text(t.transferTab.noActive, style: tokens.monoSm.copyWith(color: colors.faint))
         else ...[
-          for (final session in sendSessions) ...[
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    session.target.alias,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: tokens.bodySm.copyWith(color: colors.fg),
-                  ),
-                ),
-                _SessionProgressBuilder(
-                  sessionId: session.sessionId,
-                  builder: (context, transfer) => Text(
-                    '${(_sendProgress(session, transfer) * 100).round()}%',
-                    style: tokens.monoSm,
-                  ),
-                ),
-              ],
+          for (final session in runningSessions) _SendSessionRow(session: session),
+          if (latestFailure != null) _SendSessionRow(session: latestFailure),
+          if (hiddenFailures > 0)
+            LsLinkRow(
+              label: t.nearbyTab.moreFailures(n: hiddenFailures),
+              leading: const Icon(LucideIcons.alertTriangle),
+              // Every one of them keeps its own close button on the Transfers
+              // tab; the sidebar only carries the newest.
+              onTap: () => context.redux(homePageControllerProvider).dispatch(ChangeTabAction(HomeTab.transfer)),
             ),
-            const SizedBox(height: 6),
-            _SessionProgressBuilder(
-              sessionId: session.sessionId,
-              builder: (context, transfer) => LsProgressBar(value: _sendProgress(session, transfer)),
-            ),
-            const SizedBox(height: 8),
-            LsButton(
-              label: t.transferTab.cancel,
-              variant: LsButtonVariant.ghost,
-              onPressed: () => context.notifier(sendProvider).cancelSession(session.sessionId),
-            ),
-            const SizedBox(height: 10),
-          ],
           if (activeReceive != null) ...[
-            Text(
-              t.transferTab.receiving(device: activeReceive.senderAlias),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: tokens.bodySm.copyWith(color: colors.fg),
+            // The row names the transfer; the full view is one click away, in the
+            // same place a sending session offers it.
+            InkWell(
+              borderRadius: tokens.tileRadius,
+              onTap: () => context.push(() => ProgressPage(sessionId: activeReceive.sessionId)),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      t.transferTab.receiving(device: activeReceive.senderAlias),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: tokens.bodySm.copyWith(color: colors.fg),
+                    ),
+                  ),
+                  Icon(LucideIcons.chevronRight, size: 14, color: colors.faint),
+                ],
+              ),
             ),
             const SizedBox(height: 8),
             LsButton(
@@ -240,11 +258,64 @@ class LsDesktopTray extends StatelessWidget {
             },
           ),
         const SizedBox(height: 6),
+        // Encryption and PIN belong next to the receive policy: they decide what
+        // a sender has to do before the server accepts anything, which is the
+        // same question quick save and the destination folder answer.
+        Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 2),
+              child: Icon(LucideIcons.shield, size: 15, color: colors.muted),
+            ),
+            const SizedBox(width: 8),
+            // The switch alone says whether this is on, like the quick save row.
+            Expanded(child: Text(t.settingsTab.network.encryption, style: tokens.bodySm)),
+            LsSwitch(
+              value: settings.https,
+              label: t.settingsTab.network.encryption,
+              onChanged: (value) async {
+                final wasEncrypted = settings.https;
+                await context.notifier(settingsProvider).setHttps(value);
+                if (wasEncrypted && !value && context.mounted) {
+                  await EncryptionDisabledNotice.open(context);
+                }
+              },
+            ),
+          ],
+        ),
+        // https is only read when the server starts, so the changed setting
+        // applies on the next restart; the tray offers that restart instead of
+        // tearing down a running transfer behind the user's back.
+        if (serverState != null && serverState.https != settings.https)
+          LsLinkRow(
+            label: t.settingsTab.network.needRestart,
+            leading: const Icon(LucideIcons.refreshCw),
+            showTopBorder: false,
+            onTap: () async => context.notifier(serverProvider).restartServerFromSettings(),
+          ),
+        // A PIN is fixed at server start too, so this row always restarts: the
+        // switch-like value would otherwise claim a PIN the server never reads.
         LsLinkRow(
-          label: t.nearbyTab.securitySettings,
-          leading: const Icon(LucideIcons.shield),
+          label: t.settingsTab.receive.requirePin,
+          value: settings.receivePin != null ? t.general.on : t.general.off,
+          leading: const Icon(LucideIcons.key),
           showTopBorder: false,
-          onTap: () => context.redux(homePageControllerProvider).dispatch(ChangeTabAction(HomeTab.settings)),
+          onTap: () async {
+            final settingsNotifier = context.notifier(settingsProvider);
+            final serverNotifier = context.notifier(serverProvider);
+            final newPin = await showDialog<String>(
+              context: context,
+              builder: (_) => PinDialog(pin: settings.receivePin, obscureText: false, generateRandom: false),
+            );
+            // An empty field clears the PIN; an unchanged one needs no restart.
+            if (newPin == null || newPin == (settings.receivePin ?? '')) {
+              return;
+            }
+            await settingsNotifier.setReceivePin(newPin.isEmpty ? null : newPin);
+            if (serverState != null) {
+              await serverNotifier.restartServerFromSettings();
+            }
+          },
         ),
       ],
     );
@@ -307,6 +378,87 @@ double _sendProgress(SendSessionState session, FileTransferNotifier transfer) {
   );
   return (transferred / total).clamp(0.0, 1.0);
 }
+
+/// One send session in the sidebar: the peer, where it stands, and the action
+/// that ends it.
+class _SendSessionRow extends StatelessWidget {
+  final SendSessionState session;
+
+  const _SendSessionRow({required this.session});
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.ls;
+    final colors = tokens.colors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        InkWell(
+          borderRadius: tokens.tileRadius,
+          // Only a running transfer has more to show than this row already does.
+          onTap: session.status == SessionStatus.sending ? () => context.push(() => ProgressPage(sessionId: session.sessionId)) : null,
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  session.target.alias,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: tokens.bodySm.copyWith(color: colors.fg),
+                ),
+              ),
+              if (session.status == SessionStatus.sending)
+                _SessionProgressBuilder(
+                  sessionId: session.sessionId,
+                  builder: (context, transfer) => Text(
+                    '${(_sendProgress(session, transfer) * 100).round()}%',
+                    style: tokens.monoSm,
+                  ),
+                )
+              else if (session.status == SessionStatus.finishedWithErrors)
+                Text(t.general.error, style: tokens.monoSm.copyWith(color: colors.danger)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 6),
+        if (session.status == SessionStatus.waiting) ...[
+          // Nothing to progress on before the request is sent: the sender
+          // is still calculating the checksums that go into it.
+          Text(
+            session.isCalculatingChecksums
+                ? t.sendPage.calculatingChecksum(curr: session.hashedFileCount, n: session.files.length)
+                : t.sendPage.waiting,
+            style: tokens.monoSm.copyWith(color: colors.muted),
+          ),
+          const SizedBox(height: 6),
+          const LsProgressBar(value: null),
+        ] else if (session.status == SessionStatus.finishedWithErrors)
+          Text(
+            session.errorMessage ?? t.general.error,
+            style: tokens.bodySm.copyWith(color: colors.danger),
+          )
+        else
+          _SessionProgressBuilder(
+            sessionId: session.sessionId,
+            builder: (context, transfer) => LsProgressBar(value: _sendProgress(session, transfer)),
+          ),
+        const SizedBox(height: 8),
+        LsButton(
+          label: session.status == SessionStatus.finishedWithErrors ? t.general.close : t.transferTab.cancel,
+          variant: LsButtonVariant.ghost,
+          onPressed: () => session.status == SessionStatus.finishedWithErrors
+              ? context.notifier(sendProvider).closeSession(session.sessionId)
+              : context.notifier(sendProvider).cancelSession(session.sessionId),
+        ),
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+}
+
+/// Orders failed sessions newest first. A request that ran out waiting has no
+/// end time, so its start time stands in.
+int _finishedAt(SendSessionState session) => session.endTime ?? session.startTime ?? 0;
 
 String _kindOf(CrossFile file) {
   final name = file.name;

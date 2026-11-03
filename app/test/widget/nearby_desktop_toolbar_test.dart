@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:localsend_app/config/theme.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/color_mode.dart';
-import 'package:localsend_app/pages/tabs/nearby/nearby_desktop_toolbar.dart';
-import 'package:localsend_app/pages/tabs/nearby/nearby_ui.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:sonar/config/theme.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/persistence/color_mode.dart';
+import 'package:sonar/pages/tabs/nearby/nearby_desktop_toolbar.dart';
+import 'package:sonar/pages/tabs/nearby/nearby_ui.dart';
 
 /// The desktop shell renders the toolbar that the stacked layouts fold into the mini radar
 /// bar; without it the tab's filter and query stayed at their initial values on this layout.
@@ -43,6 +43,7 @@ void main() {
               onQueryChanged: () => setState(() => queryChanges++),
               onFilterChanged: filterCalls.add,
               onFilesOpenChanged: (_) {},
+              onOpenLink: (_) async {},
               onToggleMulti: ({String? preselect}) {},
               onDeviceTap: (_) async {},
               onDeviceLongPress: (_) async {},

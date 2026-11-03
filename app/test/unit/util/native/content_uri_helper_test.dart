@@ -1,4 +1,4 @@
-import 'package:localsend_isolates/util/content_uri_helper.dart';
+import 'package:sonar_isolates/util/content_uri_helper.dart';
 import 'package:test/test.dart';
 
 void main() {

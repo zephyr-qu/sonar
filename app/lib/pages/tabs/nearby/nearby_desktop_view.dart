@@ -1,24 +1,24 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/favorite_device.dart';
-import 'package:localsend_app/pages/device_details_page.dart';
-import 'package:localsend_app/pages/tabs/nearby/nearby_desktop_toolbar.dart';
-import 'package:localsend_app/pages/tabs/nearby/nearby_ui.dart';
-import 'package:localsend_app/pages/tabs/nearby_tab_vm.dart';
-import 'package:localsend_app/util/device_type_ext.dart';
-import 'package:localsend_app/util/favorites.dart';
-import 'package:localsend_app/util/ui/snackbar.dart';
-import 'package:localsend_app/widget/desktop_tray.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_hover.dart';
-import 'package:localsend_app/widget/ls/ls_section_label.dart';
-import 'package:localsend_app/widget/ls/ls_tile.dart';
-import 'package:localsend_isolates/model/device.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/persistence/favorite_device.dart';
+import 'package:sonar/pages/device_details_page.dart';
+import 'package:sonar/pages/tabs/nearby/nearby_desktop_toolbar.dart';
+import 'package:sonar/pages/tabs/nearby/nearby_ui.dart';
+import 'package:sonar/pages/tabs/nearby_tab_vm.dart';
+import 'package:sonar/util/device_type_ext.dart';
+import 'package:sonar/util/favorites.dart';
+import 'package:sonar/util/ui/snackbar.dart';
+import 'package:sonar/widget/desktop_tray.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_hover.dart';
+import 'package:sonar/widget/ls/ls_section_label.dart';
+import 'package:sonar/widget/ls/ls_tile.dart';
+import 'package:sonar_isolates/model/device.dart';
 
 /// The desktop shell's three columns (favorites / online / offline) plus the picked-devices aside.
 class NearbyDesktopView {
@@ -32,6 +32,7 @@ class NearbyDesktopView {
     required NearbyActions actions,
   }) : _ui = ui,
        _actions = actions;
+
   List<Widget> content(
     BuildContext context,
     List<Device> favoritesSection,
@@ -42,13 +43,41 @@ class NearbyDesktopView {
     final devices = [...favoritesSection, ...onlineSection];
 
     return [
-      Text(t.sendTab.nearbyDevices, style: tokens.pageTitle),
-      const SizedBox(height: 6),
-      Text(
-        t.nearbyTab.desktopLede(online: devices.length),
-        style: tokens.bodySm,
+      Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(t.sendTab.nearbyDevices, style: tokens.pageTitle, maxLines: 1, overflow: TextOverflow.ellipsis),
+                const SizedBox(height: 6),
+                Text(t.nearbyTab.desktopLede(online: devices.length), style: tokens.bodySm),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          // The two ways to reach a peer that does not announce itself. They used to
+          // close the device list, where a handful of devices pushed them below the
+          // fold — beside the title they are always where the eye starts.
+          LsButton(
+            label: t.nearbyTab.manualIp,
+            icon: LucideIcons.mapPin,
+            variant: LsButtonVariant.ghost,
+            compact: true,
+            onPressed: () async => vm.onManualIp(context),
+          ),
+          const SizedBox(width: 10),
+          LsButton(
+            label: t.nearbyTab.linkReceive,
+            icon: LucideIcons.link,
+            variant: LsButtonVariant.ghost,
+            compact: true,
+            onPressed: () async => _actions.onOpenLink(context),
+          ),
+        ],
       ),
-      const SizedBox(height: 14),
+      const SizedBox(height: 16),
       NearbyDesktopToolbar(scanning: vm.scanning, onScan: () async => vm.onScan(context), ui: _ui, actions: _actions),
       const SizedBox(height: 16),
       if (devices.isEmpty)
@@ -56,7 +85,7 @@ class NearbyDesktopView {
       else
         LayoutBuilder(
           builder: (context, constraints) {
-            final columns = math.max(1, (constraints.maxWidth / 240).floor());
+            final columns = math.max(1, (constraints.maxWidth / 210).floor());
             return GridView.builder(
               shrinkWrap: true,
               padding: EdgeInsets.zero,
@@ -65,7 +94,7 @@ class NearbyDesktopView {
                 crossAxisCount: columns,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
-                mainAxisExtent: 136,
+                mainAxisExtent: 100,
               ),
               itemCount: devices.length,
               itemBuilder: (context, index) {
@@ -76,8 +105,7 @@ class NearbyDesktopView {
                   meta: [
                     ...device.transmissionMethods.map((method) => method.label),
                     if (device.rttMs != null) '${device.rttMs} ms',
-                  ].join(' · '),
-                  metaSecondary: device.ip ?? '',
+                  ].join('  '),
                   selected: _ui.picked.contains(device.fingerprint),
                   favorite: vm.favoriteDevices.containsDevice(device),
                   onTap: () async => _actions.onDeviceTap(device),
@@ -92,24 +120,6 @@ class NearbyDesktopView {
         LsSectionLabel(label: t.nearbyTab.offlineSection, count: '${offlineSection.length}'),
         for (final favorite in offlineSection) _OfflineFavoriteRow(favorite: favorite, onRemove: () async => vm.onToggleFavoriteOffline(favorite)),
       ],
-      const SizedBox(height: 18),
-      Row(
-        children: [
-          LsButton(
-            label: t.nearbyTab.manualIp,
-            icon: LucideIcons.mapPin,
-            variant: LsButtonVariant.ghost,
-            onPressed: () async => vm.onManualIp(context),
-          ),
-          const SizedBox(width: 10),
-          LsButton(
-            label: t.nearbyTab.linkReceive,
-            icon: LucideIcons.link,
-            variant: LsButtonVariant.ghost,
-            onPressed: () async => vm.onOpenLink(context),
-          ),
-        ],
-      ),
     ];
   }
 

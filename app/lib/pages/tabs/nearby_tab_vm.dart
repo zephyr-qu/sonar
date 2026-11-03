@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/cross_file.dart';
-import 'package:localsend_app/model/persistence/favorite_device.dart';
-import 'package:localsend_app/model/state/nearby_devices_state.dart';
-import 'package:localsend_app/pages/web_share_page.dart';
-import 'package:localsend_app/provider/favorites_provider.dart';
-import 'package:localsend_app/provider/local_ip_provider.dart';
-import 'package:localsend_app/provider/network/nearby_devices_provider.dart';
-import 'package:localsend_app/provider/network/scan_facade.dart';
-import 'package:localsend_app/provider/network/send_provider.dart';
-import 'package:localsend_app/provider/network/server/server_provider.dart';
-import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
-import 'package:localsend_app/provider/settings_provider.dart';
-import 'package:localsend_app/util/favorites.dart';
-import 'package:localsend_app/util/native/file_picker.dart';
-import 'package:localsend_app/util/ui/snackbar.dart';
-import 'package:localsend_app/widget/dialogs/add_file_dialog.dart';
-import 'package:localsend_app/widget/dialogs/address_input_dialog.dart';
-import 'package:localsend_isolates/model/device.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/cross_file.dart';
+import 'package:sonar/model/persistence/favorite_device.dart';
+import 'package:sonar/model/state/nearby_devices_state.dart';
+import 'package:sonar/pages/web_share_page.dart';
+import 'package:sonar/provider/favorites_provider.dart';
+import 'package:sonar/provider/local_ip_provider.dart';
+import 'package:sonar/provider/network/nearby_devices_provider.dart';
+import 'package:sonar/provider/network/scan_facade.dart';
+import 'package:sonar/provider/network/send_provider.dart';
+import 'package:sonar/provider/network/server/server_provider.dart';
+import 'package:sonar/provider/selection/selected_sending_files_provider.dart';
+import 'package:sonar/provider/settings_provider.dart';
+import 'package:sonar/util/favorites.dart';
+import 'package:sonar/util/native/file_picker.dart';
+import 'package:sonar/util/ui/snackbar.dart';
+import 'package:sonar/widget/dialogs/add_file_dialog.dart';
+import 'package:sonar/widget/dialogs/address_input_dialog.dart';
+import 'package:sonar_isolates/model/device.dart';
+import 'package:sonar_isolates/model/session_status.dart';
 
 /// State and actions of the "nearby" tab.
 class NearbyTabVm {
@@ -168,9 +169,24 @@ final nearbyTabVmProvider = ViewProvider((ref) {
       if (files.isEmpty || targets.isEmpty) {
         return false;
       }
-      for (final device in targets) {
-        await ref.notifier(sendProvider).startSession(target: device, files: files, background: true);
+      // Every session is created synchronously, so all targets start at once and
+      // the tray lists them all immediately. A device that already has a running
+      // session is skipped instead of opening a second one.
+      final active = ref
+          .read(sendProvider)
+          .values
+          .where((session) => const {SessionStatus.waiting, SessionStatus.sending}.contains(session.status))
+          .map((session) => session.target.fingerprint)
+          .toSet();
+      final transfers = [
+        for (final device in targets)
+          if (!active.contains(device.fingerprint)) ref.notifier(sendProvider).startSession(target: device, files: files, background: true),
+      ];
+      if (transfers.isEmpty) {
+        return false;
       }
+      // Awaited so the caller clears the selection only after nothing runs anymore.
+      await Future.wait(transfers);
       return true;
     },
     onToggleFavoriteOffline: (favorite) async {

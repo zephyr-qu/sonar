@@ -24,7 +24,7 @@ class AppDelegate: FlutterAppDelegate {
     }
     
     override func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
-        // LocalSend handles the close event manually
+        // Sonar handles the close event manually
         return false
     }
     
@@ -49,7 +49,7 @@ class AppDelegate: FlutterAppDelegate {
     }
     
     override func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        showLocalSendFromMenuBar()
+        showSonarFromMenuBar()
         return false
     }
     
@@ -87,7 +87,7 @@ class AppDelegate: FlutterAppDelegate {
             let menu = NSMenu()
             
             let openString = i18n["open"]!
-            let openItem = NSMenuItem(title: openString, action: #selector(showLocalSendFromMenuBar), keyEquivalent: "o")
+            let openItem = NSMenuItem(title: openString, action: #selector(showSonarFromMenuBar), keyEquivalent: "o")
             menu.addItem(openItem)
             
             let quitString = i18n["quit"]!
@@ -109,8 +109,8 @@ class AppDelegate: FlutterAppDelegate {
         }
     }
     
-    @objc func showLocalSendFromMenuBar() {
-        channel?.invokeMethod("showLocalSendFromMenuBar", arguments: nil)
+    @objc func showSonarFromMenuBar() {
+        channel?.invokeMethod("showSonarFromMenuBar", arguments: nil)
     }
     
     @objc private func quitApp() {
@@ -138,7 +138,7 @@ class AppDelegate: FlutterAppDelegate {
         Defaults[.pendingFiles] = []
         Defaults[.pendingStrings] = []
         
-        self.showLocalSendFromMenuBar()
+        self.showSonarFromMenuBar()
     }
     
     // START: handle opened files
@@ -157,9 +157,9 @@ class AppDelegate: FlutterAppDelegate {
                 result(FlutterError(code: "WINDOW_UNAVAILABLE", message: "Main window is unavailable", details: nil))
                 return
             }
-            result(window.setFrameUsingName("LocalSendMainWindow"))
+            result(window.setFrameUsingName("SonarMainWindow"))
         case "configureWindowFrameAutosave":
-            let windowFrameStorageName = "LocalSendMainWindow"
+            let windowFrameStorageName = "SonarMainWindow"
             guard let arguments = call.arguments as? [String: Any],
                   let enabled = arguments["enabled"] as? Bool else {
                 result(FlutterError(code: "INVALID_ARGUMENT", message: "Expected window frame autosave options", details: nil))

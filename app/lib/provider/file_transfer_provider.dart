@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart' show ValueListenable, ValueNotifier, immutable;
-import 'package:localsend_isolates/model/file_status.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar_isolates/model/file_status.dart';
 
 /// A provider holding the live per-file transfer state (status and progress).
 /// It is implemented as [ChangeNotifier] for performance reasons:

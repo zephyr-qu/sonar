@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/favorite_device.dart';
-import 'package:localsend_app/provider/persistence_provider.dart';
-import 'package:localsend_app/widget/dialogs/favorite_edit_dialog.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
 import 'package:mockito/mockito.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/persistence/favorite_device.dart';
+import 'package:sonar/provider/persistence_provider.dart';
+import 'package:sonar/widget/dialogs/favorite_edit_dialog.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
 
 import '../mocks.mocks.dart';
 

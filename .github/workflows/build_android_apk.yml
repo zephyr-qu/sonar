@@ -63,12 +63,12 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
 
       - name: Check rust-toolchain.toml
-        working-directory: ${{ env.APK_BUILD_DIR }}/packages/localsend_isolates
+        working-directory: ${{ env.APK_BUILD_DIR }}/packages/sonar_isolates
         run: rustup show
 
       - name: Dependencies

@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
-import 'package:localsend_app/model/persistence/transfer_history_session.dart';
-import 'package:localsend_app/provider/persistence_provider.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/model/persistence/transfer_history_session.dart';
+import 'package:sonar/provider/persistence_provider.dart';
 
 /// How many finished sessions are kept. One session holds all files of one
 /// transfer, so this keeps far more files than the old per-file limit.
@@ -37,12 +37,10 @@ class AddTransferHistorySessionAction extends AsyncReduxAction<TransferHistorySe
       return state;
     }
 
-    // The same session can be finalized by more than one event.
-    if (state.any((s) => s.id == session.id)) {
-      return state;
-    }
-
-    final updated = [session, ...state]..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    // The same session can be finalized by more than one event, and a failed
+    // send can be retried afterwards: the newest record of a session wins.
+    final others = state.where((s) => s.id != session.id).toList();
+    final updated = [session, ...others]..sort((a, b) => b.timestamp.compareTo(a.timestamp));
     final trimmed = updated.take(_maxHistorySessions).toList();
     await notifier._persistence.setTransferHistory(trimmed);
     return trimmed;

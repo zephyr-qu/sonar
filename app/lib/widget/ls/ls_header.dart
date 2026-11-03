@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:sonar/config/design_tokens.dart';
 
 /// The main header of a tab: accent mark, alias, status line and actions.
 class LsScreenHeader extends StatelessWidget {
@@ -10,12 +10,20 @@ class LsScreenHeader extends StatelessWidget {
   final List<Widget> actions;
   final EdgeInsetsGeometry padding;
 
+  /// Makes the title block act as an edit affordance for the value it shows.
+  final VoidCallback? onTitleTap;
+
+  /// Tooltip of the tappable title block, e.g. the name of the setting it edits.
+  final String? titleTooltip;
+
   const LsScreenHeader({
     required this.mark,
     required this.title,
     this.subtitle,
     this.actions = const [],
     this.padding = const EdgeInsets.fromLTRB(16, 18, 16, 8),
+    this.onTitleTap,
+    this.titleTooltip,
   });
 
   @override
@@ -38,26 +46,92 @@ class LsScreenHeader extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: tokens.title,
-                ),
-                if (subtitle != null) ...[
-                  const SizedBox(height: 2),
-                  subtitle!,
-                ],
-              ],
+            child: LsHeaderTitle(
+              title: title,
+              subtitle: subtitle,
+              style: tokens.title,
+              tooltip: titleTooltip,
+              onTap: onTitleTap,
             ),
           ),
           ...actions,
         ],
       ),
+    );
+  }
+}
+
+/// The title line of a header, optionally clickable.
+///
+/// [onTitleTap] turns the block into an affordance: the pointer becomes a hand
+/// and a hover highlight marks the target that can be clicked to change the
+/// shown value.
+class LsHeaderTitle extends StatelessWidget {
+  final String title;
+  final Widget? subtitle;
+  final TextStyle? style;
+  final VoidCallback? onTap;
+  final String? tooltip;
+
+  const LsHeaderTitle({
+    required this.title,
+    this.subtitle,
+    this.style,
+    this.onTap,
+    this.tooltip,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.ls;
+    final onTap = this.onTap;
+    // The tap target is the alias line itself, not the whole block: a hover
+    // highlight spanning the empty space beside a short name reads like a bug.
+    // Only vertical padding is added, so the title keeps its baseline and left
+    // edge whether or not the header is editable.
+    final titleLine = InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(tokens.radiusSm),
+      hoverColor: tokens.colors.bg3,
+      child: Padding(
+        // The padding only grows the tap target of an editable title, so a plain
+        // header keeps its previous height down to the pixel.
+        padding: EdgeInsets.symmetric(vertical: onTap == null ? 0 : 2),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: style,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (onTap == null)
+          titleLine
+        else
+          Tooltip(
+            message: tooltip ?? title,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: titleLine,
+            ),
+          ),
+        if (subtitle != null) ...[
+          const SizedBox(height: 2),
+          subtitle!,
+        ],
+      ],
     );
   }
 }

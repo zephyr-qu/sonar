@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:localsend_app/util/native/platform_check.dart';
-import 'package:localsend_isolates/rust/api/server.dart' show WebPages;
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
+import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar_isolates/rust/api/server.dart' show WebPages;
 
 final _logger = Logger('WebPagesLoader');
 

@@ -1,37 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/model/persistence/transfer_history_session.dart';
-import 'package:localsend_app/model/state/send/send_session_state.dart';
-import 'package:localsend_app/model/state/server/receive_session_state.dart';
-import 'package:localsend_app/pages/settings_page.dart';
-import 'package:localsend_app/pages/transfer_detail_page.dart';
-import 'package:localsend_app/provider/file_transfer_provider.dart';
-import 'package:localsend_app/provider/network/send_provider.dart';
-import 'package:localsend_app/provider/network/server/server_provider.dart';
-import 'package:localsend_app/provider/transfer_history_provider.dart';
-import 'package:localsend_app/util/device_type_ext.dart';
-import 'package:localsend_app/util/notification_strings.dart';
-import 'package:localsend_app/util/system_date_time_formatter.dart';
-import 'package:localsend_app/widget/desktop_scaffold.dart';
-import 'package:localsend_app/widget/desktop_tray.dart';
-import 'package:localsend_app/widget/dialogs/history_clear_dialog.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_card.dart';
-import 'package:localsend_app/widget/ls/ls_chip.dart';
-import 'package:localsend_app/widget/ls/ls_header.dart';
-import 'package:localsend_app/widget/ls/ls_hover.dart';
-import 'package:localsend_app/widget/ls/ls_progress_bar.dart';
-import 'package:localsend_app/widget/ls/ls_section_label.dart';
-import 'package:localsend_app/widget/ls/ls_tile.dart';
-import 'package:localsend_isolates/model/device.dart';
-import 'package:localsend_isolates/model/dto/file_dto.dart';
-import 'package:localsend_isolates/model/session_status.dart';
-import 'package:localsend_isolates/util/file_size_helper.dart';
-import 'package:localsend_isolates/util/file_speed_helper.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/persistence/transfer_history_session.dart';
+import 'package:sonar/model/state/send/send_session_state.dart';
+import 'package:sonar/model/state/server/receive_session_state.dart';
+import 'package:sonar/pages/settings_page.dart';
+import 'package:sonar/pages/transfer_detail_page.dart';
+import 'package:sonar/provider/file_transfer_provider.dart';
+import 'package:sonar/provider/network/send_provider.dart';
+import 'package:sonar/provider/network/server/server_provider.dart';
+import 'package:sonar/provider/transfer_history_provider.dart';
+import 'package:sonar/util/device_type_ext.dart';
+import 'package:sonar/util/native/open_folder.dart';
+import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar/util/notification_strings.dart';
+import 'package:sonar/util/system_date_time_formatter.dart';
+import 'package:sonar/widget/desktop_scaffold.dart';
+import 'package:sonar/widget/desktop_tray.dart';
+import 'package:sonar/widget/dialogs/history_clear_dialog.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_card.dart';
+import 'package:sonar/widget/ls/ls_chip.dart';
+import 'package:sonar/widget/ls/ls_header.dart';
+import 'package:sonar/widget/ls/ls_hover.dart';
+import 'package:sonar/widget/ls/ls_progress_bar.dart';
+import 'package:sonar/widget/ls/ls_section_label.dart';
+import 'package:sonar/widget/ls/ls_tile.dart';
+import 'package:sonar_isolates/model/device.dart';
+import 'package:sonar_isolates/model/dto/file_dto.dart';
+import 'package:sonar_isolates/model/session_status.dart';
+import 'package:sonar_isolates/util/file_size_helper.dart';
+import 'package:sonar_isolates/util/file_speed_helper.dart';
 
 /// The "Transfers" tab: active send/receive sessions on top, the history of
 /// finished transfers below.
@@ -60,15 +62,9 @@ class _TransferTabState extends State<TransferTab> {
     final activeReceive = receiveSession != null && _isActive(receiveSession.status) ? receiveSession : null;
     final historySessions = context.watch(transferHistoryProvider);
     final days = _groupSessionsByDay(historySessions);
-    final historyFileCount = historySessions.fold<int>(0, (sum, session) => sum + session.files.length);
     final activeCount = sendSessions.length + (activeReceive != null ? 1 : 0);
 
-    final subtitle = Text(
-      activeCount > 0
-          ? t.transferTab.inProgress(n: activeCount)
-          : t.transferTab.historySummary(files: historyFileCount, sessions: historySessions.length),
-      style: tokens.mono,
-    );
+    final subtitle = activeCount > 0 ? Text(t.transferTab.inProgress(n: activeCount), style: tokens.mono) : null;
     final actions = [
       if (historySessions.isNotEmpty)
         LsIconButton(
@@ -142,6 +138,11 @@ class _TransferTabState extends State<TransferTab> {
                     padding: const EdgeInsets.only(bottom: 10),
                     child: _ReceiveSessionCard(session: activeReceive),
                   ),
+                if (receiveSession != null && !_isActive(receiveSession.status))
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: _ReceiveSessionCard(session: receiveSession, done: true),
+                  ),
                 for (final session in finishedSends)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),
@@ -161,14 +162,6 @@ class _TransferTabState extends State<TransferTab> {
                     ),
                     for (final session in day.sessions) _HistorySessionRow(session: session),
                   ],
-                if (days.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 14),
-                    child: Text(
-                      t.transferTab.historyHint,
-                      style: tokens.monoSm.copyWith(color: tokens.colors.faint, height: 1.7),
-                    ),
-                  ),
               ],
             ),
           ),
@@ -207,6 +200,16 @@ String? _statusText(SessionStatus status) {
     SessionStatus.canceledBySender => t.progressPage.total.title.canceledSender,
     SessionStatus.canceledByReceiver => t.progressPage.total.title.canceledReceiver,
   };
+}
+
+/// Status chip of a sending session. A session that is still calculating its
+/// checksums has not sent the request yet, so it must not claim to wait for an
+/// answer.
+String? _sendStatusText(SendSessionState session) {
+  if (session.isCalculatingChecksums) {
+    return t.sendPage.calculatingChecksum(curr: session.hashedFileCount, n: session.files.length);
+  }
+  return _statusText(session.status);
 }
 
 class _SendSessionCard extends StatelessWidget {
@@ -271,7 +274,7 @@ class _SendSessionCard extends StatelessWidget {
                         t.transferTab.items(n: files.length),
                         total.asReadableFileSize,
                         if (done) t.transferTab.done else if (speedInBytes > 0) t.transferTab.speed(speed: speedInBytes.asReadableFileSize),
-                      ].join(' · '),
+                      ].join('  '),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: tokens.mono,
@@ -282,8 +285,8 @@ class _SendSessionCard extends StatelessWidget {
               const SizedBox(width: 8),
               // No checksum chip here: the sender never learns whether the
               // receiver verified the files, the protocol has no such ack.
-              if (_statusText(session.status) != null)
-                LsChip.text(_statusText(session.status)!)
+              if (_sendStatusText(session) != null)
+                LsChip.text(_sendStatusText(session)!)
               else if (speedInBytes > 0)
                 Text(
                   t.transferTab.remaining(
@@ -298,18 +301,24 @@ class _SendSessionCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          LsProgressBar(value: progress),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('${(progress * 100).round()}%', style: tokens.monoSm),
-              Text(
-                '${transferred.asReadableFileSize} / ${total.asReadableFileSize}',
-                style: tokens.monoSm,
-              ),
-            ],
-          ),
+          // The bar and the caption only count files the receiver accepted, so
+          // both would sit at 0 while the checksums are calculated. That phase
+          // has no byte progress to show here, so the bar runs indeterminate and
+          // the caption stays away instead of claiming 0%.
+          LsProgressBar(value: session.isCalculatingChecksums ? null : progress),
+          if (!session.isCalculatingChecksums) ...[
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('${(progress * 100).round()}%', style: tokens.monoSm),
+                Text(
+                  '${transferred.asReadableFileSize} / ${total.asReadableFileSize}',
+                  style: tokens.monoSm,
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 4),
           for (final file in files)
             LsFileRow(
@@ -335,9 +344,9 @@ class _SendSessionCard extends StatelessWidget {
 
 class _ReceiveSessionCard extends StatelessWidget {
   final ReceiveSessionState session;
+  final bool done;
 
-  const _ReceiveSessionCard({required this.session});
-
+  const _ReceiveSessionCard({required this.session, this.done = false});
   @override
   Widget build(BuildContext context) {
     // Only this card follows the progress of its own session.
@@ -380,7 +389,7 @@ class _ReceiveSessionCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      [t.transferTab.items(n: files.length), total.asReadableFileSize].join(' · '),
+                      [t.transferTab.items(n: files.length), total.asReadableFileSize].join('  '),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: tokens.mono,
@@ -391,6 +400,10 @@ class _ReceiveSessionCard extends StatelessWidget {
               if (_statusText(session.status) != null) ...[
                 const SizedBox(width: 8),
                 LsChip.text(_statusText(session.status)!),
+              ],
+              if (session.autoAccepted) ...[
+                const SizedBox(width: 6),
+                LsChip.text(t.transferTab.autoReceive, accent: true, icon: LucideIcons.zap),
               ],
             ],
           ),
@@ -416,12 +429,30 @@ class _ReceiveSessionCard extends StatelessWidget {
               progress: transfer.getProgress(sessionId: session.sessionId, fileId: file.file.id).clamp(0.0, 1.0),
             ),
           const SizedBox(height: 10),
-          LsButton(
-            label: t.transferTab.cancel,
-            variant: LsButtonVariant.ghost,
-            expand: true,
-            onPressed: () => context.notifier(serverProvider).cancelSession(),
-          ),
+          if (done) ...[
+            if (checkPlatformWithFileSystem() && session.destinationDirectory.isNotEmpty) ...[
+              LsButton(
+                label: t.transferTab.openFolder,
+                icon: LucideIcons.folder,
+                variant: LsButtonVariant.ghost,
+                expand: true,
+                onPressed: () => openFolder(folderPath: session.destinationDirectory),
+              ),
+              const SizedBox(height: 8),
+            ],
+            LsButton(
+              label: t.transferTab.done,
+              variant: LsButtonVariant.plain,
+              expand: true,
+              onPressed: () => context.notifier(serverProvider).closeSession(),
+            ),
+          ] else
+            LsButton(
+              label: t.transferTab.cancel,
+              variant: LsButtonVariant.ghost,
+              expand: true,
+              onPressed: () => context.notifier(serverProvider).cancelSession(),
+            ),
         ],
       ),
     );
@@ -502,6 +533,18 @@ class _HistorySessionRow extends StatelessWidget {
     final tokens = context.ls;
     final colors = tokens.colors;
     final isReceive = !session.isSend;
+    // A failed session can still list files (the ones it tried), so the arrow
+    // would claim a transfer that never happened.
+    final icon = session.failed
+        ? LucideIcons.alertTriangle
+        : isReceive
+        ? LucideIcons.arrowDown
+        : LucideIcons.arrowUp;
+    final iconColor = session.failed
+        ? colors.danger
+        : isReceive
+        ? colors.accent
+        : colors.muted;
 
     return Container(
       decoration: BoxDecoration(
@@ -525,11 +568,7 @@ class _HistorySessionRow extends StatelessWidget {
                 height: 30,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(tokens.radiusSm)),
-                child: Icon(
-                  isReceive ? LucideIcons.arrowDown : LucideIcons.arrowUp,
-                  size: 14,
-                  color: isReceive ? colors.accent : colors.muted,
-                ),
+                child: Icon(icon, size: 14, color: iconColor),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -546,14 +585,22 @@ class _HistorySessionRow extends StatelessWidget {
                     const SizedBox(height: 1),
                     Text(
                       [
-                        t.transferTab.items(n: session.files.length),
-                        session.totalSize.asReadableFileSize,
-                        if (session.savedToGallery) t.progressPage.savedToGallery,
+                        if (session.failed) ...[
+                          t.transferTab.failed,
+                          // A request that never got an answer left no file
+                          // behind, so the reason is all this row has to say.
+                          if (session.errorMessage != null) session.errorMessage!,
+                          t.transferTab.items(n: session.files.length),
+                        ] else ...[
+                          t.transferTab.items(n: session.files.length),
+                          session.totalSize.asReadableFileSize,
+                          if (session.savedToGallery) t.progressPage.savedToGallery,
+                        ],
                         SystemDateTimeFormatter.time(context, session.timestamp.toLocal()),
-                      ].join(' · '),
+                      ].join('  '),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: tokens.monoSm,
+                      style: session.failed ? tokens.monoSm.copyWith(color: colors.danger) : tokens.monoSm,
                     ),
                   ],
                 ),

@@ -40,7 +40,7 @@ class TranslationsGa extends Translations with BaseTranslations<AppLocale, Trans
 
   // Translations
   @override
-  String get appName => 'LocalSend';
+  String get appName => 'Sonar';
   @override
   late final _Translations$general$ga general = _Translations$general$ga._(_root);
   @override
@@ -268,7 +268,7 @@ class _Translations$networkInterfacesPage$ga extends Translations$networkInterfa
   String get title => 'Comhéadain Líonra';
   @override
   String get info =>
-      'De réir réamhshocraithe, úsáideann LocalSend na comhéadain líonra go léir atá ar fáil. Is féidir leat líonraí nach dteastaíonn a eisiamh anseo. Ní mór duit an freastalaí a atosú chun na hathruithe a chur i bhfeidhm.';
+      'De réir réamhshocraithe, úsáideann Sonar na comhéadain líonra go léir atá ar fáil. Is féidir leat líonraí nach dteastaíonn a eisiamh anseo. Ní mór duit an freastalaí a atosú chun na hathruithe a chur i bhfeidhm.';
   @override
   String get preview => 'Réamhamharc';
   @override
@@ -357,7 +357,7 @@ class _Translations$receiveOptionsPage$ga extends Translations$receiveOptionsPag
   @override
   String get destination => _root.settingsTab.receive.destination;
   @override
-  String get appDirectory => '(Fillteán LocalSend)';
+  String get appDirectory => '(Fillteán Sonar)';
   @override
   String get saveToGallery => _root.settingsTab.receive.saveToGallery;
   @override
@@ -432,7 +432,7 @@ class _Translations$webSharePage$ga extends Translations$webSharePage$en {
   @override
   String pinHint({required Object pin}) => 'Is é an UAP ná "${pin}"';
   @override
-  String get encryptionHint => 'Úsáideann LocalSend teastas féinshínithe. Ní mór duit glacadh leis i do bhrabhsálaí.';
+  String get encryptionHint => 'Úsáideann Sonar teastas féinshínithe. Ní mór duit glacadh leis i do bhrabhsálaí.';
   @override
   String pendingRequests({required Object n}) => 'Iarratais ar feitheamh: ${n}';
 }
@@ -445,10 +445,10 @@ class _Translations$aboutPage$ga extends Translations$aboutPage$en {
 
   // Translations
   @override
-  String get title => 'Maidir le LocalSend';
+  String get title => 'Maidir le Sonar';
   @override
   List<String> get description => [
-    'Is aip foinse oscailte saor in aisce é LocalSend a ligeann duit comhaid agus teachtaireachtaí a roinnt go slán le gléasanna in aice láimhe thar do líonra áitiúil gan nasc idirlín a bheith ag teastáil.',
+    'Is aip foinse oscailte saor in aisce é Sonar a ligeann duit comhaid agus teachtaireachtaí a roinnt go slán le gléasanna in aice láimhe thar do líonra áitiúil gan nasc idirlín a bheith ag teastáil.',
     'Tá an aip seo ar fáil ar Android, iOS, macOS, Windows agus Linux. Is féidir leat na roghanna íoslódála go léir a fháil ar an leathanach baile oifigiúil.',
   ];
   @override
@@ -472,7 +472,7 @@ class _Translations$donationPage$ga extends Translations$donationPage$en {
   String get title => 'Tabhair Síntiús';
   @override
   String get info =>
-      'Tá LocalSend saor in aisce, foinse oscailte agus gan aon fhógraí. Más maith leat an aip, is féidir leat tacú leis an bhforbairt le síntiús.';
+      'Tá Sonar saor in aisce, foinse oscailte agus gan aon fhógraí. Más maith leat an aip, is féidir leat tacú leis an bhforbairt le síntiús.';
   @override
   String donate({required Object amount}) => 'Tabhair síntiús ${amount}';
   @override
@@ -656,7 +656,7 @@ class _Translations$tray$ga extends Translations$tray$en {
   @override
   String get open => _root.general.open;
   @override
-  String get close => 'Scoir LocalSend';
+  String get close => 'Scoir Sonar';
   @override
   String get closeWindows => 'Scoir';
 }
@@ -863,7 +863,7 @@ class _Translations$settingsTab$general$ga extends Translations$settingsTab$gene
   @override
   String get launchMinimized => 'Uaththosú: Tosaigh i bhfolach';
   @override
-  String get showInContextMenu => 'Taispeáin LocalSend sa roghchlár comhthéacs';
+  String get showInContextMenu => 'Taispeáin Sonar sa roghchlár comhthéacs';
   @override
   String get animations => 'Beochana';
 }
@@ -961,7 +961,7 @@ class _Translations$settingsTab$other$ga extends Translations$settingsTab$other$
   @override
   String get title => 'Eile';
   @override
-  String get support => 'Tacaigh le LocalSend';
+  String get support => 'Tacaigh le Sonar';
   @override
   String get donate => 'Tabhair Síntiús';
   @override
@@ -1245,7 +1245,7 @@ class _Translations$dialogs$localNetworkUnauthorized$ga extends Translations$dia
   String get title => _root.dialogs.noPermission.title;
   @override
   String get description =>
-      'Ní féidir le LocalSend gléasanna eile a aimsiú gan cead a bheith aige an líonra áitiúil a scanadh. Deonaigh an cead seo sna socruithe le do thoil.';
+      'Ní féidir le Sonar gléasanna eile a aimsiú gan cead a bheith aige an líonra áitiúil a scanadh. Deonaigh an cead seo sna socruithe le do thoil.';
   @override
   String get gotoSettings => 'Socruithe';
 }

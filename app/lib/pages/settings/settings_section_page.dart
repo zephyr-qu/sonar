@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/pages/settings/settings_sections.dart';
-import 'package:localsend_app/pages/tabs/settings_tab_controller.dart';
-import 'package:localsend_app/widget/ls/ls_header.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/pages/settings/settings_sections.dart';
+import 'package:sonar/pages/tabs/settings_tab_controller.dart';
+import 'package:sonar/widget/ls/ls_header.dart';
 
 /// Second level of the mobile settings: one category per page, opened from the
 /// settings index. Kept deliberately short: 3–7 rows, no further nesting.

@@ -14,6 +14,7 @@ use crate::http::server::web::{WebConfig, WebShare};
 use crate::http::state::ClientInfo;
 use common::client_cert_verifier::CustomClientCertVerifier;
 use common::error::AppError;
+use common::pin::PinAttempts;
 use common::response;
 use common::response::BoxedBody;
 use common::session::SessionStateV2;
@@ -21,12 +22,10 @@ use connection_limit::{ConnectionLimiter, LimitReached, MAX_CONNECTIONS, MAX_CON
 use hyper::body::Incoming;
 use hyper::{Method, Request, Response, StatusCode};
 use hyper_util::rt::TokioIo;
-use lru::LruCache;
 use rustls::pki_types::pem::PemObject;
 use rustls::pki_types::{CertificateDer, PrivateKeyDer};
 use std::fmt::Debug;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
-use std::num::NonZeroUsize;
 use std::ops::Deref;
 use std::sync::Arc;
 use tokio::io::{AsyncRead, AsyncWrite};
@@ -63,8 +62,8 @@ pub(crate) struct V2State {
     /// The single upload session slot. Only one session can be active at a time.
     pub(crate) session: Mutex<Option<SessionStateV2>>,
 
-    /// Maps client IPs to the number of failed PIN attempts.
-    pub(crate) pin_attempts: Mutex<LruCache<IpAddr, u32>>,
+    /// Failed PIN attempts of the clients, see [`PinAttempts`].
+    pub(crate) pin_attempts: PinAttempts,
 }
 
 #[derive(Clone)]
@@ -98,7 +97,7 @@ impl AppState {
                 verify_checksums: config.verify_checksums,
                 event_tx: config.event_tx,
                 session: Mutex::new(None),
-                pin_attempts: Mutex::new(LruCache::new(NonZeroUsize::new(200).unwrap())),
+                pin_attempts: PinAttempts::new(),
             })
         });
 

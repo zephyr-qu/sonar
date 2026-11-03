@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/design_tokens.dart';
-import 'package:localsend_app/gen/strings.g.dart';
-import 'package:localsend_app/pages/tabs/nearby/nearby_ui.dart';
-import 'package:localsend_app/widget/ls/ls_buttons.dart';
-import 'package:localsend_app/widget/ls/ls_hover.dart';
-import 'package:localsend_app/widget/ls/ls_search_field.dart';
-import 'package:localsend_app/widget/ls/ls_segmented.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/pages/tabs/nearby/nearby_ui.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
+import 'package:sonar/widget/ls/ls_hover.dart';
+import 'package:sonar/widget/ls/ls_search_field.dart';
+import 'package:sonar/widget/ls/ls_segmented.dart';
 
 /// The desktop tab's control row: search, the device filters and a rescan button.
 ///

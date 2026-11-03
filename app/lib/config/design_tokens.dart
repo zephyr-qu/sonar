@@ -99,9 +99,35 @@ class LsColors {
     return brightness == Brightness.dark ? dark : light;
   }
 
+  /// Foreground that reads on top of [accent]: the near-black brand ink on
+  /// bright accents, white on dark ones.
+  static Color onAccentFor(Color accent) {
+    return _contrast(accent, const Color(0xFF0A0B0D)) >= _contrast(accent, Colors.white) ? const Color(0xFF0A0B0D) : Colors.white;
+  }
+
+  /// [accent] as text on a surface. Dark surfaces take it as-is; light ones need
+  /// it darkened, otherwise a bright accent (the lime especially) disappears on
+  /// a white or accent-tinted surface.
+  static Color inkFor(Color accent, Brightness brightness) {
+    if (brightness == Brightness.dark) {
+      return accent;
+    }
+    final hsl = HSLColor.fromColor(accent);
+    return hsl.withLightness(hsl.lightness * 0.45).toColor();
+  }
+
+  /// WCAG contrast ratio of two colors.
+  static double _contrast(Color a, Color b) {
+    final la = a.computeLuminance();
+    final lb = b.computeLuminance();
+    return la > lb ? (la + 0.05) / (lb + 0.05) : (lb + 0.05) / (la + 0.05);
+  }
+
   /// Returns a copy where the accent slots follow [accent] (used for the
-  /// dynamic-color and custom-color modes).
-  LsColors withAccent(Color accent, Color onAccent) {
+  /// dynamic-color and custom-color modes). The brand lime keeps its hand-tuned
+  /// light-mode ink; any other accent gets one derived from its own lightness.
+  LsColors withAccent(Color accent, Color onAccent, Brightness brightness) {
+    final base = forBrightness(brightness);
     return LsColors(
       bg: bg,
       bg2: bg2,
@@ -113,7 +139,7 @@ class LsColors {
       lineStrong: lineStrong,
       accent: accent,
       accentFg: onAccent,
-      accentInk: accent,
+      accentInk: accent == base.accent ? base.accentInk : inkFor(accent, brightness),
       accentSoft: accent.withValues(alpha: 0.14),
       danger: danger,
     );
@@ -224,7 +250,7 @@ class LsTokens extends ThemeExtension<LsTokens> {
     final scheme = theme.colorScheme;
     return LsTokens(
       colors: palette
-          .withAccent(scheme.primary, scheme.onPrimary)
+          .withAccent(scheme.primary, scheme.onPrimary, brightness)
           .copyWith(
             bg: scheme.surface,
             bg2: scheme.surfaceContainer,

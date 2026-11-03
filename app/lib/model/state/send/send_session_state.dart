@@ -1,8 +1,8 @@
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:localsend_app/model/state/send/sending_file.dart';
-import 'package:localsend_app/model/state/server/receive_session_state.dart';
-import 'package:localsend_isolates/model/device.dart';
-import 'package:localsend_isolates/model/session_status.dart';
+import 'package:sonar/model/state/send/sending_file.dart';
+import 'package:sonar/model/state/server/receive_session_state.dart';
+import 'package:sonar_isolates/model/device.dart';
+import 'package:sonar_isolates/model/session_status.dart';
 
 part 'send_session_state.mapper.dart';
 
@@ -31,6 +31,11 @@ class SendSessionState with SendSessionStateMappable implements SessionState {
 
   final List<SendingTask>? sendingTasks; // used to cancel tasks
   final String? errorMessage;
+
+  /// Whether the checksums are still being calculated, so the request has not
+  /// been sent to the receiver yet. The status is [SessionStatus.waiting] during
+  /// this phase too, so [hashedFileCount] is what tells the two apart.
+  bool get isCalculatingChecksums => status == SessionStatus.waiting && hashedFileCount < files.length;
 
   const SendSessionState({
     required this.sessionId,

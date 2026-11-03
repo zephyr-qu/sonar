@@ -1,9 +1,8 @@
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:flutter/material.dart';
-import 'package:localsend_app/model/persistence/color_mode.dart';
-import 'package:localsend_app/model/state/server/server_state.dart';
-import 'package:localsend_app/model/state/settings_state.dart';
-import 'package:localsend_isolates/model/device_info_result.dart';
+import 'package:sonar/model/state/server/server_state.dart';
+import 'package:sonar/model/state/settings_state.dart';
+import 'package:sonar_isolates/model/device_info_result.dart';
 
 part 'settings_tab_vm.mapper.dart';
 
@@ -24,12 +23,10 @@ class SettingsTabVm with SettingsTabVmMappable {
   final ServerState? serverState;
   final DeviceInfoResult deviceInfo;
   final List<ThemeMode> themeModes = ThemeMode.values;
-  final List<ColorMode> colorModes;
   final bool autoStart;
   final bool autoStartLaunchHidden;
   final bool showInContextMenu;
   final void Function(BuildContext context, ThemeMode mode) onChangeTheme;
-  final void Function(BuildContext context, ColorMode mode) onChangeColorMode;
   final void Function(BuildContext context) onTapLanguage;
   final void Function(BuildContext context) onToggleAutoStart;
   final void Function(BuildContext context) onToggleAutoStartLaunchHidden;
@@ -50,12 +47,10 @@ class SettingsTabVm with SettingsTabVmMappable {
     required this.settings,
     required this.serverState,
     required this.deviceInfo,
-    required this.colorModes,
     required this.autoStart,
     required this.autoStartLaunchHidden,
     required this.showInContextMenu,
     required this.onChangeTheme,
-    required this.onChangeColorMode,
     required this.onTapLanguage,
     required this.onToggleAutoStart,
     required this.onToggleAutoStartLaunchHidden,

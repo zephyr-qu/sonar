@@ -1,6 +1,6 @@
-import 'package:localsend_app/provider/security_provider.dart';
-import 'package:localsend_isolates/rust/api/http.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/provider/security_provider.dart';
+import 'package:sonar_isolates/rust/api/http.dart';
 
 class HttpClientCollection {
   final String _privateKey;

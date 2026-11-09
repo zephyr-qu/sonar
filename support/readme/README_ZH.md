@@ -136,16 +136,14 @@ fvm flutter run
 ```
 
 本地要出发布产物，在 `app/` 里直接 `fvm flutter build <目标>` 就可以。正式发布流程是
-[`support/scripts/`](../../support/scripts) 里的一组脚本，CI 调用的就是它们：
+[`support/scripts/`](../../support/scripts) 里的一组脚本负责各平台打包；CI 自己构建 Android APK 和 Linux AppImage，只调用 `compile_windows_exe-inno.iss` 和 `remove_proprietary_dependencies.sh`：
 
 | 目标 | 脚本 |
 |---|---|
-| Android APK（可复现，F-Droid 风格） | `compile_android_apk.sh` |
 | Android App Bundle | `compile_android_appbundle.ps1` |
 | iOS | `compile_ios.sh` |
 | macOS DMG / App Store | `compile_mac_dmg.sh`、`compile_mac_appstore.sh` |
-| Windows 安装包 / MSIX / 便携 ZIP | `compile_windows_exe.ps1`、`compile_windows_msix_*.ps1`、`compile_windows_zip.ps1` |
-| Linux AppImage | `compile_linux_appimage.sh` |
+| Windows 安装包 / 便携 ZIP | `compile_windows_exe.ps1`、`compile_windows_zip.ps1` |
 | 把版本号改到 CI 检查的每个文件 | `fvm dart run support/scripts/release.dart 1.18.3+64` |
 
 本地构建 Windows 安装包没有签名证书，给 `compile_windows_exe.ps1` 加 `-Unsigned`。

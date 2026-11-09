@@ -155,16 +155,16 @@ fvm flutter run
 ```
 
 For a local build of a release artifact, plain `fvm flutter build <target>` from `app/` works. The
-release pipeline is a set of scripts in [`support/scripts/`](support/scripts); it is what CI calls:
+scripts in [`support/scripts/`](support/scripts) cover the platform packaging; CI builds the Android
+APK and the Linux AppImage itself and only calls `compile_windows_exe-inno.iss` and
+`remove_proprietary_dependencies.sh`:
 
 | Target | Script |
 |---|---|
-| Android APK (reproducible, F-Droid style) | `compile_android_apk.sh` |
 | Android App Bundle | `compile_android_appbundle.ps1` |
 | iOS | `compile_ios.sh` |
 | macOS DMG / App Store | `compile_mac_dmg.sh`, `compile_mac_appstore.sh` |
-| Windows installer / MSIX / portable ZIP | `compile_windows_exe.ps1`, `compile_windows_msix_*.ps1`, `compile_windows_zip.ps1` |
-| Linux AppImage | `compile_linux_appimage.sh` |
+| Windows installer / portable ZIP | `compile_windows_exe.ps1`, `compile_windows_zip.ps1` |
 | Version bump in every file CI checks | `fvm dart run support/scripts/release.dart 1.18.3+64` |
 
 A local Windows installer build has no signing certificate; pass `-Unsigned` to

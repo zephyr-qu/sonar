@@ -47,3 +47,6 @@
 
 # Installer payload/result dirs used by support/scripts/compile_windows_exe.ps1
 /build/
+
+# Cloudflare Workers local state (wrangler deploy)
+/sonar-site/.wrangler/

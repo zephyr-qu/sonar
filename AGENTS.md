@@ -142,7 +142,7 @@ This is a personal fork ("Sonar") with a deliberately narrow maintenance budget:
 
 Never `git checkout upstream -- packages/core`: commit `9163af3c` folded `dto_v2.rs` into `dto.rs`, dropped the V2 suffixes and deleted the v3 protocol, so a directory checkout breaks every call site.
 
-`app/assets/i18n/` is frozen for the same reason: all 60 locales were hand-rebranded, so upstream translations are never merged — add keys by hand and run `fvm dart run slang`. `app/pubspec.yaml`'s `version:` carries the fork's own patch number (`1.18.3+64`) rather than a `-sonar.N` suffix, because `.github/workflows/ci.yml` requires the pubspec, Inno Setup and AppImage versions to match exactly and derives the MSIX version as a four-part number; bumping it touches those five files as described below.
+`app/assets/i18n/` is frozen for the same reason: all 60 locales were hand-rebranded, so upstream translations are never merged — add keys by hand and run `fvm dart run slang`. `app/pubspec.yaml`'s `version:` mirrors what upstream LocalSend declares for the same release (`1.18.2+64`, i.e. upstream's `version:` at tag `v1.18.2`) instead of carrying a `-sonar.N` suffix, because `.github/workflows/ci.yml` requires the pubspec, Inno Setup and AppImage versions to match exactly and derives the MSIX version as a four-part number; bumping it touches those five files as described below.
 
 ## Release notes
 

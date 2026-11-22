@@ -10,7 +10,7 @@ AppDir:
     id: com.zephyr.sonar
     name: Sonar
     icon: localsend
-    version: 1.18.3
+    version: 1.18.2
     exec: sonar
     exec_args: $@
   apt:

@@ -12,7 +12,7 @@
 #endif
 
 #define MyAppName "Sonar"
-#define MyAppVersion "1.18.3"
+#define MyAppVersion "1.18.2"
 #define MyAppPublisher "Tien Do Nam"
 #define MyAppURL "https://localsend.org"
 #define MyAppExeName "sonar.exe"

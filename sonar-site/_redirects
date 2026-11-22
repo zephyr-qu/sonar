@@ -1,0 +1,15 @@
+# 页面挂在 zone 的子路径上（见 wrangler.toml 的 routes），文件却在自己根目录。
+# 前缀在这里被代理掉，页面继续用相对路径，也能作为本地文件直接打开。
+#
+# 两个路径只能跳转不能代理：
+#
+#   /sonar            代理后浏览器停在目录为 `/` 的 URL 上，页面里所有相对路径会解析到前缀之外。
+#   /sonar/index.html 资源层把 /index.html 规范化成 `/`，代理后那意味着 zone 根，而不是这一页。
+#
+# 静态规则放在通配之前，免得被吞掉。
+
+/sonar /sonar/ 308
+/sonar/index.html /sonar/ 308
+
+# 其余全部去前缀：/sonar/styles.css -> /styles.css、/sonar/assets/shots/nearby.webp -> /assets/shots/nearby.webp
+/sonar/* /:splat 200

@@ -12,14 +12,14 @@
 <meta property="og:site_name" content="Sonar">
 <meta property="og:title" content="Sonar — 局域网传文件，不经过云端">
 <meta property="og:description" content="同一网络下自动发现设备、点对点直传。没有账号、没有云端、没有大小限制。协议兼容 LocalSend 2.x。">
-<meta property="og:image" content="assets/og.png">
+<meta property="og:image" content="https://www.zephyrqu.top/sonar/assets/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="zh_CN">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Sonar — 局域网传文件，不经过云端">
 <meta name="twitter:description" content="同一网络下自动发现设备、点对点直传。协议兼容 LocalSend 2.x。">
-<meta name="twitter:image" content="assets/og.png">
+<meta name="twitter:image" content="https://www.zephyrqu.top/sonar/assets/og.png">
 
 <link rel="icon" href="assets/brand/sonar-mark-fullcolor-on-lime.svg" type="image/svg+xml">
 <link rel="stylesheet" href="styles.css">
@@ -29,19 +29,21 @@
 <!--
   标记在 assets/brand/（与品牌母版同源），几何由同源常量生成，不要手改 SVG。
 
-  交互在 app.js：导航滚动态、链接注入、雷达光点重扫、复制命令、入场动画。
-  它读取下面 window.SONAR_LINKS 里的链接；这个 fork 还没有发布二进制，
-  releases 指向 GitHub 的 releases 页面（目前是空的）。
+  交互在 app.js：导航滚动态、链接注入、雷达光点重扫、入场动画。
+  它读取下面 window.SONAR_LINKS 里的链接；源码在 GitHub，安装包发在 Gitee Release
+  （windows / android 是直链，其余按钮走 js-releases 的页面）。
 -->
 
 <script>
   document.documentElement.classList.add("js");
   window.SONAR_LINKS = {
     repo: "https://github.com/zephyr-qu/sonar",
-    // 还没有发布二进制，页面上的按钮都指向仓库；发布后把按钮换回 js-releases 即可
-    releases: "https://github.com/zephyr-qu/sonar/releases",
+    // 安装包不在 GitHub，统一发在 Gitee Release（GitHub Releases 是空的）
+    releases: "https://gitee.com/zephyr-qu/sonar/releases/tag/v1.18.2",
+    windows: "https://gitee.com/zephyr-qu/sonar/releases/download/v1.18.2/localsend.exe",
+    android: "https://gitee.com/zephyr-qu/sonar/releases/download/v1.18.2/app-arm64-v8a-release.apk",
     upstream: "https://localsend.org",
-    version: "1.18.3"
+    version: "1.18.2"
   };
 </script>
 
@@ -51,11 +53,12 @@
   </a>
   <nav class="nav-links">
     <a href="#features">特性</a>
-    <a href="#how">怎么用</a>
+    <a href="#how">使用</a>
     <a href="#platforms">平台</a>
     <a href="#tech">技术</a>
   </nav>
-  <a class="btn btn-primary nav-cta js-repo" href="https://github.com/zephyr-qu/sonar" target="_blank" rel="noopener">GitHub</a>
+  <a class="nav-gh js-repo" href="https://github.com/zephyr-qu/sonar">GitHub</a>
+  <a class="btn btn-primary nav-cta" href="#download">下载</a>
 </header>
 
 <main id="top">
@@ -63,20 +66,20 @@
   <!-- ───────────────────────────── hero ───────────────────────────── -->
   <section class="hero">
     <div class="hero-copy reveal">
-      <p class="eyebrow">Local-first transfer · 协议 v2</p>
+      <p class="eyebrow eyebrow-cn">局域网传输 协议 v2</p>
       <h1>局域网里传文件<br>不经过任何云端</h1>
       <p class="lede">
-        同一网络下自动发现附近的设备，点一下就开始传。没有账号、没有上传、没有大小限制 ——
-        文件从一台设备直接到另一台。
+        同一网络下的设备自动发现，选中即可传输。<br>无需账号，也没有大小限制。
       </p>
       <div class="hero-actions">
-        <a class="btn btn-primary js-repo" href="https://github.com/zephyr-qu/sonar" target="_blank" rel="noopener">获取源码</a>
-        <a class="btn btn-ghost" href="#features">看看特性</a>
+        <a class="btn btn-primary js-download-windows" href="https://gitee.com/zephyr-qu/sonar/releases/download/v1.18.2/localsend.exe" target="_blank" rel="noopener">下载 Windows 版</a>
+        <a class="btn btn-ghost js-download-android" href="https://gitee.com/zephyr-qu/sonar/releases/download/v1.18.2/app-arm64-v8a-release.apk" target="_blank" rel="noopener">下载 Android 版</a>
+        <a class="btn btn-ghost" href="#features">了解特性</a>
       </div>
       <p class="hero-meta">
-        <span class="mono js-version">v1.18.3</span>
-        <span class="sep">·</span> Apache-2.0
-        <span class="sep">·</span> 基于 LocalSend
+        <a class="mono js-version js-releases" href="https://gitee.com/zephyr-qu/sonar/releases/tag/v1.18.2" target="_blank" rel="noopener">v1.18.2</a>
+        <span>Apache-2.0</span>
+        <span>基于 LocalSend</span>
       </p>
     </div>
 
@@ -99,9 +102,9 @@
 
   <!-- ───────────────────────────── 界面 ───────────────────────────── -->
   <section id="ui" class="section reveal">
-    <p class="eyebrow">界面</p>
-    <h2>附近的设备自己浮出来</h2>
-    <p class="section-sub">不用输 IP，不用扫码。同网段的设备会出现在雷达上，远的自动收进列表。</p>
+    <p class="eyebrow eyebrow-cn">界面</p>
+    <h2>附近的设备自动出现</h2>
+    <p class="section-sub">无需输入 IP，无需扫码。</p>
 
     <div class="shot-row">
       <figure class="shot">
@@ -110,159 +113,175 @@
           <img src="assets/shots/nearby.png" width="659" height="1357" loading="lazy" decoding="async"
                alt="Sonar 的附近页面：雷达上排布着同网段的六台设备，下方是待发送的三个文件">
         </picture>
-        <figcaption>附近页 · 6 / 9 台在线</figcaption>
+        <figcaption>附近页 6 / 9 台在线</figcaption>
       </figure>
 
       <ul class="shot-points">
         <li>
-          <strong>雷达按远近排</strong>
-          <span>近处的设备铺在雷达上，远的收到下面的列表里，不会挤成一团。</span>
+          <strong>按距离排列</strong>
+          <span>近处设备显示在雷达上，较远设备列入下方列表，避免堆叠。</span>
         </li>
         <li>
-          <strong>拖过去就发</strong>
-          <span>文件拖到设备上即可，或者点名字再选文件。不用先建立连接。</span>
+          <strong>拖拽发送</strong>
+          <span>将文件拖到设备上即可发送，也可选中设备后再选择文件，无需预先建立连接。</span>
         </li>
         <li>
-          <strong>一次排队多个</strong>
-          <span>图片、设计稿、PDF 一起排进待发送，接收方那边一次确认。</span>
+          <strong>批量发送</strong>
+          <span>图片、设计稿、PDF 可同时加入待发送列表，接收方一次确认即可。</span>
         </li>
       </ul>
     </div>
   </section>
 
   <!-- ──────────────────────── 一句话亮点 ──────────────────────── -->
-  <section class="section reveal">
+  <section class="section section-pull reveal">
     <p class="pull">
-      对方<span class="hl">什么都不用装</span> —— 用浏览器打开一个链接就能收。
+      对方<span class="hl">无需安装应用</span> —— 打开浏览器链接即可接收文件。
     </p>
+  </section>
+
+  <!-- ───────────────────────── 链接接收（网页） ───────────────────────── -->
+  <section id="web" class="section reveal">
+    <p class="eyebrow eyebrow-cn">链接接收</p>
+    <h2>浏览器中的接收页面</h2>
+
+    <div class="win" role="img" aria-label="链接接收页面：浏览器里列出待接收的三个文件，底部是下载全部按钮">
+      <div class="win-bar">
+        <span class="win-dots"><i></i><i></i><i></i></span>
+        <span class="win-url mono">http://192.168.1.17:53317</span>
+      </div>
+      <div class="win-body">
+        <div class="win-head">
+          <span class="win-sender">Kai's iPhone</span>
+          <span class="win-count">3 个文件</span>
+        </div>
+        <ul class="win-files">
+          <li><span class="win-name">IMG_2481.HEIC</span><span class="win-size mono">4.1 MB</span></li>
+          <li><span class="win-name">海报终稿-v3.fig</span><span class="win-size mono">8.9 MB</span></li>
+          <li><span class="win-name">报账单-10月.pdf</span><span class="win-size mono">1.2 MB</span></li>
+        </ul>
+        <span class="win-cta">下载全部</span>
+      </div>
+    </div>
   </section>
 
   <!-- ─────────────────────────── features ─────────────────────────── -->
   <section id="features" class="section reveal">
-    <p class="eyebrow">为什么用它</p>
-    <h2>该有的都有，不该有的都没有</h2>
+    <p class="eyebrow eyebrow-cn">核心特性</p>
+    <h2>只保留与传输有关的能力</h2>
 
     <div class="grid">
       <article class="card">
-        <h3>不联网也能用</h3>
-        <p>只在局域网内通信。断网、隔离网、没有外网出口的环境照样能传 —— 它从不向互联网发起请求。</p>
+        <h3>无需外网</h3>
+        <p>通信仅限局域网。断网或隔离网环境下同样可用，不会向互联网发起请求。</p>
       </article>
       <article class="card">
-        <h3>和原版互通</h3>
-        <p>实现 LocalSend 协议 v2，可以和任意安装了原版 LocalSend 的设备互传，不必全部换成 Sonar。</p>
+        <h3>兼容 LocalSend</h3>
+        <p>兼容 LocalSend 协议 v2，可直接与安装 LocalSend 的设备互传，无需统一客户端。</p>
       </article>
       <article class="card">
-        <h3>传输是加密的</h3>
-        <p>每个设备自签证书，连接时双向校验。设备身份是证书的 SHA-256 指纹，不是对方自报的名字。</p>
-      </article>
-      <article class="card">
-        <h3>对方不用装 App</h3>
-        <p>开启「链接接收」后，对方用浏览器打开一个网页就能下载文件 —— 手机、平板、老电脑都行。</p>
+        <h3>加密传输</h3>
+        <p>设备使用自签证书，连接时双向验证。身份以证书的 SHA-256 指纹为准，而非对方自报的名称。</p>
       </article>
     </div>
   </section>
 
   <!-- ───────────────────────────── how ───────────────────────────── -->
   <section id="how" class="section reveal">
-    <p class="eyebrow">怎么用</p>
-    <h2>三步，不需要注册</h2>
+    <p class="eyebrow eyebrow-cn">使用步骤</p>
+    <h2>无需注册，三步完成传输</h2>
     <ol class="steps">
       <li>
         <span class="step-no mono">01</span>
         <h3>打开 Sonar</h3>
-        <p>连接到同一个 Wi-Fi 或网线。没有局域网？热点直连也可以。</p>
+        <p>设备接入同一 Wi-Fi 或网线，也可通过热点直连。</p>
       </li>
       <li>
         <span class="step-no mono">02</span>
-        <h3>选设备</h3>
-        <p>附近的设备会自己出现。点它的名字，或者直接拖文件过去。</p>
+        <h3>选择设备</h3>
+        <p>附近设备自动出现，选中后选择文件，或直接拖入文件。</p>
       </li>
       <li>
         <span class="step-no mono">03</span>
-        <h3>等它传完</h3>
-        <p>接收方确认后开始传输。大文件有进度和速度，随时可以取消。</p>
+        <h3>完成传输</h3>
+        <p>接收方确认后开始传输，过程中显示进度与速度，可随时取消。</p>
       </li>
     </ol>
   </section>
 
   <!-- ─────────────────────────── platforms ─────────────────────────── -->
   <section id="platforms" class="section reveal">
-    <p class="eyebrow">平台</p>
+    <p class="eyebrow eyebrow-cn">平台</p>
     <h2>一个协议，五个平台</h2>
-    <p class="section-sub">任意两个平台之间都能互传，不挑配对。</p>
+    <p class="section-sub">任意两个平台之间均可互传。</p>
     <ul class="chips">
       <li>Windows</li>
       <li>macOS</li>
       <li>Linux</li>
       <li>Android</li>
       <li>iOS</li>
-      <li class="chip-note">浏览器接收 · 无需安装</li>
+      <li class="chip-note">浏览器接收（无需安装）</li>
     </ul>
   </section>
 
   <!-- ───────────────────────────── tech ───────────────────────────── -->
   <section id="tech" class="section reveal">
-    <p class="eyebrow">技术</p>
-    <h2>网络部分写在 Rust 里</h2>
+    <p class="eyebrow eyebrow-cn">技术</p>
+    <h2>网络层由 Rust 实现</h2>
     <div class="tech-grid">
       <div class="tech-item">
         <span class="mono k">HTTP</span>
-        <p>服务端与客户端都是 Rust 实现，协议 v2。界面只做事件处理，重活不在主线程。</p>
+        <p>服务端与客户端均由 Rust 实现，使用协议 v2。界面只处理事件，计算不占用主线程。</p>
       </div>
       <div class="tech-item">
-        <span class="mono k">发现</span>
-        <p>UDP 多播广播，每个网络接口一个 socket；IPv6 也支持。回应走 HTTP 单播回去。</p>
+        <span class="k k-cn">发现</span>
+        <p>UDP 多播发现，每个网络接口对应一个 socket，并支持 IPv6；回应通过 HTTP 单播返回。</p>
       </div>
       <div class="tech-item">
         <span class="mono k">TLS</span>
-        <p>设备自签证书，强制校验客户端证书。指纹不一致的注册包直接丢弃。</p>
+        <p>设备使用自签证书，连接时强制校验。指纹不符的注册请求直接丢弃。</p>
       </div>
       <div class="tech-item">
-        <span class="mono k">许可</span>
-        <p>Apache-2.0。上游是 LocalSend，本仓库是个人维护的 fork。</p>
+        <span class="k k-cn">许可</span>
+        <p>Apache-2.0。本项目基于 LocalSend，由个人维护。</p>
       </div>
     </div>
   </section>
 
   <!-- ───────────────────────────── faq ───────────────────────────── -->
   <section id="faq" class="section reveal">
-    <p class="eyebrow">常见问题</p>
-    <h2>你可能想先问这几句</h2>
+    <p class="eyebrow eyebrow-cn">常见问题</p>
+    <h2>关于传输的几个问题</h2>
 
     <dl class="faq">
       <div>
-        <dt>需要连外网吗？</dt>
-        <dd>不需要。设备发现在局域网内用多播，传输是点对点的 HTTP。断网、内网隔离、没有出口的环境都能用。</dd>
+        <dt>需要连接外网吗？</dt>
+        <dd>不需要。设备发现使用局域网多播，传输为点对点 HTTP。断网、内网隔离或无外网出口的环境均可使用。</dd>
       </div>
       <div>
-        <dt>对方没装 Sonar 怎么办？</dt>
-        <dd>用「链接接收」：Sonar 会给出一个网页地址，对方在任何设备的浏览器里打开就能下载，不用装任何东西。</dd>
+        <dt>对方未安装 Sonar 怎么办？</dt>
+        <dd>使用「链接接收」后，Sonar 会生成一个网页地址。对方用任意设备的浏览器打开即可下载，无需安装应用。</dd>
       </div>
       <div>
-        <dt>防火墙要开什么？</dt>
-        <dd>默认端口 <span class="mono">53317</span>，TCP 与 UDP 都要放行 —— UDP 用来发现设备，TCP 用来传文件。两端在同一网段时，系统弹窗允许一次即可。</dd>
+        <dt>需要开放哪些防火墙端口？</dt>
+        <dd>默认端口 <span class="mono">53317</span>，需放行 TCP 与 UDP：UDP 用于设备发现，TCP 用于文件传输。两端处于同一网段时，系统弹窗允许一次即可。</dd>
       </div>
       <div>
         <dt>文件会不会经过服务器？</dt>
-        <dd>不会。Sonar 没有云端；文件从发送设备直接传到接收设备。</dd>
+        <dd>不会。Sonar 不依赖云端，文件在发送与接收设备之间直接传输。</dd>
       </div>
     </dl>
   </section>
 
   <!-- ───────────────────────────── cta ───────────────────────────── -->
-  <section class="cta reveal">
-    <h2>从源码构建，或等它发布</h2>
-    <p>这个 fork 目前还没有发布现成的安装包。想现在就用，可以自己构建：</p>
+  <section class="cta reveal" id="download">
+    <h2>直接下载</h2>
+    <p>已提供 Windows 与 Android 安装包，Android 仅支持 arm64-v8a。</p>
 
-    <div class="cli">
-      <pre class="code mono"><code id="cliCommand">git clone https://github.com/zephyr-qu/sonar
-cd sonar/app
-fvm flutter pub get
-fvm flutter build windows</code></pre>
-      <button class="btn btn-ghost copy" id="copyCmd" type="button">复制</button>
+    <div class="hero-actions">
+      <a class="btn btn-primary js-download-windows" href="https://gitee.com/zephyr-qu/sonar/releases/download/v1.18.2/localsend.exe" target="_blank" rel="noopener">下载 Windows 版</a>
+      <a class="btn btn-ghost js-download-android" href="https://gitee.com/zephyr-qu/sonar/releases/download/v1.18.2/app-arm64-v8a-release.apk" target="_blank" rel="noopener">下载 Android 版</a>
     </div>
-
-    <a class="btn btn-primary js-repo" href="https://github.com/zephyr-qu/sonar" target="_blank" rel="noopener">打开仓库</a>
   </section>
 
 </main>
@@ -270,9 +289,9 @@ fvm flutter build windows</code></pre>
 <footer class="foot">
   <img src="assets/brand/sonar-lockup-horizontal-mono-light.svg" alt="Sonar" width="97" height="30">
   <p class="foot-meta">
-    Apache-2.0 ·
-    基于 <a class="js-upstream" href="https://localsend.org" target="_blank" rel="noopener">LocalSend</a> ·
-    字体 Archivo &amp; JetBrains Mono（OFL）
+    <span>Apache-2.0</span>
+    <span>基于 <a class="js-upstream" href="https://localsend.org" target="_blank" rel="noopener">LocalSend</a></span>
+    <span>字体 Archivo &amp; JetBrains Mono（OFL）</span>
   </p>
 </footer>
 

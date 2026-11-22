@@ -18,9 +18,12 @@
   --line: rgba(255, 255, 255, .09);
   --fg: #edeff2;
   --muted: #9aa1ac;
+  --muted-2: #7d8595;         /* 元信息一层，比 muted 再暗一档但仍然可读 */
   --display: Archivo, "Noto Sans SC", system-ui, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, monospace;
   --maxw: 1060px;
+  --gut: 28px;                /* 内容左右留白，移动端收窄 */
+  --card-grad: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .012));
 }
 
 * { box-sizing: border-box; }
@@ -39,11 +42,18 @@ body {
 }
 
 h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -.015em; line-height: 1.15; }
-h1 { font-size: clamp(34px, 5.2vw, 58px); }
+h1 { font-size: clamp(34px, 5.2vw, 58px); text-wrap: balance; }
 h2 { font-size: clamp(24px, 3.2vw, 34px); text-wrap: balance; }
 h3 { font-size: 17px; letter-spacing: -.005em; }
 p { margin: 0; }
 a { color: inherit; }
+
+/* 键盘可达性：只用 focus-visible，鼠标点击不出现外框 */
+:where(a, button):focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
 
 .mono { font-family: var(--mono); }
 
@@ -56,36 +66,70 @@ a { color: inherit; }
   margin-bottom: 14px;
 }
 
+/* 中文 eyebrow 不走 mono：JetBrains Mono 没有汉字，掉回回退字体后 .16em 字距会显得是意外 */
+.eyebrow-cn {
+  font-family: var(--display);
+  font-size: 12px;
+  letter-spacing: .08em;
+  margin-bottom: 12px;
+}
+
 /* ───────────────────────────────── nav ───────────────────────────────── */
+/* 通栏吸顶条，内容仍落在 1060 网格上：留白用 padding 而非 max-width，
+   否则滚动态只有中间一块变模糊/加分割线，两侧露底。 */
 .nav {
   position: sticky;
   top: 0;
   z-index: 20;
   display: flex;
   align-items: center;
-  gap: 28px;
-  max-width: var(--maxw);
-  margin: 0 auto;
-  padding: 18px 28px;
-  backdrop-filter: blur(14px);
-  background: linear-gradient(to bottom, rgba(7, 8, 10, .88), rgba(7, 8, 10, .55));
+  gap: 26px;
+  padding: 16px max(var(--gut), calc((100% - var(--maxw)) / 2 + var(--gut)));
+  backdrop-filter: blur(16px) saturate(1.2);
+  background: linear-gradient(to bottom, rgba(7, 8, 10, .9), rgba(7, 8, 10, .58));
   border-bottom: 1px solid var(--line);
+  transition: background .2s, border-color .2s;
 }
 
-.nav-brand { display: flex; align-items: center; }
+.nav-brand { display: flex; align-items: center; flex: none; }
 .nav-brand img { display: block; height: 34px; width: auto; }
 
 .nav-links {
   display: flex;
-  gap: 24px;
+  gap: 22px;
   margin-left: auto;
   font-size: 14px;
   color: var(--muted);
 }
-.nav-links a { text-decoration: none; transition: color .15s; }
+.nav-links a {
+  position: relative;
+  text-decoration: none;
+  padding: 4px 0;
+  transition: color .15s;
+}
 .nav-links a:hover { color: var(--fg); }
+/* 当前区块：由 app.js 的 scroll spy 打标 */
+.nav-links a.is-active { color: var(--lime); }
+.nav-links a.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1px;
+  background: currentColor;
+  opacity: .6;
+}
 
-.nav-cta { margin-left: 8px; }
+.nav-gh {
+  font-size: 14px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color .15s;
+}
+.nav-gh:hover { color: var(--fg); }
+/* 导航里的主动作：滚过 hero 之后仍然点得到下载（#download 就是 CTA 那一节） */
+.btn.nav-cta { margin-left: -8px; flex: none; height: 38px; padding: 0 18px; font-size: 13.5px; }
 
 /* ─────────────────────────────── buttons ─────────────────────────────── */
 .btn {
@@ -100,12 +144,12 @@ a { color: inherit; }
   white-space: nowrap;
   background: none;          /* <button> 默认是 buttonface 灰底，不清掉白字看不见 */
   color: var(--fg);
-  transition: transform .12s, background .15s, border-color .15s;
+  transition: transform .12s, background .15s, border-color .15s, box-shadow .18s;
 }
 .btn:active { transform: translateY(1px); }
 
 .btn-primary { background: var(--lime); color: #10130a; }
-.btn-primary:hover { background: #d4ff62; }
+.btn-primary:hover { background: #d4ff62; box-shadow: 0 10px 30px -12px rgba(198, 242, 78, .6); }
 
 .btn-ghost {
   border: 1px solid rgba(255, 255, 255, .16);
@@ -122,17 +166,33 @@ a { color: inherit; }
   align-items: center;
   max-width: var(--maxw);
   margin: 0 auto;
-  padding: 84px 28px 72px;
+  padding: 76px var(--gut) 64px;
+  overflow: clip;            /* 让下面的点阵与光晕止步于 hero，不污染后续区块 */
 }
 
+/* 极淡的点阵：只铺在雷达一侧，给黑底一点质感而不是纯色 */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, .07) 1px, transparent 1px);
+  background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(58% 62% at 74% 42%, #000 0%, transparent 78%);
+  mask-image: radial-gradient(58% 62% at 74% 42%, #000 0%, transparent 78%);
+  pointer-events: none;
+}
+
+.hero-copy, .hero-radar { position: relative; z-index: 1; }
+
 .hero-copy { max-width: 560px; }
-.hero h1 { margin-bottom: 20px; }
+.hero h1 { margin-bottom: 18px; }
 .lede { color: var(--muted); font-size: 17px; max-width: 46ch; }
 
-.hero-actions { display: flex; gap: 12px; margin: 30px 0 20px; flex-wrap: wrap; }
+.hero-actions { display: flex; gap: 12px; margin: 28px 0 18px; flex-wrap: wrap; align-items: center; }
 
-.hero-meta { font-size: 13px; color: #6f7684; font-family: var(--mono); }
-.hero-meta .sep { margin: 0 8px; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: 13px; color: var(--muted-2); font-family: var(--mono); }
+.hero-meta a { text-decoration: none; border-bottom: 1px solid rgba(255, 255, 255, .16); transition: color .15s, border-color .15s; }
+.hero-meta a:hover { color: var(--lime); border-bottom-color: rgba(198, 242, 78, .5); }
 
 /* 雷达屏：范围环 + 扫描线 + 中心标记，不是一个"托底圆盘 + 居中图标" */
 .hero-radar {
@@ -142,8 +202,18 @@ a { color: inherit; }
   justify-content: center;
 }
 
+/* 雷达背后的一团光，让右栏不至于是一块死黑 */
+.hero-radar::before {
+  content: "";
+  position: absolute;
+  inset: -10% -8%;
+  background: radial-gradient(closest-side, rgba(198, 242, 78, .1), transparent 72%);
+  pointer-events: none;
+}
+
 #radar {
   position: relative;
+  z-index: 1;
   width: min(400px, 100%);
   aspect-ratio: 1;          /* 必须是正方形，否则环会变成椭圆 */
   display: grid;
@@ -153,7 +223,7 @@ a { color: inherit; }
 #radar .ring {
   position: absolute;
   border-radius: 50%;
-  border: 1px solid rgba(198, 242, 78, .13);
+  border: 1px solid rgba(198, 242, 78, .16);
 }
 #radar .r1 { inset: 33%; }
 #radar .r2 { inset: 16.5%; }
@@ -188,13 +258,17 @@ a { color: inherit; }
 }
 
 /* ─────────────────────────── 一句话亮点 ─────────────────────────── */
+/* 单独一段的展示句：不给它整段 72px 的空白，收窄留白让它像一句口号 */
+.section-pull { padding-block: 54px; text-align: center; }
+
 .pull {
-  max-width: 22em;
+  max-width: 26em;
   margin: 0 auto;
   text-align: center;
-  font-size: clamp(22px, 2.8vw, 30px);
-  line-height: 1.45;
+  font-size: clamp(23px, 3.2vw, 34px);
+  line-height: 1.4;
   font-weight: 600;
+  letter-spacing: -.01em;
   color: var(--fg);
   text-wrap: balance;
 }
@@ -219,49 +293,149 @@ a { color: inherit; }
 /* ──────────────────────────── 界面截图 ──────────────────────────── */
 .shot-row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 48px;
+  grid-template-columns: 318px minmax(0, 1fr);   /* 定死图宽：auto 会被图片固有宽度（659px）撑开 */
+  gap: 52px;
   align-items: center;
-  max-width: 840px;          /* 让图与文字成为一个整体，而不是分居两端 */
-  margin: 26px auto 0;
+  max-width: 900px;          /* 让图与文字成为一个整体，而不是分居两端 */
+  margin: 30px auto 0;
 }
-.shot { margin: 0; }
+.shot { margin: 0 auto; position: relative; width: 100%; }
+/* App 截图本身是深色底，直接放黑底上会整块消失；给一圈极细的机身边框 + 冷光 */
+.shot::before {
+  content: "";
+  position: absolute;
+  inset: -34px -44px;
+  border-radius: 44px;
+  background: radial-gradient(closest-side, rgba(198, 242, 78, .1), transparent 74%);
+  pointer-events: none;
+}
+.shot picture {
+  position: relative;
+  display: block;
+  padding: 9px;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, .11);
+  background: linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02));
+  box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .95), inset 0 1px 0 rgba(255, 255, 255, .06);
+}
 .shot img {
   display: block;
-  width: min(300px, 100%);
+  width: 100%;
   height: auto;
+  border-radius: 18px;
   /* 截图自带手机边框，四角之外的底色与页面底色一致，不需要再裁圆角 */
 }
 .shot figcaption {
-  margin-top: 12px;
-  font-family: var(--mono);
+  margin-top: 14px;
+  font-family: var(--display);   /* 说明里有中文，mono 会掉回退字体 */
   font-size: 11px;
-  color: #6f7684;
+  color: var(--muted-2);
   text-align: center;
-  width: min(300px, 100%);
+  width: 100%;
 }
 .shot-points {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 22px;
+  gap: 20px;
 }
-.shot-points li { display: grid; gap: 6px; }
+.shot-points li { position: relative; display: grid; gap: 6px; padding-left: 20px; }
+/* 每条前面一枚方点，和雷达上的设备点同形 */
+.shot-points li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--lime);
+  box-shadow: 0 0 0 4px rgba(198, 242, 78, .1);
+}
 .shot-points strong { font-size: 16px; font-weight: 600; }
 .shot-points span { color: var(--muted); font-size: 14.5px; }
 
 @media (max-width: 860px) {
-  .shot-row { grid-template-columns: 1fr; gap: 28px; justify-items: center; text-align: center; }
-  .shot-points { max-width: 40ch; }
+  .shot-row { grid-template-columns: 1fr; gap: 32px; justify-items: center; text-align: center; }
+  .shot-points { max-width: 40ch; text-align: left; }
+  .shot-points li { padding-left: 18px; }
+  .shot { max-width: 318px; }
+}
+
+/* ─────────────────────── 链接接收（浏览器窗口） ─────────────────────── */
+/* 和手机截图配成一对：竖版讲 App 里看到什么，横版讲对面打开的那一页 */
+.win {
+  max-width: 720px;
+  margin: 34px auto 0;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, .11);
+  background: linear-gradient(180deg, rgba(255, 255, 255, .055), rgba(255, 255, 255, .015));
+  box-shadow: 0 40px 90px -46px rgba(0, 0, 0, .95), inset 0 1px 0 rgba(255, 255, 255, .06);
+  overflow: hidden;
+  user-select: none;
+}
+.win-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, .02);
+}
+.win-dots { display: flex; gap: 6px; }
+.win-dots i { width: 9px; height: 9px; border-radius: 50%; background: rgba(255, 255, 255, .18); }
+.win-url {
+  flex: 1;
+  min-width: 0;
+  padding: 5px 12px;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, .38);
+  font-size: 11px;
+  color: var(--muted-2);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.win-body { padding: 20px 20px 22px; }
+.win-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.win-sender { font-weight: 600; font-size: 15px; }
+.win-count { font-size: 11px; color: var(--muted-2); }
+.win-files { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 8px; }
+.win-files li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, .025);
+}
+.win-name { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.win-size { font-size: 11px; color: var(--muted-2); flex: none; }
+.win-cta {
+  pointer-events: none;      /* 这是示意图，别当成真按钮去点 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--lime);
+  color: #10130a;
+  font-weight: 600;
+  font-size: 14px;
 }
 
 /* ─────────────────────────────── sections ─────────────────────────────── */
 .section {
   max-width: var(--maxw);
   margin: 0 auto;
-  padding: 72px 28px;
+  padding: 68px var(--gut);
   border-top: 1px solid var(--line);
+  scroll-margin-top: 76px;   /* 锚点跳过去时别被吸顶导航压住 */
 }
 .section h2 { margin-bottom: 12px; }
 .section-sub { color: var(--muted); margin-bottom: 30px; }
@@ -270,15 +444,17 @@ a { color: inherit; }
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 14px;
-  margin-top: 36px;
+  margin-top: 34px;
 }
 
 .card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, .035), rgba(255, 255, 255, .012));
+  background: var(--card-grad);
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 22px 22px 24px;
+  transition: border-color .18s, background .18s;
 }
+.card:hover { border-color: rgba(255, 255, 255, .16); }
 .card h3 { margin-bottom: 9px; }
 .card p { color: var(--muted); font-size: 14.5px; }
 
@@ -287,11 +463,11 @@ a { color: inherit; }
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 14px;
-  margin: 36px 0 0;
+  margin: 34px 0 0;
   padding: 0;
 }
 .steps li {
-  background: linear-gradient(180deg, rgba(255, 255, 255, .035), rgba(255, 255, 255, .012));
+  background: var(--card-grad);
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 20px 22px 22px;
@@ -317,50 +493,53 @@ a { color: inherit; }
   margin-top: 34px;
 }
 .tech-item {
-  background: linear-gradient(180deg, rgba(255, 255, 255, .035), rgba(255, 255, 255, .012));
+  background: var(--card-grad);
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 20px 22px 22px;
+  transition: border-color .18s;
 }
+.tech-item:hover { border-color: rgba(255, 255, 255, .16); }
 .tech-item .k {
   display: inline-block;
-  font-size: 11px;
-  letter-spacing: .14em;
+  font-size: 12px;          /* 和下面的 .k-cn 同一档，Latin 与汉字混排不跳字号 */
+  letter-spacing: .12em;
   color: var(--lime);
   margin-bottom: 7px;
 }
+/* 中文标签不用 mono：JetBrains Mono 没有汉字，会掉回回退字体 */
+.tech-item .k-cn { font-family: var(--display); letter-spacing: .08em; }
 .tech-item p { color: var(--muted); font-size: 14.5px; }
 
 /* ────────────────────────────────── cta ────────────────────────────────── */
 .cta {
+  position: relative;
   max-width: var(--maxw);
   margin: 0 auto;
-  padding: 64px 28px 80px;
+  padding: 72px var(--gut) 84px;
   border-top: 1px solid var(--line);
   text-align: center;
+  scroll-margin-top: 76px;
+  overflow: clip;
 }
-.cta h2 { margin-bottom: 12px; }
-.cta > p { color: var(--muted); max-width: 36em; margin: 0 auto 24px; }
-
-.code {
-  display: inline-block;
-  text-align: left;
-  margin: 0 0 26px;
-  padding: 16px 20px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, .03);
-  font-size: 13px;
-  line-height: 1.7;
-  color: #cfd5dd;
-  overflow-x: auto;
-  max-width: 100%;
+/* 收尾处补一层向上的绿光，让"直接下载"成为视觉终点 */
+.cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(60% 130% at 50% 0%, rgba(198, 242, 78, .085), transparent 72%);
+  pointer-events: none;
 }
+.cta > * { position: relative; z-index: 1; }
+.cta h2 { margin-bottom: 14px; }
+.cta > p { color: var(--muted); max-width: 36em; margin: 0 auto 26px; }
+/* 按钮排居中：.hero-actions 默认靠左，在居中的 CTA 里会歪向左上 */
+.cta .hero-actions { justify-content: center; margin: 0; }
 
 /* ───────────────────────────────── footer ───────────────────────────────── */
 .foot {
   border-top: 1px solid var(--line);
-  padding: 40px 28px 56px;
+  padding: 40px var(--gut) 56px;
   max-width: var(--maxw);
   margin: 0 auto;
   display: flex;
@@ -369,15 +548,43 @@ a { color: inherit; }
   gap: 14px;
 }
 .foot img { height: 30px; width: auto; }
-.foot-meta { color: #6f7684; font-size: 13px; }
-.foot-meta a { color: var(--muted); text-decoration: none; border-bottom: 1px solid rgba(255, 255, 255, .18); }
+.foot-meta { display: flex; flex-wrap: wrap; gap: 4px 20px; color: var(--muted-2); font-size: 13px; }
+.foot-meta a { color: var(--muted); text-decoration: none; border-bottom: 1px solid rgba(255, 255, 255, .18); transition: color .15s; }
+.foot-meta a:hover { color: var(--fg); }
 
 /* ──────────────────────────────── responsive ──────────────────────────────── */
 @media (max-width: 860px) {
-  .hero { grid-template-columns: 1fr; padding-top: 56px; }
-  .hero-radar { order: -1; max-width: 260px; }
+  .hero { grid-template-columns: 1fr; padding-top: 44px; padding-bottom: 52px; gap: 28px; }
+  .hero-radar { order: -1; width: 100%; max-width: 300px; margin: 0 auto; }
+  .hero-copy { max-width: none; }
   .nav-links { display: none; }
-  .nav-cta { margin-left: auto; }
+  .btn.nav-cta { margin-left: auto; }
+  .nav-gh { display: none; }
+}
+
+@media (max-width: 560px) {
+  :root { --gut: 20px; }
+  .hero { padding-top: 34px; }
+  .hero h1 { font-size: clamp(30px, 8.6vw, 40px); }
+  .lede { font-size: 16px; }
+  .btn { height: 44px; padding: 0 18px; }   /* 触控目标补到 44 */
+  .section { padding-block: 52px; }
+  .section-sub { margin-bottom: 24px; }
+  .section-pull { padding-block: 44px; }
+  .cta { padding: 56px var(--gut) 64px; }
+  .chips li { padding: 8px 15px; font-size: 13px; }
+  .card, .steps li, .tech-item { padding: 18px 18px 20px; }
+  .shot picture { padding: 7px; border-radius: 22px; }
+  .shot img { border-radius: 16px; }
+  .shot::before { inset: -22px; }
+  .hero-radar { max-width: 220px; }
+  /* 仅 hero 的第三个按钮独占一行；CTA 现在只有两个按钮，保持同一行 */
+  .hero .hero-actions .btn:last-child { flex: 1 1 100%; }
+  .win-body { padding: 14px 14px 16px; }
+  .win-files li { padding: 9px 11px; }
+  .win-url { font-size: 10px; }
+  .win-head { margin-bottom: 12px; }
+  .win-sender { font-size: 14px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -426,22 +633,9 @@ a { color: inherit; }
   100% { opacity: 0; transform: scale(1.7); }
 }
 
-/* 命令行 + 复制 */
-.cli { position: relative; display: block; width: fit-content; max-width: 100%; margin: 0 auto 26px; }
-.cli .code { margin: 0; padding-right: 74px; }
-.copy {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  height: 30px;
-  padding: 0 12px;
-  font-size: 12.5px;
-  border-radius: 8px;
-}
-.copy.is-done { color: var(--lime); border-color: rgba(198, 242, 78, .45); }
-
 @media (prefers-reduced-motion: reduce) {
   .js .reveal { opacity: 1; transform: none; transition: none; }
   .blip { animation: none; opacity: .9; }
   .self { animation: none; }
+  .btn, .card, .tech-item, .nav, .hero-meta a, .foot-meta a { transition: none; }
 }

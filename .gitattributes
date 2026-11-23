@@ -19,8 +19,8 @@
 *.jar binary
 *.zip binary
 
-# Inno Setup wants CRLF; it is CRLF in the working tree today.
-*.iss text eol=crlf
+# Let Git use native line endings: CRLF on Windows, LF in Linux CI.
+*.iss text
 
 # Shell scripts must never carry CRLF, whatever the checkout platform.
 *.sh text eol=lf

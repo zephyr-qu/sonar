@@ -14,7 +14,7 @@
 #define MyAppName "Sonar"
 #define MyAppVersion "1.18.2"
 #define MyAppPublisher "Tien Do Nam"
-#define MyAppURL "https://localsend.org"
+#define MyAppURL "https://github.com/zephyr-qu/sonar"
 #define MyAppExeName "sonar.exe"
 #define MyAppMsixHelper "sonar_msix_helper.msix"
 

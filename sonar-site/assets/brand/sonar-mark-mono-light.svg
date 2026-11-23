@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 124 132.479" role="img" aria-labelledby="t d">
+  <title id="t">Sonar mark</title>
+  <desc id="d">A radar mark: two broken arcs, a centre dot and a sweep ray.</desc>
+  <style>
+    .mark-stroke { fill: none; stroke: #FFFFFF; }
+    .mark-fill { fill: #FFFFFF; stroke: none; }
+    .word { fill: #FFFFFF; }
+  </style>
+  <g transform="translate(62,66.239) scale(1.000000)">
+  <g id="sonar-mark" class="mark-stroke" stroke-linecap="round">
+    <path d="M30.504,-15.164A30.328,30.328 0 1 1 -22.025,-15.164" stroke-width="7.374"/>
+    <path d="M42.96,32.49A50.546,50.546 0 1 1 13.016,-49.778" stroke-width="7.374"/>
+    <path d="M0,0L46.288,-42.049" stroke-width="7.374"/>
+  </g>
+  <g id="sonar-mark-dots" class="mark-fill">
+    <circle cx="0" cy="0" r="8.92"/>
+  </g>
+  </g>
+</svg>

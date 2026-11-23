@@ -17,8 +17,10 @@ import 'package:sonar/provider/network/send_provider.dart';
 import 'package:sonar/provider/network/server/server_provider.dart';
 import 'package:sonar/provider/settings_provider.dart';
 import 'package:sonar/util/native/macos_channel.dart';
+import 'package:sonar/util/native/open_folder.dart';
 import 'package:sonar/util/native/pick_directory_path.dart';
 import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar/util/session_status_ext.dart';
 import 'package:sonar/util/ui/snackbar.dart';
 import 'package:sonar/widget/dialogs/encryption_disabled_notice.dart';
 import 'package:sonar/widget/dialogs/pin_dialog.dart';
@@ -87,10 +89,17 @@ class LsDesktopTray extends StatelessWidget {
     final sending = picked.any((device) => runningTargets.contains(device.fingerprint));
     final serverState = context.watch(serverProvider);
     final receiveSession = serverState?.session;
+    // The sidebar keeps the newest receive until it is dismissed, not just while
+    // bytes are moving. A finished receive shows its completion state here too,
+    // so closing the "open file" dialog after a quick save does not erase it.
     final activeReceive = receiveSession != null && (receiveSession.status == SessionStatus.waiting || receiveSession.status == SessionStatus.sending)
         ? receiveSession
         : null;
-    final activeCount = runningSessions.length + (latestFailure == null ? 0 : 1) + (activeReceive != null ? 1 : 0);
+    final finishedReceive = receiveSession != null && receiveSession.status != SessionStatus.waiting && receiveSession.status != SessionStatus.sending
+        ? receiveSession
+        : null;
+    final activeCount =
+        runningSessions.length + (latestFailure == null ? 0 : 1) + (activeReceive != null ? 1 : 0) + (finishedReceive != null ? 1 : 0);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -200,6 +209,52 @@ class LsDesktopTray extends StatelessWidget {
               label: t.transferTab.cancel,
               variant: LsButtonVariant.ghost,
               onPressed: () => context.notifier(serverProvider).cancelSession(),
+            ),
+            const SizedBox(height: 10),
+          ],
+          if (finishedReceive != null) ...[
+            InkWell(
+              borderRadius: tokens.tileRadius,
+              onTap: () => context.push(() => ProgressPage(sessionId: finishedReceive.sessionId)),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      t.transferTab.receivedFrom(device: finishedReceive.senderAlias),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: tokens.bodySm.copyWith(color: colors.fg),
+                    ),
+                  ),
+                  Icon(LucideIcons.chevronRight, size: 14, color: colors.faint),
+                ],
+              ),
+            ),
+            if (sessionStatusText(finishedReceive.status) case final String statusText) ...[
+              const SizedBox(height: 4),
+              Text(statusText, style: tokens.monoSm.copyWith(color: colors.muted)),
+            ],
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                if (checkPlatformWithFileSystem() && finishedReceive.destinationDirectory.isNotEmpty)
+                  Expanded(
+                    child: LsButton(
+                      label: t.transferTab.openFolder,
+                      icon: LucideIcons.folder,
+                      variant: LsButtonVariant.ghost,
+                      onPressed: () => openFolder(folderPath: finishedReceive.destinationDirectory),
+                    ),
+                  ),
+                if (checkPlatformWithFileSystem() && finishedReceive.destinationDirectory.isNotEmpty) const SizedBox(width: 8),
+                Expanded(
+                  child: LsButton(
+                    label: t.transferTab.done,
+                    variant: LsButtonVariant.plain,
+                    onPressed: () => context.notifier(serverProvider).closeSession(),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 10),
           ],

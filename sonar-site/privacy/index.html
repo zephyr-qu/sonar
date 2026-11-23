@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>隐私说明 — Sonar</title>
+<meta name="description" content="Sonar 不收集个人信息：没有账号、没有云端、没有分析 SDK。了解本地保存的数据、局域网传输与权限使用方式。">
+<meta name="theme-color" content="#0A0B0D">
+<link rel="icon" href="../assets/brand/sonar-mark-fullcolor-on-lime.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../styles.css">
+<script>
+  document.documentElement.classList.add("js");
+  window.SONAR_LINKS = {
+    repo: "https://github.com/zephyr-qu/sonar",
+    upstream: "https://localsend.org",
+    version: "1.18.2"
+  };
+</script>
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <a class="nav-brand" href="../" aria-label="Sonar 首页">
+    <img src="../assets/brand/sonar-lockup-horizontal-fullcolor-transparent.svg" alt="Sonar" width="110" height="34">
+  </a>
+  <nav class="nav-links">
+    <a href="../#features">特性</a>
+    <a href="../#how">使用</a>
+    <a href="../#tech">技术</a>
+  </nav>
+  <a class="nav-gh js-repo" href="https://github.com/zephyr-qu/sonar">GitHub</a>
+  <a class="btn btn-primary nav-cta" href="../">返回首页</a>
+</header>
+
+<main class="legal" id="top">
+
+  <section class="legal-hero reveal">
+    <p class="eyebrow eyebrow-cn">PRIVACY / 隐私说明</p>
+    <h1>数据留在你的网络里</h1>
+    <p class="legal-lede">Sonar 是一个点对点的局域网文件传输工具。没有账号体系，没有中转服务器，也没有埋点统计。这份说明写清楚它在你的设备上放了什么、又永远不会发出什么。</p>
+    <p class="legal-updated mono">最后更新 2026-11-23 · 对应版本 1.18.2</p>
+  </section>
+
+  <section class="legal-facts reveal" aria-label="隐私要点摘要">
+    <div class="fact"><span class="fact-num">0</span><span class="fact-label">账号</span></div>
+    <div class="fact"><span class="fact-num">0</span><span class="fact-label">云端中转</span></div>
+    <div class="fact"><span class="fact-num">0</span><span class="fact-label">分析 / 广告 SDK</span></div>
+    <div class="fact"><span class="fact-num mono">LAN</span><span class="fact-label">数据流动范围</span></div>
+  </section>
+
+  <article class="legal-section reveal" id="collect">
+    <div class="legal-aside">
+      <span class="legal-index">01 / COLLECT</span>
+      <h2>我们收集什么</h2>
+    </div>
+    <div class="legal-body">
+      <p><strong>没有。</strong> 项目里没有账号系统、统计平台或崩溃上报服务，也没有任何把设备信息、文件元数据或使用记录发往开发者服务器的通道。</p>
+      <p>你看到的设备列表来自同一局域网内的广播通告；传输请求直接发往那台设备的 IP。我们既不知道你传了什么，也不知道你传给了谁。</p>
+    </div>
+  </article>
+
+  <article class="legal-section reveal" id="local">
+    <div class="legal-aside">
+      <span class="legal-index">02 / ON DEVICE</span>
+      <h2>设备上保存什么</h2>
+    </div>
+    <div class="legal-body">
+      <p>应用把偏好和状态保存在设备本地（SharedPreferences / 应用私有存储），主要包括：</p>
+      <ul>
+        <li><strong>设置：</strong>设备别名、端口、接收策略、快速保存、主题与语言。</li>
+        <li><strong>收藏设备：</strong>别名与设备证书指纹，用于下次识别。</li>
+        <li><strong>传输历史：</strong>对端别名、文件名、类型、大小、本地路径与时间。</li>
+        <li><strong>最近设备：</strong>用于更快找到上次传过的设备。</li>
+      </ul>
+      <p>调试页里的发现日志与 HTTP 日志只存在于本次运行的内存中，各最多保留 200 条，重启即清空，不写入文件也不上传。</p>
+      <p class="legal-note">这些内容不会自动上传。清除应用数据或卸载应用即可全部删除；你也可以单独清空传输历史与收藏。</p>
+    </div>
+  </article>
+
+  <article class="legal-section reveal" id="transfer">
+    <div class="legal-aside">
+      <span class="legal-index">03 / TRANSFER</span>
+      <h2>传输过程</h2>
+    </div>
+    <div class="legal-body">
+      <p>发现阶段使用 UDP 组播，只在同一网络内通告“这里有设备”。注册与文件传输走直连的 HTTP/HTTPS：HTTPS 使用按设备生成的证书，并要求对端提供客户端证书，证书指纹用来确认身份；你还可以设置 PIN 作为额外确认。</p>
+      <p>Web 分享页面由你自己的设备本机提供，PIN 在服务启动时固定。浏览器面对的是你的设备，不是我们的服务器。当前版本中的 WebRTC / 公共信令通道在源码里标注为关闭；若将来启用，会先更新本页。</p>
+    </div>
+  </article>
+
+  <article class="legal-section reveal" id="permissions">
+    <div class="legal-aside">
+      <span class="legal-index">04 / PERMISSIONS</span>
+      <h2>权限怎么用</h2>
+    </div>
+    <div class="legal-body">
+      <p><strong>Android：</strong>本地网络权限用于发现和连接附近设备；文件与照片权限用于选择要发送的文件、保存收到的文件；通知权限用于传输进度。安装未知应用仅在你主动安装收到的 APK 时使用；查询应用列表用于挑选要分享的已安装应用。</p>
+      <p><strong>iOS：</strong>本地网络权限用于发现附近设备，照片库权限用于选择和保存媒体。系统文案里出现的“位置”描述，实际用途是读取本机局域网 IP，不用于定位，也不做后台位置追踪。</p>
+      <p>拒绝某项权限后，只有对应的功能不可用，不影响其他功能。</p>
+    </div>
+  </article>
+
+  <article class="legal-section reveal" id="external">
+    <div class="legal-aside">
+      <span class="legal-index">05 / EXTERNAL</span>
+      <h2>外部链接</h2>
+    </div>
+    <div class="legal-body">
+      <p>官网里的 GitHub、Gitee Release、上游 LocalSend 与捐赠入口都是外部站点。点击链接后，你在那些站点上的行为适用它们各自的隐私政策，而不是本页。</p>
+      <p>F-Droid 等 FOSS 构建会在打包时移除捐赠模块，不会包含相关入口。</p>
+    </div>
+  </article>
+
+  <article class="legal-section reveal" id="control">
+    <div class="legal-aside">
+      <span class="legal-index">06 / CONTROL</span>
+      <h2>你的控制与反馈</h2>
+    </div>
+    <div class="legal-body">
+      <p>你可以随时关闭快速保存与 Web 分享、移除收藏设备、清空传输历史；卸载应用会删除全部本地数据。清除应用数据或重装后设备身份会重新生成，旧的收藏记录自然失效。</p>
+      <p>对隐私有疑问，可在 <a class="js-repo" href="https://github.com/zephyr-qu/sonar">GitHub 仓库</a> 提 issue；安全问题请使用仓库的 Security Advisory 私下反馈，不要公开披露。</p>
+    </div>
+  </article>
+
+  <p class="legal-back reveal mono"><a href="../">← 返回 Sonar 首页</a></p>
+</main>
+
+<footer class="foot">
+  <img src="../assets/brand/sonar-lockup-horizontal-mono-light.svg" alt="Sonar" width="97" height="30">
+  <p class="foot-meta">
+    <span>Apache-2.0</span>
+    <span>基于 <a class="js-upstream" href="https://localsend.org" target="_blank" rel="noopener">LocalSend</a></span>
+    <span><a href="./">隐私说明</a></span>
+  </p>
+</footer>
+
+<script src="../app.js"></script>
+</body>
+</html>

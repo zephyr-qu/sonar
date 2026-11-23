@@ -36,22 +36,18 @@ import 'package:sonar_isolates/model/stored_security_context.dart' as _i2;
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
-class _FakeStoredSecurityContext_0 extends _i1.SmartFake
-    implements _i2.StoredSecurityContext {
-  _FakeStoredSecurityContext_0(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+class _FakeStoredSecurityContext_0 extends _i1.SmartFake implements _i2.StoredSecurityContext {
+  _FakeStoredSecurityContext_0(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
 class _FakeColor_1 extends _i1.SmartFake implements _i3.Color {
-  _FakeColor_1(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+  _FakeColor_1(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
 /// A class which mocks [PersistenceService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPersistenceService extends _i1.Mock
-    implements _i4.PersistenceService {
+class MockPersistenceService extends _i1.Mock implements _i4.PersistenceService {
   @override
   bool get isFirstAppStart =>
       (super.noSuchMethod(
@@ -229,8 +225,8 @@ class MockPersistenceService extends _i1.Mock
   _i10.ColorMode getColorMode() =>
       (super.noSuchMethod(
             Invocation.method(#getColorMode, []),
-            returnValue: _i10.ColorMode.system,
-            returnValueForMissingStub: _i10.ColorMode.system,
+            returnValue: _i10.ColorMode.localsend,
+            returnValueForMissingStub: _i10.ColorMode.localsend,
           )
           as _i10.ColorMode);
 

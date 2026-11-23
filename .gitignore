@@ -20,8 +20,11 @@
 # macOS
 .DS_Store
 
-# Generated at build time by makepri (see support/scripts/compile_windows_msix_helper.ps1)
+# Generated at build time by makepri (see support/scripts/compile_windows_exe.ps1)
 /support/build/msix/content/resources.pri
+
+# Left behind by running support/scripts/*.py
+/support/scripts/__pycache__/
 /.local/
 
 # Android Gradle build output (`app/build/` is covered by app/.gitignore)
@@ -32,7 +35,19 @@
 /.pi/
 /.rpi/
 /.perf-audit/
+/.claude/
+/skills-lock.json
 
 # Stray shell redirect artifacts (e.g. `cmd > C` / `> nul` on Windows)
 /nul
 /C
+
+# Binary font files, stripped from history (see README "Fonts (not in git)")
+/app/assets/fonts/*.ttf
+
+# Installer payload/result dirs used by support/scripts/compile_windows_exe.ps1
+/build/
+
+# Cloudflare Workers local state (wrangler deploy)
+/sonar-site/.wrangler/
+/.wrangler/

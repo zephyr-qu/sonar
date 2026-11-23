@@ -42,6 +42,14 @@ class AboutPage extends StatelessWidget {
           Center(
             child: TextButton(
               onPressed: () async {
+                await launchUrl(Uri.parse('https://www.zephyrqu.top/sonar'));
+              },
+              child: const Text('zephyrqu.top/sonar'),
+            ),
+          ),
+          Center(
+            child: TextButton(
+              onPressed: () async {
                 await launchUrl(Uri.parse('https://localsend.org'));
               },
               child: const Text('localsend.org'),

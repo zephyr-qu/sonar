@@ -1,0 +1,26 @@
+# Normalize text to LF in the repository. The index is already LF-only
+# (core.autocrlf=input), so this only pins the behaviour for other clones.
+* text=auto
+
+# Binary assets: never normalise, never try to diff.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.icns binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.dll binary
+*.exe binary
+*.jar binary
+*.zip binary
+
+# Inno Setup wants CRLF; it is CRLF in the working tree today.
+*.iss text eol=crlf
+
+# Shell scripts must never carry CRLF, whatever the checkout platform.
+*.sh text eol=lf

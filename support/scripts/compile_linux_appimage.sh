@@ -15,8 +15,7 @@ rm -rf /tmp/build
 cp localsend /tmp/build -r
 pushd /tmp/build
 
-git submodule update --init
-alias flutter='submodules/flutter/bin/flutter'
+alias flutter='fvm flutter'
 
 flutter clean
 flutter pub get

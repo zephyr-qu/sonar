@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
-import 'package:sonar/config/theme.dart';
+import 'package:sonar/config/design_tokens.dart';
 import 'package:sonar/gen/strings.g.dart';
 import 'package:sonar/model/state/send/web/web_download_state.dart';
 import 'package:sonar/provider/network/server/server_provider.dart';
@@ -67,7 +67,7 @@ class ZoomDialog extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 5),
                     child: Text(
                       t.webSharePage.pendingRequests(n: pending),
-                      style: TextStyle(color: Theme.of(context).colorScheme.warning),
+                      style: TextStyle(color: context.ls.colors.danger),
                       textAlign: TextAlign.center,
                     ),
                   );

@@ -534,6 +534,8 @@ class Translations$donationPage$zh_TW extends Translations$donationPage$en {
   @override
   String get thanks => '非常感謝您！';
   @override
+  String get note => '捐款會交給 LocalSend 原作者，而非此分支的維護者。';
+  @override
   String get restore => '復原購買';
 }
 
@@ -1132,6 +1134,8 @@ class Translations$dialogs$openFile$zh_TW extends Translations$dialogs$openFile$
   String get title => '開啟檔案';
   @override
   String get content => '您想開啟接收到的檔案嗎？';
+  @override
+  String get openFileManager => '開啟檔案管理';
 }
 
 // Path: dialogs.addressInput

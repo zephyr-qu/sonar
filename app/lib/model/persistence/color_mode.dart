@@ -1,7 +1,11 @@
+/// Appearance of the app, picked in the accent row of the appearance settings.
 enum ColorMode {
-  system, // dynamic colors
+  /// Brand accent on the fork's own palettes; the default.
   localsend,
+
+  /// Brand accent on pure black surfaces (dark only, saves power on OLED panels).
   oled,
-  yaru,
-  custom, // user-defined seed color
+
+  /// User-defined seed color.
+  custom,
 }

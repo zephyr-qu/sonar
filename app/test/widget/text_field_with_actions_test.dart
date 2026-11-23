@@ -16,8 +16,7 @@ void main() {
 
     await tester.pumpWidget(_host(controller: controller, onChanged: changes.add, onClosed: closed.add));
 
-    await tester.tap(find.byType(TextButton));
-    await tester.pumpAndSettle();
+    await _open(tester);
     expect(closed, isEmpty, reason: 'opening the dialog must not commit');
 
     await tester.enterText(find.byType(TextFormField), 'New name');
@@ -38,13 +37,29 @@ void main() {
 
     await tester.pumpWidget(_host(controller: controller, onClosed: closed.add));
 
-    await tester.tap(find.byType(TextButton));
-    await tester.pumpAndSettle();
+    await _open(tester);
     await tester.tap(find.widgetWithText(LsButton, t.general.confirm));
     await tester.pumpAndSettle();
 
     // A write of the unchanged value is harmless: the persistence layer is idempotent.
     expect(closed, ['Old name']);
+  });
+
+  testWidgets('dismissing the dialog is a cancel: nothing is committed and the row keeps its name', (tester) async {
+    final controller = TextEditingController(text: 'Old name');
+    final closed = <String>[];
+
+    await tester.pumpWidget(_host(controller: controller, onClosed: closed.add));
+
+    await _open(tester);
+    await tester.enterText(find.byType(TextFormField), 'Typed only');
+    await tester.pumpAndSettle();
+
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+
+    expect(closed, isEmpty, reason: 'tapping outside is a cancel, not a confirm');
+    expect(controller.text, 'Old name', reason: 'the row renders the controller, so an abandoned edit must not linger there');
   });
 
   testWidgets('works without an onChanged callback', (tester) async {
@@ -53,8 +68,7 @@ void main() {
 
     await tester.pumpWidget(_host(controller: controller, onClosed: closed.add));
 
-    await tester.tap(find.byType(TextButton));
-    await tester.pumpAndSettle();
+    await _open(tester);
     await tester.enterText(find.byType(TextFormField), 'Typed only');
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(LsButton, t.general.confirm));
@@ -72,8 +86,7 @@ void main() {
       _host(controller: controller, onClosed: closed.add, validator: (value) => value.trim().isEmpty ? 'Required' : null),
     );
 
-    await tester.tap(find.byType(TextButton));
-    await tester.pumpAndSettle();
+    await _open(tester);
     await tester.enterText(find.byType(TextFormField), '   ');
     await tester.pumpAndSettle();
 
@@ -95,8 +108,7 @@ void main() {
     ];
 
     await tester.pumpWidget(_host(controller: controller, onClosed: (_) {}, actions: shortcuts));
-    await tester.tap(find.byType(TextButton));
-    await tester.pumpAndSettle();
+    await _open(tester);
 
     final field = tester.getRect(find.byType(TextFormField));
     final first = tester.getRect(find.byIcon(Icons.casino));
@@ -115,9 +127,9 @@ void main() {
     // completes used to throw "A TextEditingController was used after being
     // disposed" on the way out, however the dialog was dismissed.
     testWidgets('survives the barrier dismissal and dies with the dialog', (tester) async {
-      final finalTexts = <String>[];
+      final confirmedTexts = <String>[];
 
-      await tester.pumpWidget(_ownedHost(finalTexts));
+      await tester.pumpWidget(_ownedHost(confirmedTexts));
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextFormField), 'New name');
@@ -127,7 +139,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull);
-      expect(finalTexts, ['New name']);
+      expect(confirmedTexts, isEmpty, reason: 'a dismissal is reported as unconfirmed, so no name is applied');
     });
 
     testWidgets('survives the confirm button', (tester) async {
@@ -149,23 +161,25 @@ void main() {
 }
 
 /// Opens the dialog with a controller of its own, the way the device name
-/// dialog does, and records the text read right after the dialog closed.
-Widget _ownedHost(List<String> finalTexts) {
+/// dialog does, and records the text of every confirmation.
+Widget _ownedHost(List<String> confirmedTexts) {
   return MaterialApp(
-    theme: getTheme(ColorMode.localsend, Colors.teal, Brightness.dark, null),
+    theme: getTheme(ColorMode.localsend, Colors.teal, Brightness.dark),
     home: Scaffold(
       body: Center(
         child: Builder(
           builder: (context) => TextButton(
             onPressed: () async {
               final controller = TextEditingController(text: 'Old name');
-              await showTextFieldDialog(
+              final confirmed = await showTextFieldDialog(
                 context,
                 name: 'Alias',
                 controller: controller,
                 disposeController: true,
               );
-              finalTexts.add(controller.text);
+              if (confirmed) {
+                confirmedTexts.add(controller.text);
+              }
             },
             child: const Text('open'),
           ),
@@ -183,7 +197,7 @@ Widget _host({
   List<Widget> actions = const [],
 }) {
   return MaterialApp(
-    theme: getTheme(ColorMode.localsend, Colors.teal, Brightness.dark, null),
+    theme: getTheme(ColorMode.localsend, Colors.teal, Brightness.dark),
     home: Scaffold(
       body: Center(
         child: TextFieldWithActions(
@@ -197,4 +211,12 @@ Widget _host({
       ),
     ),
   );
+}
+
+/// Taps the row to open its dialog, the way the settings entry and the device
+/// name header do. The row is the whole widget: the text and the pencil are
+/// only painted, so the tap goes to [TextFieldWithActions] itself.
+Future<void> _open(WidgetTester tester) async {
+  await tester.tap(find.byType(TextFieldWithActions));
+  await tester.pumpAndSettle();
 }

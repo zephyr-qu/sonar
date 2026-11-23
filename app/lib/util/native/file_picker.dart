@@ -23,7 +23,7 @@ import 'package:sonar/util/native/cross_file_converters.dart';
 import 'package:sonar/util/native/pick_directory_path.dart';
 import 'package:sonar/util/native/platform_check.dart';
 import 'package:sonar/util/ui/asset_picker_translated_text_delegate.dart';
-import 'package:sonar/widget/dialogs/loading_dialog.dart';
+import 'package:sonar/util/ui/snackbar.dart';
 import 'package:sonar/widget/dialogs/message_input_dialog.dart';
 import 'package:sonar/widget/dialogs/no_permission_dialog.dart';
 import 'package:sonar_isolates/model/file_type.dart';
@@ -145,15 +145,6 @@ class PickFileAction extends AsyncGlobalAction {
 }
 
 Future<void> _pickFiles(BuildContext context, Ref ref) async {
-  if (checkPlatform([TargetPlatform.android])) {
-    // On android, the files are copied to the cache which takes some time.
-    // ignore: unawaited_futures
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const LoadingDialog(),
-    );
-  }
   try {
     if (defaultTargetPlatform == TargetPlatform.android) {
       final result = await android_channel.pickFilesAndroid();
@@ -188,9 +179,6 @@ Future<void> _pickFiles(BuildContext context, Ref ref) async {
     // ignore: use_build_context_synchronously
     await showDialog(context: context, builder: (_) => const NoPermissionDialog());
     _logger.warning('Failed to pick files', e);
-  } finally {
-    // ignore: use_build_context_synchronously
-    Routerino.context.popUntilRoot(); // remove loading dialog
   }
 }
 
@@ -207,13 +195,6 @@ Future<void> _pickFolder(BuildContext context, Ref ref) async {
     return;
   }
 
-  // ignore: unawaited_futures
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (_) => const LoadingDialog(),
-  );
-  await sleepAsync(200); // Wait for the dialog to be shown
   try {
     if (defaultTargetPlatform == TargetPlatform.android && (ref.read(deviceInfoProvider).androidSdkInt ?? 0) >= android_channel.contentUriMinSdk) {
       // Android 8 and above have more predictable content URIs that we can parse.
@@ -237,9 +218,6 @@ Future<void> _pickFolder(BuildContext context, Ref ref) async {
     _logger.warning('Failed to pick directory', e);
     // ignore: use_build_context_synchronously
     await showDialog(context: context, builder: (_) => const NoPermissionDialog());
-  } finally {
-    // ignore: use_build_context_synchronously
-    Routerino.context.popUntilRoot(); // remove loading dialog
   }
 }
 
@@ -362,11 +340,7 @@ Future<void> _pickClipboard(BuildContext context, Ref ref) async {
     return;
   }
 
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(t.general.noItemInClipboard),
-    ),
-  );
+  context.showSnackBar(t.general.noItemInClipboard);
 }
 
 Future<void> _pickApp(BuildContext context) async {

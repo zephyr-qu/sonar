@@ -25,16 +25,6 @@ void main(List<String> args) {
     replacement: 'version: $version+$build',
   );
   _replace(
-    file: '$root/cli/Cargo.toml',
-    pattern: r'^version = ".+"$',
-    replacement: 'version = "$version"',
-  );
-  _replace(
-    file: '$root/Cargo.lock',
-    pattern: 'name = "localsend-cli"\nversion = ".+"',
-    replacement: 'name = "localsend-cli"\nversion = "$version"',
-  );
-  _replace(
     file: '$root/support/scripts/compile_windows_exe-inno.iss',
     pattern: r'^#define MyAppVersion ".+"$',
     replacement: '#define MyAppVersion "$version"',

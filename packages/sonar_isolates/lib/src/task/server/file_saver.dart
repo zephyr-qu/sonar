@@ -40,6 +40,13 @@ class FileSaveTarget {
 /// On Android, destinations that cannot be written directly (SAF content URIs
 /// and SD cards) are created via the Storage Access Framework and a writable
 /// file descriptor is returned instead of a path.
+///
+/// [reservedPaths] are the destinations this session has already claimed. They
+/// are skipped even though no file exists there yet, because the server writes
+/// an upload to a temporary file and only renames it into place once it is
+/// complete. Without that, two files with the same name that are uploaded in
+/// parallel would resolve to the same destination and one would overwrite the
+/// other.
 Future<FileSaveTarget> prepareFileSaveTarget({
   required String destinationDirectory,
   required String cacheDirectory,
@@ -47,6 +54,7 @@ Future<FileSaveTarget> prepareFileSaveTarget({
   required bool saveToGallery,
   required Set<String> createdDirectories,
   int? androidSdkInt,
+  Set<String>? reservedPaths,
 }) async {
   final parentDirectory = saveToGallery ? cacheDirectory : destinationDirectory;
 
@@ -54,6 +62,7 @@ Future<FileSaveTarget> prepareFileSaveTarget({
     parentDirectory: parentDirectory,
     fileName: fileName,
     createdDirectories: createdDirectories,
+    reservedPaths: reservedPaths,
   );
 
   // When saveToGallery is enabled, the cache directory is used so SAF is not needed
@@ -130,6 +139,7 @@ Future<(bool, String?)> saveCachedFileToGallery({
   required String fileName,
   required bool isImage,
   required Set<String> createdDirectories,
+  Set<String>? reservedPaths,
 }) async {
   try {
     isImage ? await Gal.putImage(cachedPath) : await Gal.putVideo(cachedPath);
@@ -140,6 +150,7 @@ Future<(bool, String?)> saveCachedFileToGallery({
       parentDirectory: destinationDirectory,
       fileName: fileName,
       createdDirectories: createdDirectories,
+      reservedPaths: reservedPaths,
     );
 
     _logger.info('Moving file from $cachedPath to $fallbackPath');
@@ -194,11 +205,13 @@ List<String> sanitizeRelativeName(String fileName) {
   return components;
 }
 
-/// If the name is already occupied, appends a number to the file name.
+/// If the name is already occupied — on disk, or claimed by [reservedPaths] —
+/// appends a number to the file name.
 Future<(String, String?, String)> digestFilePathAndPrepareDirectory({
   required String parentDirectory,
   required String fileName,
   required Set<String> createdDirectories,
+  Set<String>? reservedPaths,
 }) async {
   final components = sanitizeRelativeName(fileName);
   fileName = components.join('/');
@@ -242,10 +255,24 @@ Future<(String, String?, String)> digestFilePathAndPrepareDirectory({
 
   String destinationPath;
   int counter = 1;
-  do {
+  while (true) {
     destinationPath = counter == 1 ? p.join(dir, actualFileName) : p.join(dir, actualFileName.withCount(counter));
     counter++;
-  } while (await FileSystemEntity.type(destinationPath, followLinks: false) != FileSystemEntityType.notFound);
+
+    // A name claimed by a file that is still uploading does not exist on disk
+    // yet: the server writes an upload to a temporary file and only renames it
+    // into place once it is complete.
+    if (reservedPaths != null && reservedPaths.contains(destinationPath)) {
+      continue;
+    }
+    if (await FileSystemEntity.type(destinationPath, followLinks: false) == FileSystemEntityType.notFound) {
+      break;
+    }
+  }
+
+  // Claim the name for the session, so that a file with the same name that is
+  // uploaded in parallel takes the next free one instead of overwriting this.
+  reservedPaths?.add(destinationPath);
   return (destinationPath, null, p.basename(destinationPath));
 }
 

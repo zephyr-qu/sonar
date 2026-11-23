@@ -16,7 +16,6 @@ import 'package:sonar/model/state/server/web_share_state.dart';
 import 'package:sonar/provider/local_ip_provider.dart';
 import 'package:sonar/provider/network/server/server_provider.dart';
 import 'package:sonar/provider/settings_provider.dart';
-import 'package:sonar/util/native/platform_check.dart';
 import 'package:sonar/util/ui/snackbar.dart';
 import 'package:sonar/widget/desktop_scaffold.dart';
 import 'package:sonar/widget/dialogs/pin_dialog.dart';
@@ -774,7 +773,7 @@ class _LinkRow extends StatelessWidget {
             accent: true,
             onTap: () async {
               await Clipboard.setData(ClipboardData(text: urlWithPin));
-              if (context.mounted && checkPlatformIsDesktop()) {
+              if (context.mounted) {
                 context.showSnackBar(t.general.copiedToClipboard);
               }
             },

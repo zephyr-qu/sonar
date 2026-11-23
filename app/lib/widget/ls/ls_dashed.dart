@@ -6,16 +6,12 @@ class LsDashedBox extends StatelessWidget {
   final Widget child;
   final BorderRadius borderRadius;
   final Color color;
-  final double dashLength;
-  final double gapLength;
   final double strokeWidth;
 
   const LsDashedBox({
     required this.child,
     required this.color,
     this.borderRadius = const BorderRadius.all(Radius.circular(10)),
-    this.dashLength = 4,
-    this.gapLength = 3,
     this.strokeWidth = 1,
   });
 
@@ -25,8 +21,8 @@ class LsDashedBox extends StatelessWidget {
       foregroundPainter: _DashedPathPainter(
         pathBuilder: (size) => Path()..addRRect(RRect.fromRectAndRadius(Offset.zero & size, borderRadius.topLeft)),
         color: color,
-        dashLength: dashLength,
-        gapLength: gapLength,
+        dashLength: 4,
+        gapLength: 3,
         strokeWidth: strokeWidth,
       ),
       child: child,
@@ -38,14 +34,10 @@ class LsDashedBox extends StatelessWidget {
 class LsDashedRing extends StatelessWidget {
   final double size;
   final Color color;
-  final double dashLength;
-  final double gapLength;
 
   const LsDashedRing({
     required this.size,
     required this.color,
-    this.dashLength = 5,
-    this.gapLength = 4,
   });
 
   @override
@@ -55,8 +47,8 @@ class LsDashedRing extends StatelessWidget {
       painter: _DashedPathPainter(
         pathBuilder: (s) => Path()..addOval(Offset.zero & s),
         color: color,
-        dashLength: dashLength,
-        gapLength: gapLength,
+        dashLength: 5,
+        gapLength: 4,
         strokeWidth: 1,
       ),
     );

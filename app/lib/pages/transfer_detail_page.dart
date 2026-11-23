@@ -10,6 +10,7 @@ import 'package:sonar/config/design_tokens.dart';
 import 'package:sonar/gen/strings.g.dart';
 import 'package:sonar/model/persistence/transfer_history_session.dart';
 import 'package:sonar/provider/transfer_history_provider.dart';
+import 'package:sonar/util/file_type_ext.dart';
 import 'package:sonar/util/native/open_file.dart';
 import 'package:sonar/util/native/open_folder.dart';
 import 'package:sonar/util/system_date_time_formatter.dart';
@@ -18,6 +19,7 @@ import 'package:sonar/widget/ls/ls_buttons.dart';
 import 'package:sonar/widget/ls/ls_chip.dart';
 import 'package:sonar/widget/ls/ls_header.dart';
 import 'package:sonar/widget/ls/ls_hover.dart';
+import 'package:sonar/widget/ls/ls_menu.dart';
 import 'package:sonar/widget/ls/ls_search_field.dart';
 import 'package:sonar/widget/ls/ls_segmented.dart';
 import 'package:sonar/widget/responsive_builder.dart';
@@ -30,17 +32,17 @@ enum _SortMode {
   size
   ;
 
-  _SortMode get next => switch (this) {
-    _SortMode.date => _SortMode.name,
-    _SortMode.name => _SortMode.size,
-    _SortMode.size => _SortMode.date,
-  };
-
   String get label => switch (this) {
+    // The strings still carry the direction they used to bake in (`Date ↓`), but
+    // the direction is now its own toggle; strip it so all 60 locales agree.
     _SortMode.date => t.transferTab.sortDate,
     _SortMode.name => t.transferTab.sortName,
     _SortMode.size => t.transferTab.sortSize,
-  };
+  }.replaceFirst(RegExp(r'\s*[↑↓]\s*$'), '');
+
+  /// Whether this mode starts out ascending: names read A→Z, while dates and
+  /// sizes are most useful newest/largest first.
+  bool get defaultAscending => this == _SortMode.name;
 }
 
 enum _FileAction {
@@ -78,6 +80,11 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
   /// Null means "all types".
   FileType? _type;
   _SortMode _sort = _SortMode.date;
+
+  /// Direction of [_sort]. Picking another mode resets it to that mode's default
+  /// (see [_SortMode.defaultAscending]) rather than carrying over, which would
+  /// open "Date" oldest-first for anyone who had just sorted names A→Z.
+  bool _ascending = false;
   bool _grid = _rememberGrid;
 
   TransferHistorySession get _session => widget.session;
@@ -92,23 +99,32 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
     }).toList();
 
     final sorted = [...filtered];
-    switch (_sort) {
-      case _SortMode.date:
-        // Newest modification first, files without an announced date last.
-        sorted.sort((a, b) {
-          final left = a.modified;
-          final right = b.modified;
-          if (left == null || right == null) {
-            return left == null ? (right == null ? 0 : 1) : -1;
-          }
-          return right.compareTo(left);
-        });
-      case _SortMode.name:
-        sorted.sort((a, b) => a.fileName.toLowerCase().compareTo(b.fileName.toLowerCase()));
-      case _SortMode.size:
-        sorted.sort((a, b) => b.fileSize.compareTo(a.fileSize));
-    }
+    sorted.sort((a, b) {
+      // A file with no announced modification date stays last either way, so the
+      // direction is applied to the actual comparison only.
+      if (_sort == _SortMode.date && (a.modified == null || b.modified == null)) {
+        return a.modified == null ? (b.modified == null ? 0 : 1) : -1;
+      }
+      final result = _compare(a, b);
+      return _ascending ? result : -result;
+    });
     return sorted;
+  }
+
+  /// [a] before [b] when ascending: oldest first, A→Z, smallest first.
+  int _compare(TransferHistoryFile a, TransferHistoryFile b) {
+    return switch (_sort) {
+      _SortMode.date => a.modified!.compareTo(b.modified!),
+      _SortMode.name => a.fileName.toLowerCase().compareTo(b.fileName.toLowerCase()),
+      _SortMode.size => a.fileSize.compareTo(b.fileSize),
+    };
+  }
+
+  void _selectSort(_SortMode sort) {
+    setState(() {
+      _sort = sort;
+      _ascending = sort.defaultAscending;
+    });
   }
 
   /// Types that actually occur in this session, with their file count.
@@ -316,7 +332,7 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
             // The caption gets a fixed pixel band instead of a share of the tile height: a percentage
             // stretch (`childAspectRatio: 1 / 1.24`) leaves fewer pixels for the two-line name than the
             // text needs on phone columns, and the name then paints outside its cell.
-            mainAxisExtent: cellWidth + _gridCaptionHeight,
+            mainAxisExtent: cellWidth + _gridCaptionHeight(context),
           ),
           itemCount: files.length,
           itemBuilder: (context, index) {
@@ -350,10 +366,21 @@ class _TransferDetailPageState extends State<TransferDetailPage> {
             Text('${files.length} / ${_files.length}', style: tokens.monoSm),
             const SizedBox(width: 8),
           ],
-          LsChip.text(
-            _sort.label,
+          LsMenuChip<_SortMode>(
+            label: _sort.label,
             tooltip: t.transferTab.sort,
-            onTap: () => setState(() => _sort = _sort.next),
+            items: [
+              for (final sort in _SortMode.values) LsMenuItem(value: sort, label: sort.label, checked: sort == _sort),
+            ],
+            onSelected: _selectSort,
+          ),
+          const SizedBox(width: 4),
+          // The chip label no longer carries the direction, so it gets its own
+          // one-tap toggle next to it; the glyph shows the state in effect.
+          LsIconButton(
+            icon: _ascending ? LucideIcons.arrowUpNarrowWide : LucideIcons.arrowDownWideNarrow,
+            tooltip: _ascending ? t.transferTab.sortAscending : t.transferTab.sortDescending,
+            onPressed: () => setState(() => _ascending = !_ascending),
           ),
           const SizedBox(width: 8),
           // [LsSegmented] lays its items out with [Expanded], so it needs a bounded
@@ -477,6 +504,7 @@ class _DetailFileRow extends StatelessWidget {
     final tokens = context.ls;
     final colors = tokens.colors;
     final canOpen = file.path != null || file.isMessage;
+    final options = file.path != null ? _FileAction.values : const [_FileAction.open, _FileAction.info, _FileAction.delete];
 
     return LsHover(
       color: Colors.transparent,
@@ -484,7 +512,7 @@ class _DetailFileRow extends StatelessWidget {
       borderRadius: tokens.tileRadius,
       cursor: canOpen ? SystemMouseCursors.click : SystemMouseCursors.basic,
       onTap: canOpen ? onTap : null,
-      builder: (context, hovered) => Padding(
+      builder: (context, _) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 7),
         child: Row(
           children: [
@@ -514,20 +542,19 @@ class _DetailFileRow extends StatelessWidget {
             ),
             SizedBox(
               width: 28,
-              child: PopupMenuButton<_FileAction>(
-                icon: Icon(LucideIcons.moreHorizontal, size: 15, color: hovered ? colors.muted : colors.faint),
+              child: LsMenuButton<_FileAction>(
+                icon: LucideIcons.moreHorizontal,
+                compact: true,
+                dense: true,
+                // Hangs off the trigger's right edge: the row's ⋯ sits against the
+                // window edge, so a left-anchored panel would be clamped flush to it.
+                panelWidth: 150,
+                alignRight: true,
+                items: [
+                  for (final option in options) LsMenuItem(value: option, label: option.label),
+                ],
                 onSelected: (action) async {
                   await onAction(action);
-                },
-                itemBuilder: (context) {
-                  final options = file.path != null ? _FileAction.values : const [_FileAction.open, _FileAction.info, _FileAction.delete];
-                  return [
-                    for (final option in options)
-                      PopupMenuItem<_FileAction>(
-                        value: option,
-                        child: Text(option.label, style: context.ls.body),
-                      ),
-                  ];
                 },
               ),
             ),
@@ -560,7 +587,7 @@ class _DetailFileCell extends StatelessWidget {
           child: Tooltip(
             message: '${file.fileName}\n${file.fileSize.asReadableFileSize}',
             child: LsHover(
-              color: gradient == null ? (lsKindTint[_extensionOf(file.fileName)] ?? colors.bg3) : Colors.transparent,
+              color: gradient == null ? (lsKindTint[fileKind(file.fileName, fallback: '')] ?? colors.bg3) : Colors.transparent,
               hoverColor: gradient == null ? colors.bg3 : colors.fg.withValues(alpha: 0.04),
               borderRadius: BorderRadius.circular(9),
               borderColor: colors.line,
@@ -613,7 +640,7 @@ class _KindBox extends StatelessWidget {
       child: Text(
         kind,
         maxLines: 1,
-        style: tokens.monoSm.copyWith(fontSize: 8, color: tokens.colors.muted),
+        style: tokens.monoSm.copyWith(color: tokens.colors.muted),
       ),
     );
   }
@@ -624,17 +651,7 @@ String _kindOf(TransferHistoryFile file) {
   if (file.isMessage) {
     return 'MSG';
   }
-  final extension = _extensionOf(file.fileName);
-  return extension.isEmpty ? file.fileType.name.toUpperCase() : extension;
-}
-
-String _extensionOf(String fileName) {
-  final extension = path.extension(fileName);
-  if (extension.isEmpty) {
-    return '';
-  }
-  final upper = extension.substring(1).toUpperCase();
-  return upper.length > 4 ? upper.substring(0, 4) : upper;
+  return fileKind(file.fileName, fallback: file.fileType.name.toUpperCase());
 }
 
 /// `MM-DD HH:mm`: the fixed-width form the design uses next to the file size.
@@ -658,10 +675,11 @@ bool _rememberGrid = false;
 
 /// The two-line caption under a grid tile: 9px on a 1.3 line box, with the 4px gap above it.
 /// The grid reserves exactly [_gridCaptionHeight] as a fixed band, so the name always has room
-/// to render its two lines and ellipsizes beyond that instead of painting past the cell.
+/// to render its two lines and ellipsizes beyond that instead of painting past the cell. The band
+/// follows the text scale, like the pending-file tray, so a larger system font grows the cell.
 const double _gridCaptionFontSize = 9;
 const double _gridCaptionLineHeight = 1.3;
-const double _gridCaptionHeight = 4 + 2 * _gridCaptionFontSize * _gridCaptionLineHeight;
+double _gridCaptionHeight(BuildContext context) => 4 + 2 * MediaQuery.textScalerOf(context).scale(_gridCaptionFontSize) * _gridCaptionLineHeight;
 
 /// Hue, saturation, lightness of both gradient stops and their opacity, per
 /// photo tint. The design cycles through six of them so a grid of images does

@@ -2,19 +2,20 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:refena_flutter/addons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/gen/strings.g.dart';
 import 'package:sonar/model/persistence/transfer_history_session.dart';
 import 'package:sonar/model/state/server/receive_session_state.dart';
 import 'package:sonar/model/state/server/receiving_file.dart';
 import 'package:sonar/pages/home_page.dart';
 import 'package:sonar/pages/home_page_controller.dart';
 import 'package:sonar/pages/receive_page.dart';
+import 'package:sonar/provider/app_lifecycle_provider.dart';
 import 'package:sonar/provider/device_info_provider.dart';
 import 'package:sonar/provider/favorites_provider.dart';
 import 'package:sonar/provider/file_transfer_provider.dart';
@@ -30,7 +31,9 @@ import 'package:sonar/provider/settings_provider.dart';
 import 'package:sonar/provider/transfer_history_provider.dart';
 import 'package:sonar/util/native/directories.dart';
 import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar/util/native/request_notification.dart';
 import 'package:sonar/util/native/tray_helper.dart';
+import 'package:sonar/util/transfer_failure.dart';
 import 'package:sonar/widget/dialogs/open_file_dialog.dart';
 import 'package:sonar_isolates/isolate.dart';
 import 'package:sonar_isolates/model/device.dart';
@@ -129,7 +132,11 @@ class ReceiveController {
         );
 
     bool quickSave = settings.quickSave && server.getState().session?.message == null;
-    final quickSaveFromFavorites = settings.quickSaveFromFavorites && server.getState().session?.message == null;
+    // A favorite may only be trusted when the fingerprint came from the TLS client
+    // certificate: the payload fingerprint is self-reported, so with encryption off
+    // (or a web share making client certificates optional) any peer could claim to
+    // be a favorite and have its files written without a prompt.
+    final quickSaveFromFavorites = settings.quickSaveFromFavorites && event.certFingerprint != null && server.getState().session?.message == null;
     if (quickSaveFromFavorites) {
       final bool isFavorite = server.ref.read(favoritesProvider).any((e) => e.fingerprint == senderFingerprint);
       if (isFavorite) {
@@ -157,7 +164,7 @@ class ReceiveController {
     }
 
     final message = server.getState().session?.message;
-    if (message != null) {
+    if (message != null && server.ref.read(settingsProvider).saveToHistory) {
       // Message already received
       await server.ref
           .redux(transferHistoryProvider)
@@ -183,6 +190,10 @@ class ReceiveController {
               ),
             ),
           );
+    }
+
+    if (message == null) {
+      _notifyIfInBackground();
     }
 
     final receiveProvider = ViewProvider((ref) {
@@ -232,6 +243,30 @@ class ReceiveController {
 
     // ignore: use_build_context_synchronously, unawaited_futures
     unawaited(showReceiveRequestDialog(receiveProvider));
+  }
+
+  /// Tells the user about a pending request while the app is not on screen.
+  ///
+  /// Best effort by design: Android freezes a backgrounded app and may have dropped its sockets
+  /// without any error, so a request can fail to arrive here at all. Quick save remains the
+  /// reliable way to not miss one.
+  void _notifyIfInBackground() {
+    final session = server.getStateOrNull()?.session;
+    if (session == null || session.status != SessionStatus.waiting) {
+      return;
+    }
+
+    if (server.ref.read(appLifecycleProvider) == AppLifecycleState.resumed) {
+      // The dialog is on screen (or about to be), so a notification would only duplicate it.
+      return;
+    }
+
+    RequestNotification.show(
+      title: session.senderAlias,
+      // The wording of the request dialog, so the notification and the dialog it opens agree.
+      text: t.receivePage.subTitle(n: session.files.length),
+      channelName: t.receiveRequestPage.title,
+    );
   }
 
   /// An accepted file started being uploaded.
@@ -393,16 +428,14 @@ class ReceiveController {
         ),
       );
 
-      if (!hasError) {
-        await _recordHistory(server.getState().session!);
-      }
+      // Recorded even when it failed: a receive that lost files has to be
+      // visible in the Transfers tab, not vanish because nothing arrived.
+      await _recordHistory(server.getState().session!, failed: hasError);
 
       final settings = server.ref.read(settingsProvider);
-      // A finished receive stays in the state until it is dismissed from the
-      // Transfers tab or the sidebar, or a new request replaces it. A failed
-      // file may still be retried by the sender (e.g. after a checksum mismatch),
-      // and a successful quick save keeps its completion card in the sidebar;
-      // closing here would drop the status the moment the file dialog goes.
+      // Only auto-close fully successful sessions: a failed file may still be
+      // retried by the sender (e.g. after a checksum mismatch), which requires
+      // the session to stay open.
       bool quickSave = settings.quickSave && !hasError && server.getState().session?.message == null;
       final quickSaveFromFavorites = settings.quickSaveFromFavorites && !hasError && server.getState().session?.message == null;
       if (quickSaveFromFavorites) {
@@ -412,12 +445,13 @@ class ReceiveController {
         }
       }
       if (quickSave) {
-        // Stay where the user is: the completion arrives without a page change.
-        // The session stays around after the dialog is dismissed so the desktop
-        // sidebar (and the Transfers tab) can still show the finished receive
-        // with its open-folder / done actions. The next request or an explicit
-        // close retires it.
+        // close the session **after** the response has been sent
         Future.delayed(Duration.zero, () {
+          closeSession();
+          _logger.info('Closing session');
+
+          // Stay where the user is: the completion arrives without a page change.
+          // open the dialog to open file instantly
           if (filePath != null && filePath.isNotEmpty) {
             // ignore: discarded_futures
             OpenFileDialog.open(
@@ -463,11 +497,25 @@ class ReceiveController {
 
   /// Records the finished session as one history entry, so the transfer tab can
   /// list it as a single row.
-  Future<void> _recordHistory(ReceiveSessionState session) async {
-    final files = buildHistoryFiles(session.files.values);
+  ///
+  /// A failed session is recorded too, with the files the receiver accepted:
+  /// without it a transfer that lost files leaves no trace behind.
+  Future<void> _recordHistory(ReceiveSessionState session, {required bool failed}) async {
+    if (!server.ref.read(settingsProvider).saveToHistory) {
+      return;
+    }
+    final files = buildHistoryFiles(session.files.values, failed: failed);
     if (files.isEmpty) {
       return;
     }
+
+    // A receive has no request-level error: the reason a file failed is the
+    // only one there is, and the first one is reported with its file name.
+    final errorMessage = failed
+        ? transferFailureReason(
+            files: session.files.values.map((file) => (file.file.fileName, file.errorMessage)),
+          )
+        : null;
 
     await server.ref
         .redux(transferHistoryProvider)
@@ -479,6 +527,8 @@ class ReceiveController {
               direction: TransferHistoryDirection.receive,
               timestamp: DateTime.fromMillisecondsSinceEpoch(session.startTime ?? DateTime.now().millisecondsSinceEpoch, isUtc: true),
               files: files,
+              failed: failed,
+              errorMessage: errorMessage,
             ),
           ),
         );
@@ -550,6 +600,8 @@ class ReceiveController {
     if (session == null || session.status != SessionStatus.waiting) {
       return;
     }
+    // The request is answered, so the notification (if any) has done its job.
+    RequestNotification.cancel();
 
     if (fileNameMap.isEmpty) {
       // nothing selected, the Rust server responds with 204 and creates no session
@@ -739,6 +791,9 @@ class ReceiveController {
     }
 
     TransferNotification.stop(sessionId);
+    // The request notification belongs to the session as well: without a session there is no
+    // dialog left to open.
+    RequestNotification.cancel();
 
     server.setState(
       (oldState) => oldState?.copyWith(
@@ -752,13 +807,15 @@ class ReceiveController {
 /// Maps the files of a finished receive session to their history entries.
 ///
 /// A file saved to the gallery has no path (the OS owns it afterwards), but it
-/// is still part of the transfer, so it has to appear in the history. Failed
+/// is still part of the transfer, so it has to appear in the history. A failed
+/// session keeps every file the receiver accepted — the delivered ones alone
+/// would hide what the failure was about. In a successful session the failed
 /// files have neither a path nor a gallery flag and are left out.
 @visibleForTesting
-List<TransferHistoryFile> buildHistoryFiles(Iterable<ReceivingFile> files) {
+List<TransferHistoryFile> buildHistoryFiles(Iterable<ReceivingFile> files, {bool failed = false}) {
   return [
     for (final file in files)
-      if (file.path != null || file.savedToGallery)
+      if (file.path != null || file.savedToGallery || (failed && file.desiredName != null))
         TransferHistoryFile(
           id: file.file.id,
           fileName: file.desiredName ?? file.file.fileName,

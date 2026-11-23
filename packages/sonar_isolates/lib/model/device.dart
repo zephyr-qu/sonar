@@ -9,6 +9,7 @@ enum DeviceType {
   web,
   headless,
   server,
+  tablet,
 }
 
 /// A channel a device is reachable on.

@@ -307,6 +307,7 @@
     "info": "Sonar 唔單只免費、開源，仲係冇廣告添㗎！如果你鍾意呢個 app，不妨捐款贊助我哋開發？",
     "donate": "捐 {amount}",
     "thanks": "多謝支持！",
+    "note": "捐款會交畀 LocalSend 原作者，而唔係呢個分支嘅維護者。",
     "restore": "還原 app 內購買"
   },
   "changelogPage": {
@@ -334,7 +335,8 @@
     },
     "openFile": {
       "title": "開啟檔案",
-      "content": "你係咪要開啟接收咗嘅檔案？"
+      "content": "你係咪要開啟接收咗嘅檔案？",
+      "openFileManager": "開啟檔案管理"
     },
     "addressInput": {
       "title": "輸入地址",

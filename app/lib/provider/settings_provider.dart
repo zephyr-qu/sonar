@@ -33,29 +33,9 @@ final settingsProvider = NotifierProvider<SettingsService, SettingsState>(
   (ref) {
     return SettingsService(ref.read(persistenceProvider));
   },
-  onChanged: (_, next, ref) {
-    final syncState = ref.read(parentIsolateProvider).syncState;
-    if (_listEq(syncState.networkWhitelist, next.networkWhitelist) &&
-        _listEq(syncState.networkBlacklist, next.networkBlacklist) &&
-        syncState.multicastGroup == next.multicastGroup &&
-        syncState.discoveryTimeout == next.discoveryTimeout) {
-      return;
-    }
-
-    ref
-        .redux(parentIsolateProvider)
-        .dispatch(
-          IsolateSyncSettingsAction(
-            networkWhitelist: next.networkWhitelist,
-            networkBlacklist: next.networkBlacklist,
-            multicastGroup: next.multicastGroup,
-            discoveryTimeout: next.discoveryTimeout,
-          ),
-        );
-  },
 );
 
-class SettingsService extends PureNotifier<SettingsState> {
+class SettingsService extends Notifier<SettingsState> {
   final PersistenceService _persistence;
 
   SettingsService(this._persistence);
@@ -149,6 +129,7 @@ class SettingsService extends PureNotifier<SettingsState> {
     state = state.copyWith(
       networkWhitelist: whitelist,
     );
+    _pushNetworkSettings();
   }
 
   Future<void> setNetworkBlacklist(List<String>? blacklist) async {
@@ -156,6 +137,7 @@ class SettingsService extends PureNotifier<SettingsState> {
     state = state.copyWith(
       networkBlacklist: blacklist,
     );
+    _pushNetworkSettings();
   }
 
   Future<void> setDiscoveryTimeout(int timeout) async {
@@ -164,6 +146,7 @@ class SettingsService extends PureNotifier<SettingsState> {
     state = state.copyWith(
       discoveryTimeout: value,
     );
+    _pushNetworkSettings();
   }
 
   Future<void> setMulticastGroup(String group) async {
@@ -171,6 +154,7 @@ class SettingsService extends PureNotifier<SettingsState> {
     state = state.copyWith(
       multicastGroup: group,
     );
+    _pushNetworkSettings();
   }
 
   Future<void> setDestination(String? destination) async {
@@ -222,6 +206,32 @@ class SettingsService extends PureNotifier<SettingsState> {
       quickSave: mode == QuickSaveMode.on,
       quickSaveFromFavorites: mode == QuickSaveMode.paired,
     );
+  }
+
+  /// Pushes the four settings the child isolates read into their sync state.
+  ///
+  /// This used to hang off [NotifierProvider.onChanged], but refena only calls that when the
+  /// container has an observer, and the app registers observers in debug builds only: in a release
+  /// build the network lists, the multicast group and the timeout never reached the isolates.
+  void _pushNetworkSettings() {
+    final syncState = ref.read(parentIsolateProvider).syncState;
+    if (_listEq(syncState.networkWhitelist, state.networkWhitelist) &&
+        _listEq(syncState.networkBlacklist, state.networkBlacklist) &&
+        syncState.multicastGroup == state.multicastGroup &&
+        syncState.discoveryTimeout == state.discoveryTimeout) {
+      return;
+    }
+
+    ref
+        .redux(parentIsolateProvider)
+        .dispatch(
+          IsolateSyncSettingsAction(
+            networkWhitelist: state.networkWhitelist,
+            networkBlacklist: state.networkBlacklist,
+            multicastGroup: state.multicastGroup,
+            discoveryTimeout: state.discoveryTimeout,
+          ),
+        );
   }
 
   Future<void> setReceivePin(String? receivePin) async {

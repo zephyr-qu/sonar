@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
-import 'package:sonar/config/theme.dart';
+import 'package:sonar/config/design_tokens.dart';
 import 'package:sonar/gen/strings.g.dart';
 import 'package:sonar/provider/selection/selected_receiving_files_provider.dart';
-import 'package:sonar/widget/labeled_checkbox.dart';
 import 'package:sonar/widget/ls/ls_buttons.dart';
 import 'package:sonar/widget/ls/ls_dialog.dart';
+import 'package:sonar/widget/ls/ls_segmented.dart';
+import 'package:sonar/widget/ls/ls_switch.dart';
 import 'package:sonar_isolates/rust/api/filename.dart';
 import 'package:uuid/uuid.dart';
 
@@ -65,38 +66,25 @@ class _QuickActionsDialogState extends State<QuickActionsDialog> with Refena {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = context.ls;
+    final colors = tokens.colors;
+
     return LsDialog(
       title: Text(t.dialogs.quickActions.title),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ToggleButtons(
-            isSelected: [_action == _QuickAction.counter, _action == _QuickAction.random],
-            onPressed: (int index) {
-              setState(() {
-                if (index == 0) {
-                  _action = _QuickAction.counter;
-                } else {
-                  _action = _QuickAction.random;
-                }
-              });
-            },
-            borderRadius: BorderRadius.circular(10),
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            constraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-            children: _QuickAction.values.map((mode) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: Text(mode.label),
-              );
-            }).toList(),
+          LsSegmented(
+            options: _QuickAction.values.map((mode) => mode.label).toList(),
+            index: _action.index,
+            onChanged: (index) => setState(() => _action = _QuickAction.values[index]),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 14),
           if (_action == _QuickAction.counter) ...[
-            Text(t.dialogs.quickActions.prefix),
-            const SizedBox(height: 5),
-            TextField(
+            Text(t.dialogs.quickActions.prefix, style: tokens.bodySm),
+            const SizedBox(height: 6),
+            TextFormField(
               autofocus: true,
               onChanged: (s) {
                 _validate(s);
@@ -105,38 +93,37 @@ class _QuickActionsDialogState extends State<QuickActionsDialog> with Refena {
                 });
               },
             ),
-            const SizedBox(height: 5),
-            Visibility(
-              visible: !_isValid,
-              child: Text(
-                t.sanitization.invalid,
-                style: TextStyle(color: Theme.of(context).colorScheme.warning),
+            if (!_isValid)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(t.sanitization.invalid, style: tokens.bodySm.copyWith(color: colors.danger)),
               ),
-            ),
-            const SizedBox(height: 10),
-            LabeledCheckbox(
+            const SizedBox(height: 12),
+            _SwitchRow(
               label: t.dialogs.quickActions.padZero,
               value: _padZero,
-              onChanged: (b) {
+              onChanged: (value) {
                 setState(() {
-                  _padZero = b == true;
+                  _padZero = value;
                 });
               },
             ),
-            const SizedBox(height: 5),
-            LabeledCheckbox(
+            _SwitchRow(
               label: t.dialogs.quickActions.sortBeforeCount,
               value: _sortBeforehand,
-              onChanged: (b) {
+              onChanged: (value) {
                 setState(() {
-                  _sortBeforehand = b == true;
+                  _sortBeforehand = value;
                 });
               },
             ),
-            const SizedBox(height: 10),
-            if (_padZero) Text('${t.general.example}: ${_prefix}04.jpg') else Text('${t.general.example}: ${_prefix}4.jpg'),
+            const SizedBox(height: 12),
+            Text(
+              '${t.general.example}: ${_padZero ? '${_prefix}04.jpg' : '${_prefix}4.jpg'}',
+              style: tokens.bodySm,
+            ),
           ],
-          if (_action == _QuickAction.random) Text('${t.general.example}: $_randomUuid.jpg'),
+          if (_action == _QuickAction.random) Text('${t.general.example}: $_randomUuid.jpg', style: tokens.bodySm),
         ],
       ),
       actions: [
@@ -168,6 +155,30 @@ class _QuickActionsDialogState extends State<QuickActionsDialog> with Refena {
             context.pop();
           },
         ),
+      ],
+    );
+  }
+}
+
+/// A labeled setting of the dialog: the text takes the row, the switch sits end-aligned.
+class _SwitchRow extends StatelessWidget {
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _SwitchRow({required this.label, required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.ls;
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(label, style: tokens.body.copyWith(color: tokens.colors.fg)),
+        ),
+        const SizedBox(width: 12),
+        LsSwitch(value: value, label: label, onChanged: onChanged),
       ],
     );
   }

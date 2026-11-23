@@ -10,6 +10,7 @@ import 'package:sonar/util/device_type_ext.dart';
 import 'package:sonar/util/native/device_info_helper.dart';
 import 'package:sonar/util/ui/snackbar.dart';
 import 'package:sonar/widget/dialogs/text_field_with_actions.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
 import 'package:sonar_isolates/isolate.dart';
 
 /// Upper bound for a device name.
@@ -46,9 +47,12 @@ bool _isControlCharacter(int rune) => rune < 0x20 || rune == 0x7f;
 ///
 /// It is the dialog the settings page uses, so both entries share the same field
 /// and the same shortcuts; only the row that opens it differs.
+///
+/// Dismissing the dialog — tapping outside it, the back gesture — is a cancel:
+/// a name typed in and then abandoned there is never applied.
 Future<void> showDeviceNameDialog(BuildContext context) async {
   final controller = TextEditingController(text: context.read(settingsProvider).alias);
-  await showTextFieldDialog(
+  final confirmed = await showTextFieldDialog(
     context,
     name: t.settingsTab.network.alias,
     validator: validateDeviceName,
@@ -58,11 +62,10 @@ Future<void> showDeviceNameDialog(BuildContext context) async {
     disposeController: true,
     actions: [DeviceNameActions(controller: controller)],
   );
-  final alias = controller.text.trim();
-  if (!context.mounted) {
+  if (!confirmed || !context.mounted) {
     return;
   }
-  await applyDeviceName(context, alias);
+  await applyDeviceName(context, controller.text.trim());
 }
 
 /// Persists [alias] and makes a running server announce it right away.
@@ -76,8 +79,9 @@ Future<void> showDeviceNameDialog(BuildContext context) async {
 Future<void> applyDeviceName(BuildContext context, String alias) async {
   final settings = context.read(settingsProvider);
   final server = context.read(serverProvider);
-  // The dialog commits whatever is in its field when it closes, including an
-  // empty one, and a blank device name is not a rename worth a server restart.
+  // The confirm button is disabled for a blank name and a dismissed dialog never
+  // gets here, so this only guards a name that is not a rename worth persisting:
+  // writing one would be a pointless server restart.
   if (alias.isEmpty || alias == settings.alias) {
     return;
   }
@@ -123,18 +127,15 @@ Future<void> applyDeviceName(BuildContext context, String alias) async {
 /// The random-name and system-name shortcuts of the device name dialog.
 ///
 /// Shared by the settings row and the header title so both offer the same two
-/// ways to fill in a name; [onPicked] lets a caller commit a pick immediately,
-/// while the settings row relies on its `onClosed` to persist whatever the field
-/// holds when the dialog goes away.
+/// ways to fill in a name; the caller persists whatever the field holds when the
+/// dialog goes away.
 class DeviceNameActions extends StatelessWidget {
   final TextEditingController controller;
-  final ValueChanged<String>? onPicked;
 
-  const DeviceNameActions({required this.controller, this.onPicked, super.key});
+  const DeviceNameActions({required this.controller, super.key});
 
   void _fill(String name) {
     controller.text = name;
-    onPicked?.call(name);
   }
 
   @override
@@ -142,26 +143,23 @@ class DeviceNameActions extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Tooltip(
-          message: t.settingsTab.network.generateRandomAlias,
-          child: IconButton(
-            onPressed: () => _fill(generateRandomAlias()),
-            icon: const Icon(LucideIcons.dices),
-          ),
+        LsIconButton(
+          icon: LucideIcons.dices,
+          tooltip: t.settingsTab.network.generateRandomAlias,
+          onPressed: () => _fill(generateRandomAlias()),
         ),
-        Tooltip(
-          message: t.settingsTab.network.useSystemName,
-          child: IconButton(
-            onPressed: () async {
-              final name = await getDeviceName();
-              if (name != null) {
-                _fill(name);
-              }
-            },
-            // The name comes from the OS, so the icon follows the device this app actually
-            // runs on.
-            icon: Icon(context.read(deviceInfoProvider).deviceType.icon),
-          ),
+        const SizedBox(width: 4),
+        LsIconButton(
+          // The name comes from the OS, so the icon follows the device this app
+          // actually runs on.
+          icon: context.read(deviceInfoProvider).deviceType.icon,
+          tooltip: t.settingsTab.network.useSystemName,
+          onPressed: () async {
+            final name = await getDeviceName();
+            if (name != null) {
+              _fill(name);
+            }
+          },
         ),
       ],
     );

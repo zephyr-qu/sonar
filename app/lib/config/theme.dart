@@ -6,8 +6,6 @@ import 'package:sonar/gen/strings.g.dart';
 import 'package:sonar/model/persistence/color_mode.dart';
 import 'package:sonar/provider/device_info_provider.dart';
 import 'package:sonar/util/native/platform_check.dart';
-import 'package:sonar/util/ui/dynamic_colors.dart';
-import 'package:yaru/yaru.dart' as yaru;
 
 /// Display / body face of the redesign (Latin). CJK glyphs use [_fontFamilyFallback].
 const _fontFamily = 'Archivo';
@@ -23,23 +21,15 @@ class _ThemeKey {
   final ColorMode colorMode;
   final Color customColor;
   final Brightness brightness;
-  final DynamicColors? dynamicColors;
-
-  const _ThemeKey(this.colorMode, this.customColor, this.brightness, this.dynamicColors);
+  const _ThemeKey(this.colorMode, this.customColor, this.brightness);
 
   @override
   bool operator ==(Object other) {
-    return other is _ThemeKey &&
-        other.colorMode == colorMode &&
-        other.customColor == customColor &&
-        other.brightness == brightness &&
-        // The palette is recomputed by a provider; an unchanged provider state keeps the
-        // same instance, so identity is the cheap and correct comparison here.
-        identical(other.dynamicColors, dynamicColors);
+    return other is _ThemeKey && other.colorMode == colorMode && other.customColor == customColor && other.brightness == brightness;
   }
 
   @override
-  int get hashCode => Object.hash(colorMode, customColor, brightness, identityHashCode(dynamicColors));
+  int get hashCode => Object.hash(colorMode, customColor, brightness);
 }
 
 /// Built themes, keyed by the settings that produced them.
@@ -47,16 +37,16 @@ final _themeCache = <_ThemeKey, ThemeData>{};
 
 /// Builds the theme of the "Signal" redesign.
 ///
-/// The [ColorMode] variants are preserved: `system` (dynamic colors), `custom`
-/// (user seed color), `oled` (pure black) and `yaru` (untouched).
-ThemeData getTheme(ColorMode colorMode, Color customColor, Brightness brightness, DynamicColors? dynamicColors) {
-  final key = _ThemeKey(colorMode, customColor, brightness, dynamicColors);
+/// The [ColorMode] variants: `localsend` (brand accent), `custom` (user seed
+/// color) and `oled` (brand accent on pure black surfaces).
+ThemeData getTheme(ColorMode colorMode, Color customColor, Brightness brightness) {
+  final key = _ThemeKey(colorMode, customColor, brightness);
   final cached = _themeCache[key];
   if (cached != null) {
     return cached;
   }
 
-  final theme = _buildTheme(colorMode, customColor, brightness, dynamicColors);
+  final theme = _buildTheme(colorMode, customColor, brightness);
   // `MaterialApp` asks for the light and the dark theme on every build, so a handful of
   // entries covers every realistic case; more than that means stale combinations (e.g. a
   // dragged color picker) and building a theme is cheap enough to redo once.
@@ -68,12 +58,8 @@ ThemeData getTheme(ColorMode colorMode, Color customColor, Brightness brightness
 }
 
 /// Builds a theme from scratch. Prefer [getTheme], which caches the result.
-ThemeData _buildTheme(ColorMode colorMode, Color customColor, Brightness brightness, DynamicColors? dynamicColors) {
-  if (colorMode == ColorMode.yaru) {
-    return _getYaruTheme(brightness);
-  }
-
-  final colorScheme = _determineColorScheme(colorMode, customColor, brightness, dynamicColors);
+ThemeData _buildTheme(ColorMode colorMode, Color customColor, Brightness brightness) {
+  final colorScheme = _determineColorScheme(colorMode, customColor, brightness);
   final tokens = _tokensFor(colorScheme, brightness);
   final palette = tokens.colors;
 
@@ -148,6 +134,28 @@ ThemeData _buildTheme(ColorMode colorMode, Color customColor, Brightness brightn
       unselectedLabelTextStyle: tokens.tabLabel,
     ),
     dividerTheme: DividerThemeData(color: palette.line, thickness: 1, space: 1),
+    textSelectionTheme: TextSelectionThemeData(
+      // The caret and the selection follow the accent instead of Material's secondary colour,
+      // so typing in a dialog looks like the rest of the app. Light mode needs [accentInk]:
+      // the lime accent is unreadable as a two-pixel caret on white.
+      cursorColor: brightness == Brightness.dark ? palette.accent : palette.accentInk,
+      selectionColor: palette.accent.withValues(alpha: brightness == Brightness.dark ? 0.30 : 0.45),
+      selectionHandleColor: brightness == Brightness.dark ? palette.accent : palette.accentInk,
+    ),
+    scrollbarTheme: ScrollbarThemeData(
+      // Desktop scrollbars are on screen the whole time, so they get the palette too: a
+      // hairline thumb at rest that thickens on hover, instead of Material's default grey.
+      thumbColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.hovered) || states.contains(WidgetState.dragged) ? palette.muted : palette.lineStrong,
+      ),
+      thickness: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.hovered) || states.contains(WidgetState.dragged) ? 8 : 6,
+      ),
+      radius: const Radius.circular(999),
+      crossAxisMargin: 3,
+      mainAxisMargin: 6,
+      interactive: true,
+    ),
     progressIndicatorTheme: ProgressIndicatorThemeData(
       color: palette.accent,
       linearTrackColor: palette.line,
@@ -245,8 +253,8 @@ ThemeData _buildTheme(ColorMode colorMode, Color customColor, Brightness brightn
       modalBackgroundColor: palette.bg,
       surfaceTintColor: Colors.transparent,
       modalBarrierColor: Colors.black.withValues(alpha: 0.42),
-      showDragHandle: true,
-      dragHandleColor: palette.lineStrong,
+      // CustomBottomSheet paints its own grabber; a theme handle would render a second bar.
+      showDragHandle: false,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
       ),
@@ -270,11 +278,18 @@ ThemeData _buildTheme(ColorMode colorMode, Color customColor, Brightness brightn
         side: BorderSide(color: palette.line),
       ),
     ),
+    // The toast borrows the `LsChip` language — a mono pill on `bg3` with a
+    // hairline — instead of Material's inverted near-black bar, which reads as
+    // the stock platform toast next to the rest of the redesign.
     snackBarTheme: SnackBarThemeData(
-      backgroundColor: palette.fg,
-      contentTextStyle: tokens.bodySm.copyWith(color: palette.bg),
+      backgroundColor: palette.bg3,
+      contentTextStyle: tokens.mono.copyWith(color: palette.fg),
       behavior: SnackBarBehavior.floating,
-      shape: const StadiumBorder(),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(999),
+        side: BorderSide(color: palette.lineStrong),
+      ),
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
     ),
     tooltipTheme: TooltipThemeData(
@@ -409,25 +424,11 @@ extension ThemeDataExt on ThemeData {
   }
 }
 
-extension ColorSchemeExt on ColorScheme {
-  Color get warning {
-    return Colors.orange;
-  }
-
-  Color? get secondaryContainerIfDark {
-    return brightness == Brightness.dark ? secondaryContainer : null;
-  }
-
-  Color? get onSecondaryContainerIfDark {
-    return brightness == Brightness.dark ? onSecondaryContainer : null;
-  }
-}
-
 extension InputDecorationThemeExt on InputDecorationThemeData {
   BorderRadius get borderRadius => _borderRadius;
 }
 
-ColorScheme _determineColorScheme(ColorMode mode, Color customColor, Brightness brightness, DynamicColors? dynamicColors) {
+ColorScheme _determineColorScheme(ColorMode mode, Color customColor, Brightness brightness) {
   final palette = LsColors.forBrightness(brightness);
 
   Color primary;
@@ -438,15 +439,6 @@ ColorScheme _determineColorScheme(ColorMode mode, Color customColor, Brightness 
   Color onTertiary;
 
   switch (mode) {
-    case ColorMode.system:
-      final dynamicScheme = brightness == Brightness.light ? dynamicColors?.light : dynamicColors?.dark;
-      primary = dynamicScheme?.primary ?? palette.accent;
-      onPrimary = dynamicScheme?.onPrimary ?? palette.accentFg;
-      primaryContainer = dynamicScheme?.primaryContainer ?? palette.accentSoft;
-      onPrimaryContainer = dynamicScheme?.onPrimaryContainer ?? palette.fg;
-      tertiary = dynamicScheme?.tertiary ?? primary;
-      onTertiary = dynamicScheme?.onTertiary ?? onPrimary;
-      break;
     case ColorMode.custom:
       // The swatches and the color dialog show the exact color the user picked, so the
       // accent must keep it: `fromSeed` would move it onto M3's tonal palette (tone 40
@@ -461,7 +453,6 @@ ColorScheme _determineColorScheme(ColorMode mode, Color customColor, Brightness 
       break;
     case ColorMode.localsend:
     case ColorMode.oled:
-    case ColorMode.yaru:
       primary = palette.accent;
       onPrimary = palette.accentFg;
       primaryContainer = palette.accentSoft;
@@ -512,49 +503,5 @@ ColorScheme _determineColorScheme(ColorMode mode, Color customColor, Brightness 
     inversePrimary: surfaceContainerHigh,
     // the redesign does not use the M3 elevation tint
     surfaceTint: Colors.transparent,
-  );
-}
-
-ThemeData _getYaruTheme(Brightness brightness) {
-  final baseTheme = brightness == Brightness.light ? yaru.yaruLight : yaru.yaruDark;
-  final colorScheme = baseTheme.colorScheme;
-
-  final lightInputBorder = OutlineInputBorder(
-    borderSide: BorderSide(color: colorScheme.secondaryContainer),
-    borderRadius: _borderRadius,
-  );
-
-  final darkInputBorder = OutlineInputBorder(
-    borderSide: BorderSide(color: colorScheme.secondaryContainer),
-    borderRadius: _borderRadius,
-  );
-
-  return baseTheme.copyWith(
-    // same density on all platforms so desktop matches mobile (defaults to compact on desktop)
-    visualDensity: VisualDensity.standard,
-    navigationBarTheme: colorScheme.brightness == Brightness.dark
-        ? NavigationBarThemeData(
-            iconTheme: WidgetStateProperty.all(const IconThemeData(color: Colors.white)),
-          )
-        : null,
-    inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: colorScheme.secondaryContainer,
-      border: colorScheme.brightness == Brightness.light ? lightInputBorder : darkInputBorder,
-      focusedBorder: colorScheme.brightness == Brightness.light ? lightInputBorder : darkInputBorder,
-      enabledBorder: colorScheme.brightness == Brightness.light ? lightInputBorder : darkInputBorder,
-      contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-    ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        foregroundColor: colorScheme.brightness == Brightness.dark ? Colors.white : null,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      ),
-    ),
-    textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      ),
-    ),
   );
 }

@@ -53,6 +53,30 @@ void main() {
 
       expect(files.map((f) => f.id), ['1', '2']);
     });
+
+    test('Should keep the accepted files of a failed session', () {
+      final files = buildHistoryFiles(
+        [
+          _file(id: '1', fileName: 'photo.jpg', path: '/storage/downloads/photo.jpg', savedToGallery: false),
+          _file(id: '2', fileName: 'broken.zip', path: null, savedToGallery: false, errorMessage: 'Insufficient storage'),
+        ],
+        failed: true,
+      );
+
+      expect(files.map((f) => f.id), ['1', '2']);
+      expect(files.last.fileName, 'broken.zip');
+    });
+
+    test('Should leave out a file the receiver did not accept', () {
+      final files = buildHistoryFiles(
+        [
+          _file(id: '1', fileName: 'skipped.zip', path: null, savedToGallery: false, accepted: false),
+        ],
+        failed: true,
+      );
+
+      expect(files, isEmpty);
+    });
   });
 }
 
@@ -62,6 +86,7 @@ ReceivingFile _file({
   required String? path,
   required bool savedToGallery,
   String? desiredName,
+  bool accepted = true,
   String? errorMessage,
 }) {
   return ReceivingFile(
@@ -75,7 +100,7 @@ ReceivingFile _file({
       metadata: null,
     ),
     token: null,
-    desiredName: desiredName ?? fileName,
+    desiredName: accepted ? desiredName ?? fileName : null,
     path: path,
     savedToGallery: savedToGallery,
     errorMessage: errorMessage,

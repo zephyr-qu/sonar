@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// The palette of the "Signal" redesign.
 ///
 /// The dark values are taken 1:1 from the prototype
-/// (`designs/localsend-reimagined/index.html`), the light values are a derived
+/// (the prototype is no longer in the tree), the light values are a derived
 /// counterpart with the same structure so that every widget can read the same
 /// slot names in both brightness modes.
 @immutable
@@ -85,14 +85,14 @@ class LsColors {
     bg3: Color(0xFFECEEF1),
     fg: Color(0xFF14161A),
     muted: Color(0xFF545B65),
-    faint: Color(0xFF747B86),
+    faint: Color(0xFF6B727D),
     line: Color(0x1414161A),
     lineStrong: Color(0x2914161A),
     accent: Color(0xFFC6F24E),
     accentFg: Color(0xFF0A0B0D),
     accentInk: Color(0xFF5F7A0F),
     accentSoft: Color(0x2EC6F24E),
-    danger: Color(0xFFD6452F),
+    danger: Color(0xFFCC3B25),
   );
 
   static LsColors forBrightness(Brightness brightness) {
@@ -199,9 +199,9 @@ class LsColors {
 
 /// Design tokens of the "Signal" redesign.
 ///
-/// Widgets read them through [LsTokens.of]; every theme built by
-/// `getTheme` registers an instance as a [ThemeExtension] so that `yaru`
-/// (which is returned untouched) still falls back to a derived instance.
+/// Widgets read them through [LsTokens.of]; every theme built by `getTheme`
+/// registers an instance as a [ThemeExtension], and anything that forgets to
+/// falls back to a derived instance.
 @immutable
 class LsTokens extends ThemeExtension<LsTokens> {
   final LsColors colors;
@@ -301,6 +301,9 @@ class LsTokens extends ThemeExtension<LsTokens> {
 
   /// List item title / emphasized body copy (13 / 500).
   late final TextStyle bodyStrong = TextStyle(fontSize: 13, height: 1.4, fontWeight: FontWeight.w500, color: colors.fg);
+
+  /// List item title inside a fixed-height tile, with a pinned line box so two lines still fit (13 / 500).
+  late final TextStyle bodyStrongTight = TextStyle(fontSize: 13, height: 1.15, fontWeight: FontWeight.w500, color: colors.fg);
 
   /// Helper text and dense secondary rows (12 / 400, muted).
   late final TextStyle bodySm = TextStyle(fontSize: 12, height: 1.45, color: colors.muted);

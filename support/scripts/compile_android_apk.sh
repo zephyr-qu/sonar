@@ -20,8 +20,7 @@ rm -rf /tmp/build
 cp localsend /tmp/build -r
 pushd /tmp/build
 
-git submodule update --init
-alias flutter='submodules/flutter/bin/flutter'
+alias flutter='fvm flutter'
 flutter config --no-analytics
 flutter pub get
 dart run build_runner build -d

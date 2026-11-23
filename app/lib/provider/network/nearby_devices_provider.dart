@@ -92,11 +92,21 @@ class RegisterDeviceAction extends AsyncReduxAction<NearbyDevicesService, Nearby
     assert(device.ip?.isNotEmpty ?? false, 'IP must not be empty');
 
     final favoriteDevice = notifier._favoriteService.state.firstWhereOrNull((e) => e.fingerprint == device.fingerprint);
-    if (favoriteDevice != null && !favoriteDevice.customAlias) {
-      // Update existing favorite with new alias
-      await external(notifier._favoriteService).dispatchAsync(UpdateFavoriteAction(favoriteDevice.copyWith(alias: device.alias)));
-    } else {
+    if (favoriteDevice == null) {
       await Future.microtask(() {});
+    } else {
+      // The alias follows the peer unless the user renamed the favorite. The device type is never
+      // user-edited, so it is refreshed on every confirmation — that also fills in the ones saved
+      // before the type was persisted, which would otherwise keep the offline fallback glyph.
+      final updated = favoriteDevice.copyWith(
+        alias: favoriteDevice.customAlias ? favoriteDevice.alias : device.alias,
+        deviceType: device.deviceType,
+      );
+      if (updated.alias == favoriteDevice.alias && updated.deviceType == favoriteDevice.deviceType) {
+        await Future.microtask(() {});
+      } else {
+        await external(notifier._favoriteService).dispatchAsync(UpdateFavoriteAction(updated));
+      }
     }
     // Refreshing the last-seen timestamp on every confirmation would write to
     // disk every few seconds per device, so it is throttled to once a minute.
@@ -223,6 +233,14 @@ class StartStagedScan extends AsyncReduxAction<NearbyDevicesService, NearbyDevic
 
   @override
   Future<NearbyDevicesState> reduce() async {
+    // The staged scan already covers every interface (grace period + subnet probes take seconds), so a
+    // second request while it runs would only probe the same network twice. Worse, `runningFavoriteScan`
+    // is a single flag and the first scan to finish would clear it under the second one — the "scanning"
+    // hairline would vanish while work is still going.
+    if (state.runningFavoriteScan) {
+      return state;
+    }
+
     dispatch(_SetRunningFavoriteScanAction(true));
 
     // The found devices arrive on the [StartDiscoveryListener] stream;

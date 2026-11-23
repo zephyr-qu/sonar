@@ -296,6 +296,9 @@ class Translations$nearbyTab$en {
   /// en: 'Scan again'
   String get scan => 'Scan again';
 
+  /// en: 'Scanning'
+  String get scanning => 'Scanning';
+
   /// en: 'Receive via link'
   String get linkReceive => 'Receive via link';
 
@@ -497,6 +500,9 @@ class Translations$transferTab$en {
   /// en: '{n} items'
   String items({required Object n}) => '${n} items';
 
+  /// en: '{n} more files'
+  String moreFiles({required Object n}) => '${n} more files';
+
   /// en: 'No transfers yet'
   String get noHistory => 'No transfers yet';
 
@@ -530,14 +536,20 @@ class Translations$transferTab$en {
   /// en: 'Other'
   String get typeOther => 'Other';
 
-  /// en: 'Date ↓'
-  String get sortDate => 'Date ↓';
+  /// en: 'Date'
+  String get sortDate => 'Date';
 
-  /// en: 'Name ↑'
-  String get sortName => 'Name ↑';
+  /// en: 'Name'
+  String get sortName => 'Name';
 
-  /// en: 'Size ↓'
-  String get sortSize => 'Size ↓';
+  /// en: 'Size'
+  String get sortSize => 'Size';
+
+  /// en: 'Ascending'
+  String get sortAscending => 'Ascending';
+
+  /// en: 'Descending'
+  String get sortDescending => 'Descending';
 
   /// en: 'Sort'
   String get sort => 'Sort';
@@ -1027,8 +1039,8 @@ class Translations$aboutPage$en {
   String get title => 'About Sonar';
 
   List<String> get description => [
-    'Sonar is a personal fork of LocalSend — a free, open-source app for securely sharing files and messages with nearby devices over your local network, without an internet connection.',
-    'The interface has been redesigned, but the protocol is unchanged: Sonar still works with LocalSend devices. Available on Android, iOS, macOS, Windows and Linux.',
+    'Sonar is a free, open-source app that allows you to securely share files and messages with nearby devices over your local network without needing an internet connection.',
+    'This app is available on Android, iOS, macOS, Windows and Linux. You can find all download options on the official homepage.',
   ];
 
   /// en: 'Author'
@@ -1066,6 +1078,9 @@ class Translations$donationPage$en {
 
   /// en: 'Thank you very much!'
   String get thanks => 'Thank you very much!';
+
+  /// en: 'Donations go to the original LocalSend author, not to the maintainer of this fork.'
+  String get note => 'Donations go to the original LocalSend author, not to the maintainer of this fork.';
 
   /// en: 'Restore purchase'
   String get restore => 'Restore purchase';
@@ -1881,6 +1896,9 @@ class Translations$dialogs$openFile$en {
 
   /// en: 'Do you want to open the received file?'
   String get content => 'Do you want to open the received file?';
+
+  /// en: 'Open file manager'
+  String get openFileManager => 'Open file manager';
 }
 
 // Path: dialogs.addressInput

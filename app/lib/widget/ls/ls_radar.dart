@@ -57,11 +57,17 @@ class LsRadar extends StatefulWidget {
   final List<LsRadarPeer> peers;
   final bool animate;
 
+  /// Pinned to the bottom-right corner of the square, just outside the dashed rim —
+  /// the empty wedge no peer or peer label reaches. The nearby radar puts its
+  /// "shown/total" count there.
+  final Widget? corner;
+
   const LsRadar({
     required this.size,
     required this.center,
     this.peers = const [],
     this.animate = true,
+    this.corner,
   });
 
   @override
@@ -173,6 +179,7 @@ class _LsRadarState extends State<LsRadar> with SingleTickerProviderStateMixin {
               ),
               child: RepaintBoundary(child: _Peer(peer: peer)),
             ),
+          if (widget.corner != null) Positioned(right: 0, bottom: 0, child: widget.corner!),
         ],
       ),
     );
@@ -190,7 +197,12 @@ class _Peer extends StatelessWidget {
     final colors = tokens.colors;
     final size = peer.size;
 
-    final circle = AnimatedContainer(
+    // An offline peer is outlined with dashes instead of a hairline. The dashes are
+    // painted by [LsDashedRing] over the bubble, so the decorated border stays empty
+    // for it; a selected peer keeps the solid accent ring (selection outranks offline).
+    final dashedOffline = peer.offline && !peer.selected;
+
+    Widget circle = AnimatedContainer(
       duration: const Duration(milliseconds: 150),
       curve: Curves.easeOut,
       width: size,
@@ -205,14 +217,12 @@ class _Peer extends StatelessWidget {
             ? colors.bg
             : colors.bg2,
         shape: BoxShape.circle,
-        border: Border.all(
-          color: peer.selected
-              ? colors.accent
-              : peer.offline
-              ? colors.line
-              : colors.lineStrong,
-          width: peer.selected ? 2 : 1,
-        ),
+        border: dashedOffline
+            ? null
+            : Border.all(
+                color: peer.selected ? colors.accent : colors.lineStrong,
+                width: peer.selected ? 2 : 1,
+              ),
       ),
       child: Opacity(
         opacity: peer.offline ? 0.4 : 1,
@@ -226,6 +236,24 @@ class _Peer extends StatelessWidget {
         ),
       ),
     );
+
+    if (dashedOffline) {
+      circle = SizedBox(
+        width: size,
+        height: size,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            circle,
+            // Painted inside the bubble's bounds, so the dashes never bleed into a
+            // neighbouring peer or into the radar rings behind the bubble.
+            IgnorePointer(
+              child: LsDashedRing(size: size - 1, color: colors.line),
+            ),
+          ],
+        ),
+      );
+    }
 
     final hasLongPress = peer.onLongPress != null;
     Widget button = circle;

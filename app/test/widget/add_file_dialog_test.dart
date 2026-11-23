@@ -58,7 +58,7 @@ Future<List<List<Rect>>> _pump(WidgetTester tester, {required List<FilePickerOpt
 
   await tester.pumpWidget(
     MaterialApp(
-      theme: getTheme(ColorMode.localsend, Colors.teal, Brightness.dark, null),
+      theme: getTheme(ColorMode.localsend, Colors.teal, Brightness.dark),
       home: Scaffold(
         body: Center(
           child: SizedBox(

@@ -10,11 +10,12 @@ import 'package:sonar/config/theme.dart';
 import 'package:sonar/gen/strings.g.dart';
 import 'package:sonar/model/persistence/color_mode.dart';
 import 'package:sonar/pages/home_page.dart';
+import 'package:sonar/provider/app_lifecycle_provider.dart';
 import 'package:sonar/provider/local_ip_provider.dart';
 import 'package:sonar/provider/network/server/server_provider.dart';
 import 'package:sonar/provider/settings_provider.dart';
 import 'package:sonar/util/native/platform_check.dart';
-import 'package:sonar/util/ui/dynamic_colors.dart';
+import 'package:sonar/util/native/request_notification.dart';
 import 'package:sonar/widget/watcher/life_cycle_watcher.dart';
 import 'package:sonar/widget/watcher/shortcut_watcher.dart';
 import 'package:sonar/widget/watcher/tray_watcher.dart';
@@ -58,11 +59,11 @@ class SonarApp extends StatelessWidget {
     final (themeMode, colorMode, customColor) = ref.watch(
       settingsProvider.select((settings) => (settings.theme, settings.colorMode, settings.customColor)),
     );
-    final dynamicColors = ref.watch(dynamicColorsProvider);
     return TrayWatcher(
       child: WindowWatcher(
         child: LifeCycleWatcher(
           onChangedState: (AppLifecycleState state) {
+            ref.notifier(appLifecycleProvider).set(state);
             switch (state) {
               case AppLifecycleState.resumed:
                 ref.redux(localIpProvider).dispatch(InitLocalIpAction());
@@ -75,6 +76,15 @@ class SonarApp extends StatelessWidget {
                   // The multicast sockets die the same silent way but cannot be probed, so always rebind them.
                   ref.redux(parentIsolateProvider).dispatch(IsolateDiscoveryRestartAction());
                 }
+                // The app is in the foreground here, which is the only moment Android shows the
+                // notification permission dialog. The incoming request notification needs it, and
+                // it cannot ask at the moment a request arrives (that is always in the background).
+                RequestNotification.ensurePermission();
+
+                // The notification and the request dialog announce the same request: with the app
+                // back in front, the dialog is what the user acts on, and a notification left over
+                // from an app that was killed in the meantime would open nothing.
+                RequestNotification.cancel();
                 break;
               case AppLifecycleState.detached:
                 // The main isolate is only exited when all child isolates are exited.
@@ -92,8 +102,8 @@ class SonarApp extends StatelessWidget {
               supportedLocales: AppLocaleUtils.supportedLocales,
               localizationsDelegates: GlobalMaterialLocalizations.delegates,
               debugShowCheckedModeBanner: false,
-              theme: getTheme(colorMode, customColor, Brightness.light, dynamicColors),
-              darkTheme: getTheme(colorMode, customColor, Brightness.dark, dynamicColors),
+              theme: getTheme(colorMode, customColor, Brightness.light),
+              darkTheme: getTheme(colorMode, customColor, Brightness.dark),
               themeMode: colorMode == ColorMode.oled ? ThemeMode.dark : themeMode,
               builder: (context, child) => WindowBrightnessWatcher(child: child!),
               navigatorKey: context.read(navigationProvider).key,

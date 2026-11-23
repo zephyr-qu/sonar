@@ -19,10 +19,9 @@ This is a multi-language monorepo: a Flutter app on top of a Rust protocol imple
 | `packages/core/`               | Rust crate `localsend`: protocol, HTTP server/client, crypto, WebRTC. No Flutter dependency.                                                                |
 | `packages/typed_isolates/`     | Small standalone package wrapping Dart `Isolate` with typed send/receive channels.                                                                          |
 | `server/`                      | Axum WebSocket signaling server for WebRTC (`/v1/ws`). Deployed separately, see `server/Dockerfile`.                                                        |
-| `cli/`                         | Rust CLI crate (`localsend-cli`): interactive terminal client on top of `packages/core` (v2 HTTP + multicast).                                              |
 | `support/scripts/`             | Release/packaging scripts (per-platform builds, MSIX, Inno Setup, FOSS stripping).                                                                          |
 
-The four Rust crates (`packages/core`, `packages/sonar_isolates/rust`, `server`, `cli`) form a single Cargo workspace rooted at the repository root: one shared `Cargo.lock` and `target/`, and `[profile.*]` settings live only in the root `Cargo.toml` (member profiles would be ignored). Cargokit still builds the plugin crate into its own target dir during Flutter builds.
+The three Rust crates (`packages/core`, `packages/sonar_isolates/rust`, `server`) form a single Cargo workspace rooted at the repository root: one shared `Cargo.lock` and `target/`, and `[profile.*]` settings live only in the root `Cargo.toml` (member profiles would be ignored). Cargokit still builds the plugin crate into its own target dir during Flutter builds.
 
 The three Dart packages (`app`, `packages/sonar_isolates`, `packages/typed_isolates`) form a pub workspace rooted at the repository root: one shared `pubspec.lock` and `.dart_tool/`, resolved by running `pub get` from any member. `rust_builder` and the vendored `cargokit/build_tool` are deliberately not members and still resolve standalone.
 
@@ -31,8 +30,8 @@ The app depends on **only** `sonar_isolates` — not on `flutter_rust_bridge`, `
 
 ## Flutter version
 
-Pinned to the version in `.fvmrc` (also mirrored in `.github/workflows/ci.yml` and `app/pubspec.yaml`, plus the `support/submodules/flutter` git submodule). Use **`fvm flutter` / `fvm dart`** instead of the system-wide toolchain.
-Bumping the version means updating all four places — see the "Bump Flutter" section of `CONTRIBUTING.md`.
+Pinned to the version in `.fvmrc` (also mirrored in `.github/workflows/ci.yml` and `app/pubspec.yaml`). Use **`fvm flutter` / `fvm dart`** instead of the system-wide toolchain.
+Bumping the version means updating all three places — see the "Bump Flutter" section of `CONTRIBUTING.md`.
 
 ## Platform detection
 
@@ -66,7 +65,7 @@ Rust:
 ```bash
 cargo test --features full       # in packages/core — see "Core crate features" below
 cargo clippy --features full
-cargo check                      # in packages/sonar_isolates/rust, server, cli
+cargo check                      # in packages/sonar_isolates/rust, server
 ```
 
 FRB codegen — run from `packages/sonar_isolates/`:
@@ -137,6 +136,14 @@ Slang, source files in `app/assets/i18n/` (`<locale>.json` plus `_missing_transl
 
 `in_app_purchase` and the donation UI are stripped for F-Droid by `support/scripts/remove_proprietary_dependencies.sh`, which relies on the `# [FOSS_REMOVE]` pubspec marker and `// [FOSS_REMOVE_START]` / `// [FOSS_REMOVE_END]` comment pairs. Preserve those markers when editing `lib/config/init.dart`, `lib/pages/donation/*`, or `lib/provider/purchase_provider.dart`.
 
+## Upstream sync (this fork)
+
+This is a personal fork ("Sonar") with a deliberately narrow maintenance budget: `app/` is a one-off redesign that is **not** maintained against upstream, `packages/core` tracks upstream **one commit at a time** on top of a small patch stack, and `packages/sonar_isolates` is fork-owned (it is upstream's `localsend_isolates`) so it can never be taken from upstream directly.
+
+Never `git checkout upstream -- packages/core`: commit `9163af3c` folded `dto_v2.rs` into `dto.rs`, dropped the V2 suffixes and deleted the v3 protocol, so a directory checkout breaks every call site.
+
+`app/assets/i18n/` is frozen for the same reason: all 60 locales were hand-rebranded, so upstream translations are never merged — add keys by hand and run `fvm dart run slang`. `app/pubspec.yaml`'s `version:` carries the fork's own patch number (`1.18.3+64`) rather than a `-sonar.N` suffix, because `.github/workflows/ci.yml` requires the pubspec, Inno Setup and AppImage versions to match exactly and derives the MSIX version as a four-part number; bumping it touches those five files as described below.
+
 ## Release notes
 
-`app/pubspec.yaml`'s version must match `#define MyAppVersion` in `support/scripts/compile_windows_exe-inno.iss` and the `version` in `cli/Cargo.toml` (the CLI prints it in its start banner) — CI fails on a mismatch. Platform build commands and release steps are documented in `README.md` ("Building") and `CONTRIBUTING.md` ("Release").
+`app/pubspec.yaml`'s version must match `#define MyAppVersion` in `support/scripts/compile_windows_exe-inno.iss` — CI fails on a mismatch. Platform build commands and release steps are documented in `README.md` ("Building") and `CONTRIBUTING.md` ("Release").

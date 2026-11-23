@@ -434,7 +434,7 @@ class Translations$sendPage$zh_CN extends Translations$sendPage$en {
   @override
   String get noResponse => '对方没有响应。请确认对方应用仍在运行且网络可达。';
   @override
-  String get rejected => '对方拒绝了请求。';
+  String get rejected => '对方拒绝了请求';
   @override
   String get tooManyAttempts => _root.web.tooManyAttempts;
   @override
@@ -525,8 +525,8 @@ class Translations$aboutPage$zh_CN extends Translations$aboutPage$en {
   String get title => '关于 Sonar';
   @override
   List<String> get description => [
-    'Sonar 是 LocalSend 的个人分支——一款免费的开源应用，可让您通过本地网络与附近的设备安全地分享文件和信息，无需互联网连接。',
-    '界面经过重新设计，但传输协议保持不变：Sonar 仍可与 LocalSend 设备互通。可在 Android、iOS、macOS、Windows 和 Linux 上使用。',
+    'Sonar 是一款免费的开源应用程序，可让您通过本地网络与附近的设备安全地分享文件和信息，而无需互联网连接。',
+    '本程序可在 Android、iOS、macOS、Windows 和 Linux 上使用。您可以在官方主页找到所有下载选项。',
   ];
   @override
   String get author => '作者';
@@ -555,6 +555,8 @@ class Translations$donationPage$zh_CN extends Translations$donationPage$en {
   String donate({required Object amount}) => '捐款 ${amount}';
   @override
   String get thanks => '非常感谢您的支持！';
+  @override
+  String get note => '捐款会交给 LocalSend 原作者，而非本分支的维护者。';
   @override
   String get restore => '恢复购买';
 }
@@ -868,6 +870,8 @@ class Translations$nearbyTab$zh_CN extends Translations$nearbyTab$en {
   @override
   String get scan => '重新扫描';
   @override
+  String get scanning => '扫描中';
+  @override
   String get linkReceive => '通过链接接收';
   @override
   String get manualIp => '手动 IP';
@@ -1005,6 +1009,8 @@ class Translations$transferTab$zh_CN extends Translations$transferTab$en {
   @override
   String items({required Object n}) => '${n} 项';
   @override
+  String moreFiles({required Object n}) => '另有 ${n} 项';
+  @override
   String get noHistory => '还没有传输记录';
   @override
   String get today => '今天';
@@ -1027,11 +1033,15 @@ class Translations$transferTab$zh_CN extends Translations$transferTab$en {
   @override
   String get typeOther => '其他';
   @override
-  String get sortDate => '日期 ↓';
+  String get sortDate => '日期';
   @override
-  String get sortName => '名称 ↑';
+  String get sortName => '名称';
   @override
-  String get sortSize => '大小 ↓';
+  String get sortSize => '大小';
+  @override
+  String get sortAscending => '升序';
+  @override
+  String get sortDescending => '降序';
   @override
   String get sort => '排序';
   @override
@@ -1543,6 +1553,8 @@ class Translations$dialogs$openFile$zh_CN extends Translations$dialogs$openFile$
   String get title => '打开文件';
   @override
   String get content => '您是否要打开接收的文件？';
+  @override
+  String get openFileManager => '打开文件管理';
 }
 
 // Path: dialogs.addressInput

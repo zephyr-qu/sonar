@@ -8,7 +8,7 @@ import 'package:sonar/widget/ls/ls_radar.dart';
 
 Widget _host(Widget child) {
   return MaterialApp(
-    theme: getTheme(ColorMode.localsend, Colors.teal, Brightness.dark, null),
+    theme: getTheme(ColorMode.localsend, Colors.teal, Brightness.dark),
     home: Scaffold(
       body: Center(child: child),
     ),

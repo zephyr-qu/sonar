@@ -16,6 +16,8 @@ import 'package:sonar/provider/selection/selected_receiving_files_provider.dart'
 import 'package:sonar/provider/settings_provider.dart';
 import 'package:sonar/util/device_type_ext.dart';
 import 'package:sonar/util/favorites.dart';
+import 'package:sonar/util/file_type_ext.dart';
+import 'package:sonar/util/fingerprint.dart';
 import 'package:sonar/util/native/platform_check.dart';
 import 'package:sonar/util/native/taskbar_helper.dart';
 import 'package:sonar/util/ui/snackbar.dart';
@@ -23,6 +25,7 @@ import 'package:sonar/widget/ls/ls_buttons.dart';
 import 'package:sonar/widget/ls/ls_card.dart';
 import 'package:sonar/widget/ls/ls_chip.dart';
 import 'package:sonar/widget/ls/ls_dialog.dart';
+import 'package:sonar/widget/ls/ls_path_text.dart';
 import 'package:sonar/widget/ls/ls_tile.dart';
 import 'package:sonar_isolates/model/device.dart';
 import 'package:sonar_isolates/model/dto/file_dto.dart';
@@ -177,9 +180,7 @@ class _ReceiveRequestDialogState extends State<ReceiveRequestDialog> with Refena
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: isMessage
-                ? _messageContent(context, vm: vm, alias: alias)
-                : _requestContent(context, vm: vm, alias: alias, isFavorite: senderFavoriteEntry != null),
+            children: isMessage ? _messageContent(context, vm: vm, alias: alias) : _requestContent(context, vm: vm, alias: alias),
           ),
           actions: actions,
         ),
@@ -187,10 +188,7 @@ class _ReceiveRequestDialogState extends State<ReceiveRequestDialog> with Refena
     );
   }
 
-  List<Widget> _requestContent(BuildContext context, {required ReceivePageVm vm, required String alias, required bool isFavorite}) {
-    final tokens = context.ls;
-    final colors = tokens.colors;
-    final settings = context.watch(settingsProvider);
+  List<Widget> _requestContent(BuildContext context, {required ReceivePageVm vm, required String alias}) {
     final totalSize = vm.files.fold<int>(0, (sum, file) => sum + file.size);
     final destination = context.watch(settingsProvider.select((state) => state.destination)) ?? t.settingsTab.receive.downloads;
 
@@ -213,11 +211,6 @@ class _ReceiveRequestDialogState extends State<ReceiveRequestDialog> with Refena
       _fileList(context, vm),
       const SizedBox(height: 12),
       _destinationRow(context, vm, destination),
-      const SizedBox(height: 10),
-      Text(
-        _policyText(quickSave: settings.quickSave, quickSaveFromFavorites: settings.quickSaveFromFavorites, isFavorite: isFavorite),
-        style: tokens.monoSm.copyWith(color: colors.faint),
-      ),
     ];
   }
 
@@ -309,7 +302,7 @@ class _ReceiveRequestDialogState extends State<ReceiveRequestDialog> with Refena
                 Tooltip(
                   message: '${t.receiveRequestPage.fingerprint}: ${t.receiveRequestPage.fingerprintDesc}',
                   child: Text(
-                    _shortFingerprint(fingerprint),
+                    shortFingerprint(fingerprint),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: tokens.monoSm.copyWith(color: colors.faint),
@@ -365,7 +358,7 @@ class _ReceiveRequestDialogState extends State<ReceiveRequestDialog> with Refena
           itemCount: files.length,
           itemBuilder: (context, index) {
             final file = files[index];
-            return LsFileRow(kind: _kindOf(file), name: file.fileName, meta: file.size.asReadableFileSize);
+            return LsFileRow(kind: fileKind(file.fileName), name: file.fileName, meta: file.size.asReadableFileSize);
           },
         ),
       ),
@@ -383,7 +376,7 @@ class _ReceiveRequestDialogState extends State<ReceiveRequestDialog> with Refena
             children: [
               Text(t.receiveRequestPage.saveTo, style: tokens.label),
               const SizedBox(height: 2),
-              Text(destination, maxLines: 1, overflow: TextOverflow.ellipsis, style: tokens.body),
+              LsPathText(destination, style: tokens.body),
             ],
           ),
         ),
@@ -433,29 +426,5 @@ class _ReceiveRequestDialogState extends State<ReceiveRequestDialog> with Refena
         return KeyEventResult.ignored;
     }
     return KeyEventResult.ignored;
-  }
-
-  String _shortFingerprint(String fingerprint) {
-    return fingerprint.length > 12 ? '${fingerprint.substring(0, 6)}…${fingerprint.substring(fingerprint.length - 4)}' : fingerprint;
-  }
-
-  /// Mirrors the receive policy line of the redesign header.
-  String _policyText({required bool quickSave, required bool quickSaveFromFavorites, required bool isFavorite}) {
-    if (quickSave) {
-      return t.receiveRequestPage.policyQuickSave;
-    }
-    if (quickSaveFromFavorites && isFavorite) {
-      return t.receiveRequestPage.policyQuickSaveFavorites;
-    }
-    return t.receiveRequestPage.policyAsk;
-  }
-
-  String _kindOf(FileDto file) {
-    final dot = file.fileName.lastIndexOf('.');
-    if (dot == -1 || dot == file.fileName.length - 1) {
-      return 'FILE';
-    }
-    final kind = file.fileName.substring(dot + 1).toUpperCase();
-    return kind.length > 4 ? kind.substring(0, 4) : kind;
   }
 }

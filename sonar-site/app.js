@@ -5,8 +5,6 @@
   var links = window.SONAR_LINKS || {
     repo: "#",
     releases: "#",
-    windows: "#",
-    android: "#",
     upstream: "#",
     version: ""
   };
@@ -19,25 +17,6 @@
   };
   onScroll();
   window.addEventListener("scroll", onScroll, { passive: true });
-
-  /* 导航高亮：滚到哪一段点亮哪一项（对应 styles.css 的 .nav-links a.is-active） */
-  var spyLinks = Array.prototype.slice.call(document.querySelectorAll(".nav-links a[href^='#']"));
-  var spySections = spyLinks
-    .map(function (a) { return document.querySelector(a.getAttribute("href")); })
-    .filter(Boolean);
-  var syncSpy = function () {
-    if (!spySections.length) return;
-    var probe = window.scrollY + 140;
-    var current = null;
-    spySections.forEach(function (sec) {
-      if (sec.offsetTop <= probe) current = sec;
-    });
-    spyLinks.forEach(function (a) {
-      a.classList.toggle("is-active", !!current && a.getAttribute("href") === "#" + current.id);
-    });
-  };
-  syncSpy();
-  window.addEventListener("scroll", syncSpy, { passive: true });
 
   /* 版本号 / 链接 */
   document.querySelectorAll(".js-version").forEach(function (el) {
@@ -52,18 +31,6 @@
     el.href = links.releases;
     el.target = "_blank";
     el.rel = "noopener";
-  });
-
-  /* 安装包直链：Gitee Release 上的两个文件 */
-  [
-    [".js-download-windows", links.windows],
-    [".js-download-android", links.android]
-  ].forEach(function (pair) {
-    document.querySelectorAll(pair[0]).forEach(function (el) {
-      el.href = pair[1] || links.releases;
-      el.target = "_blank";
-      el.rel = "noopener";
-    });
   });
   document.querySelectorAll(".js-notice").forEach(function (el) {
     el.href = links.notice || links.repo;
@@ -98,6 +65,41 @@
     });
   }
 
+  /* 复制命令行 */
+  var cmd = document.getElementById("cliCommand");
+  var copyBtn = document.getElementById("copyCmd");
+  if (cmd && copyBtn) {
+    copyBtn.addEventListener("click", function () {
+      var text = cmd.textContent || "";
+      var done = function () {
+        copyBtn.classList.add("is-done");
+        copyBtn.textContent = "已复制";
+        window.setTimeout(function () {
+          copyBtn.classList.remove("is-done");
+          copyBtn.textContent = "复制";
+        }, 1600);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, done);
+      } else {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand("copy");
+        } catch (e) {
+          /* 忽略：复制失败时按钮仍给出反馈 */
+        }
+        document.body.removeChild(ta);
+        done();
+      }
+    });
+  }
 
   /* 入场动画 */
   var reveals = document.querySelectorAll(".reveal");

@@ -306,6 +306,7 @@
     "info": "Sonar 是免費、開源且沒有任何廣告的。如果您喜歡此應用程式，可以透過捐贈來支持開發。",
     "donate": "贊助 {amount}",
     "thanks": "非常感謝您！",
+    "note": "捐款會交給 LocalSend 原作者，而非此分支的維護者。",
     "restore": "復原購買"
   },
   "changelogPage": {
@@ -333,7 +334,8 @@
     },
     "openFile": {
       "title": "開啟檔案",
-      "content": "您想開啟接收到的檔案嗎？"
+      "content": "您想開啟接收到的檔案嗎？",
+      "openFileManager": "開啟檔案管理"
     },
     "addressInput": {
       "title": "輸入位址",

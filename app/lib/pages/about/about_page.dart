@@ -1,12 +1,15 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
 import 'package:sonar/gen/strings.g.dart';
 import 'package:sonar/pages/debug/debug_page.dart';
 import 'package:sonar/util/i18n.dart';
+import 'package:sonar/widget/ls/ls_card.dart';
 import 'package:sonar/widget/ls/ls_scaffold.dart';
-import 'package:sonar/widget/responsive_list_view.dart';
+import 'package:sonar/widget/ls/ls_section_label.dart';
 import 'package:sonar/widget/sonar_logo.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -21,171 +24,208 @@ class AboutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Theme.of(context).colorScheme.primary;
+    final tokens = context.ls;
+
     return LsPageScaffold(
       title: t.aboutPage.title,
-      body: ResponsiveListView(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
+      body: ListView(
+        padding: EdgeInsets.fromLTRB(tokens.pad, 4, tokens.pad, 32),
         children: [
-          const SizedBox(height: 20),
-          const SonarLogo(withText: true),
-          Text(
-            '© ${DateTime.now().year} Zephyr',
-            textAlign: TextAlign.center,
+          const _IdentityCard(),
+          LsSectionLabel(label: t.aboutPage.author),
+          const LsCard(
+            padding: EdgeInsets.all(14),
+            child: _CreditList(entries: ['Zephyr (@zephyr-qu)']),
           ),
-          Text(
-            'Based on LocalSend © Tien Do Nam',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall,
+          LsSectionLabel(label: t.aboutPage.originalAuthor, padding: const EdgeInsets.only(top: 14, bottom: 8)),
+          const LsCard(
+            padding: EdgeInsets.all(14),
+            child: _CreditList(entries: ['Tien Do Nam (@Tienisto)']),
           ),
-          const SizedBox(height: 10),
-          Center(
-            child: TextButton(
-              onPressed: () async {
-                await launchUrl(Uri.parse('https://www.zephyrqu.top/sonar'));
-              },
-              child: const Text('zephyrqu.top/sonar'),
+          LsSectionLabel(label: t.aboutPage.contributors, count: '${_contributors.length}'),
+          LsCard(
+            padding: const EdgeInsets.all(14),
+            child: _CreditList(entries: _contributors),
+          ),
+          LsSectionLabel(label: t.aboutPage.packagers, count: '${_packagers.length}'),
+          LsCard(
+            padding: const EdgeInsets.all(14),
+            child: _LocaleCreditList(rows: _packagers.entries.toList()),
+          ),
+          LsSectionLabel(label: t.aboutPage.translators, count: '${_translators.length}'),
+          LsCard(
+            padding: const EdgeInsets.all(14),
+            child: _LocaleCreditList(
+              rows: _translators.entries.map((e) => MapEntry(e.key.getLocaleName(), e.value)).toList(),
             ),
           ),
-          Center(
-            child: TextButton(
-              onPressed: () async {
-                await launchUrl(Uri.parse('https://localsend.org'));
-              },
-              child: const Text('localsend.org'),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(t.aboutPage.description.join('\n\n')),
-          const SizedBox(height: 20),
-          Text(t.aboutPage.author, style: const TextStyle(fontWeight: FontWeight.bold)),
-          Text.rich(
-            _buildContributor(
-              label: 'Zephyr (@zephyr-qu)',
-              primaryColor: primaryColor,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(t.aboutPage.originalAuthor, style: const TextStyle(fontWeight: FontWeight.bold)),
-          Text.rich(
-            _buildContributor(
-              label: 'Tien Do Nam (@Tienisto)',
-              primaryColor: primaryColor,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(t.aboutPage.contributors, style: const TextStyle(fontWeight: FontWeight.bold)),
-          ..._contributors.map((contributor) {
-            return Text.rich(
-              _buildContributor(
-                label: contributor,
-                primaryColor: primaryColor,
-              ),
-            );
-          }),
-          const SizedBox(height: 20),
-          Text(t.aboutPage.packagers, style: const TextStyle(fontWeight: FontWeight.bold)),
-          Table(
-            columnWidths: const {
-              0: IntrinsicColumnWidth(),
-              1: FlexColumnWidth(),
-            },
+          const SizedBox(height: 22),
+          const SizedBox(height: 22),
+          const Column(
+            spacing: 6,
             children: [
-              ..._packagers.entries.map(
-                (e) => TableRow(
+              _LinkRow(icon: LucideIcons.globe, label: 'localsend.org', url: 'https://localsend.org'),
+              _LinkRow(icon: LucideIcons.github, label: 'Source Code (Github)', url: 'https://github.com/zephyr-qu/sonar'),
+              _LinkRow(icon: LucideIcons.gitFork, label: 'LocalSend (upstream)', url: 'https://localsend.org'),
+              _LinkRow(icon: LucideIcons.scale, label: 'Apache License 2.0', url: 'https://www.apache.org/licenses/LICENSE-2.0'),
+              _LinkRow(icon: LucideIcons.fileText, label: 'License Notices', page: LicensePage()),
+              _LinkRow(icon: LucideIcons.bug, label: 'Debugging', page: DebugPage()),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Logo, name, ownership and the app description as one hero card.
+class _IdentityCard extends StatelessWidget {
+  const _IdentityCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.ls;
+    final colors = tokens.colors;
+
+    return LsCard(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const SonarLogo(withText: false, size: 56),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 10),
-                      child: Text(e.key),
-                    ),
-                    Text.rich(
-                      TextSpan(
-                        children: e.value.mapIndexed(
-                          (index, translator) {
-                            return _buildContributor(
-                              label: translator,
-                              primaryColor: primaryColor,
-                              newLine: index != 0,
-                            );
-                          },
-                        ).toList(),
-                      ),
+                    Text('Sonar', style: tokens.title),
+                    const SizedBox(height: 3),
+                    Text(
+                      '© ${DateTime.now().year} Zephyr · Based on LocalSend © Tien Do Nam',
+                      style: tokens.bodySm,
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          Text(t.aboutPage.translators, style: const TextStyle(fontWeight: FontWeight.bold)),
-          Table(
-            columnWidths: const {
-              0: IntrinsicColumnWidth(),
-              1: FlexColumnWidth(),
-            },
-            children: [
-              ..._translators.entries.map(
-                (e) => TableRow(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 10),
-                      child: Text(e.key.getLocaleName()),
-                    ),
-                    Text.rich(
-                      TextSpan(
-                        children: e.value.mapIndexed(
-                          (index, translator) {
-                            return _buildContributor(
-                              label: translator,
-                              primaryColor: primaryColor,
-                              newLine: index != 0,
-                            );
-                          },
-                        ).toList(),
-                      ),
-                    ),
-                  ],
+          const SizedBox(height: 16),
+          for (final paragraph in t.aboutPage.description)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(paragraph, style: tokens.bodySm.copyWith(color: colors.fg)),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A name plus an optional github handle, one per row.
+class _CreditList extends StatelessWidget {
+  final List<String> entries;
+
+  const _CreditList({required this.entries});
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.ls;
+    final colors = tokens.colors;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final entry in entries)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 3),
+            child: Text.rich(
+              _buildContributor(label: entry, primaryColor: colors.accent),
+              style: tokens.bodySm.copyWith(color: colors.fg),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Locale → translators, the locale as a mono caption above its names.
+class _LocaleCreditList extends StatelessWidget {
+  final List<MapEntry<String, List<String>>> rows;
+
+  const _LocaleCreditList({required this.rows});
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.ls;
+    final colors = tokens.colors;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (var index = 0; index < rows.length; index++)
+          Padding(
+            padding: EdgeInsets.only(bottom: index == rows.length - 1 ? 0 : 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(rows[index].key, style: tokens.mono),
+                const SizedBox(height: 2),
+                Text.rich(
+                  TextSpan(
+                    children: rows[index].value
+                        .mapIndexed(
+                          (nameIndex, translator) => _buildContributor(
+                            label: translator,
+                            primaryColor: colors.accent,
+                            newLine: nameIndex != 0,
+                          ),
+                        )
+                        .toList(),
+                  ),
+                  style: tokens.bodySm.copyWith(color: colors.fg),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 20),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextButton(
-                onPressed: () async {
-                  await launchUrl(Uri.parse('https://github.com/zephyr-qu/sonar'), mode: LaunchMode.externalApplication);
-                },
-                child: const Text('Source Code (Github)'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  await launchUrl(Uri.parse('https://localsend.org'), mode: LaunchMode.externalApplication);
-                },
-                child: const Text('LocalSend (upstream)'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  await launchUrl(Uri.parse('https://www.apache.org/licenses/LICENSE-2.0'));
-                },
-                child: const Text('Apache License 2.0'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  await context.push(() => const LicensePage());
-                },
-                child: const Text('License Notices'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  await context.push(() => const DebugPage());
-                },
-                child: const Text('Debugging'),
-              ),
-            ],
+      ],
+    );
+  }
+}
+
+/// One footer link as its own tile: icon, label and the outbound arrow.
+class _LinkRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String? url;
+  final Widget? page;
+
+  const _LinkRow({required this.icon, required this.label, this.url, this.page});
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.ls;
+    final colors = tokens.colors;
+
+    return LsCard(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      borderRadius: tokens.tileRadius,
+      onTap: () async {
+        if (page != null) {
+          await context.push(() => page!);
+          return;
+        }
+        await launchUrl(Uri.parse(url!), mode: LaunchMode.externalApplication);
+      },
+      child: Row(
+        children: [
+          Icon(icon, size: 14, color: colors.muted),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(label, style: tokens.body.copyWith(color: colors.fg)),
           ),
-          const SizedBox(height: 50),
+          Icon(LucideIcons.arrowUpRight, size: 13, color: colors.faint),
         ],
       ),
     );

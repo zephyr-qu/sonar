@@ -20,7 +20,7 @@
 # macOS
 .DS_Store
 
-# Generated at build time by makepri (see support/scripts/compile_windows_exe.ps1)
+# Generated at build time by makepri (see support/scripts/compile_windows_msix_helper.ps1)
 /support/build/msix/content/resources.pri
 
 # Left behind by running support/scripts/*.py
@@ -47,7 +47,3 @@
 
 # Installer payload/result dirs used by support/scripts/compile_windows_exe.ps1
 /build/
-
-# Cloudflare Workers local state (wrangler deploy)
-/sonar-site/.wrangler/
-/.wrangler/

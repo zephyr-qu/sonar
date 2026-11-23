@@ -134,10 +134,23 @@ class CargoKitPlugin implements Plugin<Project> {
 
             def platforms = com.flutter.gradle.FlutterPluginUtils.getTargetPlatforms(project).collect()
 
-            // Same thing addFlutterDependencies does in flutter.gradle
+            // Upstream cargokit force-adds android-x86/android-x64 here, and Flutter's
+            // default apk platform list is arm + arm64 + x64, so every debug build
+            // compiled the entire Rust dependency graph three times (~11 min per ABI
+            // cold, ~70 s warm, 855 crates each) and produced a ~300 MB APK of
+            // unstripped libraries. Local fork: debug only builds the ABIs listed in
+            // `cargokit.debugPlatforms` (default: arm64), so `--target-platform`
+            // actually limits the Rust work. An explicit emulator request
+            // (`flutter run` on x86_64, or `--target-platform`) wins over the filter.
             if (buildType == "debug") {
-                platforms.add("android-x86")
-                platforms.add("android-x64")
+                def requested = platforms.collect()
+                def debugPlatforms = (project.findProperty("cargokit.debugPlatforms") ?: "android-arm64")
+                        .toString().split(",").collect { it.trim() }.findAll { it }
+                platforms.retainAll(debugPlatforms)
+                if (platforms.isEmpty()) {
+                    platforms.addAll(requested)
+                }
+                project.logger.lifecycle("cargokit: building debug Rust for ${platforms.join(', ')}")
             }
 
             // The task name depends on plugin properties, which are not available
@@ -163,6 +176,25 @@ class CargoKitPlugin implements Plugin<Project> {
                     compileSdkVersion = plugin.project.android.compileSdkVersion.substring(8) as int
                     targetPlatforms = platforms
                     pluginFile = CargoKitPlugin.file
+
+                    // cargokit writes every ABI into the same jniLibs/<buildType> directory,
+                    // so an ABI we no longer build would keep a stale .so and still be
+                    // packaged. Drop the outputs of ABIs that are not in `platforms`.
+                    doFirst {
+                        def abiOf = [
+                                "android-arm"  : "armeabi-v7a",
+                                "android-arm64": "arm64-v8a",
+                                "android-x86"  : "x86",
+                                "android-x64"  : "x86_64",
+                        ]
+                        def keep = platforms.collect { abiOf[it] }.findAll { it } as Set
+                        new File(cargoOutputDir).listFiles()?.each { dir ->
+                            if (dir.isDirectory() && !keep.contains(dir.name)) {
+                                project.logger.lifecycle("cargokit: removing stale ${dir.name} native libs")
+                                dir.deleteDir()
+                            }
+                        }
+                    }
                 }
                 def onTask = { newTask ->
                     if (newTask.name == "merge${buildType.capitalize()}NativeLibs") {

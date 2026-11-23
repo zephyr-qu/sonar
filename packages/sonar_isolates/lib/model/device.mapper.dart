@@ -37,6 +37,8 @@ class DeviceTypeMapper extends EnumMapper<DeviceType> {
         return DeviceType.headless;
       case r'server':
         return DeviceType.server;
+      case r'tablet':
+        return DeviceType.tablet;
       default:
         return DeviceType.values[1];
     }
@@ -55,6 +57,8 @@ class DeviceTypeMapper extends EnumMapper<DeviceType> {
         return r'headless';
       case DeviceType.server:
         return r'server';
+      case DeviceType.tablet:
+        return r'tablet';
     }
   }
 }

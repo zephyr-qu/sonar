@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:routerino/routerino.dart';
 import 'package:sonar/config/design_tokens.dart';
 import 'package:sonar/gen/strings.g.dart';
-import 'package:sonar/model/cross_file.dart';
 import 'package:sonar/pages/selected_files_page.dart';
 import 'package:sonar/pages/tabs/nearby_tab_vm.dart';
+import 'package:sonar/util/file_type_ext.dart';
 import 'package:sonar/widget/file_thumbnail.dart';
 import 'package:sonar/widget/ls/ls_tile.dart';
 import 'package:sonar_isolates/util/file_size_helper.dart';
@@ -35,6 +35,9 @@ class NearbyFileGrid extends StatelessWidget {
         const gap = 8.0;
         final cellWidth = (constraints.maxWidth - gap * (columns - 1)) / columns;
         final tileWidth = maxTileWidth == null ? cellWidth : math.min(cellWidth, maxTileWidth!);
+        // The caption band follows the text scale, so a larger system font grows the cell
+        // instead of overflowing it (see [fileTileCaptionHeight]).
+        final captionHeight = fileTileCaptionHeight(context);
         Widget cell(Widget child) => Center(
           child: SizedBox(width: tileWidth, child: child),
         );
@@ -49,7 +52,7 @@ class NearbyFileGrid extends StatelessWidget {
               crossAxisCount: columns,
               crossAxisSpacing: gap,
               mainAxisSpacing: gap,
-              mainAxisExtent: tileWidth + 16,
+              mainAxisExtent: tileWidth + captionHeight,
             ),
             itemCount: files.length + 1,
             itemBuilder: (context, index) {
@@ -62,7 +65,7 @@ class NearbyFileGrid extends StatelessWidget {
                 );
               }
               final file = files[index];
-              final kind = _kindOf(file);
+              final kind = fileKind(file.name);
               return cell(
                 LsFileTile(
                   kind: kind,
@@ -80,14 +83,4 @@ class NearbyFileGrid extends StatelessWidget {
       },
     );
   }
-}
-
-String _kindOf(CrossFile file) {
-  final name = file.name;
-  final dot = name.lastIndexOf('.');
-  if (dot == -1 || dot == name.length - 1) {
-    return 'FILE';
-  }
-  final kind = name.substring(dot + 1).toUpperCase();
-  return kind.length > 4 ? kind.substring(0, 4) : kind;
 }

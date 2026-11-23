@@ -131,7 +131,7 @@ Future<List<SettingsRow>> _renderRows(
   await tester.pumpWidget(
     RefenaScope(
       child: MaterialApp(
-        theme: getTheme(ColorMode.localsend, Colors.teal, Brightness.dark, null),
+        theme: getTheme(ColorMode.localsend, Colors.teal, Brightness.dark),
         home: Builder(
           builder: (context) {
             rows = [
@@ -149,7 +149,7 @@ Future<List<SettingsRow>> _renderRows(
 Widget _host({required List<Widget> children}) {
   return RefenaScope(
     child: MaterialApp(
-      theme: getTheme(ColorMode.localsend, Colors.teal, Brightness.dark, null),
+      theme: getTheme(ColorMode.localsend, Colors.teal, Brightness.dark),
       home: Scaffold(body: ListView(children: children)),
     ),
   );

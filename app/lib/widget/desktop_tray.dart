@@ -16,10 +16,11 @@ import 'package:sonar/provider/file_transfer_provider.dart';
 import 'package:sonar/provider/network/send_provider.dart';
 import 'package:sonar/provider/network/server/server_provider.dart';
 import 'package:sonar/provider/settings_provider.dart';
+import 'package:sonar/util/file_type_ext.dart';
 import 'package:sonar/util/native/macos_channel.dart';
-import 'package:sonar/util/native/open_folder.dart';
 import 'package:sonar/util/native/pick_directory_path.dart';
 import 'package:sonar/util/native/platform_check.dart';
+import 'package:sonar/util/session_progress.dart';
 import 'package:sonar/util/session_status_ext.dart';
 import 'package:sonar/util/ui/snackbar.dart';
 import 'package:sonar/widget/dialogs/encryption_disabled_notice.dart';
@@ -30,6 +31,7 @@ import 'package:sonar/widget/ls/ls_progress_bar.dart';
 import 'package:sonar/widget/ls/ls_section_label.dart';
 import 'package:sonar/widget/ls/ls_switch.dart';
 import 'package:sonar/widget/ls/ls_tile.dart';
+import 'package:sonar/widget/session_progress_builder.dart';
 import 'package:sonar_isolates/model/device.dart';
 import 'package:sonar_isolates/model/session_status.dart';
 import 'package:sonar_isolates/util/file_size_helper.dart';
@@ -40,6 +42,11 @@ import 'package:sonar_isolates/util/file_size_helper.dart';
 /// A real tray holds hundreds of files; listing them all pushes "in progress"
 /// and the receive policy far down the sidebar, so the list stops here and an
 /// "all files" link takes over.
+///
+/// The rows are the *newest* picks, not the first ones: the file that just
+/// landed is the one the user is looking for, and a pick that never shows up
+/// looks like the drop failed. Their order stays the selection order — the tray
+/// shows the tail of the list [SelectedFilesPage] renders.
 const int maxTrayRows = 3;
 
 /// The sidebar of the desktop shell: pending files, running transfers, receive
@@ -76,10 +83,10 @@ class LsDesktopTray extends StatelessWidget {
     // is closed — a request that never got an answer would otherwise just
     // disappear — but the sidebar cannot hold one row per attempt: each retry
     // pushed the receive policy further down. The newest failure stands for the
-    // rest, and the Transfers tab lists every one of them with its own close
-    // button.
+    // rest; the Transfers tab likewise keeps a completion card for the newest
+    // one only, and closes the older ones automatically.
     final runningSessions = sessions.where((session) => session.status == SessionStatus.waiting || session.status == SessionStatus.sending).toList();
-    final failedSessions = sessions.where((session) => session.status == SessionStatus.finishedWithErrors).toList()
+    final failedSessions = sessions.where((session) => session.status.isTerminalFailure).toList()
       ..sort((a, b) => _finishedAt(b).compareTo(_finishedAt(a)));
     final latestFailure = failedSessions.isEmpty ? null : failedSessions.first;
     final hiddenFailures = failedSessions.length - (latestFailure == null ? 0 : 1);
@@ -89,17 +96,10 @@ class LsDesktopTray extends StatelessWidget {
     final sending = picked.any((device) => runningTargets.contains(device.fingerprint));
     final serverState = context.watch(serverProvider);
     final receiveSession = serverState?.session;
-    // The sidebar keeps the newest receive until it is dismissed, not just while
-    // bytes are moving. A finished receive shows its completion state here too,
-    // so closing the "open file" dialog after a quick save does not erase it.
     final activeReceive = receiveSession != null && (receiveSession.status == SessionStatus.waiting || receiveSession.status == SessionStatus.sending)
         ? receiveSession
         : null;
-    final finishedReceive = receiveSession != null && receiveSession.status != SessionStatus.waiting && receiveSession.status != SessionStatus.sending
-        ? receiveSession
-        : null;
-    final activeCount =
-        runningSessions.length + (latestFailure == null ? 0 : 1) + (activeReceive != null ? 1 : 0) + (finishedReceive != null ? 1 : 0);
+    final activeCount = runningSessions.length + (latestFailure == null ? 0 : 1) + (activeReceive != null ? 1 : 0);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -112,14 +112,14 @@ class LsDesktopTray extends StatelessWidget {
         if (files.isEmpty)
           _DropZone(onTap: () async => vm.onAddFiles(context))
         else ...[
-          for (final (index, file) in files.take(maxTrayRows).indexed)
+          for (final index in _trayIndexes(files.length))
             LsFileRow(
-              kind: _kindOf(file),
-              name: file.displayName,
-              meta: file.size.asReadableFileSize,
+              kind: fileKind(files[index].name),
+              name: files[index].displayName,
+              meta: files[index].size.asReadableFileSize,
               trailing: LsIconButton(
                 icon: LucideIcons.x,
-                tooltip: file.name,
+                tooltip: t.general.delete,
                 onPressed: () => vm.onRemoveFile(index),
               ),
             ),
@@ -209,52 +209,6 @@ class LsDesktopTray extends StatelessWidget {
               label: t.transferTab.cancel,
               variant: LsButtonVariant.ghost,
               onPressed: () => context.notifier(serverProvider).cancelSession(),
-            ),
-            const SizedBox(height: 10),
-          ],
-          if (finishedReceive != null) ...[
-            InkWell(
-              borderRadius: tokens.tileRadius,
-              onTap: () => context.push(() => ProgressPage(sessionId: finishedReceive.sessionId)),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      t.transferTab.receivedFrom(device: finishedReceive.senderAlias),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: tokens.bodySm.copyWith(color: colors.fg),
-                    ),
-                  ),
-                  Icon(LucideIcons.chevronRight, size: 14, color: colors.faint),
-                ],
-              ),
-            ),
-            if (sessionStatusText(finishedReceive.status) case final String statusText) ...[
-              const SizedBox(height: 4),
-              Text(statusText, style: tokens.monoSm.copyWith(color: colors.muted)),
-            ],
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                if (checkPlatformWithFileSystem() && finishedReceive.destinationDirectory.isNotEmpty)
-                  Expanded(
-                    child: LsButton(
-                      label: t.transferTab.openFolder,
-                      icon: LucideIcons.folder,
-                      variant: LsButtonVariant.ghost,
-                      onPressed: () => openFolder(folderPath: finishedReceive.destinationDirectory),
-                    ),
-                  ),
-                if (checkPlatformWithFileSystem() && finishedReceive.destinationDirectory.isNotEmpty) const SizedBox(width: 8),
-                Expanded(
-                  child: LsButton(
-                    label: t.transferTab.done,
-                    variant: LsButtonVariant.plain,
-                    onPressed: () => context.notifier(serverProvider).closeSession(),
-                  ),
-                ),
-              ],
             ),
             const SizedBox(height: 10),
           ],
@@ -350,27 +304,43 @@ class LsDesktopTray extends StatelessWidget {
           ),
         // A PIN is fixed at server start too, so this row always restarts: the
         // switch-like value would otherwise claim a PIN the server never reads.
-        LsLinkRow(
-          label: t.settingsTab.receive.requirePin,
-          value: settings.receivePin != null ? t.general.on : t.general.off,
-          leading: const Icon(LucideIcons.key),
-          showTopBorder: false,
-          onTap: () async {
-            final settingsNotifier = context.notifier(settingsProvider);
-            final serverNotifier = context.notifier(serverProvider);
-            final newPin = await showDialog<String>(
-              context: context,
-              builder: (_) => PinDialog(pin: settings.receivePin, obscureText: false, generateRandom: false),
-            );
-            // An empty field clears the PIN; an unchanged one needs no restart.
-            if (newPin == null || newPin == (settings.receivePin ?? '')) {
-              return;
-            }
-            await settingsNotifier.setReceivePin(newPin.isEmpty ? null : newPin);
-            if (serverState != null) {
-              await serverNotifier.restartServerFromSettings();
-            }
-          },
+        //
+        // The switch is the value, like the two rows above, but flipping it on
+        // needs the PIN itself: that is what the dialog is for. A cancelled or
+        // empty dialog reads as "never mind" — the setting keeps no PIN, so the
+        // thumb falls back to off by itself.
+        Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 2),
+              child: Icon(LucideIcons.key, size: 15, color: colors.muted),
+            ),
+            const SizedBox(width: 8),
+            Expanded(child: Text(t.settingsTab.receive.requirePin, style: tokens.bodySm)),
+            LsSwitch(
+              value: settings.receivePin != null,
+              label: t.settingsTab.receive.requirePin,
+              onChanged: (value) async {
+                final settingsNotifier = context.notifier(settingsProvider);
+                final serverNotifier = context.notifier(serverProvider);
+                // Turning off clears the PIN; turning on asks for one first.
+                String? newPin;
+                if (value) {
+                  newPin = await showDialog<String>(
+                    context: context,
+                    builder: (_) => const PinDialog(obscureText: false, generateRandom: false),
+                  );
+                  if (newPin == null || newPin.isEmpty) {
+                    return;
+                  }
+                }
+                await settingsNotifier.setReceivePin(newPin);
+                if (serverState != null) {
+                  await serverNotifier.restartServerFromSettings();
+                }
+              },
+            ),
+          ],
         ),
       ],
     );
@@ -422,16 +392,11 @@ class _DropZone extends StatelessWidget {
 }
 
 double _sendProgress(SendSessionState session, FileTransferNotifier transfer) {
-  final accepted = session.files.values.where((file) => file.token != null);
-  final total = accepted.fold<int>(0, (sum, file) => sum + file.file.size);
-  if (total == 0) {
-    return 0;
-  }
-  final transferred = accepted.fold<int>(
-    0,
-    (sum, file) => sum + (transfer.getProgress(sessionId: session.sessionId, fileId: file.file.id) * file.file.size).round(),
-  );
-  return (transferred / total).clamp(0.0, 1.0);
+  return SessionProgress.measure(
+    sessionId: session.sessionId,
+    files: session.files.values.where((file) => file.token != null).map((file) => (file.file.id, file.file.size)),
+    transfer: transfer,
+  ).fraction;
 }
 
 /// One send session in the sidebar: the peer, where it stands, and the action
@@ -463,14 +428,14 @@ class _SendSessionRow extends StatelessWidget {
                 ),
               ),
               if (session.status == SessionStatus.sending)
-                _SessionProgressBuilder(
+                SessionProgressBuilder(
                   sessionId: session.sessionId,
                   builder: (context, transfer) => Text(
                     '${(_sendProgress(session, transfer) * 100).round()}%',
                     style: tokens.monoSm,
                   ),
                 )
-              else if (session.status == SessionStatus.finishedWithErrors)
+              else if (session.status.isTerminalFailure)
                 Text(t.general.error, style: tokens.monoSm.copyWith(color: colors.danger)),
             ],
           ),
@@ -487,21 +452,21 @@ class _SendSessionRow extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           const LsProgressBar(value: null),
-        ] else if (session.status == SessionStatus.finishedWithErrors)
+        ] else if (session.status.isTerminalFailure)
           Text(
-            session.errorMessage ?? t.general.error,
+            session.errorMessage ?? sessionStatusText(session.status) ?? t.general.error,
             style: tokens.bodySm.copyWith(color: colors.danger),
           )
         else
-          _SessionProgressBuilder(
+          SessionProgressBuilder(
             sessionId: session.sessionId,
             builder: (context, transfer) => LsProgressBar(value: _sendProgress(session, transfer)),
           ),
         const SizedBox(height: 8),
         LsButton(
-          label: session.status == SessionStatus.finishedWithErrors ? t.general.close : t.transferTab.cancel,
+          label: session.status.isTerminalFailure ? t.general.close : t.transferTab.cancel,
           variant: LsButtonVariant.ghost,
-          onPressed: () => session.status == SessionStatus.finishedWithErrors
+          onPressed: () => session.status.isTerminalFailure
               ? context.notifier(sendProvider).closeSession(session.sessionId)
               : context.notifier(sendProvider).cancelSession(session.sessionId),
         ),
@@ -515,33 +480,11 @@ class _SendSessionRow extends StatelessWidget {
 /// end time, so its start time stands in.
 int _finishedAt(SendSessionState session) => session.endTime ?? session.startTime ?? 0;
 
-String _kindOf(CrossFile file) {
-  final name = file.name;
-  final dot = name.lastIndexOf('.');
-  if (dot == -1 || dot == name.length - 1) {
-    return 'FILE';
-  }
-  final kind = name.substring(dot + 1).toUpperCase();
-  return kind.length > 4 ? kind.substring(0, 4) : kind;
-}
-
-/// Rebuilds only [builder] when the progress of [sessionId] changes.
-///
-/// Progress events arrive up to 50 times per second, so watching
-/// [fileTransferProvider] would rebuild the whole sidebar for every tick.
-class _SessionProgressBuilder extends StatelessWidget {
-  final String sessionId;
-  final Widget Function(BuildContext context, FileTransferNotifier transfer) builder;
-
-  const _SessionProgressBuilder({required this.sessionId, required this.builder});
-
-  @override
-  Widget build(BuildContext context) {
-    final transfer = context.ref.read(fileTransferProvider);
-    return ValueListenableBuilder<int>(
-      valueListenable: transfer.sessionTick(sessionId),
-      builder: (context, _, _) => builder(context, transfer),
-    );
+/// Indexes the tray lists, in selection order: the last [maxTrayRows] entries,
+/// because new picks are appended to the selection.
+Iterable<int> _trayIndexes(int length) sync* {
+  for (var index = length > maxTrayRows ? length - maxTrayRows : 0; index < length; index++) {
+    yield index;
   }
 }
 

@@ -47,16 +47,6 @@ jobs:
       id-token: write # OIDC token for Azure login
       contents: read
 
-  build_cli_linux:
-    uses: ./.github/workflows/build_linux_cli.yml
-
-  build_cli_windows_exe:
-    uses: ./.github/workflows/build_windows_cli_exe.yml
-    secrets: inherit
-    permissions:
-      id-token: write # OIDC token for Azure login
-      contents: read
-
   release:
     needs:
       - build_apk
@@ -68,8 +58,6 @@ jobs:
       - build_windows_zip_x86_64
       - build_windows_zip_arm_64
       - build_windows_exe_x86_64
-      - build_cli_linux
-      - build_cli_windows_exe
     runs-on: ubuntu-latest
 
     steps:
@@ -302,78 +290,4 @@ jobs:
           upload_url: ${{ steps.draft_release.outputs.upload_url }}
           asset_path: result.exe
           asset_name: LocalSend-${{ steps.get_version.outputs.version }}-windows-x86-64.exe
-          asset_content_type: application/vnd.microsoft.portable-executable
-
-      # LINUX CLI (x86_64)
-      - name: Download linux CLI file
-        uses: actions/download-artifact@v7
-        with:
-          name: cli-linux-x86-64-result
-          path: cli-linux-x86-64-result
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.draft_release.outputs.upload_url }}
-          asset_path: cli-linux-x86-64-result/LocalSend-CLI-${{ steps.get_version.outputs.version }}-linux-x86-64.tar.gz
-          asset_name: LocalSend-CLI-${{ steps.get_version.outputs.version }}-linux-x86-64.tar.gz
-          asset_content_type: application/gzip
-
-      # LINUX CLI (arm_64)
-      - name: Download linux CLI file
-        uses: actions/download-artifact@v7
-        with:
-          name: cli-linux-arm-64-result
-          path: cli-linux-arm-64-result
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.draft_release.outputs.upload_url }}
-          asset_path: cli-linux-arm-64-result/LocalSend-CLI-${{ steps.get_version.outputs.version }}-linux-arm-64.tar.gz
-          asset_name: LocalSend-CLI-${{ steps.get_version.outputs.version }}-linux-arm-64.tar.gz
-          asset_content_type: application/gzip
-
-      # WINDOWS CLI EXE (x86_64)
-      - name: Download windows CLI exe file
-        uses: actions/download-artifact@v7
-        with:
-          name: windows-cli-exe-x86-64-result
-          path: windows-cli-exe-x86-64-result
-
-      - name: Copy CLI exe file to root
-        run: cp windows-cli-exe-x86-64-result/*.exe result-cli.exe
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.draft_release.outputs.upload_url }}
-          asset_path: result-cli.exe
-          asset_name: LocalSend-CLI-${{ steps.get_version.outputs.version }}-windows-x86-64.exe
-          asset_content_type: application/vnd.microsoft.portable-executable
-
-      # WINDOWS CLI EXE (arm_64)
-      - name: Download windows CLI exe file
-        uses: actions/download-artifact@v7
-        with:
-          name: windows-cli-exe-arm-64-result
-          path: windows-cli-exe-arm-64-result
-
-      - name: Copy CLI exe file to root
-        run: cp windows-cli-exe-arm-64-result/*.exe result-cli.exe
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.draft_release.outputs.upload_url }}
-          asset_path: result-cli.exe
-          asset_name: LocalSend-CLI-${{ steps.get_version.outputs.version }}-windows-arm-64.exe
           asset_content_type: application/vnd.microsoft.portable-executable

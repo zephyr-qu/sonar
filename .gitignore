@@ -50,3 +50,4 @@
 
 # Cloudflare Workers local state (wrangler deploy)
 /sonar-site/.wrangler/
+/.wrangler/

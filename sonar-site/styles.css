@@ -639,3 +639,90 @@ a { color: inherit; }
   .self { animation: none; }
   .btn, .card, .tech-item, .nav, .hero-meta a, .foot-meta a { transition: none; }
 }
+
+
+/* ─────────────────────── privacy / legal dossier ─────────────────────── */
+/* 隐私页用“技术档案”的排版：编号侧栏 + 正文，荧光绿只出现在索引与摘要数字上。 */
+.legal {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 76px var(--gut) 40px;
+}
+
+.legal-hero { position: relative; padding-bottom: 46px; }
+.legal-hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--lime), transparent 42%);
+  opacity: .5;
+}
+.legal-hero h1 { margin-bottom: 18px; }
+.legal-lede { color: var(--muted); font-size: 17px; max-width: 60ch; }
+.legal-updated { margin-top: 18px; color: var(--muted-2); font-size: 12px; letter-spacing: .06em; }
+
+.legal-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin: 34px 0 62px;
+  border: 1px solid var(--line);
+  background: var(--line);
+}
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px 18px 18px;
+  background: rgba(16, 18, 23, .92);
+}
+.fact-num { font: 600 30px/1 var(--display); color: var(--lime); letter-spacing: -.04em; }
+.fact-label { color: var(--muted); font-size: 12px; letter-spacing: .04em; }
+
+.legal-section {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 44px;
+  padding: 34px 0 38px;
+  border-top: 1px solid var(--line);
+}
+.legal-section:last-of-type { border-bottom: 1px solid var(--line); }
+.legal-aside { position: sticky; top: 90px; align-self: start; }
+.legal-index { font: 400 11px/1 var(--mono); letter-spacing: .14em; color: var(--lime); }
+.legal-aside h2 { margin-top: 12px; font-size: 21px; letter-spacing: -.01em; }
+.legal-body { color: var(--muted); font-size: 15.5px; max-width: 64ch; }
+.legal-body p + p { margin-top: 12px; }
+.legal-body strong { color: var(--fg); font-weight: 600; }
+.legal-body ul { margin: 14px 0 0; padding-left: 18px; }
+.legal-body li { margin: 6px 0; padding-left: 2px; }
+.legal-body li::marker { color: var(--lime); }
+.legal-body a { color: var(--lime); text-decoration: none; border-bottom: 1px solid rgba(198, 242, 78, .35); }
+.legal-body a:hover { border-bottom-color: var(--lime); }
+.legal-note {
+  padding: 2px 0 2px 16px;
+  border-left: 2px solid rgba(198, 242, 78, .7);
+  color: var(--fg);
+  background: linear-gradient(90deg, rgba(198, 242, 78, .035), transparent 70%);
+}
+.legal-back { margin: 30px 0 0; font-size: 13px; }
+.legal-back a { color: var(--muted); text-decoration: none; border-bottom: 1px solid rgba(255, 255, 255, .2); }
+.legal-back a:hover { color: var(--lime); border-bottom-color: var(--lime); }
+
+@media (max-width: 860px) {
+  .legal { padding-top: 52px; }
+  .legal-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .legal-section { grid-template-columns: 1fr; gap: 14px; padding: 28px 0 32px; }
+  .legal-aside { position: static; }
+  .legal-aside h2 { margin-top: 8px; }
+  .legal-body { font-size: 15px; }
+}
+
+@media (max-width: 560px) {
+  .legal-hero h1 { font-size: clamp(30px, 8.6vw, 40px); }
+  .legal-lede { font-size: 16px; }
+  .fact { padding: 16px 14px; }
+  .fact-num { font-size: 26px; }
+}

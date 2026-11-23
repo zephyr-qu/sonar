@@ -1039,8 +1039,8 @@ class Translations$aboutPage$en {
   String get title => 'About Sonar';
 
   List<String> get description => [
-    'Sonar is a free, open-source app that allows you to securely share files and messages with nearby devices over your local network without needing an internet connection.',
-    'This app is available on Android, iOS, macOS, Windows and Linux. You can find all download options on the official homepage.',
+    'Sonar is a personal fork of LocalSend — a free, open-source app for securely sharing files and messages with nearby devices over your local network, without an internet connection.',
+    'The interface has been redesigned, but the protocol is unchanged: Sonar still works with LocalSend devices. Available on Android, iOS, macOS, Windows and Linux.',
   ];
 
   /// en: 'Author'

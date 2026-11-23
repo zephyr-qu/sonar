@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 
 /// The palette of the "Signal" redesign.
 ///
-/// The dark values are taken 1:1 from the prototype
-/// (the prototype is no longer in the tree), the light values are a derived
-/// counterpart with the same structure so that every widget can read the same
-/// slot names in both brightness modes.
+/// The dark values were taken 1:1 from the original "Signal" prototype, the
+/// light values are a derived counterpart with the same structure so that every
+/// widget can read the same slot names in both brightness modes.
 @immutable
 class LsColors {
   /// Page background.

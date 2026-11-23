@@ -11,5 +11,9 @@
 /sonar /sonar/ 308
 /sonar/index.html /sonar/ 308
 
+# 隐私说明页：应用内链接是无斜杠路径，先补目录斜杠，目录索引再由下面的通配规则代理。
+/sonar/privacy /sonar/privacy/ 308
+/sonar/privacy.html /sonar/privacy/ 308
+
 # 其余全部去前缀：/sonar/styles.css -> /styles.css、/sonar/assets/shots/nearby.webp -> /assets/shots/nearby.webp
 /sonar/* /:splat 200

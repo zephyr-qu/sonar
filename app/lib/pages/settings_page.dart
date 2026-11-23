@@ -507,7 +507,7 @@ class _SettingsViewState extends State<_SettingsView> {
         LsLinkRow(
           label: t.settingsTab.other.privacyPolicy,
           onTap: () async {
-            await launchUrl(Uri.parse('https://localsend.org/privacy'), mode: LaunchMode.externalApplication);
+            await launchUrl(Uri.parse('https://www.zephyrqu.top/sonar/privacy'), mode: LaunchMode.externalApplication);
           },
         ),
         if (checkPlatform([TargetPlatform.iOS, TargetPlatform.macOS]))

@@ -1,6 +1,6 @@
 name: sonar
 description: An open source cross-platform alternative to AirDrop
-homepage: https://localsend.org/
+homepage: https://github.com/zephyr-qu/sonar
 publish_to: "none"
 resolution: workspace
 

@@ -229,8 +229,8 @@ class MockPersistenceService extends _i1.Mock
   _i10.ColorMode getColorMode() =>
       (super.noSuchMethod(
             Invocation.method(#getColorMode, []),
-            returnValue: _i10.ColorMode.system,
-            returnValueForMissingStub: _i10.ColorMode.system,
+            returnValue: _i10.ColorMode.localsend,
+            returnValueForMissingStub: _i10.ColorMode.localsend,
           )
           as _i10.ColorMode);
 

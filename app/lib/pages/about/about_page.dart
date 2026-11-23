@@ -64,7 +64,7 @@ class AboutPage extends StatelessWidget {
           const Column(
             spacing: 6,
             children: [
-              _LinkRow(icon: LucideIcons.globe, label: 'localsend.org', url: 'https://localsend.org'),
+              _LinkRow(icon: LucideIcons.globe, label: 'zephyrqu.top/sonar', url: 'https://www.zephyrqu.top/sonar'),
               _LinkRow(icon: LucideIcons.github, label: 'Source Code (Github)', url: 'https://github.com/zephyr-qu/sonar'),
               _LinkRow(icon: LucideIcons.gitFork, label: 'LocalSend (upstream)', url: 'https://localsend.org'),
               _LinkRow(icon: LucideIcons.scale, label: 'Apache License 2.0', url: 'https://www.apache.org/licenses/LICENSE-2.0'),

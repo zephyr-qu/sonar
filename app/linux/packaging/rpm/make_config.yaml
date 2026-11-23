@@ -1,7 +1,7 @@
 display_name: Sonar
 packager: Tienisto
 packagerEmail: dev.tien.donam@gmail.com
-url: https://localsend.org
+url: https://github.com/zephyr-qu/sonar
 buildArch: x86_64
 license: MIT
 

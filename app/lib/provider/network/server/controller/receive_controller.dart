@@ -433,9 +433,11 @@ class ReceiveController {
       await _recordHistory(server.getState().session!, failed: hasError);
 
       final settings = server.ref.read(settingsProvider);
-      // Only auto-close fully successful sessions: a failed file may still be
-      // retried by the sender (e.g. after a checksum mismatch), which requires
-      // the session to stay open.
+      // A finished receive stays in the state until it is dismissed from the
+      // Transfers tab or the sidebar, or a new request replaces it. A failed
+      // file may still be retried by the sender (e.g. after a checksum mismatch),
+      // and a successful quick save keeps its completion card in the sidebar;
+      // closing here would drop the status the moment the file dialog goes.
       bool quickSave = settings.quickSave && !hasError && server.getState().session?.message == null;
       final quickSaveFromFavorites = settings.quickSaveFromFavorites && !hasError && server.getState().session?.message == null;
       if (quickSaveFromFavorites) {
@@ -445,13 +447,12 @@ class ReceiveController {
         }
       }
       if (quickSave) {
-        // close the session **after** the response has been sent
+        // Stay where the user is: the completion arrives without a page change.
+        // The session stays around after the dialog is dismissed so the desktop
+        // sidebar (and the Transfers tab) can still show the finished receive
+        // with its open-folder / done actions. The next request or an explicit
+        // close retires it.
         Future.delayed(Duration.zero, () {
-          closeSession();
-          _logger.info('Closing session');
-
-          // Stay where the user is: the completion arrives without a page change.
-          // open the dialog to open file instantly
           if (filePath != null && filePath.isNotEmpty) {
             // ignore: discarded_futures
             OpenFileDialog.open(

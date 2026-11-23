@@ -129,6 +129,11 @@ jobs:
 
       - name: Compare pubspec, Inno Setup, MSIX helper and AppImage versions
         run: |
+          printf 'DEBUG P=[%s] I=[%s] M=[%s] X=[%s] A=[%s]\n' "$pubspec_version" "$inno_version" "$msix_version" "$appimage_x86_64_version" "$appimage_arm_64_version"
+          if [ "$pubspec_version" != "$inno_version" ]; then echo 'DEBUG p!=i'; fi
+          if [ "$pubspec_version.0" != "$msix_version" ]; then echo 'DEBUG p0!=m'; fi
+          if [ "$pubspec_version" != "$appimage_x86_64_version" ]; then echo 'DEBUG p!=x'; fi
+          if [ "$pubspec_version" != "$appimage_arm_64_version" ]; then echo 'DEBUG p!=a'; fi
           if [ "$pubspec_version" != "$inno_version" ] || [ "$pubspec_version.0" != "$msix_version" ] || [ "$pubspec_version" != "$appimage_x86_64_version" ] || [ "$pubspec_version" != "$appimage_arm_64_version" ]; then
             echo "Version mismatch detected!"
             exit 1

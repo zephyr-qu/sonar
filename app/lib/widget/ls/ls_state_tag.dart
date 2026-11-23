@@ -43,8 +43,7 @@ class LsStateTag extends StatelessWidget {
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: tokens.mono.copyWith(
-              fontSize: 9.5,
+            style: tokens.monoSm.copyWith(
               height: 1.1,
               color: on ? colors.accentInk : colors.muted,
             ),

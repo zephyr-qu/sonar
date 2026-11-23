@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:routerino/routerino.dart';
-import 'package:sonar/config/theme.dart';
+import 'package:sonar/config/design_tokens.dart';
 import 'package:sonar/gen/strings.g.dart';
 import 'package:sonar/widget/ls/ls_buttons.dart';
 import 'package:sonar/widget/ls/ls_dialog.dart';
@@ -28,6 +28,12 @@ class _FileNameInputDialogState extends State<FileNameInputDialog> {
   void initState() {
     super.initState();
     _textController.text = widget.initialName;
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
   }
 
   bool _validate(String input) {
@@ -92,7 +98,7 @@ class _FileNameInputDialogState extends State<FileNameInputDialog> {
             child: Text(
               _errorMessage,
               style: TextStyle(
-                color: Theme.of(context).colorScheme.warning,
+                color: context.ls.colors.danger,
               ),
             ),
           ),

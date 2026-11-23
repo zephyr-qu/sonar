@@ -1,9 +1,55 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:sonar/config/design_tokens.dart';
 import 'package:sonar/gen/strings.g.dart';
 import 'package:sonar/widget/ls/ls_dashed.dart';
+import 'package:sonar/widget/ls/ls_mark.dart';
 import 'package:sonar/widget/ls/ls_progress_bar.dart';
+
+/// The line box a [TextStyle] occupies at [scaler], i.e. what a one-line [Text] with it measures.
+double _scaledLineHeight(TextScaler scaler, TextStyle style) => scaler.scale(style.fontSize!) * (style.height ?? 1);
+
+/// Gap between a file tile's square and its caption, and the caption's line-height factor.
+const double _fileTileCaptionGap = 4;
+const double _fileTileCaptionLineHeight = 1.05;
+
+/// The caption style both file tiles share, so [fileTileCaptionHeight] reserves exactly its line box.
+TextStyle _fileTileCaptionStyle(LsTokens tokens) => tokens.label.copyWith(height: _fileTileCaptionLineHeight);
+
+/// The vertical band a file tile needs under its square for its one-line caption, at the
+/// current text scale.
+///
+/// The pending-file grid sizes its cells with this instead of hard-coding the 16px a 1.0x
+/// font happens to occupy: on a phone at 1.15x (or with Android's non-linear scaling) the
+/// name then stays inside a taller cell instead of overflowing it by a few pixels.
+double fileTileCaptionHeight(BuildContext context) =>
+    _fileTileCaptionGap + _scaledLineHeight(MediaQuery.textScalerOf(context), _fileTileCaptionStyle(context.ls));
+
+/// Height of [LsDeviceTile] at the current text scale.
+///
+/// The tile is 8px of padding around a 46px glyph column; beside it sit the two-line name and
+/// the mono meta, which overtake the glyph once the system font grows. The device grid asks for
+/// the taller side instead of pinning the 62px that only holds at 1.0x.
+double deviceTileHeight(BuildContext context) {
+  final tokens = context.ls;
+  final scaler = MediaQuery.textScalerOf(context);
+  final text = 2 * _scaledLineHeight(scaler, tokens.bodyStrongTight) + 2 + _scaledLineHeight(scaler, tokens.monoSm);
+  return 16 + math.max(46, text);
+}
+
+/// Height of [LsDeviceCard] at the current text scale.
+///
+/// 12px of padding around a 30px header row (the glyph column and the star's hit
+/// target), an 8px gap, then the one-line alias and the mono meta line. The desktop
+/// grid asks for this instead of pinning the 100px that only holds at 1.0x.
+double deviceCardHeight(BuildContext context) {
+  final tokens = context.ls;
+  final scaler = MediaQuery.textScalerOf(context);
+  final text = 8 + _scaledLineHeight(scaler, tokens.subtitle) + 3 + _scaledLineHeight(scaler, tokens.monoSm);
+  return 24 + 30 + text;
+}
 
 /// One cell of the pending-file grid: square thumbnail, kind glyph, name and a remove button.
 class LsFileTile extends StatelessWidget {
@@ -68,23 +114,26 @@ class LsFileTile extends StatelessWidget {
                     child: _KindBadge(kind: kind),
                   ),
                 if (onRemove != null)
-                  if (onRemove != null)
-                    Positioned(
-                      top: 2,
-                      right: 2,
-                      child: _RemoveButton(onTap: onRemove!, label: name),
-                    ),
+                  Positioned(
+                    top: 2,
+                    right: 2,
+                    child: _RemoveButton(onTap: onRemove!, label: name),
+                  ),
               ],
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            // The file grid reserves a fixed 16px strip for the caption, so keep the line box tight.
-            style: tokens.label.copyWith(height: 1.05),
+          const SizedBox(height: _fileTileCaptionGap),
+          // Flexible (loose) so the caption can never be the child that overflows the cell:
+          // the grid reserves [fileTileCaptionHeight] for it, and a metric surprise clips a
+          // fraction of a line instead of painting the name over the next row.
+          Flexible(
+            child: Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: _fileTileCaptionStyle(tokens),
+            ),
           ),
         ],
       ),
@@ -172,14 +221,16 @@ class LsAddFileTile extends StatelessWidget {
               child: Icon(LucideIcons.plus, size: 18, color: colors.accent),
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            // Same fixed 16px caption strip as [LsFileTile].
-            style: tokens.label.copyWith(height: 1.05),
+          const SizedBox(height: _fileTileCaptionGap),
+          // Same caption band as [LsFileTile], so the two tiles share one cell height.
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: _fileTileCaptionStyle(tokens),
+            ),
           ),
         ],
       ),
@@ -222,11 +273,7 @@ class LsFileRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 30,
-            height: 30,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(10)),
+          LsMark(
             child: leadingIcon != null
                 ? Icon(leadingIcon, size: 14, color: colors.muted)
                 : Text(
@@ -349,12 +396,16 @@ class LsDeviceTile extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              name,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              // The device grid caps the tile at 62px; pin the line box so a two-line name still fits.
-                              style: tokens.bodyStrong.copyWith(height: 1.15),
+                            // Flexible keeps a font metric surprise from overflowing the cell:
+                            // the grid reserves [deviceTileHeight] for the name + meta column.
+                            Flexible(
+                              child: Text(
+                                name,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                // The device grid sizes the tile from this line box; the token pins it so two lines fit.
+                                style: tokens.bodyStrongTight,
+                              ),
                             ),
                             const SizedBox(height: 2),
                             Text(

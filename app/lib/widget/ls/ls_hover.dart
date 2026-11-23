@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Interactive surface with the prototype's micro-interactions: a 150ms fill /
-/// border transition on hover, a 1px lift and a 0.985 press scale.
+/// border transition on hover and a 0.985 press scale.
 ///
 /// [builder] receives the current hover state so that callers can also animate
 /// foreground colours (the prototype transitions icon/text colours as well).
@@ -11,10 +11,8 @@ class LsHover extends StatefulWidget {
   final Color hoverColor;
   final BorderRadius borderRadius;
   final Color? borderColor;
-  final Color? hoverBorderColor;
   final VoidCallback? onTap;
   final MouseCursor? cursor;
-  final bool lift;
 
   const LsHover({
     super.key,
@@ -23,10 +21,8 @@ class LsHover extends StatefulWidget {
     required this.hoverColor,
     required this.borderRadius,
     this.borderColor,
-    this.hoverBorderColor,
     this.onTap,
     this.cursor,
-    this.lift = false,
   });
 
   @override
@@ -51,7 +47,7 @@ class _LsHoverState extends State<LsHover> {
 
   @override
   Widget build(BuildContext context) {
-    final border = _hover ? (widget.hoverBorderColor ?? widget.borderColor) : widget.borderColor;
+    final border = widget.borderColor;
 
     return MouseRegion(
       cursor: widget.onTap == null ? MouseCursor.defer : widget.cursor ?? SystemMouseCursors.click,
@@ -64,8 +60,6 @@ class _LsHoverState extends State<LsHover> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           curve: Curves.easeOut,
-          transformAlignment: Alignment.center,
-          transform: Matrix4.translationValues(0, widget.lift && _hover ? -1 : 0, 0),
           decoration: BoxDecoration(
             color: _hover ? widget.hoverColor : widget.color,
             borderRadius: widget.borderRadius,

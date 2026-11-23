@@ -5,15 +5,12 @@ import 'package:sonar/gen/strings.g.dart';
 import 'package:sonar/widget/ls/ls_buttons.dart';
 
 /// Dialog shell of the redesign: `bg2` surface, hairline border, radius 16,
-/// optional mono eyebrow, 16px title and a trailing row of [LsButton]s.
+/// 16px title and a trailing row of [LsButton]s.
 ///
 /// Drop-in replacement for the stock `AlertDialog` so every dialog shares the
 /// same spacing and typography; content is scrollable when it exceeds the
 /// available height.
 class LsDialog extends StatelessWidget {
-  /// Small uppercase mono label above the title (e.g. "接收请求").
-  final String? eyebrow;
-
   /// Dialog title, rendered with the 16/700 title style.
   final Widget? title;
 
@@ -24,20 +21,15 @@ class LsDialog extends StatelessWidget {
 
   final double maxWidth;
 
-  /// Extra width for dialogs holding lists or tables.
-  final CrossAxisAlignment contentAlignment;
-
   /// When set, an X button is rendered in the top-right corner and the
   /// dialog dismisses through it instead of a trailing "close" action.
   final VoidCallback? onClose;
 
   const LsDialog({
-    this.eyebrow,
     this.title,
     this.content,
     this.actions = const [],
     this.maxWidth = 420,
-    this.contentAlignment = CrossAxisAlignment.start,
     this.onClose,
     super.key,
   });
@@ -61,13 +53,8 @@ class LsDialog extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: contentAlignment,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (eyebrow != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: Text(eyebrow!.toUpperCase(), style: tokens.eyebrow),
-                ),
               if (title != null || onClose != null)
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -86,7 +73,7 @@ class LsDialog extends StatelessWidget {
               if (content != null)
                 Flexible(
                   child: Padding(
-                    padding: EdgeInsets.only(top: title != null || eyebrow != null ? 14 : 0),
+                    padding: EdgeInsets.only(top: title != null ? 14 : 0),
                     child: DefaultTextStyle.merge(
                       style: tokens.body.copyWith(color: colors.muted),
                       child: SingleChildScrollView(child: content!),

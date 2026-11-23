@@ -20,7 +20,7 @@ void main() {
     late LsTokens tokens;
     await tester.pumpWidget(
       MaterialApp(
-        theme: getTheme(ColorMode.localsend, Colors.teal, Brightness.dark, null),
+        theme: getTheme(ColorMode.localsend, Colors.teal, Brightness.dark),
         home: Builder(
           builder: (context) {
             tokens = context.ls;
@@ -44,7 +44,7 @@ void main() {
     late LsTokens tokens;
     await tester.pumpWidget(
       MaterialApp(
-        theme: getTheme(ColorMode.oled, Colors.teal, Brightness.dark, null),
+        theme: getTheme(ColorMode.oled, Colors.teal, Brightness.dark),
         home: Builder(
           builder: (context) {
             tokens = context.ls;
@@ -63,7 +63,7 @@ void main() {
     late ThemeData theme;
 
     Future<void> pump(Color color, Brightness brightness) async {
-      theme = getTheme(ColorMode.custom, color, brightness, null);
+      theme = getTheme(ColorMode.custom, color, brightness);
       await tester.pumpWidget(
         MaterialApp(
           // MaterialApp cross-fades theme changes; the assertions read the theme right
@@ -104,7 +104,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        theme: getTheme(ColorMode.localsend, Colors.teal, Brightness.dark, null),
+        theme: getTheme(ColorMode.localsend, Colors.teal, Brightness.dark),
         home: Scaffold(
           body: ListView(
             padding: const EdgeInsets.all(16),

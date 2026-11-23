@@ -18,6 +18,7 @@ import 'package:sonar/util/native/platform_check.dart';
 import 'package:sonar/widget/desktop_scaffold.dart';
 import 'package:sonar/widget/ls/ls_buttons.dart';
 import 'package:sonar/widget/ls/ls_header.dart';
+import 'package:sonar/widget/ls/ls_mark.dart';
 import 'package:sonar/widget/ls/ls_search_field.dart';
 import 'package:sonar/widget/ls/ls_state_tag.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -80,7 +81,15 @@ class _SettingsViewState extends State<_SettingsView> {
 
   @override
   Widget build(BuildContext context) {
-    final sections = buildSettingsSections().where((section) => !section.desktopOnly || widget.desktop).toList();
+    // A desktop-only section additionally needs rows that are usable on this
+    // platform: a tablet gets the desktop layout once its window is wide
+    // enough, but has no tray, window placement or autostart, so every row of
+    // the desktop section is gated off and the tile would show "0 items" and
+    // open an empty page. Sections without any row are dropped instead.
+    final sections = [
+      for (final section in buildSettingsSections())
+        if ((!section.desktopOnly || widget.desktop) && _rowsOf(context, section).isNotEmpty) section,
+    ];
     final query = _query.text.trim().toLowerCase();
     _rowsCache.clear();
     _searchCache = null;
@@ -184,13 +193,7 @@ class _SettingsViewState extends State<_SettingsView> {
           padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
           child: Row(
             children: [
-              Container(
-                width: 30,
-                height: 30,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(10)),
-                child: Icon(section.icon, size: 16, color: colors.muted),
-              ),
+              LsMark.icon(section.icon, iconSize: 16, iconColor: colors.muted),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -208,7 +211,7 @@ class _SettingsViewState extends State<_SettingsView> {
               const SizedBox(width: 10),
               Text(
                 t.settingsPage.items(n: rows.length),
-                style: tokens.mono.copyWith(fontSize: 10, color: colors.faint),
+                style: tokens.monoSm.copyWith(color: colors.faint),
               ),
               const SizedBox(width: 4),
               Icon(LucideIcons.chevronRight, size: 16, color: colors.faint),
@@ -264,7 +267,7 @@ class _SettingsViewState extends State<_SettingsView> {
               Row(
                 children: [
                   Expanded(
-                    child: Text(row.label, style: TextStyle(fontSize: 12.5, height: 1.3, color: colors.fg)),
+                    child: Text(row.label, style: tokens.body.copyWith(height: 1.3)),
                   ),
                   if (row.on != null && row.value == null) ...[
                     const SizedBox(width: 10),
@@ -301,7 +304,7 @@ class _SettingsViewState extends State<_SettingsView> {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(22, 18, 22, 22),
         children: [
-          Text(t.settingsTab.title, style: tokens.display.copyWith(fontSize: 26)),
+          Text(t.settingsTab.title, style: tokens.pageTitle),
           const SizedBox(height: 14),
           LsSearchField(
             controller: _query,
@@ -346,8 +349,7 @@ class _SettingsViewState extends State<_SettingsView> {
                     section.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12.5,
+                    style: tokens.body.copyWith(
                       height: 1.2,
                       fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                       color: selected ? colors.accentInk : colors.fg,
@@ -357,7 +359,7 @@ class _SettingsViewState extends State<_SettingsView> {
                 const SizedBox(width: 8),
                 Text(
                   rows.length.toString(),
-                  style: tokens.mono.copyWith(fontSize: 10, color: selected ? colors.accentInk : colors.faint),
+                  style: tokens.monoSm.copyWith(color: selected ? colors.accentInk : colors.faint),
                 ),
               ],
             ),
@@ -418,7 +420,7 @@ class _SettingsViewState extends State<_SettingsView> {
       ListView(
         padding: const EdgeInsets.fromLTRB(26, 22, 26, 26),
         children: [
-          Text(section.title, style: tokens.display.copyWith(fontSize: 26)),
+          Text(section.title, style: tokens.pageTitle),
           const SizedBox(height: 12),
           Divider(color: tokens.colors.line, height: 1),
           for (final row in rows)
@@ -467,8 +469,11 @@ class _SettingsViewState extends State<_SettingsView> {
     }
     final results = <(SettingsSection, SettingsRow)>[];
     for (final section in sections) {
+      // Matching the section title keeps a whole category reachable by name: typing
+      // "network" should surface its rows even though none of them repeats the word.
+      final titleMatches = section.title.toLowerCase().contains(query);
       for (final row in _rowsOf(context, section)) {
-        if (row.matches(query)) {
+        if (titleMatches || row.matches(query)) {
           results.add((section, row));
         }
       }
@@ -523,19 +528,19 @@ class _SettingsViewState extends State<_SettingsView> {
         Text(
           [t.appName, ?version].join(' '),
           textAlign: TextAlign.center,
-          style: tokens.mono.copyWith(fontSize: 10, color: colors.faint),
+          style: tokens.monoSm.copyWith(color: colors.faint),
         ),
         const SizedBox(height: 2),
         Text(
           '© ${DateTime.now().year} Zephyr',
           textAlign: TextAlign.center,
-          style: tokens.mono.copyWith(fontSize: 9.5, color: colors.faint),
+          style: tokens.monoSm.copyWith(color: colors.faint),
         ),
         const SizedBox(height: 2),
         Text(
           'Based on LocalSend © Tien Do Nam',
           textAlign: TextAlign.center,
-          style: tokens.mono.copyWith(fontSize: 9.5, color: colors.faint),
+          style: tokens.monoSm.copyWith(color: colors.faint),
         ),
       ],
     );

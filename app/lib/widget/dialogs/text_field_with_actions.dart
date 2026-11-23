@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:routerino/routerino.dart';
+import 'package:sonar/config/design_tokens.dart';
 import 'package:sonar/gen/strings.g.dart';
 import 'package:sonar/widget/ls/ls_buttons.dart';
 import 'package:sonar/widget/ls/ls_dialog.dart';
+import 'package:sonar/widget/ls/ls_hover.dart';
 
 /// Opens a dialog that edits [controller]'s text, with [actions] as shortcuts
 /// under the field.
@@ -14,11 +17,13 @@ class TextFieldWithActions extends StatefulWidget {
   final TextEditingController controller;
   final ValueChanged<String>? onChanged;
 
-  /// Called once when the dialog closes, with the final text. Use this instead of [onChanged]
-  /// for expensive writes (e.g. persisting a setting) so typing does not commit every keystroke.
+  /// Called once when the dialog is confirmed, with the final text. Use this
+  /// instead of [onChanged] for expensive writes (e.g. persisting a setting) so
+  /// typing does not commit every keystroke.
   ///
-  /// A text that [validator] rejects is never passed here, so a dialog the user
-  /// cancelled with an emptied field cannot persist a blank value.
+  /// Dismissing the dialog — the barrier, the back gesture — is a cancel and
+  /// never passes anything here. A text that [validator] rejects is not passed
+  /// either, so an emptied field cannot persist a blank value.
   final ValueChanged<String>? onClosed;
 
   /// Rejects a text with an error message; `null` means the text may be committed.
@@ -40,35 +45,64 @@ class TextFieldWithActions extends StatefulWidget {
 
 class _TextFieldWithActionsState extends State<TextFieldWithActions> {
   @override
+  @override
   Widget build(BuildContext context) {
-    return TextButton(
-      style: TextButton.styleFrom(
-        foregroundColor: Theme.of(context).colorScheme.onSurface,
-      ),
-      onPressed: () async {
-        await showTextFieldDialog(
-          context,
-          name: widget.name,
-          controller: widget.controller,
-          onChanged: widget.onChanged,
-          actions: widget.actions,
-          validator: widget.validator,
+    final tokens = context.ls;
+    final colors = tokens.colors;
+
+    return LsHover(
+      borderRadius: tokens.tileRadius,
+      color: Colors.transparent,
+      hoverColor: colors.bg3,
+      onTap: _openDialog,
+      builder: (context, hovered) {
+        final tint = hovered ? colors.accent : colors.fg;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  widget.controller.text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: tokens.body.copyWith(color: tint),
+                ),
+              ),
+              const SizedBox(width: 5),
+              Icon(LucideIcons.pencil, size: 11, color: hovered ? colors.accent : colors.faint),
+            ],
+          ),
         );
-        if (!mounted) {
-          return;
-        }
-        if (widget.validator?.call(widget.controller.text) != null) {
-          return;
-        }
-        widget.onClosed?.call(widget.controller.text);
       },
-      child: Text(
-        widget.controller.text,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: Theme.of(context).textTheme.titleSmall,
-      ),
     );
+  }
+
+  Future<void> _openDialog() async {
+    // The row renders the text of the controller, so a name the user typed
+    // and then walked away from must not linger there: remember what the
+    // row said and put it back when the dialog was dismissed, not confirmed.
+    final previous = widget.controller.text;
+    final confirmed = await showTextFieldDialog(
+      context,
+      name: widget.name,
+      controller: widget.controller,
+      onChanged: widget.onChanged,
+      actions: widget.actions,
+      validator: widget.validator,
+    );
+    if (!mounted) {
+      return;
+    }
+    if (!confirmed) {
+      widget.controller.text = previous;
+      return;
+    }
+    if (widget.validator?.call(widget.controller.text) != null) {
+      return;
+    }
+    widget.onClosed?.call(widget.controller.text);
   }
 }
 
@@ -82,16 +116,18 @@ class _TextFieldWithActionsState extends State<TextFieldWithActions> {
 /// `null` when the text may be committed: the confirm button stays disabled and
 /// the error is shown under the field while a message is returned.
 ///
-/// [onClosed] is not handled here: the caller reads the final text of
-/// [controller] after the future completes, which happens however the dialog is
-/// dismissed.
+/// Returns whether the user confirmed. `false` is a dismissal — the barrier, the
+/// back gesture or Escape — which means cancel: [controller] still holds whatever
+/// was typed, so a caller must not commit it. [onClosed] is not handled here; the
+/// caller reads the final text of [controller] when this future completes with
+/// `true`.
 ///
 /// [disposeController] hands ownership of [controller] to the dialog, for
 /// controllers that exist only for this edit. The dialog disposes it when it
 /// leaves the tree: disposing it as soon as the future completes is too early,
 /// because the closing route keeps rebuilding the field while it fades out and
 /// would then use a disposed controller.
-Future<void> showTextFieldDialog(
+Future<bool> showTextFieldDialog(
   BuildContext context, {
   required String name,
   required TextEditingController controller,
@@ -100,7 +136,7 @@ Future<void> showTextFieldDialog(
   String? Function(String value)? validator,
   bool disposeController = false,
 }) async {
-  await showDialog(
+  final confirmed = await showDialog<bool>(
     context: context,
     builder: (context) {
       return _TextFieldDialog(
@@ -113,6 +149,7 @@ Future<void> showTextFieldDialog(
       );
     },
   );
+  return confirmed ?? false;
 }
 
 class _TextFieldDialog extends StatefulWidget {
@@ -168,7 +205,8 @@ class _TextFieldDialogState extends State<_TextFieldDialog> {
     if (_error != null) {
       return;
     }
-    context.pop();
+    // The result is what tells the caller this is a confirm and not a dismissal.
+    context.pop(true);
   }
 
   @override

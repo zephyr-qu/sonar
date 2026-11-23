@@ -32,7 +32,9 @@ class ReceiveOptionsPage extends StatelessWidget {
     final tokens = context.ls;
     final receiveSession = ref.watch(serverProvider.select((s) => s?.session));
     if (receiveSession == null) {
-      return const Scaffold(body: SizedBox());
+      // The session can disappear while this page is open (the sender cancels, or the
+      // transfer completes); a blank scaffold would strand the user there.
+      return const _SessionGonePage();
     }
     final selectState = ref.watch(selectedReceivingFilesProvider);
     final destination = checkPlatformWithFileSystem() ? receiveSession.destinationDirectory : t.receiveOptionsPage.appDirectory;
@@ -176,7 +178,7 @@ class _ReceiveFileRow extends StatelessWidget {
     final status = !selected ? t.general.skipped : (desiredName == file.fileName ? t.general.unchanged : t.general.renamed);
 
     return LsFileRow(
-      kind: _kindOf(file.fileName),
+      kind: fileKind(file.fileName),
       leadingIcon: file.fileType.icon,
       name: desiredName ?? file.fileName,
       meta: '$status  ${file.size.asReadableFileSize}',
@@ -215,13 +217,53 @@ class _ReceiveFileRow extends StatelessWidget {
       ),
     );
   }
+}
 
-  String _kindOf(String name) {
-    final dot = name.lastIndexOf('.');
-    if (dot == -1 || dot == name.length - 1) {
-      return 'FILE';
-    }
-    final kind = name.substring(dot + 1).toUpperCase();
-    return kind.length > 4 ? kind.substring(0, 4) : kind;
+/// Shown when the receive session disappears while [ReceiveOptionsPage] is open.
+///
+/// It closes itself so the user lands back on the receive page, which already explains what
+/// happened to the session. The button is the fallback for the frame before the pop lands and
+/// for the case where this page was not pushed.
+class _SessionGonePage extends StatefulWidget {
+  const _SessionGonePage();
+
+  @override
+  State<_SessionGonePage> createState() => _SessionGonePageState();
+}
+
+class _SessionGonePageState extends State<_SessionGonePage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (mounted && Navigator.of(context).canPop()) {
+        await Navigator.of(context).maybePop();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            LsSubHeader(
+              title: t.receiveOptionsPage.title,
+              onBack: () => Navigator.of(context).maybePop(),
+            ),
+            Expanded(
+              child: Center(
+                child: LsButton(
+                  label: t.general.close,
+                  variant: LsButtonVariant.ghost,
+                  onPressed: () => Navigator.of(context).maybePop(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

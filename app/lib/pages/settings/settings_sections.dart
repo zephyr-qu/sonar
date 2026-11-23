@@ -27,6 +27,7 @@ import 'package:sonar/widget/dialogs/text_field_tv.dart';
 import 'package:sonar/widget/dialogs/text_field_with_actions.dart';
 import 'package:sonar/widget/ls/ls_buttons.dart';
 import 'package:sonar/widget/ls/ls_chip.dart';
+import 'package:sonar/widget/ls/ls_path_text.dart';
 import 'package:sonar/widget/ls/ls_segmented.dart';
 import 'package:sonar/widget/ls/ls_state_tag.dart';
 import 'package:sonar/widget/ls/ls_switch.dart';
@@ -132,11 +133,10 @@ SettingsSection _deviceSection() => SettingsSection(
     final currentDeviceType = vm.settings.deviceType ?? vm.deviceInfo.deviceType;
     // `headless` and `server` belong to CLI / server instances of the protocol,
     // not to this app; keep a persisted one visible but off the bar otherwise.
+    const appDeviceTypes = [DeviceType.mobile, DeviceType.tablet, DeviceType.desktop, DeviceType.web];
     final selectableDeviceTypes = [
-      DeviceType.mobile,
-      DeviceType.desktop,
-      DeviceType.web,
-      if (!const [DeviceType.mobile, DeviceType.desktop, DeviceType.web].contains(currentDeviceType)) currentDeviceType,
+      ...appDeviceTypes,
+      if (!appDeviceTypes.contains(currentDeviceType)) currentDeviceType,
     ];
     return [
       SettingsRow(
@@ -245,10 +245,8 @@ SettingsSection _receiveSection() => SettingsSection(
                 await ref.notifier(settingsProvider).setDestination(directory);
               }
             },
-            child: Text(
+            child: LsPathText(
               vm.settings.destination ?? t.settingsTab.receive.downloads,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.titleSmall,
             ),
           ),
@@ -299,9 +297,12 @@ SettingsSection _receiveSection() => SettingsSection(
                 context: context,
                 builder: (_) => const PinDialog(obscureText: false, generateRandom: false),
               );
-              if (newPin != null && newPin.isNotEmpty) {
-                await ref.notifier(settingsProvider).setReceivePin(newPin);
+              final normalizedPin = newPin?.trim() ?? '';
+              if (normalizedPin.isEmpty) {
+                // 用户取消：设置不变，也不重启服务器，避免掐断进行中的传输
+                return;
               }
+              await ref.notifier(settingsProvider).setReceivePin(normalizedPin);
             }
             if (ref.read(serverProvider) != null) {
               await ref.notifier(serverProvider).restartServerFromSettings();
@@ -464,6 +465,11 @@ SettingsSection _appearanceSection() => SettingsSection(
           onChanged: (index) async {
             final theme = [ThemeMode.system, ThemeMode.light, ThemeMode.dark][index];
             vm.onChangeTheme(context, theme);
+            // OLED is dark-only and overrides the stored brightness, so choosing a
+            // brightness has to leave it — otherwise this control would do nothing.
+            if (vm.settings.colorMode == ColorMode.oled) {
+              await ref.notifier(settingsProvider).setColorMode(ColorMode.localsend);
+            }
           },
         ),
       ),
@@ -471,13 +477,17 @@ SettingsSection _appearanceSection() => SettingsSection(
         id: 'appearance.accent',
         label: t.settingsPage.accentColor,
         kind: SettingsRowKind.stacked,
-        child: _AccentSwatches(
-          selected: vm.settings.colorMode == ColorMode.custom ? vm.settings.customColor : null,
-          onSelected: (color) async {
+        child: _AppearanceSwatches(
+          mode: vm.settings.colorMode,
+          customColor: vm.settings.customColor,
+          onPickColor: (color) async {
             // Picking a swatch is the whole custom-color flow; it must not open
             // the free-form color dialog on top of it.
             await ref.notifier(settingsProvider).setColorMode(ColorMode.custom);
             await ref.notifier(settingsProvider).setCustomColor(color);
+          },
+          onPickOled: () async {
+            await ref.notifier(settingsProvider).setColorMode(ColorMode.oled);
           },
         ),
       ),
@@ -580,6 +590,7 @@ SettingsSection _networkSection() => SettingsSection(
               await ref.notifier(settingsProvider).setPort(port);
             }
           },
+          onFocusLost: () => vm.portController.text = ref.read(settingsProvider).port.toString(),
         ),
       ),
       ..._restartHint(context, vm, ServerSetting.port),
@@ -614,6 +625,7 @@ SettingsSection _networkSection() => SettingsSection(
               await ref.notifier(settingsProvider).setDiscoveryTimeout(timeout);
             }
           },
+          onFocusLost: () => vm.timeoutController.text = ref.read(settingsProvider).discoveryTimeout.toString(),
         ),
       ),
       ..._restartHint(context, vm, ServerSetting.discoveryTimeout),
@@ -636,16 +648,19 @@ SettingsSection _networkSection() => SettingsSection(
         ),
       ),
       ..._restartHint(context, vm, ServerSetting.networkInterfaces),
-      SettingsRow(
-        id: 'network.debug',
-        label: t.settingsPage.debug,
-        kind: SettingsRowKind.trailing,
-        child: LsIconButton(
-          icon: LucideIcons.chevronRight,
-          tooltip: t.settingsPage.debug,
-          onPressed: () async => context.push(() => const DebugPage()),
+      // Debug only: the page exposes the device fingerprint, HTTP logs (paths and pins) and the
+      // discovery/security internals, which must not be reachable in a release build.
+      if (kDebugMode)
+        SettingsRow(
+          id: 'network.debug',
+          label: t.settingsPage.debug,
+          kind: SettingsRowKind.trailing,
+          child: LsIconButton(
+            icon: LucideIcons.chevronRight,
+            tooltip: t.settingsPage.debug,
+            onPressed: () async => context.push(() => const DebugPage()),
+          ),
         ),
-      ),
     ];
   },
   tags: (context, vm) => [
@@ -776,9 +791,10 @@ String _themeLabel(ThemeMode theme) {
   };
 }
 
-/// The five preset accents of the redesign; picking one switches the app to
-/// `ColorMode.custom` with that seed color.
-class _AccentSwatches extends StatelessWidget {
+/// The accent row: the five preset accents plus OLED (brand accent on pure black
+/// surfaces). Picking a preset switches the app to `ColorMode.custom` with that
+/// seed color; OLED is a mode rather than a color, so its tile is a rounded square.
+class _AppearanceSwatches extends StatelessWidget {
   static const presets = <Color>[
     Color(0xFFC6F24E),
     Color(0xFFFFB020),
@@ -787,41 +803,90 @@ class _AccentSwatches extends StatelessWidget {
     Color(0xFF8A8F98),
   ];
 
-  final Color? selected;
-  final ValueChanged<Color> onSelected;
+  final ColorMode mode;
+  final Color customColor;
+  final ValueChanged<Color> onPickColor;
+  final VoidCallback onPickOled;
 
-  const _AccentSwatches({required this.selected, required this.onSelected});
+  const _AppearanceSwatches({
+    required this.mode,
+    required this.customColor,
+    required this.onPickColor,
+    required this.onPickOled,
+  });
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.ls;
-    return Row(
+    // `localsend` is the brand accent, so it reads as the first preset selected.
+    final selectedColor = switch (mode) {
+      ColorMode.localsend => presets.first,
+      ColorMode.custom => customColor,
+      ColorMode.oled => null,
+    };
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        for (final color in presets)
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: Semantics(
-              button: true,
-              label: '#${color.toARGB32().toRadixString(16).substring(2)}',
-              child: InkWell(
-                onTap: () => onSelected(color),
-                customBorder: const CircleBorder(),
-                child: Container(
-                  width: 26,
-                  height: 26,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: selected == color ? tokens.colors.fg : tokens.colors.line,
-                      width: selected == color ? 2 : 1,
-                    ),
-                  ),
-                ),
-              ),
+        for (final color in presets) _swatch(tokens, color, selected: color == selectedColor),
+        Container(width: 1, height: 18, color: tokens.colors.line),
+        _oledSwatch(tokens),
+      ],
+    );
+  }
+
+  Widget _swatch(LsTokens tokens, Color color, {required bool selected}) {
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: '#${color.toARGB32().toRadixString(16).substring(2)}',
+      child: InkWell(
+        onTap: () => onPickColor(color),
+        customBorder: const CircleBorder(),
+        child: Container(
+          width: 26,
+          height: 26,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: selected ? tokens.colors.fg : tokens.colors.line,
+              width: selected ? 2 : 1,
             ),
           ),
-      ],
+        ),
+      ),
+    );
+  }
+
+  Widget _oledSwatch(LsTokens tokens) {
+    final selected = mode == ColorMode.oled;
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: 'OLED',
+      child: InkWell(
+        onTap: onPickOled,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          width: 26,
+          height: 26,
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: selected ? tokens.colors.accent : tokens.colors.line,
+              width: selected ? 2 : 1,
+            ),
+          ),
+          child: Icon(
+            LucideIcons.moon,
+            size: 14,
+            color: selected ? tokens.colors.accent : tokens.colors.muted,
+          ),
+        ),
+      ),
     );
   }
 }
@@ -892,7 +957,7 @@ class SettingsRowTile extends StatelessWidget {
               const SizedBox(width: 5),
             ],
             Flexible(
-              child: Text(row.label, style: TextStyle(fontSize: 12.5, height: 1.3, color: row.warning ? colors.danger : colors.fg)),
+              child: Text(row.label, style: tokens.body.copyWith(height: 1.3, color: row.warning ? colors.danger : colors.fg)),
             ),
           ],
         ),

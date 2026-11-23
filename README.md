@@ -32,7 +32,7 @@ Sonar is a personal fork of [LocalSend](https://localsend.org): we kept its netw
 ## Platforms
 
 Official builds: Windows and Android. For macOS, Linux and iOS, build it yourself.
-Any two installed apps can talk; browsers can only receive through *receive via link*.
+Any two installed apps can talk; browsers can only receive through *receive via link*. 
 
 Port `53317`(TCP and UDP) must be reachable on the LAN.
 
@@ -49,5 +49,5 @@ This is a personal, one-off redesign: desktop-first UI, accessibility fixes, no 
 ## License
 
 Apache-2.0. Original work © Tien Do Nam and the [LocalSend contributors](https://github.com/localsend/localsend/graphs/contributors);
-redesign and modifications © 2026 [Zephyr](https://github.com/zephyr-qu).
+redesign and modifications © 2026 [Zephyr](https://github.com/zephyr-qu). 
 Bundled fonts are under the SIL Open Font License; see [NOTICE](NOTICE).

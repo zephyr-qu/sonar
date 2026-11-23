@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:sonar/provider/device_info_provider.dart';
 import 'package:sonar/provider/favorites_provider.dart';
@@ -81,9 +80,6 @@ class _SetupSignalingConnection extends AsyncGlobalAction {
 
     // TODO: Use persistent key
     final key = await crypto.generateKeyPair();
-    if (kDebugMode) {
-      print('private key: ${key.privateKey}');
-    }
 
     LsSignalingConnection? connection;
     final stream = connect(
@@ -247,6 +243,8 @@ extension on DeviceType {
       DeviceType.web => rust.DeviceType.web,
       DeviceType.headless => rust.DeviceType.headless,
       DeviceType.server => rust.DeviceType.server,
+      // A tablet is a UI-level label; the protocol only knows phones.
+      DeviceType.tablet => rust.DeviceType.mobile,
     };
   }
 }

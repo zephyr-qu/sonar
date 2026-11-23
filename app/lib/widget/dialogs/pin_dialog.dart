@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nanoid2/nanoid2.dart';
 import 'package:routerino/routerino.dart';
-import 'package:sonar/config/theme.dart';
+import 'package:sonar/config/design_tokens.dart';
 import 'package:sonar/gen/strings.g.dart';
 import 'package:sonar/widget/ls/ls_buttons.dart';
 import 'package:sonar/widget/ls/ls_dialog.dart';
@@ -44,6 +44,12 @@ class _PinDialogState extends State<PinDialog> {
   }
 
   @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return LsDialog(
       title: Text(t.dialogs.pin.title),
@@ -66,7 +72,7 @@ class _PinDialogState extends State<PinDialog> {
               padding: const EdgeInsets.only(top: 8),
               child: Text(
                 t.web.invalidPin,
-                style: TextStyle(color: Theme.of(context).colorScheme.warning),
+                style: TextStyle(color: context.ls.colors.danger),
               ),
             ),
         ],

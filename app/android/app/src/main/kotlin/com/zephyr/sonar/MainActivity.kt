@@ -136,6 +136,21 @@ class MainActivity : FlutterActivity() {
                     }
                 }
 
+                "showRequestNotification" -> {
+                    RequestNotification.show(
+                        context = this,
+                        title = call.argument<String>("title") ?: "",
+                        text = call.argument<String>("text") ?: "",
+                        channelName = call.argument<String>("channelName") ?: "",
+                    )
+                    result.success(null)
+                }
+
+                "cancelRequestNotification" -> {
+                    RequestNotification.cancel(this)
+                    result.success(null)
+                }
+
                 else -> result.notImplemented()
             }
         }

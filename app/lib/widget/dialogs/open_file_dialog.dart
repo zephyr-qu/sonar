@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -13,7 +12,12 @@ import 'package:sonar/widget/ls/ls_buttons.dart';
 import 'package:sonar/widget/ls/ls_dialog.dart';
 import 'package:sonar_isolates/model/file_type.dart';
 
-class OpenFileDialog extends StatefulWidget {
+/// Asks whether the file that just arrived should be opened.
+///
+/// This used to count down and pop itself after five seconds. A question that
+/// answers itself before the user has read it is worse than one that waits, so
+/// the dialog now stays until it is answered or dismissed.
+class OpenFileDialog extends StatelessWidget {
   final String filePath;
   final FileType fileType;
   final bool openGallery;
@@ -41,37 +45,8 @@ class OpenFileDialog extends StatefulWidget {
     );
   }
 
-  @override
-  State<OpenFileDialog> createState() => _OpenFileDialogState();
-}
-
-class _OpenFileDialogState extends State<OpenFileDialog> {
-  late Timer _timer;
-  int _countdown = 5; // Starting countdown value
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_countdown > 1) {
-        setState(() {
-          _countdown--;
-        });
-      } else {
-        timer.cancel();
-        if (context.mounted) {
-          context.pop(); // Automatically close the dialog
-        }
-      }
-    });
-  }
+  /// Mobile platforms cannot select the file in a file manager, so the action opens the file manager instead.
+  bool get _isMobile => defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS;
 
   @override
   Widget build(BuildContext context) {
@@ -79,30 +54,35 @@ class _OpenFileDialogState extends State<OpenFileDialog> {
       title: Text(t.dialogs.openFile.title),
       content: Text(t.dialogs.openFile.content),
       actions: [
-        if (!widget.openGallery)
+        if (!openGallery)
           LsButton(
-            label: t.receiveHistoryPage.entryActions.showInFolder,
+            label: _isMobile ? t.dialogs.openFile.openFileManager : t.receiveHistoryPage.entryActions.showInFolder,
             variant: LsButtonVariant.ghost,
+            compact: true,
             onPressed: () async => await openFolder(
-              folderPath: File(widget.filePath).parent.path,
-              fileName: path.basename(widget.filePath),
+              folderPath: File(filePath).parent.path,
+              fileName: path.basename(filePath),
             ),
           ),
         LsButton(
-          label: '${t.general.close} ($_countdown)',
+          label: t.general.close,
           variant: LsButtonVariant.ghost,
-          onPressed: () {
-            _timer.cancel();
-            context.pop();
-          },
+          compact: true,
+          onPressed: () => context.pop(),
         ),
         LsButton(
           label: t.general.open,
+          compact: true,
           onPressed: () async {
-            if (widget.openGallery && defaultTargetPlatform == TargetPlatform.android) {
+            if (openGallery && defaultTargetPlatform == TargetPlatform.android) {
               await android_channel.openGallery();
             } else {
-              await openFile(context, widget.fileType, widget.filePath);
+              await openFile(context, fileType, filePath);
+            }
+            // The dialog asked a question that is now answered, so it does not stay up
+            // behind the opened file.
+            if (context.mounted) {
+              context.pop();
             }
           },
         ),

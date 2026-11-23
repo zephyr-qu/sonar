@@ -10,6 +10,7 @@ import 'package:sonar/util/ui/snackbar.dart';
 import 'package:sonar/widget/dialogs/device_name_dialog.dart';
 import 'package:sonar/widget/ls/ls_chip.dart';
 import 'package:sonar/widget/ls/ls_header.dart';
+import 'package:sonar/widget/ls/ls_mark.dart';
 import 'package:sonar/widget/ls/ls_switch.dart';
 import 'package:sonar_isolates/constants.dart';
 
@@ -49,25 +50,17 @@ class LsDesktopHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 30,
-            height: 30,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(tokens.radiusSm)),
-            child: IconTheme(
-              data: IconThemeData(size: 16, color: colors.fg),
-              child: mark,
+          LsMark(iconSize: 16, child: mark),
+          const SizedBox(width: 12),
+          Expanded(
+            child: LsHeaderTitle(
+              title: title,
+              subtitle: subtitle,
+              style: tokens.subtitle,
+              tooltip: titleTooltip,
+              onTap: onTitleTap,
             ),
           ),
-          const SizedBox(width: 12),
-          LsHeaderTitle(
-            title: title,
-            subtitle: subtitle,
-            style: tokens.subtitle,
-            tooltip: titleTooltip,
-            onTap: onTitleTap,
-          ),
-          const Spacer(),
           ...actions,
         ],
       ),

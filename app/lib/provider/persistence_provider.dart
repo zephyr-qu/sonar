@@ -127,9 +127,7 @@ class PersistenceService {
 
   PersistenceService._(this._prefs, this.isFirstAppStart, this._securityContextValue);
 
-  static Future<PersistenceService> initialize({
-    required bool supportsDynamicColors,
-  }) async {
+  static Future<PersistenceService> initialize() async {
     SharedPreferences prefs;
 
     final portableStore = SharedPreferencesPortable();
@@ -216,14 +214,7 @@ class PersistenceService {
     }
 
     if (prefs.getString(_colorKey) == null) {
-      await _initColorSetting(prefs, supportsDynamicColors);
-    } else {
-      // fix when device does not support dynamic colors
-      final supported = supportsDynamicColors ? ColorMode.values : ColorMode.values.where((e) => e != ColorMode.system);
-      final colorMode = supported.firstWhereOrNull((color) => color.name == prefs.getString(_colorKey));
-      if (colorMode == null) {
-        await _initColorSetting(prefs, supportsDynamicColors);
-      }
+      await _initColorSetting(prefs);
     }
 
     // migrate legacy auto start settings (current implementation is stateless and relies on the Windows registry / file system)
@@ -239,11 +230,8 @@ class PersistenceService {
     return PersistenceService._(prefs, isFirstAppStart, securityContext);
   }
 
-  static Future<void> _initColorSetting(SharedPreferences prefs, bool supportsDynamicColors) async {
-    await prefs.setString(
-      _colorKey,
-      checkPlatform([TargetPlatform.android]) && supportsDynamicColors ? ColorMode.system.name : ColorMode.localsend.name,
-    );
+  static Future<void> _initColorSetting(SharedPreferences prefs) async {
+    await prefs.setString(_colorKey, ColorMode.localsend.name);
   }
 
   bool isPortableMode() {
@@ -380,12 +368,15 @@ class PersistenceService {
   ThemeMode getTheme() {
     final value = _prefs.getString(_themeKey);
     if (value == null) {
-      // The redesign is dark-first: a fresh install opens in the dark palette
-      // even when the OS is in light mode. Users can still pick light/system.
-      return ThemeMode.dark;
+      return _defaultTheme;
     }
-    return ThemeMode.values.firstWhereOrNull((theme) => theme.name == value) ?? ThemeMode.dark;
+    return ThemeMode.values.firstWhereOrNull((theme) => theme.name == value) ?? _defaultTheme;
   }
+
+  /// The theme before the user has picked one (and the fallback for an
+  /// unreadable value): desktop is dark-first, so it opens in the dark palette
+  /// even when the OS is in light mode, while mobile follows the system.
+  ThemeMode get _defaultTheme => checkPlatformIsDesktop() ? ThemeMode.dark : ThemeMode.system;
 
   Future<void> setTheme(ThemeMode theme) async {
     await _prefs.setString(_themeKey, theme.name);
@@ -394,9 +385,9 @@ class PersistenceService {
   ColorMode getColorMode() {
     final value = _prefs.getString(_colorKey);
     if (value == null) {
-      return ColorMode.system;
+      return ColorMode.localsend;
     }
-    return ColorMode.values.firstWhereOrNull((color) => color.name == value) ?? ColorMode.system;
+    return ColorMode.values.firstWhereOrNull((color) => color.name == value) ?? ColorMode.localsend;
   }
 
   Future<void> setColorMode(ColorMode color) async {

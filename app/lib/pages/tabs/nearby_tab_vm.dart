@@ -125,6 +125,12 @@ final nearbyTabVmProvider = ViewProvider((ref) {
       context.showSnackBar(starting ? t.nearbyTab.visibleToast : t.nearbyTab.hiddenToast);
     },
     onScan: (context) async {
+      // Emptying the list is what makes a scan feel like a scan, so only do it for a scan that actually
+      // starts: a second pull during the grace period would otherwise blank the devices the running scan
+      // just found (`StartStagedScan` refuses to start a second one anyway).
+      if (ref.read(nearbyDevicesProvider).runningFavoriteScan) {
+        return;
+      }
       ref.redux(nearbyDevicesProvider).dispatch(ClearFoundDevicesAction());
       await ref.global.dispatchAsync(StartSmartScan());
     },
@@ -207,6 +213,7 @@ final nearbyTabVmProvider = ViewProvider((ref) {
                 ip: device.ip ?? '',
                 port: device.port,
                 alias: device.alias,
+                deviceType: device.deviceType,
               ),
             ),
           );

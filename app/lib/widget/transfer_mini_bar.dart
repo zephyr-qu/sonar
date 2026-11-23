@@ -9,6 +9,7 @@ import 'package:sonar/provider/file_transfer_provider.dart';
 import 'package:sonar/provider/network/send_provider.dart';
 import 'package:sonar/provider/network/server/server_provider.dart';
 import 'package:sonar/util/device_type_ext.dart';
+import 'package:sonar/util/session_progress.dart';
 import 'package:sonar/util/session_status_ext.dart';
 import 'package:sonar/widget/ls/ls_buttons.dart';
 import 'package:sonar/widget/ls/ls_progress_bar.dart';
@@ -105,12 +106,12 @@ class _MiniBarRow extends StatelessWidget {
     return ValueListenableBuilder<int>(
       valueListenable: transfer.sessionTick(entry.sessionId),
       builder: (context, _, _) {
-        final totalBytes = entry.files.fold<int>(0, (sum, file) => sum + file.size);
-        final transferredBytes = entry.files.fold<int>(
-          0,
-          (sum, file) => sum + (transfer.getProgress(sessionId: entry.sessionId, fileId: file.id) * file.size).round(),
+        final measure = SessionProgress.measure(
+          sessionId: entry.sessionId,
+          files: entry.files.map((file) => (file.id, file.size)),
+          transfer: transfer,
         );
-        final progress = totalBytes <= 0 ? 0.0 : (transferredBytes / totalBytes).clamp(0.0, 1.0).toDouble();
+        final progress = measure.fraction;
         // A finished transfer reports its outcome, not a number that can no
         // longer move.
         final trailing = entry.status == SessionStatus.sending ? '${(progress * 100).round()}%' : sessionStatusText(entry.status) ?? '';

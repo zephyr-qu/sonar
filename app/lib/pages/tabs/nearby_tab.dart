@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -26,6 +27,7 @@ import 'package:sonar/widget/desktop_scaffold.dart';
 import 'package:sonar/widget/dialogs/device_name_dialog.dart';
 import 'package:sonar/widget/ls/ls_buttons.dart';
 import 'package:sonar/widget/ls/ls_header.dart';
+import 'package:sonar/widget/ls/ls_refresh.dart';
 import 'package:sonar_isolates/model/device.dart';
 import 'package:sonar_isolates/util/file_size_helper.dart';
 
@@ -114,6 +116,19 @@ class _NearbyViewState extends State<_NearbyView> {
         filesOpen: false,
       );
     });
+  }
+
+  /// Pulling the list replaces the rescan button the grid layout used to carry.
+  ///
+  /// The scan is not awaited: it keeps probing subnets for seconds after the devices are already
+  /// back on screen, and the gesture must end when the finger lifts, not when the last probe does.
+  void _onRefresh() {
+    // Picking targets hides the actions behind the bottom bar; a rescan under an open selection
+    // would only reshuffle the grid, so the gesture is ignored while it is active.
+    if (_multiActive) {
+      return;
+    }
+    unawaited(vm.onScan(context));
   }
 
   Future<void> _onDeviceTap(Device device) async {
@@ -227,6 +242,7 @@ class _NearbyViewState extends State<_NearbyView> {
           )
         : NearbyGridView(vm: vm, ui: _ui, desktop: widget.desktop, actions: _actions).content(
             context,
+            animations: animations,
             favoritesSection: favoritesSection,
             onlineSection: onlineSection,
             offlineSection: offlineSection,
@@ -234,13 +250,21 @@ class _NearbyViewState extends State<_NearbyView> {
 
     return Column(
       children: [
-        _header(context),
+        _header(context, animations),
         Expanded(
           child: Stack(
             children: [
-              ListView(
-                padding: EdgeInsets.fromLTRB(tokens.pad, 0, tokens.pad, _multiActive ? 120 : 18),
-                children: sections,
+              // Pull-to-refresh is the mobile rescan gesture (the grid layout's refresh button is
+              // gone). It sits on the ListView rather than on the Stack so the indicator is not
+              // painted under the multi-select bar, and the physics keep the pull available when
+              // the content is shorter than the viewport.
+              LsRefreshIndicator(
+                onRefresh: _onRefresh,
+                child: ListView(
+                  padding: EdgeInsets.fromLTRB(tokens.pad, 0, tokens.pad, _multiActive ? 120 : 18),
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: sections,
+                ),
               ),
               if (_multiActive)
                 Positioned(
@@ -256,7 +280,9 @@ class _NearbyViewState extends State<_NearbyView> {
     );
   }
 
-  Widget _header(BuildContext context) {
+  /// [animations] gates the dot's breath; the status text is appended rather than replaced, because
+  /// "visible + ip" is what the user came to the header for and a scan only lasts a couple of seconds.
+  Widget _header(BuildContext context, bool animations) {
     final tokens = context.ls;
     final ip = vm.localIps.isNotEmpty ? vm.localIps.first : t.general.unknown;
     return LsScreenHeader(
@@ -267,11 +293,13 @@ class _NearbyViewState extends State<_NearbyView> {
       subtitle: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          LsStatusDot(on: vm.visible),
+          LsStatusDot(on: vm.visible, pulse: vm.scanning && animations),
           const SizedBox(width: 5),
           Flexible(
             child: Text(
-              '${vm.visible ? t.nearbyTab.visible : t.nearbyTab.hidden}  $ip',
+              // Appended, not replaced: visibility and ip stay readable while a scan runs.
+              '${vm.visible ? t.nearbyTab.visible : t.nearbyTab.hidden}  $ip'
+              '${vm.scanning ? '  ·  ${t.nearbyTab.scanning}' : ''}',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: tokens.mono,
@@ -344,7 +372,13 @@ class _NearbyViewState extends State<_NearbyView> {
                 ? null
                 : () async {
                     final started = await vm.onSendToMany(picked);
-                    if (!started || !context.mounted) {
+                    if (!context.mounted) {
+                      return;
+                    }
+                    if (!started) {
+                      // Nothing started: every picked device already has a running session, and
+                      // the target must not be stacked a second time.
+                      context.showSnackBar(t.nearbyTab.inProgress);
                       return;
                     }
                     setState(() => _ui = _ui.copyWith(picked: const <String>{}, clearMultiOverride: true));

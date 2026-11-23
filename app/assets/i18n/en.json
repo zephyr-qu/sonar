@@ -164,6 +164,7 @@
     "online": "{online} online  {total} discovered",
     "onlineSuffix": "online  {total} discovered",
     "scan": "Scan again",
+    "scanning": "Scanning",
     "linkReceive": "Receive via link",
     "manualIp": "Manual IP",
     "search": "Search device name or IP",
@@ -230,6 +231,7 @@
     "remaining": "{time} left",
     "speed": "{speed}/s",
     "items": "{n} items",
+    "moreFiles": "{n} more files",
     "noHistory": "No transfers yet",
     "today": "Today",
     "yesterday": "Yesterday",
@@ -241,9 +243,11 @@
     "typeText": "Text",
     "typeApk": "Apps",
     "typeOther": "Other",
-    "sortDate": "Date ↓",
-    "sortName": "Name ↑",
-    "sortSize": "Size ↓",
+    "sortDate": "Date",
+    "sortName": "Name",
+    "sortSize": "Size",
+    "sortAscending": "Ascending",
+    "sortDescending": "Descending",
     "sort": "Sort",
     "gridView": "Grid",
     "listView": "List",
@@ -460,6 +464,7 @@
     "info": "Sonar is free, open-source and without any ads. If you like the app, you can support the development with a donation.",
     "donate": "Donate {amount}",
     "thanks": "Thank you very much!",
+    "note": "Donations go to the original LocalSend author, not to the maintainer of this fork.",
     "restore": "Restore purchase"
   },
   "changelogPage": {
@@ -557,7 +562,8 @@
     },
     "openFile": {
       "title": "Open file",
-      "content": "Do you want to open the received file?"
+      "content": "Do you want to open the received file?",
+      "openFileManager": "Open file manager"
     },
     "addressInput": {
       "title": "Enter address",

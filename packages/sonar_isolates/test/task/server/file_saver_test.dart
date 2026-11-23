@@ -22,11 +22,12 @@ void main() {
     }
   });
 
-  Future<String> digest(String parentDirectory, String fileName) async {
+  Future<String> digest(String parentDirectory, String fileName, {Set<String>? reservedPaths}) async {
     final (path, _, _) = await digestFilePathAndPrepareDirectory(
       parentDirectory: parentDirectory,
       fileName: fileName,
       createdDirectories: {},
+      reservedPaths: reservedPaths,
     );
     return path;
   }
@@ -74,6 +75,20 @@ void main() {
     expect(File(path).readAsStringSync(), 'received');
     expect(existingContent.readAsStringSync(), 'keep');
     expect(existingFile.readAsStringSync(), 'existing');
+  });
+
+  test('reserves a destination that no file occupies yet', () async {
+    final reservedPaths = <String>{};
+
+    // Both uploads are still in flight: the server writes a temporary file and
+    // only renames it into place once the upload is complete, so neither
+    // destination exists on disk yet.
+    final first = await digest(tempDir.path, 'file.txt', reservedPaths: reservedPaths);
+    final second = await digest(tempDir.path, 'file.txt', reservedPaths: reservedPaths);
+
+    expect(File(first).existsSync(), isFalse);
+    expect(first, p.join(tempDir.path, 'file.txt'));
+    expect(second, p.join(tempDir.path, 'file (2).txt'));
   });
 }
 

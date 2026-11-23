@@ -9,36 +9,55 @@ import 'package:sonar/config/design_tokens.dart';
 import 'package:sonar/gen/strings.g.dart';
 import 'package:sonar/model/state/send/send_session_state.dart';
 import 'package:sonar/pages/verify_page.dart';
-import 'package:sonar/provider/device_info_provider.dart';
 import 'package:sonar/provider/favorites_provider.dart';
 import 'package:sonar/provider/file_transfer_provider.dart';
 import 'package:sonar/provider/network/send_provider.dart';
 import 'package:sonar/util/device_type_ext.dart';
 import 'package:sonar/util/favorites.dart';
+import 'package:sonar/util/fingerprint.dart';
 import 'package:sonar/util/native/taskbar_helper.dart';
-import 'package:sonar/widget/animations/initial_fade_transition.dart';
-import 'package:sonar/widget/animations/initial_slide_transition.dart';
+import 'package:sonar/util/session_status_ext.dart';
 import 'package:sonar/widget/dialogs/error_dialog.dart';
 import 'package:sonar/widget/ls/ls_buttons.dart';
 import 'package:sonar/widget/ls/ls_card.dart';
-import 'package:sonar/widget/ls/ls_header.dart';
+import 'package:sonar/widget/ls/ls_chip.dart';
+import 'package:sonar/widget/ls/ls_dialog.dart';
 import 'package:sonar/widget/ls/ls_progress_bar.dart';
 import 'package:sonar_isolates/model/device.dart';
 import 'package:sonar_isolates/model/session_status.dart';
+import 'package:sonar_isolates/util/file_size_helper.dart';
 
-/// Sending status of one session: the two devices, the handshake state and the
+/// Shows the outgoing handshake of one session as a modal dialog over the shell.
+///
+/// Waiting for the receiver's answer is an interruption that asks for one
+/// decision — accept the wait or cancel — not a screen to navigate to, so it
+/// takes the same shape as the incoming request dialog and leaves the shell
+/// visible behind it. Once the receiver accepts, the dialog steps aside: the
+/// transfer continues in the background (Transfers tab, tray, and on mobile the
+/// strip above the tab bar), and tapping that entry opens the progress page.
+Future<void> showSendRequestDialog(String sessionId) async {
+  final navigator = Routerino.navigatorKey.currentState!;
+  assert(navigator.mounted);
+  unawaited(
+    navigator.push<void>(
+      DialogRoute<void>(
+        context: navigator.context,
+        barrierDismissible: false,
+        builder: (_) => SendRequestDialog(sessionId: sessionId),
+      ),
+    ),
+  );
+}
+
+/// Sending status of one session: the target device, the handshake state and the
 /// cancel/close action.
-class SendPage extends StatefulWidget {
-  final bool closeSessionOnClose;
+class SendRequestDialog extends StatefulWidget {
   final String sessionId;
 
-  const SendPage({
-    required this.closeSessionOnClose,
-    required this.sessionId,
-  });
+  const SendRequestDialog({required this.sessionId});
 
   @override
-  State<SendPage> createState() => _SendPageState();
+  State<SendRequestDialog> createState() => _SendRequestDialogState();
 }
 
 double _hashProgress(SendSessionState sendState, FileTransferNotifier transferNotifier) {
@@ -57,7 +76,7 @@ double _hashProgress(SendSessionState sendState, FileTransferNotifier transferNo
 /// Progress of the checksum calculation in the waiting card.
 ///
 /// Progress events arrive up to 50 times per second, so this widget subscribes to the session
-/// tick of the [fileTransferProvider] itself instead of letting the whole page watch it.
+/// tick of the [fileTransferProvider] itself instead of letting the whole dialog watch it.
 class _HashProgressBar extends StatelessWidget {
   final SendSessionState sendState;
 
@@ -73,10 +92,7 @@ class _HashProgressBar extends StatelessWidget {
   }
 }
 
-class _SendPageState extends State<SendPage> with Refena {
-  Device? _myDevice;
-  Device? _targetDevice;
-
+class _SendRequestDialogState extends State<SendRequestDialog> with Refena {
   @override
   void dispose() {
     super.dispose();
@@ -84,24 +100,33 @@ class _SendPageState extends State<SendPage> with Refena {
   }
 
   void _cancel() {
-    // the state will be lost so we store them temporarily (only for UI)
-    final myDevice = ref.read(deviceFullInfoProvider);
     final sendState = ref.read(sendProvider)[widget.sessionId];
     if (sendState == null) {
       return;
     }
 
-    setState(() {
-      // The bytes are already moving: leaving this page must not abort the
-      // transfer, which lives on in the Transfers tab (and in the tray on
-      // desktop). Stopping it is an explicit action on the progress page.
-      if (sendState.status == SessionStatus.sending) {
-        return;
-      }
-      _myDevice = myDevice;
-      _targetDevice = sendState.target;
-    });
+    // The bytes are already moving: leaving this dialog must not abort the
+    // transfer, which lives on in the Transfers tab (and in the strip above the
+    // tab bar on mobile). Stopping it is an explicit action on the progress
+    // page.
+    //
+    // This check has to sit outside any setState callback: a `return` inside
+    // the callback only ends the callback, so the cancelSession below would
+    // still run and abort a transfer that is already in flight.
+    // A session that already ended badly keeps its completion card in the
+    // Transfers tab, which is where it is dismissed: this dialog only waited for
+    // the answer, so stepping aside must not throw that answer away.
+    if (sendState.status == SessionStatus.sending || sendState.status.isTerminalFailure) {
+      return;
+    }
+
     ref.notifier(sendProvider).cancelSession(widget.sessionId);
+  }
+
+  /// Closes the dialog and applies the decision matching what is on screen.
+  void _dismiss(BuildContext context) {
+    _cancel();
+    context.global.dispatch(NavigateAction.popUntilRoot());
   }
 
   @override
@@ -115,148 +140,158 @@ class _SendPageState extends State<SendPage> with Refena {
           // ignore: discarded_futures
           TaskbarHelper.visualizeStatus(nextStatus);
 
-          // The transfer runs in the background from here on (Transfers tab,
-          // mini bar, tray): this page only waited for the answer and has
-          // nothing left to show, so it steps aside instead of blocking.
+          // The receiver answered: the transfer runs in the background from
+          // here on (Transfers tab, tray, and on mobile the strip above the tab
+          // bar), and this dialog only waited for the answer, so it steps aside
+          // instead of blocking. The session itself stays alive — cancelling it
+          // is an explicit action on the progress page.
           if (nextStatus == SessionStatus.sending) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) {
-                unawaited(Navigator.maybePop(context));
+              if (!mounted) {
+                return;
+              }
+              final navigator = Navigator.of(context);
+              if (navigator.canPop()) {
+                navigator.pop();
               }
             });
           }
         }
       },
     );
-    if (sendState == null && _myDevice == null && _targetDevice == null) {
-      return Scaffold(
-        body: Container(),
-      );
+
+    if (sendState == null) {
+      // The session ended while the dialog was open (canceled or closed
+      // elsewhere): an empty dialog would just hang over the shell.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
+        final navigator = Navigator.of(context);
+        if (navigator.canPop()) {
+          navigator.pop();
+        }
+      });
+      return const SizedBox.shrink();
     }
 
-    final tokens = context.ls;
-    final colors = tokens.colors;
-    final myDevice = ref.watch(deviceFullInfoProvider);
-    final targetDevice = sendState?.target ?? _targetDevice!;
-    final targetFavoriteEntry = ref.watch(favoritesProvider.select((state) => state.findDevice(targetDevice)));
-    final targetAlias = targetFavoriteEntry?.alias ?? targetDevice.alias;
-    final waiting = sendState?.status == SessionStatus.waiting;
-
     return PopScope(
+      // Back must go through [_dismiss]: popping the dialog silently would leave
+      // the session waiting with no route back to it.
+      canPop: false,
       onPopInvokedWithResult: (didPop, result) {
-        if (didPop && widget.closeSessionOnClose) {
-          _cancel();
+        if (!didPop) {
+          _dismiss(context);
         }
       },
-      canPop: true,
-      child: Scaffold(
-        body: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 560),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  LsSubHeader(
-                    title: t.transferTab.sending(device: targetAlias),
-                    subtitle: Text(
-                      '${targetDevice.ip}:${targetDevice.port}  ${targetDevice.deviceModel ?? targetDevice.deviceType.name}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: tokens.mono,
-                    ),
-                    onBack: () => Navigator.maybePop(context),
+      child: _dialog(context, sendState),
+    );
+  }
+
+  Widget _dialog(BuildContext context, SendSessionState sendState) {
+    final targetDevice = sendState.target;
+    final targetFavoriteEntry = ref.watch(favoritesProvider.select((state) => state.findDevice(targetDevice)));
+    final targetAlias = targetFavoriteEntry?.alias ?? targetDevice.alias;
+    final waiting = sendState.status == SessionStatus.waiting;
+    final totalSize = sendState.files.values.fold<int>(0, (sum, file) => sum + file.file.size);
+
+    return LsDialog(
+      title: Text(t.transferTab.sending(device: targetAlias)),
+      maxWidth: 460,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _targetBlock(context, targetDevice, targetAlias),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              LsChip.text(t.transferTab.items(n: sendState.files.length)),
+              LsChip.text(totalSize.asReadableFileSize),
+              LsChip.text(targetDevice.https ? t.receiveRequestPage.secure : t.receiveRequestPage.plain, accent: targetDevice.https),
+            ],
+          ),
+          if (_statusCard(context, sendState) case final card?) ...[
+            const SizedBox(height: 12),
+            card,
+          ],
+        ],
+      ),
+      actions: [
+        LsButton(
+          label: waiting ? t.general.cancel : t.general.close,
+          icon: waiting ? LucideIcons.x : LucideIcons.checkCircle,
+          variant: LsButtonVariant.ghost,
+          onPressed: () => _dismiss(context),
+        ),
+      ],
+    );
+  }
+
+  /// The receiver: alias, device model + address and the certificate fingerprint
+  /// in one block, with the verify action next to the identity it checks.
+  Widget _targetBlock(BuildContext context, Device device, String alias) {
+    final tokens = context.ls;
+    final colors = tokens.colors;
+    final meta = [
+      if (device.deviceModel != null) device.deviceModel!,
+      if (device.ip != null) device.ip!,
+    ].join('  ');
+    final fingerprint = device.fingerprint;
+
+    return Row(
+      children: [
+        Container(
+          width: 44,
+          height: 44,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(tokens.radiusSm)),
+          child: Icon(device.deviceType.icon, size: 20, color: colors.fg),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(alias, maxLines: 1, overflow: TextOverflow.ellipsis, style: tokens.subtitle),
+              if (meta.isNotEmpty) ...[
+                const SizedBox(height: 3),
+                Text(meta, maxLines: 1, overflow: TextOverflow.ellipsis, style: tokens.monoSm),
+              ],
+              if (fingerprint.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Tooltip(
+                  message: '${t.receiveRequestPage.fingerprint}: ${t.receiveRequestPage.fingerprintDesc}',
+                  child: Text(
+                    shortFingerprint(fingerprint),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: tokens.monoSm.copyWith(color: colors.faint),
                   ),
-                  Expanded(
-                    child: ListView(
-                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-                      children: [
-                        InitialSlideTransition(
-                          origin: const Offset(0, -1),
-                          duration: const Duration(milliseconds: 400),
-                          child: _SendDeviceCard(
-                            device: myDevice,
-                            label: t.transferTab.items(n: sendState?.files.length ?? 0),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: InitialFadeTransition(
-                            duration: const Duration(milliseconds: 300),
-                            delay: const Duration(milliseconds: 400),
-                            child: Row(
-                              children: [
-                                const SizedBox(width: 18),
-                                Icon(LucideIcons.arrowDown, size: 14, color: colors.accent),
-                                const Spacer(),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Hero(
-                          tag: 'device-${targetDevice.ip}',
-                          child: _SendDeviceCard(
-                            device: targetDevice,
-                            aliasOverride: targetAlias,
-                            highlighted: true,
-                          ),
-                        ),
-                        if (targetDevice.https)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 12),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: InitialFadeTransition(
-                                duration: const Duration(milliseconds: 300),
-                                delay: const Duration(milliseconds: 400),
-                                child: LsButton(
-                                  label: t.verifyPage.title,
-                                  icon: LucideIcons.badgeCheck,
-                                  variant: LsButtonVariant.ghost,
-                                  onPressed: () async => await context.push(
-                                    () => VerifyPage(
-                                      fingerprint: CombinedFingerprint.load(context, targetDevice.fingerprint),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  if (sendState != null)
-                    InitialFadeTransition(
-                      duration: const Duration(milliseconds: 300),
-                      delay: const Duration(milliseconds: 400),
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            if (_statusCard(context, sendState) case final card?) ...[
-                              card,
-                              const SizedBox(height: 10),
-                            ],
-                            LsButton(
-                              label: waiting ? t.general.cancel : t.general.close,
-                              icon: waiting ? LucideIcons.x : LucideIcons.checkCircle,
-                              expand: true,
-                              onPressed: () {
-                                _cancel();
-                                context.global.dispatch(NavigateAction.popUntilRoot());
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
+                ),
+              ],
+            ],
           ),
         ),
-      ),
+        const SizedBox(width: 8),
+        LsButton(
+          label: t.verifyPage.title,
+          icon: LucideIcons.badgeCheck,
+          variant: LsButtonVariant.ghost,
+          compact: true,
+          // Without https there is no peer certificate to compare.
+          onPressed: !device.https
+              ? null
+              : () async => context.push(
+                  () => VerifyPage(
+                    fingerprint: CombinedFingerprint.load(context, device.fingerprint),
+                  ),
+                ),
+        ),
+      ],
     );
   }
 
@@ -320,71 +355,5 @@ class _SendPageState extends State<SendPage> with Refena {
       default:
         return null;
     }
-  }
-}
-
-/// One end of the transfer: device glyph, alias and mono meta line.
-class _SendDeviceCard extends StatelessWidget {
-  final Device device;
-  final String? aliasOverride;
-  final String? label;
-  final bool highlighted;
-
-  const _SendDeviceCard({
-    required this.device,
-    this.aliasOverride,
-    this.label,
-    this.highlighted = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.ls;
-    final colors = tokens.colors;
-    final alias = aliasOverride ?? device.alias;
-
-    return LsCard(
-      padding: const EdgeInsets.all(14),
-      child: Row(
-        children: [
-          Container(
-            width: 34,
-            height: 34,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: highlighted ? colors.accent : colors.bg3,
-              borderRadius: BorderRadius.circular(tokens.radiusSm),
-            ),
-            child: Icon(
-              device.deviceType.icon,
-              size: 18,
-              color: highlighted ? colors.accentFg : colors.fg,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  alias,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: tokens.bodyStrong,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  label ?? '${device.deviceModel ?? device.deviceType.name}  ${device.ip}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: tokens.mono,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

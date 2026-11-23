@@ -1,6 +1,6 @@
 part of 'persistence_provider.dart';
 
-const _latestVersion = 6;
+const _latestVersion = 7;
 
 Future<void> _runMigrations(int from) async {
   if (from < 2) {
@@ -22,6 +22,10 @@ Future<void> _runMigrations(int from) async {
   if (from < 6) {
     await _migrate6();
     await SharedPreferencesStorePlatform.instance.setValue('Int', 'flutter.$_version', 6);
+  }
+  if (from < 7) {
+    await _migrate7();
+    await SharedPreferencesStorePlatform.instance.setValue('Int', 'flutter.$_version', 7);
   }
 }
 
@@ -159,5 +163,18 @@ Future<void> _migrate6() async {
   }
   for (final key in ['ls_receive_history', 'ls_send_history']) {
     await store.remove('flutter.$key');
+  }
+}
+
+/// `ColorMode` lost its `system` (dynamic colors) and `yaru` entries: the accent row
+/// now offers the brand accent, the presets and OLED. Both removed values fall back to
+/// the brand accent, which is also what `getColorMode` does for an unknown name.
+Future<void> _migrate7() async {
+  _logger.info('Migrating to version 7');
+
+  final store = SharedPreferencesStorePlatform.instance;
+  final value = (await store.getAll())['flutter.$_colorKey'];
+  if (value == 'system' || value == 'yaru') {
+    await store.setValue('String', 'flutter.$_colorKey', ColorMode.localsend.name);
   }
 }

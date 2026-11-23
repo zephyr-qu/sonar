@@ -3,28 +3,35 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:sonar/config/design_tokens.dart';
 import 'package:sonar/provider/logging/discovery_logs_provider.dart';
 import 'package:sonar/provider/network/nearby_devices_provider.dart';
 import 'package:sonar/util/ui/snackbar.dart';
 import 'package:sonar/widget/copyable_text.dart';
+import 'package:sonar/widget/ls/ls_buttons.dart';
 import 'package:sonar/widget/ls/ls_scaffold.dart';
-import 'package:sonar/widget/responsive_list_view.dart';
 
 final _dateFormat = DateFormat.Hms();
+
+/// Log lines are meant to be copied, not read on screen, so the page runs wide.
+const _logPageWidth = 760.0;
 
 class DiscoveryDebugPage extends StatelessWidget {
   const DiscoveryDebugPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final tokens = context.ls;
     final ref = context.ref;
     final logs = ref.watch(discoveryLoggerProvider);
+
     return LsPageScaffold(
       title: 'Discovery Debugging',
+      maxWidth: _logPageWidth,
       actions: [
-        IconButton(
+        LsIconButton(
           tooltip: 'Copy all logs',
-          icon: const Icon(LucideIcons.copy),
+          icon: LucideIcons.copy,
           onPressed: logs.isEmpty
               ? null
               : () async {
@@ -45,31 +52,35 @@ class DiscoveryDebugPage extends StatelessWidget {
                 },
         ),
       ],
-      body: ResponsiveListView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+      body: ListView(
+        padding: EdgeInsets.fromLTRB(tokens.pad, 8, tokens.pad, 32),
         children: [
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: [
-              ElevatedButton(
+              LsButton(
+                label: 'Announce',
+                icon: LucideIcons.radio,
+                variant: LsButtonVariant.ghost,
+                compact: true,
                 onPressed: () => ref.redux(nearbyDevicesProvider).dispatch(StartMulticastScan()),
-                child: const Text('Announce'),
               ),
-              const SizedBox(width: 20),
-              ElevatedButton(
+              LsButton(
+                label: 'Clear',
+                icon: LucideIcons.trash2,
+                variant: LsButtonVariant.ghost,
+                compact: true,
                 onPressed: () => ref.notifier(discoveryLoggerProvider).clear(),
-                child: const Text('Clear'),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
           ...logs.map(
             (log) => CopyableText(
               prefix: TextSpan(
                 text: '[${_dateFormat.format(log.timestamp)}] ',
-                style: const TextStyle(
-                  color: Colors.green,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(color: tokens.colors.accent, fontWeight: FontWeight.w700),
               ),
               name: log.log,
               value: log.log,

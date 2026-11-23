@@ -63,33 +63,25 @@ class NearbyRadarView {
     final size = math.min(MediaQuery.sizeOf(context).width - 32, 344.0);
 
     return [
-      Row(
-        children: [
-          Expanded(
-            child: Text(
-              t.nearbyTab.online(online: vm.devices.length, total: vm.devices.length + offlineFavoriteCount(vm)),
-              style: tokens.eyebrow,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          if (total > shown)
-            Text(
-              t.nearbyTab.radarHidden(shown: shown, total: total),
-              style: tokens.monoSm.copyWith(color: colors.faint),
-            ),
-        ],
-      ),
       Padding(
         padding: const EdgeInsets.only(top: 6),
-        // Wraps instead of overflowing: the four chips do not fit a 320 px phone.
-        child: Wrap(
-          spacing: 8,
-          runSpacing: 8,
+        // Same row as the grid: the three filters on the left, the multi chip on the right
+        // edge. The filters wrap instead of overflowing, because the four chips do not fit
+        // a 320 px phone; the multi chip keeps its place at the end either way.
+        child: Row(
           children: [
-            _chip(t.nearbyTab.filterAll, NearbyFilter.all),
-            _chip(t.nearbyTab.filterOnline, NearbyFilter.online),
-            _chip(t.nearbyTab.filterFavorites, NearbyFilter.favorites),
+            Expanded(
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _chip(t.nearbyTab.filterAll, NearbyFilter.all),
+                  _chip(t.nearbyTab.filterOnline, NearbyFilter.online),
+                  _chip(t.nearbyTab.filterFavorites, NearbyFilter.favorites),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
             LsChip.text(
               _multiActive ? t.nearbyTab.multiActive : t.nearbyTab.multi,
               accent: _multiActive,
@@ -108,6 +100,9 @@ class NearbyRadarView {
             size: size,
             animate: animations,
             center: _radarSelf(context),
+            // The count the top line used to carry, folded into one fraction in the corner
+            // of the radar square: how much of what the filters leave is actually drawn.
+            corner: total == 0 ? null : Text('$shown/$total', style: tokens.monoSm.copyWith(color: colors.faint)),
             peers: [
               for (var i = 0; i < radarOnline.length; i++)
                 LsRadarPeer(
@@ -133,7 +128,7 @@ class NearbyRadarView {
                 ),
               if (radarOffline != null)
                 LsRadarPeer(
-                  child: const Icon(LucideIcons.monitor),
+                  child: Icon(radarOffline.deviceType.icon),
                   label: radarOffline.alias,
                   angle: slots.last.angle,
                   radius: slots.last.radius,
@@ -170,13 +165,21 @@ class NearbyRadarView {
                 style: tokens.eyebrow.copyWith(color: colors.muted),
               ),
             ),
-            if (files.isNotEmpty) ...[
-              LsChip.text(t.nearbyTab.clear, onTap: () async => vm.onClearFiles(context)),
-              const SizedBox(width: 6),
-            ],
-            LsChip.text(t.nearbyTab.linkReceive, onTap: () async => vm.onOpenLink(context)),
-            const SizedBox(width: 6),
-            LsChip.text(t.nearbyTab.manualIp, onTap: () async => vm.onManualIp(context)),
+            const SizedBox(width: 8),
+            // Three chips do not fit beside the pending line on a 320 px phone: wrapping keeps
+            // them on a second row instead of overflowing the edge.
+            Flexible(
+              child: Wrap(
+                alignment: WrapAlignment.end,
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  if (files.isNotEmpty) LsChip.text(t.nearbyTab.clear, onTap: () async => vm.onClearFiles(context)),
+                  LsChip.text(t.nearbyTab.linkReceive, onTap: () async => vm.onOpenLink(context)),
+                  LsChip.text(t.nearbyTab.manualIp, onTap: () async => vm.onManualIp(context)),
+                ],
+              ),
+            ),
           ],
         ),
       ),

@@ -33,7 +33,7 @@ void main() {
   /// `onQueryChanged`: the clear button only exists once the field has text.
   Widget wrap({bool scanning = false, NearbyFilter filter = NearbyFilter.all}) {
     return MaterialApp(
-      theme: getTheme(ColorMode.localsend, Colors.teal, Brightness.dark, null),
+      theme: getTheme(ColorMode.localsend, Colors.teal, Brightness.dark),
       home: Scaffold(
         body: StatefulBuilder(
           builder: (context, setState) {

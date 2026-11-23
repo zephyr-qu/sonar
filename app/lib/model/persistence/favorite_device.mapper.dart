@@ -15,6 +15,7 @@ class FavoriteDeviceMapper extends ClassMapperBase<FavoriteDevice> {
   static FavoriteDeviceMapper ensureInitialized() {
     if (_instance == null) {
       MapperContainer.globals.use(_instance = FavoriteDeviceMapper._());
+      DeviceTypeMapper.ensureInitialized();
     }
     return _instance!;
   }
@@ -42,6 +43,13 @@ class FavoriteDeviceMapper extends ClassMapperBase<FavoriteDevice> {
     opt: true,
     def: false,
   );
+  static DeviceType _$deviceType(FavoriteDevice v) => v.deviceType;
+  static const Field<FavoriteDevice, DeviceType> _f$deviceType = Field(
+    'deviceType',
+    _$deviceType,
+    opt: true,
+    def: DeviceType.desktop,
+  );
 
   @override
   final MappableFields<FavoriteDevice> fields = const {
@@ -51,6 +59,7 @@ class FavoriteDeviceMapper extends ClassMapperBase<FavoriteDevice> {
     #port: _f$port,
     #alias: _f$alias,
     #customAlias: _f$customAlias,
+    #deviceType: _f$deviceType,
   };
 
   static FavoriteDevice _instantiate(DecodingData data) {
@@ -61,6 +70,7 @@ class FavoriteDeviceMapper extends ClassMapperBase<FavoriteDevice> {
       port: data.dec(_f$port),
       alias: data.dec(_f$alias),
       customAlias: data.dec(_f$customAlias),
+      deviceType: data.dec(_f$deviceType),
     );
   }
 
@@ -133,6 +143,7 @@ abstract class FavoriteDeviceCopyWith<$R, $In extends FavoriteDevice, $Out>
     int? port,
     String? alias,
     bool? customAlias,
+    DeviceType? deviceType,
   });
   FavoriteDeviceCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(
     Then<$Out2, $R2> t,
@@ -155,6 +166,7 @@ class _FavoriteDeviceCopyWithImpl<$R, $Out>
     int? port,
     String? alias,
     bool? customAlias,
+    DeviceType? deviceType,
   }) => $apply(
     FieldCopyWithData({
       if (id != null) #id: id,
@@ -163,6 +175,7 @@ class _FavoriteDeviceCopyWithImpl<$R, $Out>
       if (port != null) #port: port,
       if (alias != null) #alias: alias,
       if (customAlias != null) #customAlias: customAlias,
+      if (deviceType != null) #deviceType: deviceType,
     }),
   );
   @override
@@ -173,6 +186,7 @@ class _FavoriteDeviceCopyWithImpl<$R, $Out>
     port: data.get(#port, or: $value.port),
     alias: data.get(#alias, or: $value.alias),
     customAlias: data.get(#customAlias, or: $value.customAlias),
+    deviceType: data.get(#deviceType, or: $value.deviceType),
   );
 
   @override

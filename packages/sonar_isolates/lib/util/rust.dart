@@ -48,6 +48,9 @@ extension DeviceTypeExt on DeviceType {
       DeviceType.web => rust_model.DeviceType.web,
       DeviceType.headless => rust_model.DeviceType.headless,
       DeviceType.server => rust_model.DeviceType.server,
+      // Tablets are a UI-level label only: the protocol's type list has no
+      // such value, so a tablet is announced as a phone.
+      DeviceType.tablet => rust_model.DeviceType.mobile,
     };
   }
 }

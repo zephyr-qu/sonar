@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
-import 'package:sonar/config/theme.dart';
+import 'package:sonar/config/design_tokens.dart';
 import 'package:sonar/gen/strings.g.dart';
 import 'package:sonar/provider/device_info_provider.dart';
 import 'package:sonar/provider/http_provider.dart';
@@ -18,6 +18,7 @@ import 'package:sonar/util/ip_address.dart';
 import 'package:sonar/widget/dialogs/error_dialog.dart';
 import 'package:sonar/widget/ls/ls_buttons.dart';
 import 'package:sonar/widget/ls/ls_dialog.dart';
+import 'package:sonar/widget/ls/ls_segmented.dart';
 import 'package:sonar_isolates/model/device.dart';
 import 'package:sonar_isolates/rust/api/model.dart';
 import 'package:sonar_isolates/util/rust.dart';
@@ -45,12 +46,29 @@ class AddressInputDialog extends StatefulWidget {
 }
 
 class _AddressInputDialogState extends State<AddressInputDialog> with Refena {
-  final _selected = List.generate(_InputMode.values.length, (index) => index == 0);
   _InputMode _mode = _InputMode.hashtag;
   String _input = '';
   bool _fetching = false;
   String? _error;
   String? _inputError;
+
+  /// Recognizers outlive the frame that drew the device links, so they are kept here and
+  /// disposed with the dialog instead of being created and dropped inside build.
+  final _recognizers = <TapGestureRecognizer>[];
+
+  TapGestureRecognizer _tapRecognizer(Future<void> Function() onTap) {
+    final recognizer = TapGestureRecognizer()..onTap = onTap;
+    _recognizers.add(recognizer);
+    return recognizer;
+  }
+
+  @override
+  void dispose() {
+    for (final recognizer in _recognizers) {
+      recognizer.dispose();
+    }
+    super.dispose();
+  }
 
   Future<void> _submit(List<String> localIps, int port, [String? candidate]) async {
     final List<String> candidates;
@@ -146,27 +164,16 @@ class _AddressInputDialogState extends State<AddressInputDialog> with Refena {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ToggleButtons(
-            isSelected: _selected,
-            onPressed: (int index) {
+          LsSegmented(
+            options: [for (final mode in _InputMode.values) mode.label],
+            index: _mode.index,
+            onChanged: (index) {
               setState(() {
-                for (int i = 0; i < _selected.length; i++) {
-                  _selected[i] = i == index;
-                }
                 _mode = _InputMode.values[index];
                 _input = '';
                 _inputError = null;
               });
             },
-            borderRadius: BorderRadius.circular(10),
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            constraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-            children: _InputMode.values.map((mode) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: Text(mode.label),
-              );
-            }).toList(),
           ),
           const SizedBox(height: 15),
           TextFormField(
@@ -191,29 +198,29 @@ class _AddressInputDialogState extends State<AddressInputDialog> with Refena {
           if (_mode == _InputMode.hashtag) ...[
             Text(
               t.dialogs.addressInput.hashtagHint,
-              style: const TextStyle(color: Colors.grey),
+              style: TextStyle(color: context.ls.colors.muted),
             ),
             if (localIps.length <= 1)
               Text(
                 '${t.dialogs.addressInput.ip}: ${localIps.firstOrNull?.ipPrefix ?? '192.168.2'}.$hostPart',
-                style: const TextStyle(color: Colors.grey),
+                style: TextStyle(color: context.ls.colors.muted),
               )
             else ...[
               Text(
                 '${t.dialogs.addressInput.ip}:',
-                style: const TextStyle(color: Colors.grey),
+                style: TextStyle(color: context.ls.colors.muted),
               ),
               for (final ip in localIps)
                 Text(
                   '- ${ip.ipPrefix}.$hostPart',
-                  style: const TextStyle(color: Colors.grey),
+                  style: TextStyle(color: context.ls.colors.muted),
                 ),
             ],
           ] else ...[
             if (lastDevices.isEmpty)
               Text(
                 '${t.general.example}: ${localIps.firstOrNull?.ipPrefix ?? '192.168.2'}.123',
-                style: const TextStyle(color: Colors.grey),
+                style: TextStyle(color: context.ls.colors.muted),
               )
             else
               Text.rich(
@@ -226,8 +233,8 @@ class _AddressInputDialogState extends State<AddressInputDialog> with Refena {
                             if (index != 0) const TextSpan(text: ', '),
                             TextSpan(
                               text: device.ip,
-                              style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                              recognizer: TapGestureRecognizer()..onTap = () async => _submit(localIps, settings.port, device.ip),
+                              style: TextStyle(color: context.ls.colors.accentInk),
+                              recognizer: _tapRecognizer(() async => _submit(localIps, settings.port, device.ip)),
                             ),
                           ];
                         })
@@ -241,7 +248,7 @@ class _AddressInputDialogState extends State<AddressInputDialog> with Refena {
               padding: const EdgeInsets.only(top: 10),
               child: Row(
                 children: [
-                  Text(t.general.error, style: TextStyle(color: Theme.of(context).colorScheme.warning)),
+                  Text(t.general.error, style: TextStyle(color: context.ls.colors.danger)),
                   if (_error != null) ...[
                     const SizedBox(width: 5),
                     InkWell(
@@ -253,7 +260,7 @@ class _AddressInputDialogState extends State<AddressInputDialog> with Refena {
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 5),
-                        child: Icon(LucideIcons.info, color: Theme.of(context).colorScheme.warning, size: 20),
+                        child: Icon(LucideIcons.info, color: context.ls.colors.danger, size: 20),
                       ),
                     ),
                   ],

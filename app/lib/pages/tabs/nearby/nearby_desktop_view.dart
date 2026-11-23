@@ -94,7 +94,7 @@ class NearbyDesktopView {
                 crossAxisCount: columns,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
-                mainAxisExtent: 100,
+                mainAxisExtent: deviceCardHeight(context),
               ),
               itemCount: devices.length,
               itemBuilder: (context, index) {
@@ -168,7 +168,7 @@ class _OfflineFavoriteRow extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(2, 5, 2, 5),
           child: Row(
             children: [
-              Icon(LucideIcons.monitor, size: 15, color: foreground),
+              Icon(favorite.deviceType.icon, size: 15, color: foreground),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(

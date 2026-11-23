@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
-import 'package:routerino/routerino.dart';
 import 'package:sonar/config/design_tokens.dart';
 import 'package:sonar/gen/strings.g.dart';
 import 'package:sonar/model/cross_file.dart';
 import 'package:sonar/provider/selection/selected_sending_files_provider.dart';
+import 'package:sonar/util/file_type_ext.dart';
 import 'package:sonar/util/native/open_file.dart';
 import 'package:sonar/util/ui/nav_bar_padding.dart';
 import 'package:sonar/widget/dialogs/message_input_dialog.dart';
@@ -43,8 +43,9 @@ class SelectedFilesPage extends StatelessWidget {
                     label: t.selectedFilesPage.deleteAll,
                     variant: LsButtonVariant.ghost,
                     onPressed: () {
+                      // Stays on the page instead of popping to the root: the empty state is the
+                      // feedback, and re-adding a file undoes the mistake without losing context.
                       ref.redux(selectedSendingFilesProvider).dispatch(ClearSelectionAction());
-                      context.popUntilRoot();
                     },
                   ),
               ],
@@ -104,7 +105,7 @@ class _FileRow extends StatelessWidget {
             }
           : null,
       child: LsFileRow(
-        kind: _kindOf(file.name),
+        kind: fileKind(file.name),
         name: name,
         meta: file.size.asReadableFileSize,
         showDivider: showDivider,
@@ -129,25 +130,12 @@ class _FileRow extends StatelessWidget {
               icon: LucideIcons.x,
               tooltip: t.general.delete,
               onPressed: () {
-                final currCount = ref.read(selectedSendingFilesProvider).length;
                 ref.redux(selectedSendingFilesProvider).dispatch(RemoveSelectedFileAction(index));
-                if (currCount == 1) {
-                  context.popUntilRoot();
-                }
               },
             ),
           ],
         ),
       ),
     );
-  }
-
-  String _kindOf(String name) {
-    final dot = name.lastIndexOf('.');
-    if (dot == -1 || dot == name.length - 1) {
-      return 'FILE';
-    }
-    final kind = name.substring(dot + 1).toUpperCase();
-    return kind.length > 4 ? kind.substring(0, 4) : kind;
   }
 }

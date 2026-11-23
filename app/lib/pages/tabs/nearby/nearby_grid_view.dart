@@ -12,7 +12,6 @@ import 'package:sonar/pages/tabs/nearby_tab_vm.dart';
 import 'package:sonar/util/device_type_ext.dart';
 import 'package:sonar/util/favorites.dart';
 import 'package:sonar/util/ui/snackbar.dart';
-import 'package:sonar/widget/ls/ls_buttons.dart';
 import 'package:sonar/widget/ls/ls_chip.dart';
 import 'package:sonar/widget/ls/ls_header.dart';
 import 'package:sonar/widget/ls/ls_search_field.dart';
@@ -41,6 +40,9 @@ class NearbyGridView {
   Widget _chip(String label, NearbyFilter value) => NearbyFilterChip(label: label, value: value, ui: _ui, actions: _actions);
   List<Widget> content(
     BuildContext context, {
+
+    /// Whether the online card's dot may breathe while a scan runs (the reduced-motion setting).
+    required bool animations,
     required List<Device> favoritesSection,
     required List<Device> onlineSection,
     required List<FavoriteDevice> offlineSection,
@@ -54,8 +56,13 @@ class NearbyGridView {
     // label that does not read like the "Online" filter chip sitting right above them.
     final splitFavorites = favoritesSection.isNotEmpty;
 
+    // Only the favorites filter drops the online section; the offline section is then the first one
+    // under the chip row, which already leaves 10px below it, so it must not add its own lead-in.
+    final showsOnline = _ui.filter != NearbyFilter.favorites;
+    final offlineFollowsSection = splitFavorites || showsOnline;
+
     return [
-      _miniRadar(context, onlineCount: onlineCount, totalCount: totalCount),
+      _miniRadar(context, onlineCount: onlineCount, totalCount: totalCount, pulse: vm.scanning && animations),
       if (files.isEmpty)
         _addFilesBar(context)
       else if (_ui.filesOpen)
@@ -74,12 +81,21 @@ class NearbyGridView {
         padding: const EdgeInsets.symmetric(vertical: 10),
         child: Row(
           children: [
-            _chip(t.nearbyTab.filterAll, NearbyFilter.all),
+            // Same row as the radar: the three filters on the left, the multi chip on the
+            // right edge. The filters wrap instead of overflowing, because the four chips
+            // do not fit a 320 px phone; the multi chip keeps its place at the end either way.
+            Expanded(
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _chip(t.nearbyTab.filterAll, NearbyFilter.all),
+                  _chip(t.nearbyTab.filterOnline, NearbyFilter.online),
+                  _chip(t.nearbyTab.filterFavorites, NearbyFilter.favorites),
+                ],
+              ),
+            ),
             const SizedBox(width: 8),
-            _chip(t.nearbyTab.filterOnline, NearbyFilter.online),
-            const SizedBox(width: 8),
-            _chip(t.nearbyTab.filterFavorites, NearbyFilter.favorites),
-            const Spacer(),
             LsChip.text(
               _multiActive ? t.nearbyTab.multiActive : t.nearbyTab.multi,
               accent: _multiActive,
@@ -92,7 +108,7 @@ class NearbyGridView {
         LsSectionLabel(label: t.nearbyTab.favorites, count: '${favoritesSection.length}', padding: const EdgeInsets.only(bottom: 8)),
         _deviceGrid(context, favoritesSection),
       ],
-      if (_ui.filter != NearbyFilter.favorites) ...[
+      if (showsOnline) ...[
         LsSectionLabel(
           label: splitFavorites ? t.nearbyTab.onlineSectionOthers : t.nearbyTab.onlineSection,
           count: '${onlineSection.length}',
@@ -109,19 +125,27 @@ class NearbyGridView {
           _deviceGrid(context, onlineSection),
       ],
       if (offlineSection.isNotEmpty) ...[
-        LsSectionLabel(label: t.nearbyTab.offlineSection, count: '${offlineSection.length}', padding: const EdgeInsets.only(top: 14, bottom: 8)),
+        LsSectionLabel(
+          label: t.nearbyTab.offlineSection,
+          count: '${offlineSection.length}',
+          padding: EdgeInsets.only(top: offlineFollowsSection ? 14 : 0, bottom: 8),
+        ),
         GridView.builder(
           shrinkWrap: true,
           padding: EdgeInsets.zero,
           physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             crossAxisSpacing: 8,
             mainAxisSpacing: 8,
-            mainAxisExtent: 62,
+            // Same cell as the device grid, grown with the system font (see [deviceTileHeight]).
+            mainAxisExtent: deviceTileHeight(context),
           ),
           itemCount: offlineSection.length,
-          itemBuilder: (context, index) => _offlineTile(context, offlineSection[index]),
+          itemBuilder: (context, index) => _OfflineFavoriteTile(
+            favorite: offlineSection[index],
+            onRemove: () async => await vm.onToggleFavoriteOffline(offlineSection[index]),
+          ),
         ),
       ],
       if (vm.devices.isEmpty && vm.favoriteDevices.isEmpty)
@@ -132,7 +156,9 @@ class NearbyGridView {
     ];
   }
 
-  Widget _miniRadar(BuildContext context, {required int onlineCount, required int totalCount}) {
+  /// [pulse] keeps the dot breathing while a scan runs: the count above already ticks up as devices
+  /// arrive, so an empty network needs something that still moves.
+  Widget _miniRadar(BuildContext context, {required int onlineCount, required int totalCount, required bool pulse}) {
     final tokens = context.ls;
     final colors = tokens.colors;
     return Container(
@@ -147,7 +173,7 @@ class NearbyGridView {
       ),
       child: Row(
         children: [
-          LsStatusDot(on: onlineCount > 0),
+          LsStatusDot(on: onlineCount > 0, pulse: pulse),
           const SizedBox(width: 8),
           Text(
             '$onlineCount',
@@ -167,11 +193,6 @@ class NearbyGridView {
           LsChip.text(t.nearbyTab.linkReceive, onTap: () async => vm.onOpenLink(context)),
           const SizedBox(width: 6),
           LsChip.text(t.nearbyTab.manualIp, onTap: () async => vm.onManualIp(context)),
-          LsIconButton(
-            icon: LucideIcons.refreshCw,
-            tooltip: t.nearbyTab.scan,
-            onPressed: () async => vm.onScan(context),
-          ),
         ],
       ),
     );
@@ -182,11 +203,12 @@ class NearbyGridView {
       shrinkWrap: true,
       padding: EdgeInsets.zero,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
-        mainAxisExtent: 62,
+        // The tile grows with the system font instead of overflowing its cell (see [deviceTileHeight]).
+        mainAxisExtent: deviceTileHeight(context),
       ),
       itemCount: devices.length,
       itemBuilder: (context, index) => _deviceTile(context, devices[index]),
@@ -214,71 +236,6 @@ class NearbyGridView {
       onLongPress: () async => _actions.onDeviceLongPress(device),
       onFavorite: () async => _actions.onToggleFavorite(device),
       onDetails: () async => context.push(() => DeviceDetailsPage(device: device)),
-    );
-  }
-
-  Widget _offlineTile(BuildContext context, FavoriteDevice favorite) {
-    final tokens = context.ls;
-    final colors = tokens.colors;
-    return Opacity(
-      opacity: 0.55,
-      child: Material(
-        color: colors.bg2,
-        clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: colors.line, width: tokens.hairlineOf(context)),
-        ),
-        child: InkWell(
-          onTap: () => context.showSnackBar(t.nearbyTab.offlineHint),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(10, 8, 24, 8),
-            child: Row(
-              children: [
-                Container(
-                  width: 30,
-                  height: 30,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(color: colors.bg3, borderRadius: BorderRadius.circular(8)),
-                  child: Icon(LucideIcons.monitor, size: 16, color: colors.fg),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        favorite.alias,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: tokens.bodyStrong,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        offlineLabel(context, favorite),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: tokens.monoSm,
-                      ),
-                    ],
-                  ),
-                ),
-                InkWell(
-                  onTap: () async {
-                    await vm.onToggleFavoriteOffline(favorite);
-                  },
-                  child: SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: Icon(LucideIcons.star, size: 13, color: colors.accent),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -390,6 +347,34 @@ class NearbyGridView {
           NearbyFileGrid(vm: vm, columns: 4),
         ],
       ),
+    );
+  }
+}
+
+/// An offline favorite is the same cell as an online device, so it reuses
+/// [LsDeviceTile]: only the glyph, the meta line and the missing details action
+/// differ (the tile itself dims the cell and announces it as offline). The glyph is the device
+/// type remembered in the favorite, because an offline peer no longer announces itself.
+///
+/// A widget rather than a builder helper because [offlineLabel] watches the
+/// last-seen provider, which Refena only allows inside a build method.
+class _OfflineFavoriteTile extends StatelessWidget {
+  final FavoriteDevice favorite;
+  final Future<void> Function() onRemove;
+
+  const _OfflineFavoriteTile({required this.favorite, required this.onRemove});
+
+  @override
+  Widget build(BuildContext context) {
+    return LsDeviceTile(
+      glyph: Icon(favorite.deviceType.icon),
+      name: favorite.alias,
+      meta: offlineLabel(context, favorite),
+      offline: true,
+      // Still a favorite, and the only action left: tapping the star forgets it.
+      favorite: true,
+      onTap: () => context.showSnackBar(t.nearbyTab.offlineHint),
+      onFavorite: onRemove,
     );
   }
 }

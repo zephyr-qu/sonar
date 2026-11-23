@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:routerino/routerino.dart';
-import 'package:sonar/config/theme.dart';
+import 'package:sonar/config/design_tokens.dart';
 import 'package:sonar/gen/strings.g.dart';
 import 'package:sonar/model/persistence/favorite_device.dart';
 import 'package:sonar/provider/device_info_provider.dart';
@@ -99,7 +99,7 @@ class _FavoriteEditDialogState extends State<FavoriteEditDialog> with Refena {
             const SizedBox(height: 16),
             TextButton.icon(
               style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.warning,
+                foregroundColor: context.ls.colors.danger,
               ),
               onPressed: () async {
                 final result = await showDialog<bool>(
@@ -123,7 +123,7 @@ class _FavoriteEditDialogState extends State<FavoriteEditDialog> with Refena {
               padding: const EdgeInsets.only(top: 10),
               child: Row(
                 children: [
-                  Text(t.general.error, style: TextStyle(color: Theme.of(context).colorScheme.warning)),
+                  Text(t.general.error, style: TextStyle(color: context.ls.colors.danger)),
                   if (_error != null) ...[
                     const SizedBox(width: 5),
                     InkWell(
@@ -135,7 +135,7 @@ class _FavoriteEditDialogState extends State<FavoriteEditDialog> with Refena {
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 5),
-                        child: Icon(LucideIcons.info, color: Theme.of(context).colorScheme.warning, size: 20),
+                        child: Icon(LucideIcons.info, color: context.ls.colors.danger, size: 20),
                       ),
                     ),
                   ],
@@ -217,6 +217,7 @@ class _FavoriteEditDialogState extends State<FavoriteEditDialog> with Refena {
                                 ip: _ipController.text,
                                 port: port,
                                 alias: name.isEmpty ? response.body.alias : name,
+                                deviceType: response.body.deviceType?.toDart(),
                               ),
                             ),
                           );

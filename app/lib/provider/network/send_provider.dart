@@ -20,6 +20,9 @@ import 'package:sonar/provider/http_provider.dart';
 import 'package:sonar/provider/selection/selected_sending_files_provider.dart';
 import 'package:sonar/provider/settings_provider.dart';
 import 'package:sonar/provider/transfer_history_provider.dart';
+import 'package:sonar/util/session_status_ext.dart';
+import 'package:sonar/util/transfer_failure.dart';
+import 'package:sonar/util/ui/snackbar.dart';
 import 'package:sonar/widget/dialogs/pin_dialog.dart';
 import 'package:sonar_isolates/isolate.dart';
 import 'package:sonar_isolates/model/device.dart';
@@ -162,11 +165,10 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
         );
 
     if (!background) {
-      // ignore: use_build_context_synchronously, unawaited_futures
-      Routerino.context.push(
-        () => SendPage(closeSessionOnClose: true, sessionId: sessionId),
-        transition: RouterinoTransition.fade(),
-      );
+      // The handshake is a dialog over the shell rather than a page: waiting for
+      // the receiver's answer is a decision the user makes and then leaves
+      // behind, while the transfer itself stays visible in the strip.
+      unawaited(showSendRequestDialog(sessionId));
     }
 
     // Calculate the checksums which are part of the request.
@@ -283,13 +285,7 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
           // Abort the request on the Rust side too, so the receiver does not keep
           // a pending session for a sender that already gave up.
           prepareUploadCancelToken.cancel();
-          state = state.updateSession(
-            sessionId: sessionId,
-            state: (s) => s?.copyWith(
-              status: SessionStatus.finishedWithErrors,
-              errorMessage: t.sendPage.noResponse,
-            ),
-          );
+          _failSession(sessionId: sessionId, errorMessage: t.sendPage.noResponse);
           return;
         } on rust_http.RsHttpClientError_StatusCode catch (e) {
           switch (e.status) {
@@ -320,47 +316,20 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
               }
               break;
             case 403:
-              state = state.updateSession(
-                sessionId: sessionId,
-                state: (s) => s?.copyWith(
-                  status: SessionStatus.declined,
-                ),
-              );
+              _refuseSession(sessionId: sessionId, status: SessionStatus.declined, reason: t.sendPage.rejected);
               return;
             case 409:
-              state = state.updateSession(
-                sessionId: sessionId,
-                state: (s) => s?.copyWith(
-                  status: SessionStatus.recipientBusy,
-                ),
-              );
+              _refuseSession(sessionId: sessionId, status: SessionStatus.recipientBusy, reason: t.sendPage.busy);
               return;
             case 429:
-              state = state.updateSession(
-                sessionId: sessionId,
-                state: (s) => s?.copyWith(
-                  status: SessionStatus.tooManyAttempts,
-                ),
-              );
+              _refuseSession(sessionId: sessionId, status: SessionStatus.tooManyAttempts, reason: t.sendPage.tooManyAttempts);
               return;
             default:
-              state = state.updateSession(
-                sessionId: sessionId,
-                state: (s) => s?.copyWith(
-                  status: SessionStatus.finishedWithErrors,
-                  errorMessage: e.humanErrorMessage,
-                ),
-              );
+              _failSession(sessionId: sessionId, errorMessage: e.humanErrorMessage);
               return;
           }
         } catch (e) {
-          state = state.updateSession(
-            sessionId: sessionId,
-            state: (s) => s?.copyWith(
-              status: SessionStatus.finishedWithErrors,
-              errorMessage: e.humanErrorMessage,
-            ),
-          );
+          _failSession(sessionId: sessionId, errorMessage: e.humanErrorMessage);
           return;
         }
       } while (invalidPin);
@@ -388,13 +357,7 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
           ),
         );
       } catch (e) {
-        state = state.updateSession(
-          sessionId: sessionId,
-          state: (s) => s?.copyWith(
-            status: SessionStatus.finishedWithErrors,
-            errorMessage: e.humanErrorMessage,
-          ),
-        );
+        _failSession(sessionId: sessionId, errorMessage: e.humanErrorMessage);
         return;
       }
     }
@@ -541,6 +504,14 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
 
     if (hasError) {
       _logger.info('Transfer finished with errors.');
+      _reportFailure(
+        sessionState,
+        transferFailureReason(
+              sessionError: sessionState.errorMessage,
+              files: sessionState.files.values.map((file) => (file.file.fileName, file.errorMessage)),
+            ) ??
+            t.general.error,
+      );
       _parkFailedSession(sessionId);
     } else {
       _logger.info('Transfer finished successfully.');
@@ -553,6 +524,37 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
   /// not to stay: a request that times out leaves nothing else behind.
   static const _failedRowTime = Duration(seconds: 10);
 
+  /// Ends a session the receiver refused before any file moved.
+  ///
+  /// The dialog that waits for the answer shows the reason, but a background
+  /// send never had one and a closed dialog leaves nothing behind: without this
+  /// the refusal vanishes without a trace. It is recorded as a failed transfer
+  /// and parked like one, so the history and the Transfers tab can still tell
+  /// what happened.
+  void _refuseSession({required String sessionId, required SessionStatus status, required String reason}) {
+    final sessionState = state[sessionId];
+    if (sessionState == null) {
+      return;
+    }
+
+    final refused = sessionState.copyWith(
+      status: status,
+      endTime: DateTime.now().millisecondsSinceEpoch,
+      errorMessage: reason,
+    );
+    state = state.updateSession(
+      sessionId: sessionId,
+      state: (_) => refused,
+    );
+
+    // Nothing was transferred, but it is as much a failed transfer as one whose
+    // files came back with errors: the history row is what is left once the card
+    // is dismissed.
+    _reportFailure(refused, reason);
+    unawaited(_recordHistory(refused, failed: true));
+    _parkFailedSession(sessionId);
+  }
+
   /// Closes a failed session once its row has had [_failedRowTime] to be seen.
   ///
   /// Only background sessions: a foreground one has a page showing the error,
@@ -564,11 +566,45 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
     unawaited(
       Future<void>.delayed(_failedRowTime, () {
         // A user who closed (or retried) it already made the decision.
-        if (state[sessionId]?.status == SessionStatus.finishedWithErrors) {
+        final sessionState = state[sessionId];
+        if (sessionState != null && sessionState.status.isTerminalFailure) {
           closeSession(sessionId);
         }
       }),
     );
+  }
+
+  /// Marks a session as failed and, when it runs in the background, says so
+  /// outside the sidebar.
+  void _failSession({required String sessionId, required String errorMessage}) {
+    state = state.updateSession(
+      sessionId: sessionId,
+      state: (s) => s?.copyWith(
+        status: SessionStatus.finishedWithErrors,
+        errorMessage: errorMessage,
+      ),
+    );
+    final sessionState = state[sessionId];
+    if (sessionState != null) {
+      _reportFailure(sessionState, errorMessage);
+    }
+  }
+
+  /// Reports a failed background session where the user is looking.
+  ///
+  /// A background send has no page or dialog of its own: its failure lived only
+  /// in the desktop tray and the Transfers tab, so a request that never got an
+  /// answer looked like the button did nothing — first for up to
+  /// [_prepareUploadTimeout] of silence, then on every tab but those two. The
+  /// tray row stays; this is the part that reaches the user.
+  void _reportFailure(SendSessionState session, String message) {
+    if (session.background != true) {
+      // A foreground send keeps its dialog open with the same message.
+      return;
+    }
+    // The provider has no BuildContext of its own; this is the shell's, the same
+    // one the PIN dialog above uses.
+    Routerino.context.showSnackBar('${t.general.error}: $message');
   }
 
   /// Records a finished session, so the "Transfers" history can show sent and
@@ -578,6 +614,9 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
   /// send: the delivered ones alone would hide what the failure was about, and
   /// the send state carrying the error is cleared by its close button.
   Future<void> _recordHistory(SendSessionState sessionState, {required bool failed}) async {
+    if (!ref.read(settingsProvider).saveToHistory) {
+      return;
+    }
     final files = [
       for (final file in sessionState.files.values)
         if (failed || file.token != null)
@@ -606,9 +645,17 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
               timestamp: DateTime.fromMillisecondsSinceEpoch(sessionState.startTime ?? DateTime.now().millisecondsSinceEpoch, isUtc: true),
               files: files,
               failed: failed,
-              // Per-file errors stay on the file; this one is the reason the
-              // whole request never got going (no answer, wrong PIN, ...).
-              errorMessage: failed ? sessionState.errorMessage : null,
+              // A request that never got an answer fails before the upload
+              // loop, so its reason sits on the session. A transfer that did
+              // run only has per-file reasons, and the first one is what the
+              // history row has room for — without it a failed send is
+              // recorded as "failed" with nothing to say why.
+              errorMessage: failed
+                  ? transferFailureReason(
+                      sessionError: sessionState.errorMessage,
+                      files: sessionState.files.values.map((file) => (file.file.fileName, file.errorMessage)),
+                    )
+                  : null,
             ),
           ),
         );

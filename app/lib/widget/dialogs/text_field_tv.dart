@@ -16,11 +16,19 @@ class TextFieldTv extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final VoidCallback? onDelete;
 
+  /// Called when the field loses focus, i.e. once the user is done typing. Used to write the
+  /// normalised value back: the setter may clamp what was typed (a port above 65535), and the
+  /// field must not keep showing the rejected text.
+  final VoidCallback? onFocusLost;
+  final TextAlign textAlign;
+
   const TextFieldTv({
     required this.name,
     required this.controller,
     this.onChanged,
     this.onDelete,
+    this.onFocusLost,
+    this.textAlign = TextAlign.center,
   });
 
   @override
@@ -28,6 +36,21 @@ class TextFieldTv extends StatefulWidget {
 }
 
 class _TextFieldTvState extends State<TextFieldTv> with Refena {
+  late final FocusNode _focusNode = FocusNode()..addListener(_onFocusChange);
+
+  void _onFocusChange() {
+    if (!_focusNode.hasFocus) {
+      widget.onFocusLost?.call();
+    }
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final isTv = ref.watch(tvProvider);
@@ -47,7 +70,7 @@ class _TextFieldTvState extends State<TextFieldTv> with Refena {
                 title: Text(widget.name),
                 content: TextFormField(
                   controller: widget.controller,
-                  textAlign: TextAlign.center,
+                  textAlign: widget.textAlign,
                   onChanged: widget.onChanged,
                   autofocus: true,
                   onFieldSubmitted: (_) => context.pop(),
@@ -70,7 +93,8 @@ class _TextFieldTvState extends State<TextFieldTv> with Refena {
     } else {
       return TextFormField(
         controller: widget.controller,
-        textAlign: TextAlign.center,
+        focusNode: _focusNode,
+        textAlign: widget.textAlign,
         onChanged: widget.onChanged,
         decoration: InputDecoration(
           suffixIcon: widget.onDelete != null

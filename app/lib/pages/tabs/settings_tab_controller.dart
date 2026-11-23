@@ -123,14 +123,7 @@ class SettingsTabController extends ReduxNotifier<SettingsTabVm> {
           );
 
           if (newServerState != null) {
-            // the new state is always valid, so we can "repair" user's setting
-            state.aliasController.text = newServerState.alias;
-            state.portController.text = newServerState.port.toString();
-            await _settingsService.setAlias(newServerState.alias);
-            await _settingsService.setPort(newServerState.port);
-            external(_isolateController).dispatch(IsolateDiscoveryRestartAction());
-            external(_localIpService).dispatchAsync(FetchLocalIpAction()); // ignore: unawaited_futures
-            redux.dispatch(_ApplyServerSettingsAction());
+            await _applyServerState(newServerState);
           }
         } catch (e) {
           // ignore: use_build_context_synchronously
@@ -139,7 +132,10 @@ class SettingsTabController extends ReduxNotifier<SettingsTabVm> {
       },
       onTapStartServer: (context) async {
         try {
-          await _serverService.startServerFromSettings();
+          final newServerState = await _serverService.startServerFromSettings();
+          if (newServerState != null) {
+            await _applyServerState(newServerState);
+          }
         } catch (e) {
           // ignore: use_build_context_synchronously
           context.showSnackBar(e.toString());
@@ -147,6 +143,18 @@ class SettingsTabController extends ReduxNotifier<SettingsTabVm> {
       },
       onTapStopServer: () async => await _serverService.stopServer(),
     );
+  }
+
+  /// Writes back the state the server actually started with, so the fields stop showing an
+  /// alias the server invented for an empty one and a port it clamped into range.
+  Future<void> _applyServerState(ServerState serverState) async {
+    state.aliasController.text = serverState.alias;
+    state.portController.text = serverState.port.toString();
+    await _settingsService.setAlias(serverState.alias);
+    await _settingsService.setPort(serverState.port);
+    external(_isolateController).dispatch(IsolateDiscoveryRestartAction());
+    external(_localIpService).dispatchAsync(FetchLocalIpAction()); // ignore: unawaited_futures
+    redux.dispatch(_ApplyServerSettingsAction());
   }
 
   /// The settings the running server has not picked up yet: it reads them once

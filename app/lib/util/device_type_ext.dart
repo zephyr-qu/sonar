@@ -10,6 +10,7 @@ extension DeviceTypeExt on DeviceType {
       DeviceType.web => LucideIcons.globe,
       DeviceType.headless => LucideIcons.terminal,
       DeviceType.server => LucideIcons.server,
+      DeviceType.tablet => LucideIcons.tablet,
     };
   }
 }

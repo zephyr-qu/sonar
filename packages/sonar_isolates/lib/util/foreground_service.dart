@@ -172,6 +172,18 @@ class ForegroundService {
     );
   }
 
+  /// Asks for the notification permission, but only while the user has not decided yet.
+  ///
+  /// Call this at a point where the app is known to be in the foreground: an incoming request
+  /// (which is what the notification is for) arrives while the app is in the background, where
+  /// Android shows no permission dialog. Requesting it there would silently do nothing.
+  static void ensureNotificationPermission() {
+    if (!_isSupported) {
+      return;
+    }
+    _queue.add(_requestNotificationPermission);
+  }
+
   /// Android 13+ needs this permission to show the notification.
   /// The service itself runs either way, so a missing permission is not treated as an error.
   ///

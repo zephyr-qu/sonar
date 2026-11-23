@@ -380,6 +380,13 @@ class _ReceiveSession {
   /// of being saved next to it under a numbered name.
   final Map<String, FileSaveTarget> targets = {};
 
+  /// Destinations already claimed by a file of this session.
+  ///
+  /// The server writes an upload to a temporary file and renames it into place
+  /// only once it is complete, so a file that is still uploading does not exist
+  /// at its destination yet. Without the claim, a file with the same name that
+  /// is uploaded in parallel would resolve to the same path and overwrite it.
+  final Set<String> reservedPaths = {};
   _ReceiveSession(this.config);
 }
 
@@ -688,6 +695,7 @@ Future<void> _handleFileUpload({
             saveToGallery: shouldSaveToGallery,
             createdDirectories: session.createdDirectories,
             androidSdkInt: config.androidSdkInt,
+            reservedPaths: session.reservedPaths,
           );
     session.targets[fileId] = target;
   } catch (e, st) {
@@ -745,6 +753,7 @@ Future<void> _handleFileUpload({
         fileName: desiredName,
         isImage: isImage,
         createdDirectories: session.createdDirectories,
+        reservedPaths: session.reservedPaths,
       );
     } else {
       filePath = target.displayPath;

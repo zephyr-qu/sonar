@@ -5,7 +5,10 @@ import 'package:sonar/gen/assets.gen.dart';
 class SonarLogo extends StatelessWidget {
   final bool withText;
 
-  const SonarLogo({required this.withText});
+  /// Width and height of the mark (the text keeps its own type-scale size).
+  final double size;
+
+  const SonarLogo({required this.withText, this.size = 200});
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +18,8 @@ class SonarLogo extends StatelessWidget {
         BlendMode.srcATop,
       ),
       child: Assets.img.logo512.image(
-        width: 200,
-        height: 200,
+        width: size,
+        height: size,
       ),
     );
 

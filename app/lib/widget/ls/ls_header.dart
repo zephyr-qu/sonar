@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:sonar/config/design_tokens.dart';
+import 'package:sonar/widget/ls/ls_mark.dart';
 
 /// The main header of a tab: accent mark, alias, status line and actions.
 class LsScreenHeader extends StatelessWidget {
@@ -29,21 +30,11 @@ class LsScreenHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = context.ls;
-    final colors = tokens.colors;
     return Padding(
       padding: padding,
       child: Row(
         children: [
-          Container(
-            width: 30,
-            height: 30,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(color: colors.accent, borderRadius: BorderRadius.circular(tokens.radiusSm)),
-            child: IconTheme(
-              data: IconThemeData(size: 17, color: colors.accentFg),
-              child: mark,
-            ),
-          ),
+          LsMark(accent: true, iconSize: 17, child: mark),
           const SizedBox(width: 10),
           Expanded(
             child: LsHeaderTitle(
@@ -201,22 +192,76 @@ class LsSubHeader extends StatelessWidget {
 }
 
 /// The small accent dot used for the visibility / online state.
-class LsStatusDot extends StatelessWidget {
+///
+/// [pulse] makes it breathe: that is how the header and the online card say "a scan is still running"
+/// without adding a progress element to the layout. Only the glow animates, so the dot keeps its
+/// footprint and nothing around it moves.
+class LsStatusDot extends StatefulWidget {
   final bool on;
   final double size;
+  final bool pulse;
 
-  const LsStatusDot({required this.on, this.size = 6});
+  const LsStatusDot({required this.on, this.size = 6, this.pulse = false});
+
+  @override
+  State<LsStatusDot> createState() => _LsStatusDotState();
+}
+
+class _LsStatusDotState extends State<LsStatusDot> with SingleTickerProviderStateMixin {
+  late final AnimationController _breath = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(LsStatusDot oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _sync();
+  }
+
+  /// Starts and stops the breath with the flag. A stopped controller is reset, so a scan that ends
+  /// leaves the dot at its resting glow instead of freezing it half-bright.
+  void _sync() {
+    if (widget.pulse && !_breath.isAnimating) {
+      _breath.repeat(reverse: true).ignore();
+    } else if (!widget.pulse && _breath.isAnimating) {
+      _breath.stop();
+      _breath.value = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _breath.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.ls.colors;
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: on ? colors.accent : colors.faint,
-        boxShadow: on ? [BoxShadow(color: colors.accent.withValues(alpha: 0.14), spreadRadius: 3)] : null,
+    return AnimatedBuilder(
+      animation: _breath,
+      builder: (context, child) => Container(
+        width: widget.size,
+        height: widget.size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: widget.on ? colors.accent : colors.faint,
+          boxShadow: widget.on
+              ? [
+                  BoxShadow(
+                    color: colors.accent.withValues(alpha: 0.14 + 0.16 * _breath.value),
+                    spreadRadius: 3 + 4 * _breath.value,
+                  ),
+                ]
+              : null,
+        ),
       ),
     );
   }

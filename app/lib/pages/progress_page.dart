@@ -7,6 +7,7 @@ import 'package:refena_flutter/addons.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:sonar/config/design_tokens.dart';
 import 'package:sonar/gen/strings.g.dart';
+import 'package:sonar/model/state/send/send_session_state.dart';
 import 'package:sonar/model/state/server/receive_session_state.dart';
 import 'package:sonar/pages/web_share_page.dart';
 import 'package:sonar/provider/file_transfer_provider.dart';
@@ -14,10 +15,13 @@ import 'package:sonar/provider/network/send_provider.dart';
 import 'package:sonar/provider/network/server/server_provider.dart';
 import 'package:sonar/provider/settings_provider.dart';
 import 'package:sonar/util/device_type_ext.dart';
+import 'package:sonar/util/file_type_ext.dart';
 import 'package:sonar/util/native/open_folder.dart';
 import 'package:sonar/util/native/platform_check.dart';
 import 'package:sonar/util/native/taskbar_helper.dart';
 import 'package:sonar/util/notification_strings.dart';
+import 'package:sonar/util/session_progress.dart';
+import 'package:sonar/util/transfer_failure.dart';
 import 'package:sonar/widget/dialogs/cancel_session_dialog.dart';
 import 'package:sonar/widget/dialogs/error_dialog.dart';
 import 'package:sonar/widget/ls/ls_buttons.dart';
@@ -134,6 +138,25 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
         _totalBytes = _files.where((f) => _selectedFiles.contains(f.id)).fold(0, (prev, curr) => prev + curr.size);
       });
     });
+  }
+
+  /// Why this session carries an error, or null while nothing has failed.
+  ///
+  /// The card only had a chip saying that something went wrong, and a failed
+  /// file's reason was one dialog away from a row the user may never open.
+  String? _failureReason(ReceiveSessionState? receive, SendSessionState? send) {
+    if (receive != null) {
+      return transferFailureReason(
+        files: receive.files.values.map((file) => (file.file.fileName, file.errorMessage)),
+      );
+    }
+    if (send != null) {
+      return transferFailureReason(
+        sessionError: send.errorMessage,
+        files: send.files.values.map((file) => (file.file.fileName, file.errorMessage)),
+      );
+    }
+    return null;
   }
 
   void _exit({required bool closeSession}) async {
@@ -295,34 +318,41 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
           final fileStatus = transfer.status;
           final statusLabel = savedToGallery ? t.progressPage.savedToGallery : fileStatus.label;
 
-          final Widget? trailing;
-          if (sendSession != null && fileStatus == FileStatus.failed) {
-            trailing = LsIconButton(
-              icon: LucideIcons.refreshCw,
-              tooltip: t.general.restart,
-              onPressed: () => ref
-                  .notifier(sendProvider)
-                  .sendFile(
-                    sessionId: widget.sessionId,
-                    file: sendSession.files[file.id]!,
-                    isRetry: true,
+          // A failed file needs both buttons: retrying is the fix, but the
+          // reason it failed is what decides whether retrying is worth it, and
+          // the retry button used to be the only trailing widget there was.
+          final Widget? retry = sendSession != null && fileStatus == FileStatus.failed
+              ? LsIconButton(
+                  icon: LucideIcons.refreshCw,
+                  tooltip: t.general.restart,
+                  onPressed: () => ref
+                      .notifier(sendProvider)
+                      .sendFile(
+                        sessionId: widget.sessionId,
+                        file: sendSession.files[file.id]!,
+                        isRetry: true,
+                      ),
+                )
+              : null;
+          final Widget? details = errorMessage != null
+              ? LsIconButton(
+                  icon: LucideIcons.info,
+                  tooltip: t.general.error,
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (_) => ErrorDialog(error: errorMessage!),
                   ),
-            );
-          } else if (errorMessage != null) {
-            trailing = LsIconButton(
-              icon: LucideIcons.info,
-              tooltip: t.general.error,
-              onPressed: () => showDialog(
-                context: context,
-                builder: (_) => ErrorDialog(error: errorMessage!),
-              ),
-            );
-          } else {
-            trailing = null;
-          }
+                )
+              : null;
+          final Widget? trailing = retry == null && details == null
+              ? null
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [?details, ?retry],
+                );
 
           return LsFileRow(
-            kind: _kindOfFile(file),
+            kind: fileKind(file.fileName),
             name: fileName,
             meta: [
               file.size.asReadableFileSize,
@@ -465,11 +495,11 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
                               ),
                             ),
                           ),
-                          if (sendSession?.errorMessage != null)
+                          if (_failureReason(receiveSession, sendSession) case final String reason)
                             Padding(
                               padding: const EdgeInsets.only(top: 10),
                               child: SelectableText(
-                                sendSession!.errorMessage!,
+                                reason,
                                 style: tokens.bodySm.copyWith(color: colors.danger),
                               ),
                             ),
@@ -566,16 +596,6 @@ extension on FileStatus {
         return t.general.done;
     }
   }
-}
-
-String _kindOfFile(FileDto file) {
-  final name = file.fileName;
-  final dot = name.lastIndexOf('.');
-  if (dot == -1 || dot == name.length - 1) {
-    return 'FILE';
-  }
-  final kind = name.substring(dot + 1).toUpperCase();
-  return kind.length > 4 ? kind.substring(0, 4) : kind;
 }
 
 /// The summary card of the progress page: progress bar, percentage, speed and remaining time.
@@ -677,11 +697,14 @@ class _ProgressScopeState extends State<_ProgressScope> {
   }
 
   _ProgressSnapshot _compute({bool forceRemainingTime = false}) {
-    final currentBytes = widget.files.fold<int>(
-      0,
-      (prev, curr) => prev + (widget.notifier.getProgress(sessionId: widget.sessionId, fileId: curr.id) * curr.size).round(),
+    final measure = SessionProgress.measure(
+      sessionId: widget.sessionId,
+      files: widget.files.map((file) => (file.id, file.size)),
+      total: widget.totalBytes,
+      transfer: widget.notifier,
     );
-    final progress = widget.totalBytes <= 0 ? 0.0 : (currentBytes / widget.totalBytes).clamp(0.0, 1.0);
+    final currentBytes = measure.transferred;
+    final progress = measure.fraction;
 
     int? speedInBytes;
     if (widget.startTime != null && currentBytes >= 500 * 1024) {

@@ -161,17 +161,10 @@ buildTypes {
 
 Suppose we want to update flutter to `3.41.9`:
 
-1. Update flutter from fvm: `fvm use 3.41.9`
-2. Update flutter from submodule:
-   1. `git submodule update --init`
-   2. `cd support/submodules/flutter`
-   3. `git fetch`
-   4. `git checkout 3.41.9`
-   5. `cd ../../..`
-   6. `git add support/submodules/flutter`
-3. Update flutter constraints:
+1. Update flutter from fvm: `fvm use 3.41.9` (this writes `.fvmrc`)
+2. Update the flutter constraints:
    1. In CI: `.github/workflows/ci.yml`
-   2. In pubspec: `pubspec.yaml`
+   2. In the app pubspec: `app/pubspec.yaml`
 
 ### Release
 

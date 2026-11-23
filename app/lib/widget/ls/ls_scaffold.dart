@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sonar/config/design_tokens.dart';
 import 'package:sonar/widget/ls/ls_header.dart';
+import 'package:sonar/widget/ls/ls_mark.dart';
 
 class LsTabItem {
   final IconData icon;
@@ -104,16 +106,7 @@ class LsRail extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
         children: [
-          Container(
-            width: 30,
-            height: 30,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(color: colors.accent, borderRadius: BorderRadius.circular(tokens.radiusSm)),
-            child: IconTheme(
-              data: IconThemeData(size: 17, color: colors.accentFg),
-              child: mark,
-            ),
-          ),
+          LsMark(accent: true, iconSize: 17, child: mark),
           const SizedBox(height: 10),
           for (var i = 0; i < items.length; i++)
             Padding(
@@ -156,52 +149,70 @@ class LsRailButton extends StatefulWidget {
 class _LsRailButtonState extends State<LsRailButton> {
   bool _hover = false;
 
+  /// Keyboard focus highlight, so the rail can be reached with Tab.
+  bool _focused = false;
+
   @override
   Widget build(BuildContext context) {
     final tokens = context.ls;
     final colors = tokens.colors;
-    final active = widget.selected || _hover;
+    final active = widget.selected || _hover || _focused;
     final iconColor = widget.selected
         ? colors.accent
-        : _hover
+        : _hover || _focused
         ? colors.fg
         : colors.faint;
 
-    return Tooltip(
-      message: widget.label,
-      child: MouseRegion(
-        onEnter: (_) => setState(() => _hover = true),
-        onExit: (_) => setState(() => _hover = false),
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: widget.onTap,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 140),
-            curve: Curves.easeOut,
-            // 62 keeps the 10px uppercase label ("TRANSFER") on one line inside
-            // the 78px rail.
-            width: 62,
-            height: 46,
-            decoration: BoxDecoration(
-              color: active ? colors.bg3 : Colors.transparent,
-              borderRadius: tokens.tileRadius,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TweenAnimationBuilder<Color?>(
-                  duration: const Duration(milliseconds: 140),
-                  tween: ColorTween(end: iconColor),
-                  builder: (context, animated, child) => Icon(widget.icon, size: 17, color: animated),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  widget.label.toUpperCase(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: tokens.tabLabel.copyWith(color: active ? colors.fg : colors.faint),
-                ),
-              ],
+    return FocusableActionDetector(
+      shortcuts: const {
+        SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
+        SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
+      },
+      actions: {
+        ActivateIntent: CallbackAction<ActivateIntent>(
+          onInvoke: (_) {
+            widget.onTap();
+            return null;
+          },
+        ),
+      },
+      onShowFocusHighlight: (value) => setState(() => _focused = value),
+      child: Tooltip(
+        message: widget.label,
+        child: MouseRegion(
+          onEnter: (_) => setState(() => _hover = true),
+          onExit: (_) => setState(() => _hover = false),
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: widget.onTap,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 140),
+              curve: Curves.easeOut,
+              // 62 keeps the 10px uppercase label ("TRANSFER") on one line inside
+              // the 78px rail.
+              width: 62,
+              height: 46,
+              decoration: BoxDecoration(
+                color: active ? colors.bg3 : Colors.transparent,
+                borderRadius: tokens.tileRadius,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TweenAnimationBuilder<Color?>(
+                    duration: const Duration(milliseconds: 140),
+                    tween: ColorTween(end: iconColor),
+                    builder: (context, animated, child) => Icon(widget.icon, size: 17, color: animated),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    widget.label.toUpperCase(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: tokens.tabLabel.copyWith(color: active ? colors.fg : colors.faint),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

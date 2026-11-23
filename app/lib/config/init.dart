@@ -15,7 +15,6 @@ import 'package:sonar/config/refena.dart';
 import 'package:sonar/config/theme.dart';
 import 'package:sonar/pages/home_page.dart';
 import 'package:sonar/pages/home_page_controller.dart';
-import 'package:sonar/pages/whats_new_page.dart';
 import 'package:sonar/provider/animation_provider.dart';
 import 'package:sonar/provider/app_arguments_provider.dart';
 import 'package:sonar/provider/device_info_provider.dart';
@@ -42,9 +41,9 @@ import 'package:sonar/util/native/macos_channel.dart';
 import 'package:sonar/util/native/platform_check.dart';
 import 'package:sonar/util/native/tray_helper.dart';
 import 'package:sonar/util/notification_strings.dart';
-import 'package:sonar/util/ui/dynamic_colors.dart';
 import 'package:sonar/util/ui/snackbar.dart';
 import 'package:sonar/widget/dialogs/local_network_dialog.dart';
+import 'package:sonar/widget/dialogs/whats_new_dialog.dart';
 import 'package:sonar_isolates/isolate.dart';
 import 'package:sonar_isolates/model/dto/file_dto.dart';
 import 'package:sonar_isolates/model/dto/multicast_dto.dart';
@@ -83,11 +82,7 @@ Future<RefenaContainer> preInit(List<String> args) async {
     }
   }
 
-  final dynamicColors = await getDynamicColors();
-
-  final persistenceService = await PersistenceService.initialize(
-    supportsDynamicColors: dynamicColors != null,
-  );
+  final persistenceService = await PersistenceService.initialize();
 
   if (persistenceService.isFirstAppStart && !persistenceService.isPortableMode()) {
     await enableContextMenu();
@@ -155,7 +150,6 @@ Future<RefenaContainer> preInit(List<String> args) async {
       deviceRawInfoProvider.overrideWithValue(await getDeviceInfo()),
       appArgumentsProvider.overrideWithValue(args),
       tvProvider.overrideWithValue(await checkIfTv()),
-      dynamicColorsProvider.overrideWithValue(dynamicColors),
       sleepProvider.overrideWithInitialState((ref) => startHidden),
     ],
     platformHint: RefenaScope.getPlatformHint(), // help Refena know the correct platform
@@ -312,10 +306,9 @@ Future<void> postInit(BuildContext context, Ref ref, bool appStart) async {
   }
 
   if (!ref.read(persistenceProvider).isFirstAppStart) {
-    WhatsNewPage? whatsNew = WhatsNewPage.fromLastVersion(lastVersion: ref.read(persistenceProvider).getWhatsNew());
-    if (whatsNew != null) {
-      // ignore: unawaited_futures
-      ref.global.dispatchAsync(NavigateAction.push(whatsNew));
+    final WhatsNewDialog? whatsNew = WhatsNewDialog.fromLastVersion(lastVersion: ref.read(persistenceProvider).getWhatsNew());
+    if (whatsNew != null && context.mounted) {
+      unawaited(WhatsNewDialog.open(context, whatsNew));
     }
   }
 

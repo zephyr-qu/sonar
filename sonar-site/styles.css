@@ -291,51 +291,67 @@ a { color: inherit; }
 }
 
 /* ──────────────────────────── 界面截图 ──────────────────────────── */
-.shot-row {
+.ui-stage {
   display: grid;
-  grid-template-columns: 318px minmax(0, 1fr);   /* 定死图宽：auto 会被图片固有宽度（659px）撑开 */
-  gap: 52px;
-  align-items: center;
-  max-width: 900px;          /* 让图与文字成为一个整体，而不是分居两端 */
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 30px 40px;
+  align-items: start;
+  max-width: 1000px;
   margin: 30px auto 0;
 }
-.shot { margin: 0 auto; position: relative; width: 100%; }
-/* App 截图本身是深色底，直接放黑底上会整块消失；给一圈极细的机身边框 + 冷光 */
-.shot::before {
+.shot-desktop {
+  position: relative;
+  grid-column: 1 / -1;
+}
+/* 截图自带浏览器外框，所以只在外面加一圈光晕，不再套设备壳 */
+.shot-desktop::before,
+.web-shot::before {
   content: "";
   position: absolute;
-  inset: -34px -44px;
-  border-radius: 44px;
-  background: radial-gradient(closest-side, rgba(198, 242, 78, .1), transparent 74%);
+  inset: -26px 0;
+  border-radius: 32px;
+  background: radial-gradient(closest-side, rgba(198, 242, 78, .08), transparent 72%);
   pointer-events: none;
 }
-.shot picture {
+.shot-desktop picture,
+.web-shot picture {
   position: relative;
   display: block;
-  padding: 9px;
-  border-radius: 26px;
-  border: 1px solid rgba(255, 255, 255, .11);
-  background: linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02));
-  box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .95), inset 0 1px 0 rgba(255, 255, 255, .06);
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  background: #0b0c0f;
+  box-shadow: 0 40px 80px -48px rgba(0, 0, 0, .95), inset 0 1px 0 rgba(255, 255, 255, .05);
 }
-.shot img {
+.shot-desktop img,
+.web-shot img,
+.shot-mobile img {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 18px;
-  /* 截图自带手机边框，四角之外的底色与页面底色一致，不需要再裁圆角 */
 }
-.shot figcaption {
-  margin-top: 14px;
-  font-family: var(--display);   /* 说明里有中文，mono 会掉回退字体 */
+/* 手机压在桌面图下沿一点，形成一层景深；不要旋转，保持工具感 */
+.shot-mobile {
+  position: relative;
+  z-index: 2;
+  grid-column: 1;
+  grid-row: 2;
+  margin: -56px 0 0;
+  filter: drop-shadow(0 30px 50px rgba(0, 0, 0, .65));
+}
+.shot-mobile img { border-radius: 18px; }
+.shot-mobile figcaption,
+.web-shot figcaption {
+  margin-top: 12px;
   font-size: 11px;
   color: var(--muted-2);
   text-align: center;
-  width: 100%;
 }
 .shot-points {
+  grid-column: 2;
+  grid-row: 2;
   list-style: none;
-  margin: 0;
+  margin: -4px 0 0;
   padding: 0;
   display: grid;
   gap: 20px;
@@ -357,78 +373,18 @@ a { color: inherit; }
 .shot-points span { color: var(--muted); font-size: 14.5px; }
 
 @media (max-width: 860px) {
-  .shot-row { grid-template-columns: 1fr; gap: 32px; justify-items: center; text-align: center; }
-  .shot-points { max-width: 40ch; text-align: left; }
-  .shot-points li { padding-left: 18px; }
-  .shot { max-width: 318px; }
+  .ui-stage { grid-template-columns: 1fr; gap: 22px; }
+  .shot-desktop, .shot-mobile, .shot-points { grid-column: 1; grid-row: auto; }
+  .shot-mobile { width: 260px; margin: -28px auto 0; }
+  .shot-points { max-width: 44ch; margin: 0 auto; text-align: left; }
 }
 
-/* ─────────────────────── 链接接收（浏览器窗口） ─────────────────────── */
-/* 和手机截图配成一对：竖版讲 App 里看到什么，横版讲对面打开的那一页 */
-.win {
-  max-width: 720px;
-  margin: 34px auto 0;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, .11);
-  background: linear-gradient(180deg, rgba(255, 255, 255, .055), rgba(255, 255, 255, .015));
-  box-shadow: 0 40px 90px -46px rgba(0, 0, 0, .95), inset 0 1px 0 rgba(255, 255, 255, .06);
-  overflow: hidden;
-  user-select: none;
+/* ───────────────────────── 链接接收（网页截图） ───────────────────────── */
+.web-shot {
+  position: relative;
+  max-width: 900px;
+  margin: 30px auto 0;
 }
-.win-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 14px;
-  border-bottom: 1px solid var(--line);
-  background: rgba(255, 255, 255, .02);
-}
-.win-dots { display: flex; gap: 6px; }
-.win-dots i { width: 9px; height: 9px; border-radius: 50%; background: rgba(255, 255, 255, .18); }
-.win-url {
-  flex: 1;
-  min-width: 0;
-  padding: 5px 12px;
-  border-radius: 7px;
-  border: 1px solid var(--line);
-  background: rgba(0, 0, 0, .38);
-  font-size: 11px;
-  color: var(--muted-2);
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.win-body { padding: 20px 20px 22px; }
-.win-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
-.win-sender { font-weight: 600; font-size: 15px; }
-.win-count { font-size: 11px; color: var(--muted-2); }
-.win-files { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 8px; }
-.win-files li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 11px 14px;
-  border-radius: 10px;
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, .025);
-}
-.win-name { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.win-size { font-size: 11px; color: var(--muted-2); flex: none; }
-.win-cta {
-  pointer-events: none;      /* 这是示意图，别当成真按钮去点 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 40px;
-  border-radius: 10px;
-  background: var(--lime);
-  color: #10130a;
-  font-weight: 600;
-  font-size: 14px;
-}
-
 /* ─────────────────────────────── sections ─────────────────────────────── */
 .section {
   max-width: var(--maxw);
@@ -574,17 +530,9 @@ a { color: inherit; }
   .cta { padding: 56px var(--gut) 64px; }
   .chips li { padding: 8px 15px; font-size: 13px; }
   .card, .steps li, .tech-item { padding: 18px 18px 20px; }
-  .shot picture { padding: 7px; border-radius: 22px; }
-  .shot img { border-radius: 16px; }
-  .shot::before { inset: -22px; }
   .hero-radar { max-width: 220px; }
   /* 仅 hero 的第三个按钮独占一行；CTA 现在只有两个按钮，保持同一行 */
   .hero .hero-actions .btn:last-child { flex: 1 1 100%; }
-  .win-body { padding: 14px 14px 16px; }
-  .win-files li { padding: 9px 11px; }
-  .win-url { font-size: 10px; }
-  .win-head { margin-bottom: 12px; }
-  .win-sender { font-size: 14px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

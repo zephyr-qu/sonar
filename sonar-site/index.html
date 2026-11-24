@@ -104,30 +104,38 @@
   <section id="ui" class="section reveal">
     <p class="eyebrow eyebrow-cn">界面</p>
     <h2>附近的设备自动出现</h2>
-    <p class="section-sub">无需输入 IP，无需扫码。</p>
+    <p class="section-sub">无需输入 IP，无需扫码。桌面与手机看到的是同一组设备。</p>
 
-    <div class="shot-row">
-      <figure class="shot">
+    <div class="ui-stage">
+      <div class="shot-desktop">
         <picture>
-          <source srcset="assets/shots/nearby.webp" type="image/webp">
-          <img src="assets/shots/nearby.png" width="659" height="1357" loading="lazy" decoding="async"
-               alt="Sonar 的附近页面：雷达上排布着同网段的六台设备，下方是待发送的三个文件">
+          <source srcset="assets/shots/nearby-desktop.webp" type="image/webp">
+          <img src="assets/shots/nearby-desktop.png" width="1450" height="640" loading="lazy" decoding="async"
+               alt="Sonar 桌面端附近页：设备按距离排布，右侧是三个待发送文件，共 24.6 MB">
         </picture>
-        <figcaption>附近页 6 / 9 台在线</figcaption>
+      </div>
+
+      <figure class="shot-mobile">
+        <picture>
+          <source srcset="assets/shots/nearby-mobile.webp" type="image/webp">
+          <img src="assets/shots/nearby-mobile.png" width="500" height="880" loading="lazy" decoding="async"
+               alt="Sonar 手机端附近页：雷达上排布着附近设备，底部显示正在从 MacBook Pro 接收文件，进度 42%">
+        </picture>
+        <figcaption>手机端 · 接收中</figcaption>
       </figure>
 
       <ul class="shot-points">
         <li>
-          <strong>按距离排列</strong>
-          <span>近处设备显示在雷达上，较远设备列入下方列表，避免堆叠。</span>
+          <strong>在线设备排在前面</strong>
+          <span>在线设备按距离呈现在雷达或卡片中，离线设备单独收在下方，不干扰选择。</span>
         </li>
         <li>
-          <strong>拖拽发送</strong>
-          <span>将文件拖到设备上即可发送，也可选中设备后再选择文件，无需预先建立连接。</span>
+          <strong>发送列表一目了然</strong>
+          <span>选中设备后，右侧实时显示待发送文件、总大小和发送按钮。</span>
         </li>
         <li>
-          <strong>批量发送</strong>
-          <span>图片、设计稿、PDF 可同时加入待发送列表，接收方一次确认即可。</span>
+          <strong>传输进度可见</strong>
+          <span>手机端持续显示接收来源、进度与状态，随时知道文件到了哪一步。</span>
         </li>
       </ul>
     </div>
@@ -144,25 +152,16 @@
   <section id="web" class="section reveal">
     <p class="eyebrow eyebrow-cn">链接接收</p>
     <h2>浏览器中的接收页面</h2>
+    <p class="section-sub">开启「链接接收」后生成局域网地址，对方用任意浏览器打开即可逐个下载文件。</p>
 
-    <div class="win" role="img" aria-label="链接接收页面：浏览器里列出待接收的三个文件，底部是下载全部按钮">
-      <div class="win-bar">
-        <span class="win-dots"><i></i><i></i><i></i></span>
-        <span class="win-url mono">http://192.168.1.17:53317</span>
-      </div>
-      <div class="win-body">
-        <div class="win-head">
-          <span class="win-sender">Kai's iPhone</span>
-          <span class="win-count">3 个文件</span>
-        </div>
-        <ul class="win-files">
-          <li><span class="win-name">IMG_2481.HEIC</span><span class="win-size mono">4.1 MB</span></li>
-          <li><span class="win-name">海报终稿-v3.fig</span><span class="win-size mono">8.9 MB</span></li>
-          <li><span class="win-name">报账单-10月.pdf</span><span class="win-size mono">1.2 MB</span></li>
-        </ul>
-        <span class="win-cta">下载全部</span>
-      </div>
-    </div>
+    <figure class="web-shot">
+      <picture>
+        <source srcset="assets/shots/web-download.webp" type="image/webp">
+        <img src="assets/shots/web-download.png" width="1450" height="640" loading="lazy" decoding="async"
+             alt="浏览器中的 Sonar 接收页面：地址栏为 192.168.1.24:53317，页面列出 6 个共享文件，每个文件右侧有独立下载按钮">
+      </picture>
+      <figcaption>6 个文件，逐个下载——接收方无需安装应用</figcaption>
+    </figure>
   </section>
 
   <!-- ─────────────────────────── features ─────────────────────────── -->

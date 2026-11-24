@@ -3,51 +3,51 @@
 </p>
 
 <p align="center">
-  <strong>Send files across your own network.</strong><br>
-  No account, no cloud, no size limit.
+  <strong>Transfer files within your own local network.</strong><br>
+  No account, no cloud dependency, no file-size limit.
 </p>
 
 <p align="center">
   <a href="https://www.zephyrqu.top/sonar/"><strong>Download</strong></a> ·
-  Apache-2.0 · Flutter + Rust · protocol v2 (LocalSend compatible) ·
+  Apache-2.0 · Flutter + Rust · protocol v2 (LocalSend-compatible) ·
   <a href="support/readme/README_ZH.md">中文</a>
 </p>
 
 ---
 
-Sonar is a personal fork of [LocalSend](https://localsend.org): we kept its networking layer and rebuilt the app. It still speaks protocol v2, so it works with LocalSend devices on the same LAN.
+Sonar is a personal fork of [LocalSend](https://localsend.org): it retains the upstream networking layer with a redesigned interface. Protocol v2 compatibility is preserved. Direct transfers with LocalSend devices on the same LAN are supported.
 
 <p align="center">
-  <img src="sonar-site/assets/shots/nearby.png" alt="Sonar's nearby page: devices arranged on a radar, with the send tray below" height="320">
+  <img src="sonar-site/assets/intro-en.png" alt="Sonar desktop and mobile nearby pages on a local network" width="1200">
 </p>
 
 ## Features
 
-- Devices on your LAN show up automatically: nearby ones on a radar, the rest in a searchable list.
-- Drop files onto a device, or pick the device first; you can queue several receivers.
-- The other side has no app? Enable *receive via link* and share a browser URL.
-- Every transfer uses TLS with mutual certificate checks; a device is identified by its certificate SHA-256.
-- Set auto-accept per device, pin favourites for quick dialling, and see every transfer in one history.
+- Devices on the LAN are discovered automatically: nearby devices appear on a radar; others are listed for search.
+- Files can be dropped onto a device, or a device can be selected first; multiple recipients can be queued.
+- When the recipient has no app installed, enable *receive via link* and share the browser URL.
+- All transfers use TLS with mutual certificate verification; device identity is derived from the certificate SHA-256 fingerprint.
+- Auto-accept can be configured per device; favourites can be pinned for quick access; all transfers are recorded in a unified history.
 
 ## Platforms
 
-Official builds: Windows and Android. For macOS, Linux and iOS, build it yourself.
-Any two installed apps can talk; browsers can only receive through *receive via link*. 
+Official builds are provided for Windows and Android; macOS, Linux, and iOS require building from source.
+Installed apps can exchange files with one another; browsers can only receive files through *receive via link*.
 
-Port `53317`(TCP and UDP) must be reachable on the LAN.
+Port `53317` (TCP and UDP) must be reachable on the LAN.
 
 ## Troubleshooting
 
-- **No devices listed:** check AP isolation, Windows' "Public" profile, VPNs, and Local Network permission on macOS/iOS. You can still type the peer's IP.
-- **One pair fails:** port 53317 is blocked, e.g. `sudo ufw allow 53317`.
-- **Slow transfers:** use 5 GHz and turn encryption off on both ends.
+- **No devices listed:** verify AP isolation, the Windows "Public" network profile, VPN interference, and Local Network permission on macOS/iOS. Manual peer IP entry remains available.
+- **A specific pair fails:** port 53317 is blocked; for example, run `sudo ufw allow 53317`.
+- **Low transfer speed:** use the 5 GHz band and disable encryption on both endpoints.
 
 ## About this fork
 
-This is a personal, one-off redesign: desktop-first UI, accessibility fixes, no CLI, F-Droid-style builds. The networking crate (`packages/core`) still tracks upstream commit by commit; the app (`app/`) doesn't. The protocol stays compatible. Issues and PRs may go unanswered.
+This is a personal, one-off redesign with a desktop-first interface, accessibility improvements, and no command-line interface. The networking crate (`packages/core`) continues to track upstream commit by commit. Protocol compatibility is maintained. Issues and pull requests may not receive a response.
 
 ## License
 
 Apache-2.0. Original work © Tien Do Nam and the [LocalSend contributors](https://github.com/localsend/localsend/graphs/contributors);
-redesign and modifications © 2026 [Zephyr](https://github.com/zephyr-qu). 
+redesign and derivative development © 2026 [Zephyr](https://github.com/zephyr-qu).
 Bundled fonts are under the SIL Open Font License; see [NOTICE](NOTICE).
